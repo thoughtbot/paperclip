@@ -304,3 +304,55 @@
 [0m
   [4;36;1mSQL (0.000451)[0m   [0;1mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
   [4;35;1mSQL (0.000495)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000000)[0m   [0;1mSQLite3::SQLException: table foos already exists: CREATE TABLE foos ("id" INTEGER PRIMARY KEY NOT NULL, "image_file_name" varchar(255) DEFAULT NULL, "image_content_type" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000648)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mFoo Destroy (0.000453)[0m   [0;1m DELETE FROM foos
+ WHERE id = 3
+[0m
+  [4;35;1mSQL (0.000567)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mSQL (0.000520)[0m   [0;1mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;35;1mSQL (0.000581)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mBar Destroy (0.000439)[0m   [0;1m DELETE FROM bars
+ WHERE id = 3
+[0m
+  [4;35;1mSQL (0.000420)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000442)[0m   [0;1mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000000)[0m   [0;1mSQLite3::SQLException: table foos already exists: CREATE TABLE foos ("id" INTEGER PRIMARY KEY NOT NULL, "image_file_name" varchar(255) DEFAULT NULL, "image_content_type" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000611)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mFoo Destroy (0.000472)[0m   [0;1m DELETE FROM foos
+ WHERE id = 5
+[0m
+  [4;35;1mSQL (0.000478)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mSQL (0.000600)[0m   [0;1mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;35;1mSQL (0.000529)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mBar Destroy (0.000442)[0m   [0;1m DELETE FROM bars
+ WHERE id = 5
+[0m
+  [4;35;1mSQL (0.000619)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000440)[0m   [0;1mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000000)[0m   [0;1mSQLite3::SQLException: table foos already exists: CREATE TABLE foos ("id" INTEGER PRIMARY KEY NOT NULL, "image_file_name" varchar(255) DEFAULT NULL, "image_content_type" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000613)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mFoo Destroy (0.000430)[0m   [0;1m DELETE FROM foos
+ WHERE id = 7
+[0m
+  [4;35;1mSQL (0.000461)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mSQL (0.000472)[0m   [0;1mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;35;1mSQL (0.000498)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mBar Destroy (0.000436)[0m   [0;1m DELETE FROM bars
+ WHERE id = 7
+[0m
+  [4;35;1mSQL (0.000452)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000447)[0m   [0;1mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000000)[0m   [0;1mSQLite3::SQLException: table foos already exists: CREATE TABLE foos ("id" INTEGER PRIMARY KEY NOT NULL, "image_file_name" varchar(255) DEFAULT NULL, "image_content_type" varchar(255) DEFAULT NULL) [0m
+  [4;35;1mSQL (0.000719)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mFoo Destroy (0.000398)[0m   [0;1m DELETE FROM foos
+ WHERE id = 9
+[0m
+  [4;35;1mSQL (0.000482)[0m   [0mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;36;1mSQL (0.000611)[0m   [0;1mINSERT INTO foos ("image_content_type", "image_file_name") VALUES('image/jpg', 'test_image.jpg')[0m
+  [4;35;1mSQL (0.000506)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mBar Destroy (0.000414)[0m   [0;1m DELETE FROM bars
+ WHERE id = 9
+[0m
+  [4;35;1mSQL (0.000548)[0m   [0mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m
+  [4;36;1mSQL (0.000462)[0m   [0;1mINSERT INTO bars ("document_file_name", "document_content_type") VALUES('test_document.doc', 'application/doc')[0m

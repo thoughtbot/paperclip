@@ -26,6 +26,11 @@ class PaperclipTest < Test::Unit::TestCase
     assert @bar.valid?
   end
   
+  def test_should_default_to_original_for_path_and_url
+    assert_equal @bar.document_filename(:original), @bar.document_filename
+    assert_equal @bar.document_url(:original), @bar.document_url
+  end
+  
   def test_should_delete_files_on_destroy
     assert @bar.save
     assert File.exists?( @bar.document_filename )

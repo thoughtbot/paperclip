@@ -1,7 +1,7 @@
 Paperclip
 =========
 
-Paperclip is a lightweight attachment manager for ActiveRecord. It saves and manages your attachments be they images or Word Doc with one line of code. You can automatically thumbnail images as they're uploaded, and you don't have to worry about installing any ruby-specific libraries. You don't have to worry about compiling headaches with RMagick, concurrency issues and race conditions with MiniMagick, or unsupported image types with ImageScience. All you need is a working Image- or GraphicsMagick installation.
+Paperclip is a lightweight attachment manager for ActiveRecord. It saves and manages your attachments, be they images or Word Docs, with one line of code. You can automatically thumbnail images as they're uploaded, and you don't have to worry about installing any ruby-specific libraries. You don't have to worry about compiling headaches with RMagick, concurrency issues and race conditions with MiniMagick, or unsupported image types with ImageScience. All you need is a working Image- or GraphicsMagick installation -- the convert command is all you need.
 
 Paperclip uses the filesystem to save your files. You specify a root that the files will be saved to, and, if you're attaching images, any other formats they need to be converted to, and they'll all be saved to the right place when your object saves. They can even validate beforehand, so you'll know if your user tries to upload an HTML doc as an image.
 
@@ -14,7 +14,7 @@ class Photo < ActiveRecord::Base
   has_attached_file :image, :thumbnails => { :medium => "300x300>", :thumb => "100x100>" }
 end
 
-In your view:
+In your edit and new views:
 
 <% form_for :photo, @photo, :url => photo_path do |form| %>
   <%= form.file_field :image %>
@@ -25,3 +25,9 @@ In your controller:
 def create
   @photo = Photo.create( params[:photo] )
 end
+
+In your show view:
+
+<%= image_path @photo.image_url(:original) %>
+<%= image_path @photo.image_url(:medium) %>
+<%= image_path @photo.image_url(:thumb) %>

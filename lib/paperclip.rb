@@ -84,7 +84,7 @@ module Thoughtbot
 
     module InstanceMethods
       
-      def path_for attachment, style
+      def path_for attachment, style = :original
         prefix = File.join(attachment[:path_prefix], attachment[:path])
         prefix.gsub!(/:rails_root/, RAILS_ROOT)
         prefix.gsub!(/:id/, self.id.to_s) if self.id
@@ -93,7 +93,7 @@ module Thoughtbot
         File.join( prefix.split("/"), read_attribute("#{attachment[:name]}_file_name") )
       end
       
-      def url_for attachment, style
+      def url_for attachment, style = :original
         prefix = File.join(attachment[:url_prefix], attachment[:path])
         prefix.gsub!(/:rails_root/, RAILS_ROOT)
         prefix.gsub!(/:id/, self.id.to_s) if self.id

@@ -23,9 +23,9 @@ class PaperclipImagesTest < Test::Unit::TestCase
     assert File.size?(   @foo.image_filename(:original) )
     assert File.size?(   @foo.image_filename(:medium) )
     assert File.size?(   @foo.image_filename(:thumb) )
-    `identify '#{@foo.image_filename(:original)}'`; assert $?.exitstatus == 0
-    `identify '#{@foo.image_filename(:medium)}'`; assert $?.exitstatus == 0
-    `identify '#{@foo.image_filename(:thumb)}'`; assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_filename(:original)}'`; assert out.match("405x375"); assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_filename(:medium)}'`;   assert out.match("300x278"); assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_filename(:thumb)}'`;    assert out.match("100x93");  assert $?.exitstatus == 0
   end
 
   def test_should_validate_to_make_sure_the_thumbnails_exist
