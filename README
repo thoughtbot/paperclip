@@ -28,6 +28,8 @@ end
 
 In your show view:
 
-<%= image_path @photo.image_url(:original) %>
-<%= image_path @photo.image_url(:medium) %>
-<%= image_path @photo.image_url(:thumb) %>
+<%= image_tag @photo.image_url %>
+<%= image_tag @photo.image_url(:original) %>
+<%= image_tag @photo.image_url(:medium) %>
+<%= image_tag @photo.image_url(:thumb) %>
+
