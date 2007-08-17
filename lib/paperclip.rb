@@ -21,6 +21,7 @@ module Thoughtbot
           attachments[attr] = (attachments[attr] || {:name => attr}).merge(options)
 
           define_method "#{attr}=" do |uploaded_file|
+            return unless is_a_file? uploaded_file
             attachments[attr].merge!({
               :dirty        => true,
               :files        => {:original => uploaded_file},
@@ -37,6 +38,10 @@ module Thoughtbot
             end
 
             uploaded_file
+          end
+          
+          define_method attr do
+            self.send("#{attr}_file_name")
           end
           
           define_method "#{attr}_attachment" do
@@ -60,10 +65,16 @@ module Thoughtbot
                 File.file?( path_for(attachments[attr], style))
             end
           end
+          
+          define_method "destroy_#{attr}" do
+            if attachments[attr].keys.any?
+              delete_attachment attachments[attr]
+            end
+          end
 
           define_method "#{attr}_after_save" do
             if attachments[attr].keys.any?
-              write_attachment attachments[attr]
+              write_attachment attachments[attr] if attachments[attr][:files]
               attachments[attr][:dirty] = false
               attachments[attr][:files] = nil
             end
@@ -84,6 +95,8 @@ module Thoughtbot
 
     module InstanceMethods
       
+      private
+      
       def path_for attachment, style = :original
         prefix = File.join(attachment[:path_prefix], attachment[:path])
         prefix.gsub!(/:rails_root/, RAILS_ROOT)
@@ -103,7 +116,7 @@ module Thoughtbot
       end
       
       def ensure_directories_for attachment
-        attachment[:files].keys.each do |style|
+        attachment[:files].each do |style, file|
           dirname = File.dirname(path_for(attachment, style))
           FileUtils.mkdir_p dirname
         end
@@ -121,12 +134,15 @@ module Thoughtbot
       
       def delete_attachment attachment
         (attachment[:thumbnails].keys + [:original]).each do |style|
-          FileUtils.rm path_for(attachment, style)
+          file_path = path_for(attachment, style)
+          FileUtils.rm(file_path)
         end
+        self.update_attribute "#{attachment[:name]}_file_name", nil
+        self.update_attribute "#{attachment[:name]}_content_type", nil
       end
 
       def make_thumbnail orig_io, geometry
-        thumb = IO.popen("convert - -scale '#{geometry}' - > /dev/stdout", "w+") do |io|
+        thumb = IO.popen("convert - -scale '#{geometry}' -", "w+") do |io|
           orig_io.rewind
           io.write(orig_io.read)
           io.close_write
@@ -134,6 +150,12 @@ module Thoughtbot
         end
         raise "Convert returned with result code #{$?.exitstatus}." unless $?.success?
         StringIO.new(thumb)
+      end
+      
+      def is_a_file? data
+        [:size, :content_type, :original_filename].map do |meth|
+          data.respond_to? meth
+        end.all?
       end
 
       def sanitize_filename filename
@@ -154,6 +176,10 @@ module Thoughtbot
       
       def original_filename
         self.path
+      end
+      
+      def size
+        File.size(self)
       end
     end
   end

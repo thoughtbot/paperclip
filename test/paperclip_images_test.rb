@@ -17,9 +17,9 @@ class PaperclipImagesTest < Test::Unit::TestCase
 
   def test_should_save_the_file_and_its_thumbnails
     assert @foo.save
-    assert File.exists?( @foo.image_filename(:original) )
-    assert File.exists?( @foo.image_filename(:medium) )
-    assert File.exists?( @foo.image_filename(:thumb) )
+    assert File.exists?( @foo.image_filename(:original) ), @foo.image_filename(:original)
+    assert File.exists?( @foo.image_filename(:medium) ), @foo.image_filename(:medium)
+    assert File.exists?( @foo.image_filename(:thumb) ), @foo.image_filename(:thumb)
     assert File.size?(   @foo.image_filename(:original) )
     assert File.size?(   @foo.image_filename(:medium) )
     assert File.size?(   @foo.image_filename(:thumb) )
@@ -36,10 +36,9 @@ class PaperclipImagesTest < Test::Unit::TestCase
   
   def test_should_delete_all_thumbnails_on_destroy
     assert @foo.save
+    names = [:original, :medium, :thumb].map{|style| @foo.image_filename(style) }
     assert @foo.destroy
-    assert !File.exists?( @foo.image_filename(:original) )
-    assert !File.exists?( @foo.image_filename(:medium) )
-    assert !File.exists?( @foo.image_filename(:thumb) )
+    names.each {|path| assert !File.exists?( path ), path }
   end
   
 end

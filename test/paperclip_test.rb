@@ -33,10 +33,11 @@ class PaperclipTest < Test::Unit::TestCase
   
   def test_should_delete_files_on_destroy
     assert @bar.save
-    assert File.exists?( @bar.document_filename )
+    assert File.exists?( @bar.document_filename ), @bar.document_filename
     
+    document_filename = @bar.document_filename
     assert @bar.destroy
-    assert !File.exists?( @bar.document_filename )
+    assert !File.exists?( document_filename ), document_filename
   end
 
 end
