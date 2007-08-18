@@ -50,12 +50,12 @@ module Thoughtbot
           
           define_method "#{attr}_filename" do |*args|
             style = args.shift || :original # This prevents arity warnings
-            path_for attachments[attr], style
+            self["#{attr}_file_name"] ? path_for(attachments[attr], style) : ""
           end
           
           define_method "#{attr}_url" do |*args|
             style = args.shift || :original # This prevents arity warnings
-            url_for attachments[attr], style
+            self["#{attr}_file_name"] ? url_for(attachments[attr], style) : ""
           end
           
           define_method "#{attr}_valid?" do
@@ -103,7 +103,7 @@ module Thoughtbot
         prefix.gsub!(/:id/, self.id.to_s) if self.id
         prefix.gsub!(/:class/, self.class.to_s.underscore)
         prefix.gsub!(/:style/, style.to_s)
-        File.join( prefix.split("/"), read_attribute("#{attachment[:name]}_file_name") )
+        File.join( prefix.split("/"), read_attribute("#{attachment[:name]}_file_name").to_s )
       end
       
       def url_for attachment, style = :original
@@ -112,7 +112,7 @@ module Thoughtbot
         prefix.gsub!(/:id/, self.id.to_s) if self.id
         prefix.gsub!(/:class/, self.class.to_s.underscore)
         prefix.gsub!(/:style/, style.to_s)
-        File.join( prefix.split("/"), read_attribute("#{attachment[:name]}_file_name") )
+        File.join( prefix.split("/"), read_attribute("#{attachment[:name]}_file_name").to_s )
       end
       
       def ensure_directories_for attachment
@@ -135,7 +135,11 @@ module Thoughtbot
       def delete_attachment attachment
         (attachment[:thumbnails].keys + [:original]).each do |style|
           file_path = path_for(attachment, style)
-          FileUtils.rm(file_path)
+          begin
+            FileUtils.rm(file_path)
+          rescue Errno::ENOENT
+            raise if ::Thoughtbot::Paperclip.whiny_deletes?
+          end
         end
         self.update_attribute "#{attachment[:name]}_file_name", nil
         self.update_attribute "#{attachment[:name]}_content_type", nil
@@ -181,6 +185,10 @@ module Thoughtbot
       def size
         File.size(self)
       end
+    end
+    
+    def self.whiny_deletes?
+      false
     end
   end
 end
