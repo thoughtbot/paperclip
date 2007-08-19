@@ -17,15 +17,15 @@ class PaperclipImagesTest < Test::Unit::TestCase
 
   def test_should_save_the_file_and_its_thumbnails
     assert @foo.save
-    assert File.exists?( @foo.image_filename(:original) ), @foo.image_filename(:original)
-    assert File.exists?( @foo.image_filename(:medium) ), @foo.image_filename(:medium)
-    assert File.exists?( @foo.image_filename(:thumb) ), @foo.image_filename(:thumb)
-    assert File.size?(   @foo.image_filename(:original) )
-    assert File.size?(   @foo.image_filename(:medium) )
-    assert File.size?(   @foo.image_filename(:thumb) )
-    out = `identify '#{@foo.image_filename(:original)}'`; assert out.match("405x375"); assert $?.exitstatus == 0
-    out = `identify '#{@foo.image_filename(:medium)}'`;   assert out.match("300x278"); assert $?.exitstatus == 0
-    out = `identify '#{@foo.image_filename(:thumb)}'`;    assert out.match("100x93");  assert $?.exitstatus == 0
+    assert File.exists?( @foo.image_file_name(:original) ), @foo.image_file_name(:original)
+    assert File.exists?( @foo.image_file_name(:medium) ), @foo.image_file_name(:medium)
+    assert File.exists?( @foo.image_file_name(:thumb) ), @foo.image_file_name(:thumb)
+    assert File.size?(   @foo.image_file_name(:original) )
+    assert File.size?(   @foo.image_file_name(:medium) )
+    assert File.size?(   @foo.image_file_name(:thumb) )
+    out = `identify '#{@foo.image_file_name(:original)}'`; assert out.match("405x375"); assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:medium)}'`;   assert out.match("300x278"); assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:thumb)}'`;    assert out.match("100x93");  assert $?.exitstatus == 0
   end
 
   def test_should_validate_to_make_sure_the_thumbnails_exist
@@ -36,7 +36,7 @@ class PaperclipImagesTest < Test::Unit::TestCase
   
   def test_should_delete_all_thumbnails_on_destroy
     assert @foo.save
-    names = [:original, :medium, :thumb].map{|style| @foo.image_filename(style) }
+    names = [:original, :medium, :thumb].map{|style| @foo.image_file_name(style) }
     assert @foo.destroy
     names.each {|path| assert !File.exists?( path ), path }
   end
