@@ -34,7 +34,7 @@ module Thoughtbot #:nodoc:
     DEFAULT_ATTACHMENT_OPTIONS = {
       :path_prefix       => ":rails_root/public",
       :url_prefix        => "",
-      :path              => ":class/:id/:style_:name",
+      :path              => ":attachment/:id/:style_:name",
       :attachment_type   => :image,
       :thumbnails        => {},
       :delete_on_destroy => true
@@ -215,13 +215,16 @@ module Thoughtbot #:nodoc:
     module InstanceMethods #:nodoc:
       private
       def interpolate attachment, prefix_type, style
+        file_name = read_attribute("#{attachment[:name]}_file_name")
+        return "" unless file_name && self.id
+        
         returning "#{attachment[prefix_type]}/#{attachment[:path]}" do |prefix|
           prefix.gsub!(/:rails_root/, RAILS_ROOT)
           prefix.gsub!(/:id/, self.id.to_s) if self.id
           prefix.gsub!(/:class/, self.class.to_s.underscore.pluralize)
           prefix.gsub!(/:style/, style.to_s)
           prefix.gsub!(/:attachment/, attachment[:name].to_s.pluralize)
-          prefix.gsub!(/:name/, attachment[:filename])
+          prefix.gsub!(/:name/, file_name)
         end
       end
       
@@ -230,7 +233,7 @@ module Thoughtbot #:nodoc:
         return nil unless file
          
         prefix = interpolate attachment, :path_prefix, style
-        File.join( prefix.split("/").reject(&:blank?) )
+        File.join( prefix.split("/") )
       end
       
       def url_for attachment, style = :original
