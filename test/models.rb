@@ -30,12 +30,15 @@ end
 class NonStandard < ActiveRecord::Base
   has_attached_file :resume, :attachment_type => :document,
                     :path_prefix => "/tmp",
-                    :path => ":attachment_:id_:name"
+                    :path => ":attachment_:id_:name",
+                    :missing_url => "/:class/:style/:attachment/404.txt"
   has_attached_file :avatar, :attachment_type => :image,
                     :thumbnails => { :cropped => "200x10#",
                                      :bigger  => "1000x1000",
                                      :smaller => "200x200>",
                                      :square  => "150x150#" },
                     :path_prefix => "./repository",
-                    :path => ":class/:attachment/:id/:style_:name"
+                    :path => ":class/:attachment/:id/:style_:name",
+                    :default_style => :square,
+                    :missing_url => "/:class/:style/:attachment/404.png"
 end

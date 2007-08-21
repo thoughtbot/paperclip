@@ -37,7 +37,10 @@ module Thoughtbot #:nodoc:
       :path              => ":attachment/:id/:style_:name",
       :attachment_type   => :image,
       :thumbnails        => {},
-      :delete_on_destroy => true
+      :delete_on_destroy => true,
+      :default_style     => :original,
+      :missing_url       => "",
+      :missing_path      => ""
     }
     
     class ThumbnailCreationError < StandardError; end #:nodoc
@@ -56,11 +59,11 @@ module Thoughtbot #:nodoc:
       #   Note this does not save the attachments.
       #     user.avatar = File.new("~/pictures/me.png")
       #     user.avatar = params[:user][:avatar] # When :avatar is a file_field
-      # * attachment_file_name(style = :original): The name of the file, including path information. Pass in the
+      # * attachment_file_name(style): The name of the file, including path information. Pass in the
       #   name of a thumbnail to get the path to that thumbnail.
       #     user.avatar_file_name(:thumb) # => "public/users/44/thumb/me.png"
       #     user.avatar_file_name         # => "public/users/44/original/me.png"
-      # * attachment_url(style = :original): The public URL of the attachment, suitable for passing to +image_tag+
+      # * attachment_url(style): The public URL of the attachment, suitable for passing to +image_tag+
       #   or +link_to+. Pass in the name of a thumbnail to get the url to that thumbnail.
       #     user.avatar_url(:thumb) # => "http://assethost.com/users/44/thumb/me.png"
       #     user.avatar_url         # => "http://assethost.com/users/44/original/me.png"
@@ -92,6 +95,15 @@ module Thoughtbot #:nodoc:
       #   the rest off (weighted at the center).
       # * +delete_on_destroy+: When records are deleted, the attachment that goes with it is also deleted. Set
       #   this to +false+ to prevent the file from being deleted.
+      # * +default_style+: The thumbnail style that will be used by default for +attachment_file_name+ and +attachment_url+
+      #   Defaults to +original+.
+      #     has_attached_file :avatar, :thumbnails => { :normal => "100x100#" },
+      #                       :default_style => :normal
+      #     user.avatar_url # => "/avatars/23/normal_me.png"
+      # * +missing_url+: The URL that will be returned if there is no attachment assigned. It should be an absolute
+      #   URL, not relative to the +url_prefix+. This field is interpolated.
+      #     has_attached_file :avatar, :missing_url => "/images/default_:style_avatar.png"
+      #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
       #
       # == Interpolation
       # The +path_prefix+, +url_prefix+, and +path+ options can have dynamic interpolation done so that the 
@@ -167,13 +179,13 @@ module Thoughtbot #:nodoc:
           private "#{attr}_attachment"
           
           define_method "#{attr}_file_name" do |*args|
-            style = args.shift || :original # This prevents arity warnings
-            read_attribute("#{attr}_file_name") ? path_for(attachments[attr], style) : ""
+            style = args.shift || attachments[attr][:default_style] # This prevents arity warnings
+            path_for(attachments[attr], style) || interpolate(attachments[attr], attachments[attr][:missing_path], style)
           end
           
           define_method "#{attr}_url" do |*args|
-            style = args.shift || :original # This prevents arity warnings
-            read_attribute("#{attr}_file_name") ? url_for(attachments[attr], style) : ""
+            style = args.shift || attachments[attr][:default_style] # This prevents arity warnings
+            url_for(attachments[attr], style) || interpolate(attachments[attr], attachments[attr][:missing_url], style)
           end
           
           define_method "#{attr}_valid?" do
@@ -214,33 +226,33 @@ module Thoughtbot #:nodoc:
 
     module InstanceMethods #:nodoc:
       private
-      def interpolate attachment, prefix_type, style
+      def interpolate attachment, source, style
         file_name = read_attribute("#{attachment[:name]}_file_name")
-        return "" unless file_name && self.id
-        
-        returning "#{attachment[prefix_type]}/#{attachment[:path]}" do |prefix|
-          prefix.gsub!(/:rails_root/, RAILS_ROOT)
-          prefix.gsub!(/:id/, self.id.to_s) if self.id
-          prefix.gsub!(/:class/, self.class.to_s.underscore.pluralize)
-          prefix.gsub!(/:style/, style.to_s)
-          prefix.gsub!(/:attachment/, attachment[:name].to_s.pluralize)
-          prefix.gsub!(/:name/, file_name)
+        returning source.dup do |s|
+          s.gsub!(/:rails_root/, RAILS_ROOT)
+          s.gsub!(/:id/, self.id.to_s) if self.id
+          s.gsub!(/:class/, self.class.to_s.underscore.pluralize)
+          s.gsub!(/:style/, style.to_s)
+          s.gsub!(/:attachment/, attachment[:name].to_s.pluralize)
+          s.gsub!(/:name/, file_name) if file_name
         end
       end
       
-      def path_for attachment, style = :original
+      def path_for attachment, style = nil
+        style ||= attachment[:default_style]
         file = read_attribute("#{attachment[:name]}_file_name")
-        return nil unless file
+        return nil unless file && self.id
          
-        prefix = interpolate attachment, :path_prefix, style
+        prefix = interpolate attachment, "#{attachment[:path_prefix]}/#{attachment[:path]}", style
         File.join( prefix.split("/") )
       end
       
-      def url_for attachment, style = :original
+      def url_for attachment, style = nil
+        style ||= attachment[:default_style]
         file = read_attribute("#{attachment[:name]}_file_name")
-        return nil unless file
+        return nil unless file && self.id
          
-        interpolate attachment, :url_prefix, style
+        interpolate attachment, "#{attachment[:url_prefix]}/#{attachment[:path]}", style
       end
       
       def ensure_directories_for attachment

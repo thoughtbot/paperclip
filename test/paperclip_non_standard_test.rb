@@ -38,12 +38,12 @@ class PaperclipNonStandardTest < Test::Unit::TestCase
     assert @ns.valid?
   end
 
-  def test_should_default_to_original_for_path_and_url
+  def test_should_default_to_the_assigned_default_style_for_path_and_url
     assert_equal @ns.resume_file_name(:original), @ns.resume_file_name
     assert_equal @ns.resume_url(:original), @ns.resume_url
 
-    assert_equal @ns.avatar_file_name(:original), @ns.avatar_file_name
-    assert_equal @ns.avatar_url(:original), @ns.avatar_url
+    assert_equal @ns.avatar_file_name(:square), @ns.avatar_file_name
+    assert_equal @ns.avatar_url(:square), @ns.avatar_url
   end
 
   def test_should_delete_files_on_destroy
@@ -60,6 +60,16 @@ class PaperclipNonStandardTest < Test::Unit::TestCase
     avatar_file_names.each do |name|
       assert !File.exists?(name), name
     end
+  end
+  
+  def test_should_return_missing_url_interpolated_when_no_attachment_exists
+    assert @ns.save
+    assert @ns.destroy_resume
+    assert @ns.destroy_avatar
+    assert_equal "/non_standards/original/resumes/404.txt", @ns.resume_url
+    assert_equal "/non_standards/bigger/avatars/404.png", @ns.avatar_url(:bigger)
+    assert_equal "/non_standards/original/avatars/404.png", @ns.avatar_url(:original)
+    assert_equal "/non_standards/square/avatars/404.png", @ns.avatar_url
   end
 
 end
