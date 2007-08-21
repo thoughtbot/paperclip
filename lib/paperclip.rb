@@ -276,7 +276,7 @@ module Thoughtbot #:nodoc:
         (attachment[:thumbnails].keys + [:original]).each do |style|
           file_path = path_for(attachment, style)
           begin
-            FileUtils.rm(file_path)
+            FileUtils.rm file_path if file_path
           rescue Errno::ENOENT
             raise ThumbnailDeletionError if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
           end
