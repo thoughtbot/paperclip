@@ -43,8 +43,12 @@ module Thoughtbot #:nodoc:
       :missing_path      => ""
     }
     
-    class ThumbnailCreationError < StandardError; end #:nodoc
-    class ThumbnailDeletionError < StandardError; end #:nodoc
+    class PaperclipError < StandardError #:nodoc:
+      attr_accessor :attachment, :reason, :exception
+      def initialize attachment, reason, exception
+        @attachment, @reason, @exception = *args
+      end
+    end
 
     module ClassMethods
       # == Methods
@@ -154,14 +158,19 @@ module Thoughtbot #:nodoc:
               :dirty        => true,
               :files        => {:original => uploaded_file},
               :content_type => uploaded_file.content_type,
-              :filename     => sanitize_filename(uploaded_file.original_filename)
+              :filename     => sanitize_filename(uploaded_file.original_filename),
+              :errors       => []
             })
             write_attribute(:"#{attr}_file_name", attachments[attr][:filename])
             write_attribute(:"#{attr}_content_type", attachments[attr][:content_type])
             
             if attachments[attr][:attachment_type] == :image
               attachments[attr][:thumbnails].each do |style, geometry|
-                attachments[attr][:files][style] = make_thumbnail(attachments[attr][:files][:original], geometry)
+                begin
+                  attachments[attr][:files][style] = make_thumbnail(attachments[attr], attachments[attr][:files][:original], geometry)
+                rescue PaperclipError => e
+                  attachments[attr][:errors] << "thumbnail '#{style}' could not be created."
+                end
               end
             end
 
@@ -191,7 +200,7 @@ module Thoughtbot #:nodoc:
           define_method "#{attr}_valid?" do
             attachments[attr][:thumbnails].all? do |style, geometry|
               attachments[attr][:dirty] ?
-                !attachments[attr][:files][style].blank? :
+                !attachments[attr][:files][style].blank? && attachments[attr][:errors].empty? :
                 File.file?( path_for(attachments[attr], style))
             end
           end
@@ -202,16 +211,22 @@ module Thoughtbot #:nodoc:
               delete_attachment attachments[attr], complain
             end
           end
+          
+          # alias_method_chain :save, :paperclip
+          
+          validates_each attr do |r, a, v|
+            attachments[attr][:errors].each{|e| r.errors.add(attr, e) } if attachments[attr][:errors]
+          end
 
-          define_method "#{attr}_after_save" do
+          define_method "#{attr}_before_save" do
             if attachments[attr].keys.any?
               write_attachment attachments[attr] if attachments[attr][:files]
               attachments[attr][:dirty] = false
               attachments[attr][:files] = nil
             end
           end
-          private :"#{attr}_after_save"
-          after_save :"#{attr}_after_save"
+          private :"#{attr}_before_save"
+          after_save :"#{attr}_before_save"
           
           define_method "#{attr}_before_destroy" do
             if attachments[attr].keys.any?
@@ -225,7 +240,18 @@ module Thoughtbot #:nodoc:
     end
 
     module InstanceMethods #:nodoc:
+      
+      def save_with_paperclip perform_validations = true
+        begin
+          save_without_paperclip(perform_validations)
+        rescue PaperclipError => e
+          self.errors.add(e.attachment, "could not be saved because of #{e.reason}")
+          false
+        end
+      end
+      
       private
+      
       def interpolate attachment, source, style
         file_name = read_attribute("#{attachment[:name]}_file_name")
         returning source.dup do |s|
@@ -277,15 +303,15 @@ module Thoughtbot #:nodoc:
           file_path = path_for(attachment, style)
           begin
             FileUtils.rm file_path if file_path
-          rescue Errno::ENOENT
-            raise ThumbnailDeletionError if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
+          rescue SystemCallError => e
+            raise PaperclipError(attachment[:name], e.message, e) if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
           end
         end
         self.update_attribute "#{attachment[:name]}_file_name", nil
         self.update_attribute "#{attachment[:name]}_content_type", nil
       end
 
-      def make_thumbnail orig_io, geometry
+      def make_thumbnail attachment, orig_io, geometry
         operator = geometry[-1,1]
         geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
         command = "convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
@@ -296,7 +322,7 @@ module Thoughtbot #:nodoc:
           StringIO.new(io.read)
         end
         if ::Thoughtbot::Paperclip.options[:whiny_thumbnails]
-          raise ThumbnailCreationError, "Convert returned with result code #{$?.exitstatus}." unless $?.success?
+          raise PaperclipError.new(attachment, "Convert returned with result code #{$?.exitstatus}: #{thumb.read}") unless $?.success?
         end
         thumb
       end
