@@ -314,12 +314,17 @@ module Thoughtbot #:nodoc:
       def make_thumbnail attachment, orig_io, geometry
         operator = geometry[-1,1]
         geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
-        command = "convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
-        thumb = IO.popen(command, "w+") do |io|
-          orig_io.rewind
-          io.write(orig_io.read)
-          io.close_write
-          StringIO.new(io.read)
+        begin
+          command = "convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
+          ActiveRecord::Base.logger.info("Thumbnail: '#{command}'")
+          thumb = IO.popen(command, "w+") do |io|
+            orig_io.rewind
+            io.write(orig_io.read)
+            io.close_write
+            StringIO.new(io.read)
+          end
+        rescue SystemCallError => e
+          raise PaperclipError.new(attachment, "Error creating thumbnail. #{e}")
         end
         if ::Thoughtbot::Paperclip.options[:whiny_thumbnails]
           raise PaperclipError.new(attachment, "Convert returned with result code #{$?.exitstatus}: #{thumb.read}") unless $?.success?
@@ -334,7 +339,7 @@ module Thoughtbot #:nodoc:
           io.close_write
           if match = io.read.split[2].match(/(\d+)x(\d+)/)
             src   = match[1,2].map(&:to_f)
-            srch  = src[0] > src[1]
+            srch  = src[0] > src[1] 
             dst   = geometry.match(/(\d+)x(\d+)/)[1,2].map(&:to_f)
             dsth  = dst[0] > dst[1]
             ar    = src[0] / src[1]
