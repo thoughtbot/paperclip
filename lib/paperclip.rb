@@ -323,8 +323,10 @@ module Thoughtbot #:nodoc:
             io.close_write
             StringIO.new(io.read)
           end
+        rescue Errno::EPIPE => e
+          raise PaperclipError.new(attachment, "Could not create thumbnail. Is ImageMagick or GraphicsMagick installed and available?", e)
         rescue SystemCallError => e
-          raise PaperclipError.new(attachment, "Error creating thumbnail. #{e}")
+          raise PaperclipError.new(attachment, "Could not create thumbnail.", e)
         end
         if ::Thoughtbot::Paperclip.options[:whiny_thumbnails]
           raise PaperclipError.new(attachment, "Convert returned with result code #{$?.exitstatus}: #{thumb.read}") unless $?.success?
