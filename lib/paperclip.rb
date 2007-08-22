@@ -23,8 +23,9 @@ module Thoughtbot #:nodoc:
   module Paperclip
     
     PAPERCLIP_OPTIONS = {
-      :whiny_deletes    => false,
-      :whiny_thumbnails => true
+      :whiny_deletes     => false,
+      :whiny_thumbnails  => true
+      :image_magick_path => "/usr/local/bin"
     }
     
     def self.options
@@ -315,7 +316,7 @@ module Thoughtbot #:nodoc:
         operator = geometry[-1,1]
         geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
         begin
-          command = "convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
+          command = "#{options[:image_magick_path]}/convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
           ActiveRecord::Base.logger.info("Thumbnail: '#{command}'")
           thumb = IO.popen(command, "w+") do |io|
             orig_io.rewind
@@ -335,7 +336,7 @@ module Thoughtbot #:nodoc:
       end
       
       def geometry_for_crop geometry, orig_io
-        IO.popen("identify -", "w+") do |io|
+        IO.popen("#{options[:image_magick_path]}/identify -", "w+") do |io|
           orig_io.rewind
           io.write(orig_io.read)
           io.close_write
