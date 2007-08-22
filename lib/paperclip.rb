@@ -45,7 +45,7 @@ module Thoughtbot #:nodoc:
     
     class PaperclipError < StandardError #:nodoc:
       attr_accessor :attachment, :reason, :exception
-      def initialize attachment, reason, exception
+      def initialize attachment, reason, exception = nil
         @attachment, @reason, @exception = *args
       end
     end
