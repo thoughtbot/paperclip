@@ -39,5 +39,15 @@ class PaperclipTest < Test::Unit::TestCase
     assert @bar.destroy
     assert !File.exists?( document_file_name ), document_file_name
   end
+  
+  def test_should_put_on_errors_if_no_file_exists
+    assert @bar.save
+    @bar.document = nil
+    assert !@bar.document_valid?
+    assert !@bar.save
+    assert @bar.errors.length > 0
+    assert @bar.errors.on(:document)
+    assert_match /requires a valid/, @bar.errors.on(:document), @bar.errors.on(:document)
+  end
 
 end

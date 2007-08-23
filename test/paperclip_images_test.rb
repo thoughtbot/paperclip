@@ -1,12 +1,14 @@
 require 'test/unit'
+require 'uri'
 require File.dirname(__FILE__) + "/test_helper.rb"
 require File.dirname(__FILE__) + "/../init.rb"
 require File.join(File.dirname(__FILE__), "models.rb")
 
 class PaperclipImagesTest < Test::Unit::TestCase
   def setup
-    assert @foo = Foo.new
-    assert @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', 'test_image.jpg'))
+    assert @foo       = Foo.new
+    assert @file      = File.new(File.join(File.dirname(__FILE__), 'fixtures', 'test_image.jpg'))
+    assert @document  = File.new(File.join(File.dirname(__FILE__), 'fixtures', 'test_document.doc'))
     assert @foo.image = @file
   end
 
@@ -66,6 +68,7 @@ class PaperclipImagesTest < Test::Unit::TestCase
     end
     
     assert @foo.destroy_image
+    assert @foo.save
     mappings.each do |style, file, url|
       assert_not_equal file, @foo.image_file_name(style)
       assert_equal "", @foo.image_file_name(style)
@@ -88,4 +91,44 @@ class PaperclipImagesTest < Test::Unit::TestCase
     end
   end
   
+  def test_should_save_image_from_uri
+    uri = URI.parse("http://thoughtbot.com/assets/11/thoughtbot.jpg")
+    @foo.image = uri
+    @foo.save
+    @foo.image_valid?
+    assert File.exists?( @foo.image_file_name(:original) ), @foo.image_file_name(:original)
+    assert File.exists?( @foo.image_file_name(:medium) ), @foo.image_file_name(:medium)
+    assert File.exists?( @foo.image_file_name(:thumb) ), @foo.image_file_name(:thumb)
+    out = `identify '#{@foo.image_file_name(:original)}'`; assert out.match("350x100"); assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:medium)}'`;   assert out.match("300x86");  assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:thumb)}'`;    assert out.match("100x29");  assert $?.exitstatus == 0
+  end
+
+  def test_should_put_errors_on_object_if_convert_does_not_exist
+    old_path = Thoughtbot::Paperclip.options[:image_magick_path]
+    Thoughtbot::Paperclip.options[:image_magick_path] = "/does/not/exist"
+
+    assert_nothing_raised{ @foo.image = @file }
+    assert !@foo.save
+    assert !@foo.valid?
+    assert @foo.errors.length > 0
+    assert @foo.errors.on(:image)
+    [@foo.errors.on(:image)].flatten.each do |err|
+      assert_match /could not/, err, err
+    end
+  ensure
+    Thoughtbot::Paperclip.options[:image_magick_path] = old_path
+  end
+
+  def test_should_put_errors_on_object_if_convert_fails
+    assert_nothing_raised{ @foo.image = @document }
+    assert !@foo.save
+    assert !@foo.valid?
+    assert @foo.errors.length > 0
+    assert @foo.errors.on(:image)
+    [@foo.errors.on(:image)].flatten.each do |err|
+      assert_match /could not/, err, err
+    end
+  end
+
 end

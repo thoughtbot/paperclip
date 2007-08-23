@@ -19,7 +19,7 @@ class PaperclipNonStandardTest < Test::Unit::TestCase
 
   def test_should_save_the_created_file_to_the_final_asset_directory
     assert @ns.save
-    assert File.exists?( @ns.resume_file_name )
+    assert File.exists?( @ns.resume_file_name ), @ns.resume_file_name
     assert File.exists?( @ns.avatar_file_name(:original) )
     assert File.exists?( @ns.avatar_file_name(:bigger) )
     assert File.exists?( @ns.avatar_file_name(:cropped) )

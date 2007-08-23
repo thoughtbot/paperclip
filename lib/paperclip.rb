@@ -45,9 +45,9 @@ module Thoughtbot #:nodoc:
     }
     
     class PaperclipError < StandardError #:nodoc:
-      attr_accessor :attachment, :reason, :exception
-      def initialize attachment, reason, exception = nil
-        @attachment, @reason, @exception = *args
+      attr_accessor :attachment
+      def initialize attachment
+        @attachment = attachment
       end
     end
 
@@ -60,10 +60,14 @@ module Thoughtbot #:nodoc:
       # * attachment?: Alias for _attachment_ for clarity in determining if the attachment exists.
       # * attachment=(file): Sets the attachment to the file and creates the thumbnails (if necessary).
       #   +file+ can be anything normally accepted as an upload (+StringIO+ or +Tempfile+) or a +File+
-      #   if it has had the +Upfile+ module included.
+      #   if it has had the +Upfile+ module included. +file+ can also be a URL object pointing to a valid
+      #   resource. This resource will be downloaded using +open-uri+[http://www.ruby-doc.org/stdlib/libdoc/open-uri/rdoc/]
+      #   and processed as a regular file object would. Finally, you can set this property to +nil+ to clear
+      #   the attachment, which is the same thing as calling +destroy_attachment+.
       #   Note this does not save the attachments.
       #     user.avatar = File.new("~/pictures/me.png")
       #     user.avatar = params[:user][:avatar] # When :avatar is a file_field
+      #     user.avatar = URI.parse("http://www.avatars-r-us.com/spiffy.png")
       # * attachment_file_name(style): The name of the file, including path information. Pass in the
       #   name of a thumbnail to get the path to that thumbnail.
       #     user.avatar_file_name(:thumb) # => "public/users/44/thumb/me.png"
@@ -75,9 +79,11 @@ module Thoughtbot #:nodoc:
       # * attachment_valid?: If unsaved, returns true if all thumbnails have data (that is,
       #   they were successfully made). If saved, returns true if all expected files exist and are
       #   of nonzero size.
-      # * destroy_attachment(complain = false): Deletes the attachment and all thumbnails. Sets the +attachment_file_name+
-      #   column and +attachment_content_type+ column to +nil+. Set +complain+ to true to override
-      #   the +whiny_deletes+ option.
+      # * destroy_attachment(complain = false): Flags the attachment and all thumbnails for deletion. Sets
+      #   the +attachment_file_name+ column and +attachment_content_type+ column to +nil+. Set +complain+
+      #   to true to override the +whiny_deletes+ option. Note, this does not actually delete the attachment.
+      #   You must still call +save+ on the model to actually delete the file and commit the change to the
+      #   database.
       #
       # == Options
       # There are a number of options you can set to change the behavior of Paperclip.
@@ -143,6 +149,10 @@ module Thoughtbot #:nodoc:
       # Attached files are destroyed when the associated record is destroyed in a +before_destroy+ trigger. Set
       # the +delete_on_destroy+ option to +false+ to prevent this behavior. Also note that using the ActiveRecord's
       # +delete+ method instead of the +destroy+ method will prevent the +before_destroy+ trigger from firing.
+      #
+      # == Validation
+      # If there is a problem in the thumbnail-making process, Paperclip will add errors to your model on save. These
+      # errors appear if there is an error with +convert+ (e.g. +convert+ doesn't exist, the file wasn't an image, etc).
       def has_attached_file *attachment_names
         options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
         options = DEFAULT_ATTACHMENT_OPTIONS.merge(options)
@@ -154,13 +164,17 @@ module Thoughtbot #:nodoc:
           attachments[attr] = (attachments[attr] || {:name => attr}).merge(options)
 
           define_method "#{attr}=" do |uploaded_file|
+            return send("destroy_#{attr}") if uploaded_file.nil?
+            uploaded_file = fetch_uri(uploaded_file) if uploaded_file.is_a? URI
             return unless is_a_file? uploaded_file
+            
             attachments[attr].merge!({
-              :dirty        => true,
-              :files        => {:original => uploaded_file},
-              :content_type => uploaded_file.content_type,
-              :filename     => sanitize_filename(uploaded_file.original_filename),
-              :errors       => []
+              :dirty          => true,
+              :files          => {:original => uploaded_file},
+              :content_type   => uploaded_file.content_type,
+              :filename       => sanitize_filename(uploaded_file.original_filename),
+              :errors         => [],
+              :delete_on_save => false
             })
             write_attribute(:"#{attr}_file_name", attachments[attr][:filename])
             write_attribute(:"#{attr}_content_type", attachments[attr][:content_type])
@@ -186,7 +200,7 @@ module Thoughtbot #:nodoc:
           define_method "#{attr}_attachment" do
             attachments[attr]
           end
-          private "#{attr}_attachment"
+          private :"#{attr}_attachment"
           
           define_method "#{attr}_file_name" do |*args|
             style = args.shift || attachments[attr][:default_style] # This prevents arity warnings
@@ -199,21 +213,30 @@ module Thoughtbot #:nodoc:
           end
           
           define_method "#{attr}_valid?" do
-            attachments[attr][:thumbnails].all? do |style, geometry|
-              attachments[attr][:dirty] ?
-                !attachments[attr][:files][style].blank? && attachments[attr][:errors].empty? :
-                File.file?( path_for(attachments[attr], style))
+            attachments[attr][:thumbnails].merge(:original => nil).all? do |style, geometry|
+              if read_attribute("#{attr}_file_name")
+                if attachments[attr][:dirty]
+                  !attachments[attr][:files][style].blank? && attachments[attr][:errors].empty?
+                else
+                  File.file?( path_for(attachments[attr], style) )
+                end
+              else
+                false
+              end
             end
           end
           
           define_method "destroy_#{attr}" do |*args|
             complain = args.first || false
             if attachments[attr].keys.any?
-              delete_attachment attachments[attr], complain
+              attachments[attr][:files] = nil
+              attachments[attr][:delete_on_save] = true
+              attachments[attr][:complain_on_delete] = complain
+              write_attribute("#{attr}_file_name", nil)
+              write_attribute("#{attr}_content_type", nil)
             end
+            true
           end
-          
-          # alias_method_chain :save, :paperclip
           
           validates_each attr do |r, a, v|
             attachments[attr][:errors].each{|e| r.errors.add(attr, e) } if attachments[attr][:errors]
@@ -221,9 +244,11 @@ module Thoughtbot #:nodoc:
 
           define_method "#{attr}_before_save" do
             if attachments[attr].keys.any?
-              write_attachment attachments[attr] if attachments[attr][:files]
-              attachments[attr][:dirty] = false
-              attachments[attr][:files] = nil
+              write_attachment  attachments[attr] if attachments[attr][:files]
+              delete_attachment attachments[attr], attachments[attr][:complain_on_delete] if attachments[attr][:delete_on_save]
+              attachments[attr][:delete_on_save] = false
+              attachments[attr][:dirty]          = false
+              attachments[attr][:files]          = nil
             end
           end
           private :"#{attr}_before_save"
@@ -238,18 +263,17 @@ module Thoughtbot #:nodoc:
           before_destroy :"#{attr}_before_destroy"
         end
       end
+      
+      # Adds errors if the attachments you specify are either missing or had errors on them.
+      # Essentially, acts like validates_presence_of for attachments.
+      def validates_attached_file *attachment_names
+        validates_each *attachment_names do |r, a, v|
+          r.errors.add(a, "requires a valid attachment.") unless r.send("#{a}_valid?")
+        end
+      end
     end
 
     module InstanceMethods #:nodoc:
-      
-      def save_with_paperclip perform_validations = true
-        begin
-          save_without_paperclip(perform_validations)
-        rescue PaperclipError => e
-          self.errors.add(e.attachment, "could not be saved because of #{e.reason}")
-          false
-        end
-      end
       
       private
       
@@ -290,6 +314,7 @@ module Thoughtbot #:nodoc:
       end
       
       def write_attachment attachment
+        return if attachment[:files].blank?
         ensure_directories_for attachment
         attachment[:files].each do |style, atch|
           File.open( path_for(attachment, style), "w" ) do |file|
@@ -308,16 +333,13 @@ module Thoughtbot #:nodoc:
             raise PaperclipError(attachment[:name], e.message, e) if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
           end
         end
-        self.update_attribute "#{attachment[:name]}_file_name", nil
-        self.update_attribute "#{attachment[:name]}_content_type", nil
       end
 
       def make_thumbnail attachment, orig_io, geometry
         operator = geometry[-1,1]
-        geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
         begin
-          command = "#{::Thoughtbot::Paperclip.options[:image_magick_path]}/convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} -"
-          ActiveRecord::Base.logger.info("Thumbnail: '#{command}'")
+          geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
+          command = "#{::Thoughtbot::Paperclip.options[:image_magick_path]}/convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} - 2>/dev/null"
           thumb = IO.popen(command, "w+") do |io|
             orig_io.rewind
             io.write(orig_io.read)
@@ -325,18 +347,18 @@ module Thoughtbot #:nodoc:
             StringIO.new(io.read)
           end
         rescue Errno::EPIPE => e
-          raise PaperclipError.new(attachment, "Could not create thumbnail. Is ImageMagick or GraphicsMagick installed and available?", e)
+          raise PaperclipError.new(attachment), "Could not create thumbnail. Is ImageMagick or GraphicsMagick installed and available?"
         rescue SystemCallError => e
-          raise PaperclipError.new(attachment, "Could not create thumbnail.", e)
+          raise PaperclipError.new(attachment), "Could not create thumbnail."
         end
-        if ::Thoughtbot::Paperclip.options[:whiny_thumbnails]
-          raise PaperclipError.new(attachment, "Convert returned with result code #{$?.exitstatus}: #{thumb.read}") unless $?.success?
+        if ::Thoughtbot::Paperclip.options[:whiny_thumbnails] && !$?.success?
+          raise PaperclipError.new(attachment), "Convert returned with result code #{$?.exitstatus}: #{thumb.read}"
         end
         thumb
       end
       
       def geometry_for_crop geometry, orig_io
-        IO.popen("#{::Thoughtbot::Paperclip.options[:image_magick_path]}/identify -", "w+") do |io|
+        IO.popen("#{::Thoughtbot::Paperclip.options[:image_magick_path]}/identify - 2>/dev/null", "w+") do |io|
           orig_io.rewind
           io.write(orig_io.read)
           io.close_write
@@ -346,7 +368,7 @@ module Thoughtbot #:nodoc:
             dst   = geometry.match(/(\d+)x(\d+)/)[1,2].map(&:to_f)
             dsth  = dst[0] > dst[1]
             ar    = src[0] / src[1]
-            
+
             scale_geometry, scale = if dst[0] == dst[1]
               if srch
                 [ "x#{dst[1]}", src[1] / dst[1] ]
@@ -358,16 +380,36 @@ module Thoughtbot #:nodoc:
             else
               [ "x#{dst[1]}", src[1] / dst[1] ]
             end
-            
+
             crop_geometry = if dsth
               "%dx%d+%d+%d" % [ dst[0], dst[1], 0, (src[1] / scale - dst[1]) / 2 ]
             else
               "%dx%d+%d+%d" % [ dst[0], dst[1], (src[0] / scale - dst[0]) / 2, 0 ]
             end
-            
+
             [ scale_geometry, crop_geometry ]
           end
         end
+      end
+
+      def fetch_uri uri
+        require 'open-uri'
+        # I hate the fact that URI and open-uri can't handle file:// urls.
+        if uri.scheme == 'file'
+          path = url.gsub(%r{^file://}, '/')
+          image_data = open(path)
+        else
+          image_data = open(uri.to_s)
+        end
+
+        image = StringIO.new(image_data.read)
+        image_data.close
+
+        image.instance_eval { class << self; attr_accessor :content_type, :original_filename; end }
+        image.content_type = image_data.content_type
+        image.original_filename = File.basename(uri.path)
+
+        image
       end
       
       def is_a_file? data

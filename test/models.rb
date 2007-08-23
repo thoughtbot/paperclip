@@ -25,6 +25,7 @@ end
 class Bar < ActiveRecord::Base
   has_attached_file :document, :attachment_type => :document,
                     :path_prefix => "./repository"
+  validates_attached_file :document
 end
 
 class NonStandard < ActiveRecord::Base
