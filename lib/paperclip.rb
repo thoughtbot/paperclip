@@ -25,7 +25,7 @@ module Thoughtbot #:nodoc:
     PAPERCLIP_OPTIONS = {
       :whiny_deletes     => false,
       :whiny_thumbnails  => true,
-      :image_magick_path => "/usr/local/bin"
+      :image_magick_path => nil
     }
     
     def self.options
@@ -345,7 +345,7 @@ module Thoughtbot #:nodoc:
         operator = geometry[-1,1]
         begin
           geometry, crop_geometry = geometry_for_crop(geometry, orig_io) if operator == '#'
-          command = "#{::Thoughtbot::Paperclip.options[:image_magick_path]}/convert - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} - 2>/dev/null"
+          command = "#{path_for_command "convert"} - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} - 2>/dev/null"
           thumb = IO.popen(command, "w+") do |io|
             orig_io.rewind
             io.write(orig_io.read)
@@ -364,7 +364,7 @@ module Thoughtbot #:nodoc:
       end
       
       def geometry_for_crop geometry, orig_io
-        IO.popen("#{::Thoughtbot::Paperclip.options[:image_magick_path]}/identify - 2>/dev/null", "w+") do |io|
+        IO.popen("#{path_for_command "identify"} - 2>/dev/null", "w+") do |io|
           orig_io.rewind
           io.write(orig_io.read)
           io.close_write
@@ -430,7 +430,10 @@ module Thoughtbot #:nodoc:
       def sanitize_filename filename
         File.basename(filename).gsub(/[^\w\.\_]/,'_')
       end
-      protected :sanitize_filename
+      
+      def path_for_command command
+        File.join([::Thoughtbot::Paperclip.options[:image_magick_path], command].compact)
+      end
     end
     
     # The Upfile module is a convenience module for adding uploaded-file-type methods
