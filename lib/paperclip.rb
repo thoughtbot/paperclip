@@ -247,6 +247,8 @@ module Thoughtbot #:nodoc:
               write_attachment  attachments[attr] if attachments[attr][:files]
               delete_attachment attachments[attr], attachments[attr][:complain_on_delete] if attachments[attr][:delete_on_save]
               attachments[attr][:delete_on_save] = false
+              attachments[attr][:dirty] = false
+              attachments[attr][:files] = nil
             end
           end
           private :"#{attr}_before_save"
