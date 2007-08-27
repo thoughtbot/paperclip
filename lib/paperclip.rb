@@ -164,8 +164,8 @@ module Thoughtbot #:nodoc:
           attachments[attr] = (attachments[attr] || {:name => attr}).merge(options)
 
           define_method "#{attr}=" do |uploaded_file|
-            return send("destroy_#{attr}") if uploaded_file.nil?
             uploaded_file = fetch_uri(uploaded_file) if uploaded_file.is_a? URI
+            return send("destroy_#{attr}") if uploaded_file.nil?
             return unless is_a_file? uploaded_file
             
             attachments[attr].merge!({
@@ -247,8 +247,6 @@ module Thoughtbot #:nodoc:
               write_attachment  attachments[attr] if attachments[attr][:files]
               delete_attachment attachments[attr], attachments[attr][:complain_on_delete] if attachments[attr][:delete_on_save]
               attachments[attr][:delete_on_save] = false
-              attachments[attr][:dirty]          = false
-              attachments[attr][:files]          = nil
             end
           end
           private :"#{attr}_before_save"
@@ -285,7 +283,11 @@ module Thoughtbot #:nodoc:
           s.gsub!(/:class/, self.class.to_s.underscore.pluralize)
           s.gsub!(/:style/, style.to_s)
           s.gsub!(/:attachment/, attachment[:name].to_s.pluralize)
-          s.gsub!(/:name/, file_name) if file_name
+          if file_name
+            s.gsub!(/:name/, file_name)
+            s.gsub!(/:base/, file_name.split(".")[0..-2].join(".") )
+            s.gsub!(/:ext/,  file_name.split(".").last )
+          end
         end
       end
       
@@ -322,6 +324,8 @@ module Thoughtbot #:nodoc:
             file.write(atch.read)
           end
         end
+        attachment[:files] = nil
+        attachment[:dirty] = false
       end
       
       def delete_attachment attachment, complain = false
@@ -393,12 +397,12 @@ module Thoughtbot #:nodoc:
       end
 
       def fetch_uri uri
-        require 'open-uri'
         # I hate the fact that URI and open-uri can't handle file:// urls.
         if uri.scheme == 'file'
           path = url.gsub(%r{^file://}, '/')
           image_data = open(path)
         else
+          require 'open-uri'
           image_data = open(uri.to_s)
         end
 
@@ -410,6 +414,9 @@ module Thoughtbot #:nodoc:
         image.original_filename = File.basename(uri.path)
 
         image
+      rescue Exception => e
+        self.errors.add_to_base("Could not save #{uri.to_s}: #{e}")
+        nil
       end
       
       def is_a_file? data
