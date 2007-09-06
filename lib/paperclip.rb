@@ -132,7 +132,7 @@ module Thoughtbot #:nodoc:
       #   It is defined as everything except the final period and what follows it. If there is no extension, :base works
       #   the same as :name.
       # * +ext+: The extension of the file, e.g. "jpg" from "myself.jpg". It is defined as everything following the final
-      #   period.
+      #   period
       #
       # When interpolating, you are not confined to making any one of these into its own directory. This is
       # perfectly valid:
@@ -306,7 +306,7 @@ module Thoughtbot #:nodoc:
           if file_name
             file_bits = file_name.split(".")
             s.gsub!(/:name/, file_name)
-            s.gsub!(/:base/, [file_bits[0], *file_bits[1..-2]].join(".")
+            s.gsub!(/:base/, [file_bits[0], *file_bits[1..-2]].join("."))
             s.gsub!(/:ext/,  file_bits.last )
           end
         end
