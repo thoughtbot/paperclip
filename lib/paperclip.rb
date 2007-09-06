@@ -162,6 +162,7 @@ module Thoughtbot #:nodoc:
 
         attachment_names.each do |attr|
           attachments[attr] = (attachments[attr] || {:name => attr}).merge(options)
+          whine_about_columns_for attachments[attr]
 
           define_method "#{attr}=" do |uploaded_file|
             uploaded_file = fetch_uri(uploaded_file) if uploaded_file.is_a? URI
@@ -271,6 +272,15 @@ module Thoughtbot #:nodoc:
           r.errors.add(a, "requires a valid attachment.") unless r.send("#{a}_valid?")
         end
       end
+      
+      def whine_about_columns_for attachment #:nodoc:
+        name = attachment[:name]
+        unless column_names.include?("#{name}_file_name") && column_names.include?("#{name}_content_type")
+          error = "Class #{self.name} does not have the necessary columns to have an attachment named #{name}. " +
+                  "(#{name}_file_name and #{name}_content_type)"
+          raise PaperclipError.new(attachment), error
+        end
+      end
     end
 
     module InstanceMethods #:nodoc:
@@ -336,7 +346,7 @@ module Thoughtbot #:nodoc:
           begin
             FileUtils.rm file_path if file_path
           rescue SystemCallError => e
-            raise PaperclipError(attachment[:name], e.message, e) if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
+            raise PaperclipError.new(attachment), "Could not delete thumbnail." if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
           end
         end
       end

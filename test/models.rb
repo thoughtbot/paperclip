@@ -1,17 +1,20 @@
 begin
-  ActiveRecord::Base.connection.create_table :foos do |table|
+  ActiveRecord::Base.connection.create_table :foos, :force => true do |table|
     table.column :image_file_name, :string
     table.column :image_content_type, :string
   end
-  ActiveRecord::Base.connection.create_table :bars do |table|
+  ActiveRecord::Base.connection.create_table :bars, :force => true do |table|
     table.column :document_file_name, :string
     table.column :document_content_type, :string
   end
-  ActiveRecord::Base.connection.create_table :non_standards do |table|
+  ActiveRecord::Base.connection.create_table :non_standards, :force => true do |table|
     table.column :resume_file_name, :string
     table.column :resume_content_type, :string
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
+  end
+  ActiveRecord::Base.connection.create_table :negatives, :force => true do |table|
+    table.column :this_is_the_wrong_name_file_name, :string
   end
 rescue Exception
 end
@@ -42,4 +45,7 @@ class NonStandard < ActiveRecord::Base
                     :path => ":class/:attachment/:id/:style_:name",
                     :default_style => :square,
                     :missing_url => "/:class/:style/:attachment/404.png"
+end
+
+class Negative < ActiveRecord::Base
 end

@@ -49,5 +49,11 @@ class PaperclipTest < Test::Unit::TestCase
     assert @bar.errors.on(:document)
     assert_match /requires a valid/, @bar.errors.on(:document), @bar.errors.on(:document)
   end
+  
+  def test_should_raise_if_table_missing_columns
+    assert_raises Thoughtbot::Paperclip::PaperclipError do
+      Negative.send(:has_attached_file, :missing)
+    end
+  end
 
 end
