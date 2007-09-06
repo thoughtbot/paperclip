@@ -128,6 +128,11 @@ module Thoughtbot #:nodoc:
       # * +style+: The name of the thumbnail style for the current thumbnail. If no style is given, "original" is used.
       # * +id+: The record's id.
       # * +name+: The file's name, as stored in the attachment_file_name column.
+      # * +base+: The base of the file's name, e.g. "myself" from "myself.jpg", or "my.picture" from "my.picture.png".
+      #   It is defined as everything except the final period and what follows it. If there is no extension, :base works
+      #   the same as :name.
+      # * +ext+: The extension of the file, e.g. "jpg" from "myself.jpg". It is defined as everything following the final
+      #   period.
       #
       # When interpolating, you are not confined to making any one of these into its own directory. This is
       # perfectly valid:
@@ -140,6 +145,9 @@ module Thoughtbot #:nodoc:
       # by the one (defined above) which returns the full path to whichever style thumbnail is passed in.
       # In a pinch, you can either use +read_attribute+ or the plain +foo+ accessor, which returns the database's
       # +foo_file_name+ column.
+      #
+      # Note that if these columns are not found in the model (according to +ActiveRecord::Base#column_names+) then
+      # Paperclip will throw a +PaperclipError+ informing you of the fact.
       #
       # == Event Triggers
       # When an attachment is set by using he setter (+model.attachment=+), the thumbnails are created and held in
@@ -296,9 +304,10 @@ module Thoughtbot #:nodoc:
           s.gsub!(/:style/, style.to_s)
           s.gsub!(/:attachment/, attachment[:name].to_s.pluralize)
           if file_name
+            file_bits = file_name.split(".")
             s.gsub!(/:name/, file_name)
-            s.gsub!(/:base/, file_name.split(".")[0..-2].join(".") )
-            s.gsub!(/:ext/,  file_name.split(".").last )
+            s.gsub!(/:base/, [file_bits[0], *file_bits[1..-2]].join(".")
+            s.gsub!(/:ext/,  file_bits.last )
           end
         end
       end
