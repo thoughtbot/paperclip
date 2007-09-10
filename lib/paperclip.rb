@@ -81,7 +81,7 @@ module Thoughtbot #:nodoc:
       #   of nonzero size.
       # * destroy_attachment(complain = false): Flags the attachment and all thumbnails for deletion. Sets
       #   the +attachment_file_name+ column and +attachment_content_type+ column to +nil+. Set +complain+
-      #   to true to override the +whiny_deletes+ option. Note, this does not actually delete the attachment.
+      #   to true to override the +whiny_deletes+ option. NOTE: this does not actually delete the attachment.
       #   You must still call +save+ on the model to actually delete the file and commit the change to the
       #   database.
       #
@@ -164,6 +164,8 @@ module Thoughtbot #:nodoc:
       def has_attached_file *attachment_names
         options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
         options = DEFAULT_ATTACHMENT_OPTIONS.merge(options)
+        @attachment_names ||= []
+        @attachment_names += attachment_names
 
         include InstanceMethods
         attachments ||= {}
@@ -188,13 +190,7 @@ module Thoughtbot #:nodoc:
             write_attribute(:"#{attr}_content_type", attachments[attr][:content_type])
             
             if attachments[attr][:attachment_type] == :image
-              attachments[attr][:thumbnails].each do |style, geometry|
-                begin
-                  attachments[attr][:files][style] = make_thumbnail(attachments[attr], attachments[attr][:files][:original], geometry)
-                rescue PaperclipError => e
-                  attachments[attr][:errors] << "thumbnail '#{style}' could not be created."
-                end
-              end
+              send("process_#{attr}_thumbnails")
             end
 
             uploaded_file
@@ -234,6 +230,10 @@ module Thoughtbot #:nodoc:
             end
           end
           
+          define_method "process_#{attr}_thumbnails" do
+            make_thumbnails attachments[attr]
+          end
+          
           define_method "destroy_#{attr}" do |*args|
             complain = args.first || false
             if attachments[attr].keys.any?
@@ -270,6 +270,10 @@ module Thoughtbot #:nodoc:
           private :"#{attr}_before_destroy"
           before_destroy :"#{attr}_before_destroy"
         end
+      end
+      
+      def attachments
+        @attachment_names
       end
       
       # Adds errors if the attachments you specify are either missing or had errors on them.
@@ -355,6 +359,16 @@ module Thoughtbot #:nodoc:
             FileUtils.rm file_path if file_path
           rescue SystemCallError => e
             raise PaperclipError.new(attachment), "Could not delete thumbnail." if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
+          end
+        end
+      end
+
+      def make_thumbnails attachment
+        attachment[:thumbnails].each do |style, geometry|
+          begin
+            attachment[:files][style] = make_thumbnail(attachment, attachment[:files][:original], geometry)
+          rescue PaperclipError => e
+            attachment[:errors] << "thumbnail '#{style}' could not be created."
           end
         end
       end

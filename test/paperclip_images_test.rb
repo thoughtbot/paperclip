@@ -11,6 +11,10 @@ class PaperclipImagesTest < Test::Unit::TestCase
     assert @document  = File.new(File.join(File.dirname(__FILE__), 'fixtures', 'test_document.doc'))
     assert @foo.image = @file
   end
+  
+  def test_should_supply_all_attachment_names
+    assert_equal %w( image ), Foo.attachments.map{|a| a.to_s }.sort
+  end
 
   def test_should_validate_before_save
     assert @foo.image_valid?

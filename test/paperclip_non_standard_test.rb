@@ -11,6 +11,10 @@ class PaperclipNonStandardTest < Test::Unit::TestCase
     assert @ns.resume = @resume
     assert @ns.avatar = @avatar
   end
+  
+  def test_should_supply_all_attachment_names
+    assert_equal %w( avatar resume ), NonStandard.attachments.map{|a| a.to_s }.sort
+  end
 
   def test_should_validate_before_save
     assert @ns.avatar_valid?
