@@ -11,7 +11,7 @@ class PaperclipTest < Test::Unit::TestCase
   end
   
   def test_should_supply_all_attachment_names
-    assert_equal %w( document ), Bar.attachments.map{|a| a.to_s }.sort
+    assert_equal %w( document ), Bar.attachment_names.map{|a| a.to_s }.sort
   end
 
   def test_should_validate_before_save

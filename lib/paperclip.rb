@@ -164,11 +164,9 @@ module Thoughtbot #:nodoc:
       def has_attached_file *attachment_names
         options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
         options = DEFAULT_ATTACHMENT_OPTIONS.merge(options)
-        @attachment_names ||= []
-        @attachment_names += attachment_names
 
         include InstanceMethods
-        attachments ||= {}
+        attachments = (@attachments ||= {})
 
         attachment_names.each do |attr|
           attachments[attr] = (attachments[attr] || {:name => attr}).merge(options)
@@ -272,8 +270,12 @@ module Thoughtbot #:nodoc:
         end
       end
       
-      def attachments
-        @attachment_names
+      def attachment_names
+        @attachments.keys
+      end
+      
+      def attachment name
+        @attachments[name]
       end
       
       # Adds errors if the attachments you specify are either missing or had errors on them.
