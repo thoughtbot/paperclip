@@ -173,7 +173,6 @@ module Thoughtbot #:nodoc:
           whine_about_columns_for attachments[attr]
 
           define_method "#{attr}=" do |uploaded_file|
-            uploaded_file = fetch_uri(uploaded_file) if uploaded_file.is_a? URI
             return send("destroy_#{attr}") if uploaded_file.nil?
             return unless is_a_file? uploaded_file
             
@@ -416,32 +415,9 @@ module Thoughtbot #:nodoc:
           end
         end
       end
-
-      def fetch_uri uri
-        # I hate the fact that URI and open-uri can't handle file:// urls.
-        if uri.scheme == 'file'
-          path = url.gsub(%r{^file://}, '/')
-          image_data = open(path)
-        else
-          require 'open-uri'
-          image_data = open(uri.to_s)
-        end
-
-        image = StringIO.new(image_data.read)
-        image_data.close
-
-        image.instance_eval { class << self; attr_accessor :content_type, :original_filename; end }
-        image.content_type = image_data.content_type
-        image.original_filename = File.basename(uri.path)
-
-        image
-      rescue Exception => e
-        self.errors.add_to_base("Could not save #{uri.to_s}: #{e}")
-        nil
-      end
       
       def is_a_file? data
-        [:size, :content_type, :original_filename, :read].map do |meth|
+        [:content_type, :original_filename, :read].map do |meth|
           data.respond_to? meth
         end.all?
       end
@@ -461,7 +437,7 @@ module Thoughtbot #:nodoc:
     module Upfile
       # Infer the MIME-type of the file from the extension.
       def content_type
-        type = self.path.match(/\.(\w+)$/)[1]
+        type = self.path.match(/\.(\w+)$/)[1] || "data"
         case type
         when "jpg", "png", "gif" then "image/#{type}"
         when "txt", "csv", "xml", "html", "htm" then "text/#{type}"

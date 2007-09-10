@@ -92,16 +92,31 @@ class PaperclipImagesTest < Test::Unit::TestCase
   end
   
   def test_should_save_image_from_uri
-    uri = URI.parse("http://thoughtbot.com/assets/11/thoughtbot.jpg")
+    require 'webrick'
+    server = WEBrick::HTTPServer.new(:Port         => 40404,
+                                     :DocumentRoot => File.dirname(__FILE__),
+                                     :AccessLog    => [],
+                                     :Logger       => WEBrick::Log.new(nil, WEBrick::Log::WARN))
+    Thread.new do
+      server.start
+    end
+    while server.status != :Running
+      sleep 0.1
+      print "!"; $stdout.flush
+    end
+    
+    uri = URI.parse("http://127.0.0.1:40404/fixtures/test_image.jpg")
     @foo.image = uri
     @foo.save
     @foo.image_valid?
     assert File.exists?( @foo.image_file_name(:original) ), @foo.image_file_name(:original)
     assert File.exists?( @foo.image_file_name(:medium) ), @foo.image_file_name(:medium)
     assert File.exists?( @foo.image_file_name(:thumb) ), @foo.image_file_name(:thumb)
-    out = `identify '#{@foo.image_file_name(:original)}'`; assert out.match("350x100"); assert $?.exitstatus == 0
-    out = `identify '#{@foo.image_file_name(:medium)}'`;   assert out.match("300x86");  assert $?.exitstatus == 0
-    out = `identify '#{@foo.image_file_name(:thumb)}'`;    assert out.match("100x29");  assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:original)}'`; assert_match "405x375", out; assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:medium)}'`;   assert_match "300x278", out;  assert $?.exitstatus == 0
+    out = `identify '#{@foo.image_file_name(:thumb)}'`;    assert_match "100x93", out;  assert $?.exitstatus == 0
+  ensure
+    server.stop if server
   end
 
   def test_should_put_errors_on_object_if_convert_does_not_exist
