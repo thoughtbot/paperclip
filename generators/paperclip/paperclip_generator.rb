@@ -7,7 +7,7 @@ class PaperclipGenerator < Rails::Generator::NamedBase
   end
  
   def manifest
-    file_name = "add_paperclip_attachment_columns_to_#{@class_name.underscore.camelize}"
+    file_name = "add_paperclip_attachment_columns_to_#{@class_name.underscore}"
     @migration_name = file_name.camelize
     record do |m|
       m.migration_template "paperclip_migration.rb",
