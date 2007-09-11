@@ -29,11 +29,6 @@ namespace :paperclip do
     puts " Done."
   end
   
-  desc "Generates a migration to add attachments to a class."
-  task :migration do
-    
-  end
-  
   # desc "Cleans out unused attachments for the given CLASS (and optional ATTACHMENT)"
   # task :clean do
   #   klass     = obtain_class
