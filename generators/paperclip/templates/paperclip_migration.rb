@@ -1,4 +1,4 @@
-class AddPaperclipAttachmentColumnsTo<%= class_name.underscore.camelize %> < ActiveRecord::Migration
+class <%= migration_name %> < ActiveRecord::Migration
   def self.up
 <% attachments.each do |attachment| -%>
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_name, :string
