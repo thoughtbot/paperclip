@@ -5,7 +5,7 @@ end
 
 def obtain_attachments
   name = ENV['ATTACHMENT'] || ENV['attachment']
-  if name.blank? || @klass.attachment_names.include?(name)
+  if !name.blank? && @klass.attachment_names.include?(name)
     [ name ]
   else
     @klass.attachment_names
@@ -21,7 +21,10 @@ namespace :paperclip do
     
     puts "Regenerating thumbnails for #{instances.length} instances:"
     instances.each do |instance|
-      names.each do |names|
+      names.each do |name|
+        original_file = instance.send("#{name}_file_name", :original)
+        next if original_file.blank?
+        instance.send("#{name}=", File.new(original_file))
         instance.send("process_#{name}_thumbnails")
       end
       print instance.save ? "." : "x"; $stdout.flush

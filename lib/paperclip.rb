@@ -173,6 +173,7 @@ module Thoughtbot #:nodoc:
           whine_about_columns_for attachments[attr]
 
           define_method "#{attr}=" do |uploaded_file|
+            uploaded_file = fetch_uri(uploaded_file) if uploaded_file.is_a? URI
             return send("destroy_#{attr}") if uploaded_file.nil?
             return unless is_a_file? uploaded_file
             
@@ -429,6 +430,29 @@ module Thoughtbot #:nodoc:
 
             [ scale_geometry, crop_geometry ]
           end
+        end
+      end
+      
+      def fetch_uri uri
+        image = if uri.scheme == 'file'
+          path = url.gsub(%r{^file://}, '/')
+          open(path)
+        else
+          require 'open-uri'
+          uri
+        end
+        begin
+          data = StringIO.new(image.read)
+          uri.extend(Upfile)
+          class << data
+            attr_accessor :original_filename, :content_type
+          end
+          data.original_filename = uri.original_filename
+          data.content_type = uri.content_type
+          data
+        rescue OpenURI::HTTPError => e
+          $stderr.puts "#{e.message}: #{uri.to_s}"
+          return nil
         end
       end
       
