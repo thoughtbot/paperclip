@@ -1,3 +1,5 @@
+require 'environment'
+
 def obtain_class
   class_name = ENV['CLASS'] || ENV['class']
   @klass = eval(class_name)
@@ -22,9 +24,12 @@ namespace :paperclip do
     puts "Regenerating thumbnails for #{instances.length} instances:"
     instances.each do |instance|
       names.each do |name|
-        original_file = instance.send("#{name}_file_name", :original)
-        next if original_file.blank?
-        instance.send("#{name}=", File.new(original_file))
+        # original_file = instance.send("#{name}_file_name", :original)
+        # next if original_file.blank?
+        # original_name = instance["#{name}_file_name"]
+        # file = File.new(original_file)
+        # file.original_filename = original_name
+        # instance.send("#{name}=", file)
         instance.send("process_#{name}_thumbnails")
       end
       print instance.save ? "." : "x"; $stdout.flush

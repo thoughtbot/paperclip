@@ -346,9 +346,11 @@ module Thoughtbot #:nodoc:
         return if attachment[:files].blank?
         ensure_directories_for attachment
         attachment[:files].each do |style, atch|
+          atch.rewind
+          data = atch.read
           File.open( path_for(attachment, style), "w" ) do |file|
-            atch.rewind
-            file.write(atch.read)
+            file.rewind
+            file.write(data)
           end
         end
         attachment[:files] = nil
@@ -367,6 +369,8 @@ module Thoughtbot #:nodoc:
       end
 
       def make_thumbnails attachment
+        attachment[:files] ||= {}
+        attachment[:files][:original] ||= File.new( path_for(attachment, :original) )
         attachment[:thumbnails].each do |style, geometry|
           begin
             attachment[:files][style] = make_thumbnail(attachment, attachment[:files][:original], geometry)
@@ -451,6 +455,7 @@ module Thoughtbot #:nodoc:
           data.content_type = uri.content_type
           data
         rescue OpenURI::HTTPError => e
+          self.errors.add_to_base("The file at #{uri.to_s} could not be found.")
           $stderr.puts "#{e.message}: #{uri.to_s}"
           return nil
         end
@@ -487,7 +492,12 @@ module Thoughtbot #:nodoc:
       
       # Returns the file's normal name.
       def original_filename
-        self.path
+        @original_filename ||= self.path
+      end
+      
+      # In case we need to override the name, like in the case of refreshing.
+      def original_filename= name
+        @original_filename = name
       end
       
       # Returns the size of the file.
