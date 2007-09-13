@@ -492,12 +492,7 @@ module Thoughtbot #:nodoc:
       
       # Returns the file's normal name.
       def original_filename
-        @original_filename ||= self.path
-      end
-      
-      # In case we need to override the name, like in the case of refreshing.
-      def original_filename= name
-        @original_filename = name
+        self.path
       end
       
       # Returns the size of the file.

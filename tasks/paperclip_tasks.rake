@@ -24,36 +24,10 @@ namespace :paperclip do
     puts "Regenerating thumbnails for #{instances.length} instances:"
     instances.each do |instance|
       names.each do |name|
-        # original_file = instance.send("#{name}_file_name", :original)
-        # next if original_file.blank?
-        # original_name = instance["#{name}_file_name"]
-        # file = File.new(original_file)
-        # file.original_filename = original_name
-        # instance.send("#{name}=", file)
         instance.send("process_#{name}_thumbnails")
       end
       print instance.save ? "." : "x"; $stdout.flush
     end
     puts " Done."
   end
-  
-  # desc "Cleans out unused attachments for the given CLASS (and optional ATTACHMENT)"
-  # task :clean do
-  #   klass     = obtain_class
-  #   instances = klass.find(:all)
-  #   names     = obtain_attachments
-  #   
-  #   puts "Finding thumbnails for #{instances.length} instances:"
-  #   files = instances.map do |instance|
-  #     names.map do |name|
-  #       styles = instance.attachment(name)[:thumbnails].keys
-  #       styles << :original
-  #       styles.map do |style|
-  #         instance.send("#{name}_file_name", style)
-  #       end
-  #     end
-  #   end
-  #   
-  #   pp files
-  # end
 end
