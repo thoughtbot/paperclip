@@ -1,6 +1,6 @@
 module Thoughtbot
   module Paperclip
-    module ClassMethods
+    module ClassMethods #:nodoc:
       def has_attached_file_with_s3 *attachment_names
         attachments, options = has_attached_file_without_s3 *attachment_names
 
@@ -35,8 +35,8 @@ module Thoughtbot
       end
     end
 
-    class Storage
-      class S3 < Storage
+    class Storage #:nodoc:
+      class S3 < Storage #:nodoc:
         def path_for attachment, style = nil
           style ||= attachment[:default_style]
           file = attachment[:instance]["#{attachment[:name]}_file_name"]
