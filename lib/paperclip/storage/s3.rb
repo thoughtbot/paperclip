@@ -1,6 +1,7 @@
 module Thoughtbot
   module Paperclip
-    module ClassMethods #:nodoc:
+    
+    module ClassMethods
       def has_attached_file_with_s3 *attachment_names
         attachments, options = has_attached_file_without_s3 *attachment_names
 

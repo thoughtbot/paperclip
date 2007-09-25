@@ -107,7 +107,7 @@ module Thoughtbot #:nodoc:
       #   the +path_prefix+ and +path+ parameters. The second is using Amazon's S3 service, via the AWS::S3 gem.
       #   When +storage+ is set to :s3, Paperclip will at :s3_credentials_file in its options for a path to a YAML
       #   file that will specify the access_key_id and secret_access_key for S3. If none is specified, it will look
-      #   for a the same file at the default location of +RAILS_ROOT/config/s3.yml+. When using S3, the +url_prefix+
+      #   for a the same file at the default location of RAILS_ROOT/config/s3.yml. When using S3, the +url_prefix+
       #   is the name of the bucket in which the files will be stored. Note that while the +url_prefix+ is still
       #   interpolated, S3 does not allow anything but alphanumerics and underscores, so it's a good practice to keep
       #   your interpolations to the +path+ parameter. Files are stored with default permissions of :public_read. You

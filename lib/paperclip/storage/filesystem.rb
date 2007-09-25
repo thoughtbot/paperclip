@@ -1,12 +1,11 @@
 module Thoughtbot
   module Paperclip
-    module ClassMethods #:nodoc:
-
-      def has_attached_file_with_fs *attachment_names
-        has_attached_file_without_fs *attachment_names
+    
+    module ClassMethods
+      def has_attached_file_with_filesystem *attachment_names
+        has_attached_file_without_filesystem *attachment_names
       end
-      alias_method_chain :has_attached_file, :fs
-
+      alias_method_chain :has_attached_file, :filesystem
     end
 
     class Storage #:nodoc:
