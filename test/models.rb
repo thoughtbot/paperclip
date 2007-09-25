@@ -13,6 +13,12 @@ begin
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
   end
+  ActiveRecord::Base.connection.create_table :ess_threes, :force => true do |table|
+    table.column :resume_file_name, :string
+    table.column :resume_content_type, :string
+    table.column :avatar_file_name, :string
+    table.column :avatar_content_type, :string
+  end
   ActiveRecord::Base.connection.create_table :negatives, :force => true do |table|
     table.column :this_is_the_wrong_name_file_name, :string
   end
@@ -46,6 +52,24 @@ class NonStandard < ActiveRecord::Base
                     :default_style => :square,
                     :missing_url => "/:class/:style/:attachment/404.png"
 end
+
+# class EssThree < ActiveRecord::Base
+#   has_attached_file :resume, :attachment_type => :document,
+#                     :path_prefix => "paperclip/test",
+#                     :path => ":attachment_:id_:name",
+#                     :missing_url => "/:class/:style/:attachment/404.txt",
+#                     :storage => :S3
+#   has_attached_file :avatar, :attachment_type => :image,
+#                     :thumbnails => { :cropped => "200x10#",
+#                                      :bigger  => "1000x1000",
+#                                      :smaller => "200x200>",
+#                                      :square  => "150x150#" },
+#                     :path_prefix => "paperclip/test/images",
+#                     :path => ":class/:attachment/:id/:style_:name",
+#                     :default_style => :square,
+#                     :missing_url => "/:class/:style/:attachment/404.png",
+#                     :storage => :S3
+# end
 
 class Negative < ActiveRecord::Base
 end
