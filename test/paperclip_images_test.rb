@@ -22,7 +22,7 @@ class PaperclipImagesTest < Test::Unit::TestCase
   end
 
   def test_should_save_the_file_and_its_thumbnails
-    assert @foo.save
+    assert @foo.save, @foo.errors.full_messages.inspect
     assert File.exists?( @foo.image_file_name(:original) ), @foo.image_file_name(:original)
     assert File.exists?( @foo.image_file_name(:medium) ), @foo.image_file_name(:medium)
     assert File.exists?( @foo.image_file_name(:thumb) ), @foo.image_file_name(:thumb)
@@ -43,7 +43,7 @@ class PaperclipImagesTest < Test::Unit::TestCase
   def test_should_ensure_that_file_are_accessible_after_reload
     assert @foo.save
     assert @foo.image_valid?
-    assert @foo.valid?
+    assert @foo.valid?, @foo.errors.full_messages.inspect
     
     @foo2 = Foo.find @foo.id
     assert @foo.image_valid?
@@ -72,7 +72,7 @@ class PaperclipImagesTest < Test::Unit::TestCase
     end
     
     assert @foo.destroy_image
-    assert @foo.save
+    assert @foo.save, @foo.errors.full_messages.inspect
     mappings.each do |style, file, url|
       assert_not_equal file, @foo.image_file_name(style)
       assert_equal "", @foo.image_file_name(style)
@@ -128,8 +128,8 @@ class PaperclipImagesTest < Test::Unit::TestCase
     Thoughtbot::Paperclip.options[:image_magick_path] = "/does/not/exist"
 
     assert_nothing_raised{ @foo.image = @file }
-    assert !@foo.save
     assert !@foo.valid?
+    assert !@foo.save, @foo.errors.full_messages.inspect
     assert @foo.errors.length > 0
     assert @foo.errors.on(:image)
     [@foo.errors.on(:image)].flatten.each do |err|

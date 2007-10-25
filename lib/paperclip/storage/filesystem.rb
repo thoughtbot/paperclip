@@ -1,78 +1,80 @@
 module Thoughtbot
   module Paperclip
-    
-    module ClassMethods
-      def has_attached_file_with_filesystem *attachment_names
-        has_attached_file_without_filesystem *attachment_names
-      end
-      alias_method_chain :has_attached_file, :filesystem
-    end
+    module Storage
+      # == Filesystem
+      # Typically, Paperclip stores your files in the filesystem, so that Apache (or whatever your
+      # main asset server is) can easily access your files without Rails having to be called all
+      # the time.
+      module Filesystem
 
-    class Storage #:nodoc:
-      class Filesystem < Storage #:nodoc:
-        def path_for attachment, style = nil
-          style ||= attachment[:default_style]
-          file = attachment[:instance]["#{attachment[:name]}_file_name"]
-          return nil unless file && attachment[:instance].id
-
-          prefix = interpolate attachment, "#{attachment[:path_prefix]}/#{attachment[:path]}", style
-          File.join( prefix.split("/") )
-        end
-
-        def url_for attachment, style = nil
-          style ||= attachment[:default_style]
-          file = attachment[:instance]["#{attachment[:name]}_file_name"]
-          return nil unless file && attachment[:instance].id
-
-          interpolate attachment, "#{attachment[:url_prefix]}/#{attachment[:path]}", style
-        end
-
-        def ensure_directories_for attachment
-          attachment[:files].each do |style, file|
-            dirname = File.dirname(path_for(attachment, style))
-            FileUtils.mkdir_p dirname
+        def file_name style = nil
+          style ||= @definition.default_style
+          pattern = if original_filename && instance.id
+            File.join(@definition.path_prefix, @definition.path)
+          else
+            @definition.missing_file_name
           end
+          interpolate( style, pattern )
         end
 
-        def write_attachment attachment
-          return if attachment[:files].blank?
-          ensure_directories_for attachment
-          attachment[:files].each do |style, atch|
-            atch.rewind
-            data = atch.read
-            File.open( path_for(attachment, style), "w" ) do |file|
+        def url style = nil
+          style ||= @definition.default_style
+          pattern = if original_filename && instance.id
+            [@definition.url_prefix, @definition.url || @definition.path].compact.join("/")
+          else
+            @definition.missing_url
+          end
+          interpolate( style, pattern )
+        end
+
+        def write_attachment
+          return if @files.blank?
+          ensure_directories
+          @files.each do |style, data|
+            data.rewind
+            data = data.read
+            File.open( file_name(style), "w" ) do |file|
               file.rewind
               file.write(data)
             end
           end
-          attachment[:files] = nil
-          attachment[:dirty] = false
         end
 
-        def delete_attachment attachment, complain = false
-          (attachment[:thumbnails].keys + [:original]).each do |style|
-            file_path = path_for(attachment, style)
+        def delete_attachment complain = false
+          @definition.styles.keys.each do |style|
+            file_path = file_name(style)
             begin
               FileUtils.rm file_path if file_path
             rescue SystemCallError => e
-              raise PaperclipError.new(attachment), "Could not delete thumbnail." if ::Thoughtbot::Paperclip.options[:whiny_deletes] || complain
+              raise PaperclipError.new(self), "Could not delete thumbnail." if Thoughtbot::Paperclip.options[:whiny_deletes] || complain
             end
+          end
+        end
+        
+        def validate_existence *constraints
+          @definition.styles.keys.each do |style|
+            if @dirty
+              errors << "requires a valid #{style} file." unless @files && @files[style]
+            else
+              errors << "requires a valid #{style} file." unless File.exists?( file_name(style) )
+            end
+          end
+        end
+        
+        def validate_size *constraints
+          errors << "file too large. Must be under #{constraints.last} bytes." if original_file_size > constraints.last
+          errors << "file too small. Must be over #{constraints.first} bytes." if original_file_size <= constraints.first
+        end
+        
+        private
+
+        def ensure_directories
+          @files.each do |style, file|
+            dirname = File.dirname( file_name(style) )
+            FileUtils.mkdir_p dirname
           end
         end
 
-        def attachment_valid? attachment
-          attachment[:thumbnails].merge(:original => nil).all? do |style, geometry|
-            if attachment[:instance]["#{attachment[:name]}_file_name"]
-              if attachment[:dirty]
-                !attachment[:files][style].blank? && attachment[:errors].empty?
-              else
-                File.file?( path_for(attachment, style) )
-              end
-            else
-              false
-            end
-          end
-        end
       end
     end
   end

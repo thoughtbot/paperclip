@@ -15,8 +15,8 @@ class PaperclipTest < Test::Unit::TestCase
   end
 
   def test_should_validate_before_save
-    assert @bar.document_valid?
-    assert @bar.valid?
+    assert @bar.document_valid?, @bar.errors.full_messages.inspect
+    assert @bar.valid?, @bar.errors.full_messages.inspect
   end
 
   def test_should_save_the_created_file_to_the_final_asset_directory
@@ -25,9 +25,9 @@ class PaperclipTest < Test::Unit::TestCase
   end
 
   def test_should_validate
-    assert @bar.save
-    assert @bar.document_valid?
-    assert @bar.valid?
+    assert @bar.save, @bar.errors.full_messages.inspect
+    assert @bar.document_valid?, @bar.errors.full_messages.inspect
+    assert @bar.valid?, @bar.errors.full_messages.inspect
   end
   
   def test_should_default_to_original_for_path_and_url
@@ -47,7 +47,7 @@ class PaperclipTest < Test::Unit::TestCase
   def test_should_put_on_errors_if_no_file_exists
     assert @bar.save
     @bar.document = nil
-    assert !@bar.document_valid?
+    assert !@bar.document_valid?, @bar.errors.full_messages.inspect
     assert !@bar.save
     assert @bar.errors.length > 0
     assert @bar.errors.on(:document)
