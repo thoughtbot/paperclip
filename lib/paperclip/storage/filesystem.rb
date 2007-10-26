@@ -8,31 +8,28 @@ module Thoughtbot
       module Filesystem
 
         def file_name style = nil
-          style ||= @definition.default_style
+          style ||= definition.default_style
           pattern = if original_filename && instance.id
-            File.join(@definition.path_prefix, @definition.path)
+            File.join(definition.path_prefix, definition.path)
           else
-            @definition.missing_file_name
+            definition.missing_file_name
           end
           interpolate( style, pattern )
         end
 
         def url style = nil
-          style ||= @definition.default_style
+          style ||= definition.default_style
           pattern = if original_filename && instance.id
-            [@definition.url_prefix, @definition.url || @definition.path].compact.join("/")
+            [definition.url_prefix, definition.url || definition.path].compact.join("/")
           else
-            @definition.missing_url
+            definition.missing_url
           end
           interpolate( style, pattern )
         end
 
         def write_attachment
-          return if @files.blank?
           ensure_directories
-          @files.each do |style, data|
-            data.rewind
-            data = data.read
+          for_attached_files do |style, data|
             File.open( file_name(style), "w" ) do |file|
               file.rewind
               file.write(data)
@@ -41,7 +38,7 @@ module Thoughtbot
         end
 
         def delete_attachment complain = false
-          @definition.styles.keys.each do |style|
+          definition.styles.keys.each do |style|
             file_path = file_name(style)
             begin
               FileUtils.rm file_path if file_path
@@ -51,13 +48,14 @@ module Thoughtbot
           end
         end
         
+        def file_exists?(style)
+          style ||= definition.default_style
+          dirty? ? file_for(style) : File.exists?( file_name(style) )
+        end
+        
         def validate_existence *constraints
-          @definition.styles.keys.each do |style|
-            if @dirty
-              errors << "requires a valid #{style} file." unless @files && @files[style]
-            else
-              errors << "requires a valid #{style} file." unless File.exists?( file_name(style) )
-            end
+          definition.styles.keys.each do |style|
+            errors << "requires a valid #{style} file." unless file_exists?(style)
           end
         end
         
@@ -69,7 +67,7 @@ module Thoughtbot
         private
 
         def ensure_directories
-          @files.each do |style, file|
+          for_attached_files do |style, file|
             dirname = File.dirname( file_name(style) )
             FileUtils.mkdir_p dirname
           end

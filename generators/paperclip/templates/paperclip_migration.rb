@@ -3,7 +3,7 @@ class <%= migration_name %> < ActiveRecord::Migration
 <% attachments.each do |attachment| -%>
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_name, :string
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_content_type, :string
-    add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_size, :integer
+    add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_size, :integer
 <% end -%>
   end
 
@@ -11,7 +11,7 @@ class <%= migration_name %> < ActiveRecord::Migration
 <% attachments.each do |attachment| -%>
     remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_name
     remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_content_type
-    remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_size
+    remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_size
 <% end -%>
   end
 end

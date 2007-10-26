@@ -133,11 +133,11 @@ module Thoughtbot #:nodoc:
       #
       # == Model Requirements
       # For any given attachment _foo_, the model the attachment is in needs to have both a +foo_file_name+
-      # and +foo_content_type+ column, as a type of +string+. The +foo_file_name+ column contains only the name
+      # and +foo_content_type+ column, as a type of +string+, and a +foo_file_size+ column as type +integer+.
+      # The +foo_file_name+ column contains only the name
       # of the file and none of the path information. However, the +foo_file_name+ column accessor is overwritten
       # by the one (defined above) which returns the full path to whichever style thumbnail is passed in.
-      # In a pinch, you can either use +read_attribute+ or the plain +foo+ accessor, which returns the database's
-      # +foo_file_name+ column.
+      # To access the name as stored in the database, you can use Attachment#original_filename.
       #
       # == Event Triggers
       # When an attachment is set by using he setter (+model.attachment=+), the thumbnails are created and held in
@@ -154,7 +154,10 @@ module Thoughtbot #:nodoc:
         class << self
           attr_accessor :attachment_definitions
         end
+        
         include InstanceMethods
+        after_save :save_attachments
+        before_destroy :destroy_attachments
         
         validates_each(*attachment_names) do |record, attr, value|
           value.errors.each{|e| record.errors.add(attr, e) unless record.errors.on(attr) && record.errors.on(attr).include?(e) }
@@ -191,18 +194,6 @@ module Thoughtbot #:nodoc:
           define_method "destroy_#{name}" do |*args|
             attachment_for(name).queue_destroy(args.first)
           end
-
-          define_method "#{name}_after_save" do
-            attachment_for(name).save
-          end
-          private :"#{name}_after_save"
-          after_save :"#{name}_after_save"
-          
-          define_method "#{name}_before_destroy" do
-            attachment_for(name).destroy
-          end
-          private :"#{name}_before_destroy"
-          before_destroy :"#{name}_before_destroy"
         end
       end
       
@@ -221,6 +212,18 @@ module Thoughtbot #:nodoc:
         end
         alias_method_chain :after_initialize, :paperclip
         
+        def save_attachments
+          @attachments.each do |name, attachment|
+            attachment.save
+          end
+        end
+        
+        def destroy_attachments
+          @attachments.each do |name, attachment|
+            attachment.destroy
+          end
+        end
+        
         def attachment_for name
           @attachments[name]
         end
@@ -230,17 +233,27 @@ module Thoughtbot #:nodoc:
         @attachment_definitions.keys
       end
 
+      # Paperclip always validates whether or not file creation was successful, but does not validate
+      # the presence or size of the file unless told. You can specify validations either in the
+      # has_attached_file call or with a separate validates_attached_file call, with a syntax similar
+      # to has_attached_file. If no options are given, the existence of the file is validated.
+      #
+      #   validates_attached_file :avatar, :existence => true, :size => 0..(500.kilobytes)
       def validates_attached_file *attachment_names
+        options = attachment_names.pop if attachment_names.last.is_a? Hash
+        options ||= { :existence => true }
         attachment_names.each do |name|
-          @attachment_definitions[name].validate :existence
+          options.each do |key, value|
+            @attachment_definitions[name].validate key, value
+          end
         end
       end
       
       def whine_about_columns_for name #:nodoc:
-        [ "#{name}_file_name", "#{name}_content_type", "#{name}_size" ].each do |column|
+        [ "#{name}_file_name", "#{name}_content_type", "#{name}_file_size" ].each do |column|
           unless column_names.include?(column)
             raise PaperclipError, "Class #{self.name} does not have all of the necessary columns to have an attachment named #{name}. " + 
-                                  "(#{name}_file_name, #{name}_content_type, and #{name}_size)"
+                                  "(#{name}_file_name, #{name}_content_type, and #{name}_file_size)"
           end
         end
       end
@@ -265,12 +278,20 @@ module Thoughtbot #:nodoc:
     # * delete_attachment: Delete the files and thumbnails from the storage medium. Should return true or false
     #   depending on success.
     #
-    # When writing files, the @files variable will hold a hash of style names and their data. If @files is nil,
-    # then no new data has been assigned to the attachment and you should not perform any work.
-    #
-    # You will also have access to @definition, which is the AttachmentDefintion object for the attachment. The
-    # methods in your module will be mixed into an Attachment instance, so you have full access to the
-    # Attachment itself.
+    # When writing a storage system, your code will be mixed into the Attachment that the file represents. You
+    # will therefore have access to all of the methods available to Attachments. Some methods of note are:
+    # * definition: Returns the AttachmentDefintion object created by has_attached_file. Useful for getting
+    #   style definitions and flags that you want to set. You should open the AttachmentDefinition class to
+    #   add getters for any options you want to be able to set.
+    # * instance: Returns the ActiveRecord object that the Attachment is attached to. Can be used to obtain ids.
+    # * original_filename: Returns the original_filename, which is the same as the attachment_file_name column
+    #   in the database. Should be nil if there is no attachment.
+    # * original_file_size: Returns the size of the original file, as passed to Attachment#assign.
+    # * interpolate: Given a style and a pattern, this will interpolate variables like :rails_root, :name,
+    #   and :id. See documentation for has_attached_file for more info on interpolation.
+    # * for_attached_files: Iterates over the collection of files for this attachment, passing the style name
+    #   and the data to the block. Will not call the block if the data is nil.
+    # * dirty?: Returns true if a new file has been assigned with Attachment#assign, false otherwise.
     #
     # == Validations
     # Storage systems provide their own validations, since the manner of checking the status of them is usually

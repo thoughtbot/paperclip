@@ -53,9 +53,9 @@ class PaperclipNonStandardTest < Test::Unit::TestCase
   def test_should_delete_files_on_destroy
     assert @ns.save
     assert File.exists?( @ns.resume_file_name ), @ns.resume_file_name
-    assert File.exists?( @ns.avatar_file_name(:original) ), @ns.avatar_file_name(:original)
-    assert File.exists?( @ns.avatar_file_name(:bigger) )
-    assert File.exists?( @ns.avatar_file_name(:cropped) )
+    [:original, :bigger, :cropped].each do |style|
+      assert File.exists?( @ns.avatar_file_name(style) ), @ns.avatar_file_name(style)
+    end
 
     resume_file_name  = @ns.resume_file_name
     avatar_file_names = [:original, :bigger, :cropped].map{|style| @ns.avatar_file_name(style) }

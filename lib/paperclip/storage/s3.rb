@@ -1,7 +1,7 @@
 module Thoughtbot
   module Paperclip
     
-    module ClassMethods #:nodoc:
+    module ClassMethods
       def has_attached_file_with_s3 *attachment_names
         has_attached_file_without_s3 *attachment_names
 
@@ -16,7 +16,7 @@ module Thoughtbot
           secret_key = Thoughtbot::Paperclip.options[:s3_secret_access_key]
         end
 
-        if @definition.storage_module == Thoughtbot::Paperclip::Storage::S3
+        if definition.storage_module == Thoughtbot::Paperclip::Storage::S3
           require 'aws/s3'
           AWS::S3::Base.establish_connection!(
             :access_key_id     => access_key,
@@ -79,11 +79,11 @@ module Thoughtbot
       # * s3_persistent: Maintains an HTTP connection to the Amazon service if possible.
       module S3
         def file_name style = nil
-          style ||= @definition.default_style
+          style ||= definition.default_style
           pattern = if original_filename && instance.id
-            @definition.url
+            definition.url
           else
-            @definition.missing_url
+            definition.missing_url
           end
           interpolate( style, pattern )
         end
@@ -93,16 +93,14 @@ module Thoughtbot
         end
 
         def write_attachment
-          return if @files.blank?
           bucket = ensure_bucket
-          @files.each do |style, data|
-            data.rewind
-            AWS::S3::S3Object.store( file_name(style), data, bucket, :access => @definition.s3_access || :public_read )
+          for_attached_files do |style, data|
+            AWS::S3::S3Object.store( file_name(style), data, bucket, :access => definition.s3_access || :public_read )
           end
         end
 
         def delete_attachment complain = false
-          (attachment[:thumbnails].keys + [:original]).each do |style|
+          for_attached_files do |style, data|
             begin
               AWS::S3::S3Object.delete( file_name(style), bucket )
             rescue AWS::S3::ResponseError => error
@@ -111,13 +109,14 @@ module Thoughtbot
           end
         end
         
+        def file_exists?(style)
+          style ||= definition.default_style
+          dirty? ? file_for(style) : AWS::S3::S3Object.exists?( file_name(style), bucket )
+        end
+        
         def validate_existence *constraints
-          @definition.styles.keys.each do |style|
-            if @dirty
-              errors << "requires a valid #{style} file." unless @files && @files[style]
-            else
-              errors << "requires a valid #{style} file." unless AWS::S3::S3Object.exists?( file_name(style), bucket )
-            end
+          definition.styles.keys.each do |style|
+            errors << "requires a valid #{style} file." unless file_exists?(style)
           end
         end
         
@@ -129,7 +128,7 @@ module Thoughtbot
         private
         
         def bucket
-          interpolate(nil, @definition.url_prefix)
+          interpolate(nil, definition.url_prefix)
         end
 
         def ensure_bucket
