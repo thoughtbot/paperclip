@@ -152,7 +152,7 @@ module Thoughtbot #:nodoc:
         @attachment_definitions ||= {}
         
         class << self
-          attr_accessor :attachment_definitions
+          attr_reader :attachment_definitions
         end
         
         include InstanceMethods
