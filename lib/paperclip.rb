@@ -395,11 +395,12 @@ module Paperclip
       options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
 
       include InstanceMethods
-      class_inheritable_hash :attachment_definitions
+      #class_inheritable_hash :attachment_definitions
+      @attachment_definitions ||= {}
 
       attachment_names.each do |aname|
         whine_about_columns_for aname
-        self.attachment_definitions[aname] = AttachmentDefinition.new(aname, options)
+        @attachment_definitions[aname] = AttachmentDefinition.new(aname, options)
 
         define_method aname do
           attachment_for(aname)
@@ -412,7 +413,11 @@ module Paperclip
     end
 
     def attached_files
-      attachment_definitions.keys
+      @attachment_definitions.keys
+    end
+    
+    def attachment_definition_for attachment
+      @attachment_definitions[attachment]
     end
 
     # Adds errors if the attachments you specify are either missing or had errors on them.
@@ -426,10 +431,9 @@ module Paperclip
     end
 
     def whine_about_columns_for attachment #:nodoc:
-      name = attachment[:name]
-      unless column_names.include?("#{name}_file_name") && column_names.include?("#{name}_content_type")
-        error = "Class #{self.name} does not have the necessary columns to have an attachment named #{name}. " +
-                "(#{name}_file_name and #{name}_content_type)"
+      unless column_names.include?("#{attachment}_file_name") && column_names.include?("#{attachment}_content_type")
+        error = "Class #{name} does not have the necessary columns to have an attachment named #{attachment}. " +
+                "(#{attachment}_file_name and #{attachment}_content_type)"
         raise PaperclipError, error
       end
     end

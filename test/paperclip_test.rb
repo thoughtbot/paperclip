@@ -1,7 +1,7 @@
 require 'test/unit'
 require File.dirname(__FILE__) + "/test_helper.rb"
 require File.dirname(__FILE__) + "/simply_shoulda.rb"
-require File.dirname(__FILE__) + "/../lib/paperclip-c.rb"
+require File.dirname(__FILE__) + "/../init.rb"
 
 class PaperclipTest < Test::Unit::TestCase
 
@@ -29,6 +29,7 @@ class PaperclipTest < Test::Unit::TestCase
           table.column :document_content_type, :string
           table.column :document_file_size, :integer
         end
+        Object.send(:remove_const, :Foo) rescue nil
         class ::Foo < ActiveRecord::Base; end
       end
 
@@ -51,6 +52,7 @@ class PaperclipTest < Test::Unit::TestCase
       should "be able to set options on attachments" do
         assert Foo.has_attached_file :image, :thumbnails => {:thumb => "100x100"}
         assert_equal [:image], Foo.attached_files
+        assert_equal( {:thumb => "100x100"}, Foo.attachment_definition_for(:image).thumbnails )
       end
     end
 
