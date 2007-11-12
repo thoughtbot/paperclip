@@ -56,8 +56,8 @@ module Paperclip
   class AttachmentDefinition
     def self.defaults
       @defaults ||= {
-        :path               => ":rails_root/public/:class/:attachment/:id/:style_:name",
-        :url                => "/:class/:attachment/:id/:style_:name",
+        :path               => ":rails_root/public/:class/:attachment/:id/:style_:filename",
+        :url                => "/:class/:attachment/:id/:style_:filename",
         :missing_url        => "/:class/:attachment/:style_missing.png",
         :attachment_type    => :image,
         :thumbnails         => {},
@@ -80,7 +80,7 @@ module Paperclip
     end
     
     def thumbnails
-      @thumbnails ||= @options[:thumbnails]
+      @thumbnails ||= @options[:thumbnails] || {}
     end
 
     def validate thing, *constraints
@@ -90,8 +90,8 @@ module Paperclip
     def validations
       @validations ||= @options.inject({}) do |valids, opts|
         key, val = opts
-        if (m = key.to_s.match(/^validate_(.+)/))
-          valids[m[1]] = val
+        if (m = key.to_s.match(/^validates?_(.+)/))
+          valids[m[1].to_sym] = val
         end
         valids
       end
@@ -108,9 +108,9 @@ module Paperclip
   class Attachment
     attr_reader :name, :instance, :original_filename, :content_type, :original_file_size, :definition, :errors
 
-    def initialize name, active_record, definition
+    def initialize active_record, name, definition
       @instance   = active_record
-      @definition = defintiion
+      @definition = definition
       @name       = name
       @errors     = []
 
@@ -132,7 +132,7 @@ module Paperclip
       self[:original]         = uploaded_file
       @dirty                  = true
 
-      if definition.type == :image
+      if definition.attachment_type == :image
         make_thumbnails_from uploaded_file
       end
     end
@@ -147,7 +147,7 @@ module Paperclip
 
     def clear_files
       @files = {}
-      definition.styles.each{|style| @files[style] = nil }
+      definition.styles.each{|style, geo| @files[style] = nil }
       @dirty = false
     end
 
@@ -180,17 +180,18 @@ module Paperclip
       clear_files
     end
 
-    def queue_destroy(complain = false)
+    def destroy(complain = false)
       returning true do
-        @delete_on_save        = true
-        @complain_on_delete    = complain
-        self.original_filename = nil
-        self.content_type      = nil
+        @delete_on_save         = true
+        @complain_on_delete     = complain
+        self.original_filename  = nil
+        self.content_type       = nil
+        self.original_file_size = nil
         clear_files
       end
     end
 
-    def destroy
+    def destroy!
       delete_attachment if definition.delete_on_destroy
     end
 
@@ -205,7 +206,8 @@ module Paperclip
     end
     
     def read style = nil
-      self[style] ? self[style].read : IO.read(file_name(style))  
+      style ||= definition.default_style
+      self[style] ? (self[style].rewind && self[style].read) : IO.read(file_name(style))  
     end
 
     def validate_existence *constraints
@@ -296,7 +298,7 @@ module Paperclip
         raise PaperclipError, "could not be thumbnailed."
       end
       if Paperclip.options[:whiny_thumbnails] && !$?.success?
-        raise PaperclipError, "could not be thumbaniled because of an error with 'convert'."
+        raise PaperclipError, "could not be thumbnailed because of an error with 'convert'."
       end
       thumb
     end
@@ -316,14 +318,14 @@ module Paperclip
 
           scale_geometry, scale = if dst[0] == dst[1]
             if srch
-              [ "x#{dst[1]}", src[1] / dst[1] ]
+              [ "x#{dst[1].to_i}", src[1] / dst[1] ]
             else
-              [ "#{dst[0]}x", src[0] / dst[0] ]
+              [ "#{dst[0].to_i}x", src[0] / dst[0] ]
             end
           elsif dsth
-            [ "#{dst[0]}x", src[0] / dst[0] ]
+            [ "#{dst[0].to_i}x", src[0] / dst[0] ]
           else
-            [ "x#{dst[1]}", src[1] / dst[1] ]
+            [ "x#{dst[1].to_i}", src[1] / dst[1] ]
           end
 
           crop_geometry = if dsth
@@ -348,14 +350,16 @@ module Paperclip
         :class      => lambda{|style| self.instance.class.to_s.underscore.pluralize },
         :style      => lambda{|style| style.to_s },
         :attachment => lambda{|style| self.name.to_s.pluralize },
-        :filename   => lambda{|style| self.original_filename }
+        :filename   => lambda{|style| self.original_filename },
+        :basename   => lambda{|style| self.original_filename.gsub(/\..*$/, "") },
+        :extension  => lambda{|style| self.original_filename.gsub(/^.*./, "") }
       }
     end
 
     def interpolate style, source
       returning source.dup do |s|
         interpolations.each do |key, proc|
-          s.gsub!(/:#{key}/){ proc.call(instance, style) }
+          s.gsub!(/:#{key}/){ proc.call(style) }
         end
       end
     end
@@ -395,8 +399,13 @@ module Paperclip
       options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
 
       include InstanceMethods
+      after_save :save_attached_files
+      before_destroy :destroy_attached_files
+      
       #class_inheritable_hash :attachment_definitions
       @attachment_definitions ||= {}
+      @attachment_names       ||= []
+      @attachment_names        += attachment_names
 
       attachment_names.each do |aname|
         whine_about_columns_for aname
@@ -413,7 +422,7 @@ module Paperclip
     end
 
     def attached_files
-      @attachment_definitions.keys
+      @attachment_names
     end
     
     def attachment_definition_for attachment
@@ -442,7 +451,19 @@ module Paperclip
   module InstanceMethods #:nodoc:
     def attachment_for name
       @attachments ||= {}
-      @attachments[name] ||= Attachment.new(self, name)
+      @attachments[name] ||= Attachment.new(self, name, self.class.attachment_definition_for(name))
+    end
+    
+    def save_attached_files
+      @attachments.each do |name, attachment|
+        attachment.save
+      end
+    end
+    
+    def destroy_attached_files
+      @attachments.each do |name, attachment|
+        attachment.destroy!
+      end
     end
   end
 
@@ -462,7 +483,7 @@ module Paperclip
 
     # Returns the file's normal name.
     def original_filename
-      self.path
+      File.basename(self.path)
     end
 
     # Returns the size of the file.

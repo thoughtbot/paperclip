@@ -5,6 +5,9 @@ require 'active_record/fixtures'
 require 'fileutils'
 require 'pp'
 
+require File.dirname(__FILE__) + "/simply_shoulda.rb"
+require File.dirname(__FILE__) + "/../init.rb"
+
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config[ENV['RAILS_ENV'] || 'test'])
