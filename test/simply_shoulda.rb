@@ -24,10 +24,17 @@ class << Test::Unit::TestCase
   def should name, &test
     context_setups    = @context_setups.dup
     context_teardowns = @context_teardowns.dup
-    define_method(["test:", @contexts, "should", name].join(" ")) do
+    define_method(["test:", @contexts, "should", name].flatten.join(" ")) do
       context_setups.each { |setup| self.instance_eval(&setup) }
       self.instance_eval(&test)
       context_teardowns.each { |teardown| self.instance_eval(&teardown) }
+    end
+  end
+  
+  def should_eventually name
+    define_method(["test:", @contexts, "should eventually", name].flatten.join(" ")) do
+      STDOUT.print "X"
+      assert true
     end
   end
 end

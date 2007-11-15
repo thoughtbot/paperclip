@@ -24,7 +24,7 @@ end
 desc 'Clean up files.'
 task :clean do |t|
   FileUtils.rm_rf "doc"
-  FileUtils.rm_rf "repository"
+  FileUtils.rm_rf "test/public"
   FileUtils.rm_rf "tmp"
   FileUtils.rm "test/debug.log" rescue nil
   FileUtils.rm "test/paperclip.db" rescue nil

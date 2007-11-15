@@ -8,12 +8,6 @@ class TestAttachment < Test::Unit::TestCase
       @definition = Paperclip::AttachmentDefinition.new("thing", {})
       @attachment = Paperclip::Attachment.new(@dummy, "thing", @definition)
     end
-    
-    should "calculate geometries for cropping images" do
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_image.jpg"))
-      assert_equal ["50x", "50x25+0+10"], @attachment.send(:geometry_for_crop, "50x25", @file)
-      assert_equal ["x50", "50x50+2+0"], @attachment.send(:geometry_for_crop, "50x50", @file)
-    end
   end
   
   context "The class Foo" do
@@ -45,6 +39,7 @@ class TestAttachment < Test::Unit::TestCase
       end
       
       should "be able to retrieve the data as a blob" do
+        @file.rewind
         assert_equal @file.read, @foo.image.read
       end
       
@@ -78,7 +73,7 @@ class TestAttachment < Test::Unit::TestCase
       end
       
       should "have no errors" do
-        assert @foo.image.errors.blank?
+        assert @foo.image.errors.blank?, @foo.image.errors.inspect
         assert @foo.errors.blank?
       end
 
@@ -108,6 +103,19 @@ class TestAttachment < Test::Unit::TestCase
     end
     
     context "with an invalid image attached to :image" do
+      setup do
+        assert Foo.has_attached_file(:image, :thumbnails => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
+        assert Foo.validates_attached_file(:image)
+        @foo = Foo.new
+        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
+        assert_nothing_raised{ @foo.image = @file }
+      end
+
+      should "not save" do
+        assert !@foo.save
+        assert @foo.errors.on(:image)
+        assert @foo.errors.on(:image).any?{|e| e.match(/does not contain a valid image/) }
+      end
     end
   end
 end

@@ -78,7 +78,7 @@ module Paperclip
     def styles
       @styles ||= thumbnails.merge(:original => nil)
     end
-    
+
     def thumbnails
       @thumbnails ||= @options[:thumbnails] || {}
     end
@@ -114,9 +114,18 @@ module Paperclip
       @name       = name
       @errors     = []
 
+      # class << @errors
+      #   def push_with_log arg
+      #     puts "Pushing '#{arg}' onto errors."
+      #     push_without_log arg
+      #   end
+      #   alias_method :push_without_log, :<<
+      #   alias_method :<<, :push_with_log
+      # end
+
       clear_files
       @dirty = true
-      
+
       self.original_filename  = @instance["#{name}_file_name"]
       self.content_type       = @instance["#{name}_content_type"]
       self.original_file_size = @instance["#{name}_file_size"]
@@ -129,11 +138,11 @@ module Paperclip
       self.original_filename  = sanitize_filename(uploaded_file.original_filename)
       self.content_type       = uploaded_file.content_type
       self.original_file_size = uploaded_file.size
-      self[:original]         = uploaded_file
+      self[:original]         = uploaded_file.read
       @dirty                  = true
 
       if definition.attachment_type == :image
-        make_thumbnails_from uploaded_file
+        make_thumbnails_from(self[:original])
       end
     end
 
@@ -153,8 +162,7 @@ module Paperclip
 
     def for_attached_files
       @files.each do |style, data|
-        data.rewind if data && data.respond_to?(:rewind)
-        yield style, (data.respond_to?(:read) ? data.read : data)
+        yield style, data
       end
     end
 
@@ -204,10 +212,10 @@ module Paperclip
       end
       interpolate( style, pattern )
     end
-    
+
     def read style = nil
       style ||= definition.default_style
-      self[style] ? (self[style].rewind && self[style].read) : IO.read(file_name(style))  
+      self[style] ? self[style] : IO.read(file_name(style))  
     end
 
     def validate_existence *constraints
@@ -239,11 +247,11 @@ module Paperclip
         begin
           FileUtils.rm file_path if file_path
         rescue SystemCallError => e
-          raise PaperclipError, "Could not delete thumbnail." if Paperclip.options[:whiny_deletes] || complain
+          raise PaperclipError, "could not be deleted." if Paperclip.options[:whiny_deletes] || complain
         end
       end
     end
-    
+
     def file_name style = nil
       style ||= definition.default_style
       interpolate( style, definition.path )
@@ -267,7 +275,7 @@ module Paperclip
     def make_thumbnails_from data
       begin
         definition.thumbnails.each do |style, geometry|
-          self[style] = make_thumbnail geometry, data
+          self[style] = Thumbnail.make(geometry, data)
         end
       rescue PaperclipError => e
         errors << e.message
@@ -275,72 +283,9 @@ module Paperclip
         self[:original] = data
       end
     end
-    
-    protected
-
-    def make_thumbnail geometry, data
-      return data if geometry.nil?
-
-      operator = geometry[-1,1]
-      begin
-        geometry, crop_geometry = geometry_for_crop(geometry, data) if operator == '#'
-        convert = Paperclip.path_for_command("convert")
-        command = "#{convert} - -scale '#{geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} - 2>/dev/null"
-        thumb = IO.popen(command, "w+") do |io|
-          data.rewind
-          io.write(data.read)
-          io.close_write
-          StringIO.new(io.read)
-        end
-      rescue Errno::EPIPE => e
-        raise PaperclipError, "could not be thumbnailed. Is ImageMagick or GraphicsMagick installed and available?"
-      rescue SystemCallError => e
-        raise PaperclipError, "could not be thumbnailed."
-      end
-      if Paperclip.options[:whiny_thumbnails] && !$?.success?
-        raise PaperclipError, "could not be thumbnailed because of an error with 'convert'."
-      end
-      thumb
-    end
-
-    def geometry_for_crop geometry, orig_io
-      identify = Paperclip.path_for_command("identify")
-      IO.popen("#{identify} -", "w+") do |io|
-        orig_io.rewind
-        io.write(orig_io.read)
-        io.close_write
-        if match = io.read.split[2].match(/(\d+)x(\d+)/)
-          src   = match[1,2].map(&:to_f)
-          srch  = src[0] > src[1]
-          dst   = geometry.match(/(\d+)x(\d+)/)[1,2].map(&:to_f)
-          dsth  = dst[0] > dst[1]
-          ar    = src[0] / src[1]
-
-          scale_geometry, scale = if dst[0] == dst[1]
-            if srch
-              [ "x#{dst[1].to_i}", src[1] / dst[1] ]
-            else
-              [ "#{dst[0].to_i}x", src[0] / dst[0] ]
-            end
-          elsif dsth
-            [ "#{dst[0].to_i}x", src[0] / dst[0] ]
-          else
-            [ "x#{dst[1].to_i}", src[1] / dst[1] ]
-          end
-
-          crop_geometry = if dsth
-            "%dx%d+%d+%d" % [ dst[0], dst[1], 0, (src[1] / scale - dst[1]) / 2 ]
-          else
-            "%dx%d+%d+%d" % [ dst[0], dst[1], (src[0] / scale - dst[0]) / 2, 0 ]
-          end
-
-          [ scale_geometry, crop_geometry ]
-        end
-      end
-    end
 
     # Helper Methods
-    
+
     public
 
     def interpolations
@@ -379,7 +324,7 @@ module Paperclip
     def to_s
       url
     end
-    
+
     protected
 
     def is_a_file? data
@@ -393,6 +338,86 @@ module Paperclip
     end
   end
 
+  class Thumbnail
+    attr_accessor :geometry, :data
+    def initialize geometry, data
+      @geometry, @data = geometry, data
+    end
+    
+    def self.make geometry, data
+      new(geometry, data).make
+    end
+      
+    def make
+      return data if geometry.nil?
+      operator = geometry[-1,1]
+      begin
+        scale_geometry = geometry
+        scale_geometry, crop_geometry = geometry_for_crop if operator == '#'
+        convert = Paperclip.path_for_command("convert")
+        command = "#{convert} - -scale '#{scale_geometry}' #{operator == '#' ? "-crop '#{crop_geometry}'" : ""} - 2>/dev/null"
+        thumb = piping data, :to => command
+      rescue Errno::EPIPE => e
+        raise PaperclipError, "could not be thumbnailed. Is ImageMagick or GraphicsMagick installed and available?"
+      rescue SystemCallError => e
+        raise PaperclipError, "could not be thumbnailed."
+      end
+      if Paperclip.options[:whiny_thumbnails] && !$?.success?
+        raise PaperclipError, "could not be thumbnailed because of an error with 'convert'."
+      end
+      thumb
+    end
+
+    def geometry_for_crop
+      identify = Paperclip.path_for_command("identify")
+      piping data, :to => "#{identify} - 2>/dev/null" do |pipeout|
+        dimensions = pipeout.split[2]
+        if dimensions && (match = dimensions.match(/(\d+)x(\d+)/))
+          src   = match[1,2].map(&:to_f)
+          srch  = src[0] > src[1]
+          dst   = geometry.match(/(\d+)x(\d+)/)[1,2].map(&:to_f)
+          dsth  = dst[0] > dst[1]
+          ar    = src[0] / src[1]
+
+          scale_geometry, scale = if dst[0] == dst[1]
+            if srch
+              [ "x#{dst[1].to_i}", src[1] / dst[1] ]
+            else
+              [ "#{dst[0].to_i}x", src[0] / dst[0] ]
+            end
+          elsif dsth
+            [ "#{dst[0].to_i}x", src[0] / dst[0] ]
+          else
+            [ "x#{dst[1].to_i}", src[1] / dst[1] ]
+          end
+
+          crop_geometry = if dsth
+            "%dx%d+%d+%d" % [ dst[0], dst[1], 0, (src[1] / scale - dst[1]) / 2 ]
+          else
+            "%dx%d+%d+%d" % [ dst[0], dst[1], (src[0] / scale - dst[0]) / 2, 0 ]
+          end
+
+          [ scale_geometry, crop_geometry ]
+        else
+          raise PaperclipError, "does not contain a valid image."
+        end
+      end
+    end
+
+    def piping data, command, &block
+      self.class.piping(data, command, &block)
+    end
+    
+    def self.piping data, command, &block
+      command = command[:to] if command.respond_to?(:[]) && command[:to]
+      block ||= lambda {|d| d }
+      IO.popen(command, "w+") do |io|
+        io.write(data)
+        io.close_write
+        block.call(io.read)
+      end
+    end
+  end
 
   module ClassMethods
     def has_attached_file *attachment_names
@@ -401,7 +426,7 @@ module Paperclip
       include InstanceMethods
       after_save :save_attached_files
       before_destroy :destroy_attached_files
-      
+
       #class_inheritable_hash :attachment_definitions
       @attachment_definitions ||= {}
       @attachment_names       ||= []
@@ -424,7 +449,7 @@ module Paperclip
     def attached_files
       @attachment_names
     end
-    
+
     def attachment_definition_for attachment
       @attachment_definitions[attachment]
     end
@@ -434,7 +459,7 @@ module Paperclip
     def validates_attached_file *attachment_names
       validates_each *attachment_names do |record, name, attachment|
         attachment.errors.each do |error|
-          record.add(name, error)
+          record.errors.add(name, error)
         end
       end
     end
@@ -453,13 +478,13 @@ module Paperclip
       @attachments ||= {}
       @attachments[name] ||= Attachment.new(self, name, self.class.attachment_definition_for(name))
     end
-    
+
     def save_attached_files
       @attachments.each do |name, attachment|
         attachment.save
       end
     end
-    
+
     def destroy_attached_files
       @attachments.each do |name, attachment|
         attachment.destroy!
