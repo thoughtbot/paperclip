@@ -9,7 +9,7 @@ class TestAttachment < Test::Unit::TestCase
       @attachment = Paperclip::Attachment.new(@dummy, "thing", @definition)
     end
   end
-  
+
   context "The class Foo" do
     setup do
       ActiveRecord::Base.connection.create_table :foos, :force => true do |table|
@@ -24,7 +24,7 @@ class TestAttachment < Test::Unit::TestCase
       Object.send(:remove_const, :Foo) rescue nil
       class ::Foo < ActiveRecord::Base; end
     end
-    
+
     context "with an image attached to :image" do
       setup do
         assert Foo.has_attached_file(:image)
@@ -32,27 +32,27 @@ class TestAttachment < Test::Unit::TestCase
         @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_image.jpg"))
         assert_nothing_raised{ @foo.image = @file }
       end
-      
+
       should "be able to have a file assigned with :image=" do
         assert_equal "test_image.jpg", @foo.image.original_filename
         assert_equal "image/jpg", @foo.image.content_type
       end
-      
+
       should "be able to retrieve the data as a blob" do
         @file.rewind
         assert_equal @file.read, @foo.image.read
       end
-      
+
       context "and saved" do
         setup do
           assert @foo.save
         end
-        
+
         should "have no errors" do
           assert @foo.image.errors.blank?
           assert @foo.errors.blank?
         end
-        
+
         should "have a file on the filesystem" do
           assert @foo.image.send(:file_name)
           assert File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
@@ -62,7 +62,7 @@ class TestAttachment < Test::Unit::TestCase
         end
       end
     end
-    
+
     context "with an image with thumbnails attached to :image and saved" do
       setup do
         assert Foo.has_attached_file(:image, :thumbnails => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
@@ -71,7 +71,7 @@ class TestAttachment < Test::Unit::TestCase
         assert_nothing_raised{ @foo.image = @file }
         assert @foo.save
       end
-      
+
       should "have no errors" do
         assert @foo.image.errors.blank?, @foo.image.errors.inspect
         assert @foo.errors.blank?
@@ -89,7 +89,7 @@ class TestAttachment < Test::Unit::TestCase
           assert_equal "/foos/images/1/#{style}_test_image.jpg", @foo.image.url(style)
         end
       end
-      
+
       should "produce the correct dimensions when each style is identified" do
         assert_match /16x15/,   `identify '#{@foo.image.send(:file_name, :small)}'`
         assert_match /32x32/,   `identify '#{@foo.image.send(:file_name, :square)}'`  
@@ -98,24 +98,40 @@ class TestAttachment < Test::Unit::TestCase
         assert_match /405x375/, `identify '#{@foo.image.send(:file_name, :original)}'`
       end
     end
-    
+
     context "with an image with thumbnails attached to :image and a document attached to :document" do
     end
-    
-    context "with an invalid image attached to :image" do
+
+    context "with an invalid image with a square thumbnail attached to :image" do
       setup do
-        assert Foo.has_attached_file(:image, :thumbnails => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
+        assert Foo.has_attached_file(:image, :thumbnails => {:square => "32x32#"})
         assert Foo.validates_attached_file(:image)
         @foo = Foo.new
         @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
         assert_nothing_raised{ @foo.image = @file }
       end
 
-      should "not save" do
+      should "not save and should report errors from identify" do
         assert !@foo.save
         assert @foo.errors.on(:image)
-        assert @foo.errors.on(:image).any?{|e| e.match(/does not contain a valid image/) }
+        assert @foo.errors.on(:image).any?{|e| e.match(/does not contain a valid image/) }, @foo.errors.on(:image)
       end
     end
-  end
+    
+    context "with an invalid image attached to :image" do
+      setup do
+        assert Foo.has_attached_file(:image, :thumbnails => {:sorta_square => "32x32"})
+        assert Foo.validates_attached_file(:image)
+        @foo = Foo.new
+        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
+        assert_nothing_raised{ @foo.image = @file }
+      end
+
+      should "not save and should report errors from convert" do
+        assert !@foo.save
+        assert @foo.errors.on(:image)
+        assert @foo.errors.on(:image).any?{|e| e.match(/because of an error/) }, @foo.errors.on(:image)
+      end
+    end
+  end  
 end

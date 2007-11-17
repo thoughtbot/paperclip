@@ -1,34 +1,34 @@
 =Paperclip
 
-Paperclip is a lightweight attachment manager for ActiveRecord. It saves and manages your attachments, be they images or Word Docs, with one line of code. You can automatically thumbnail images as they're uploaded, and you don't have to worry about installing any ruby-specific libraries. You don't have to worry about compiling headaches with RMagick, concurrency issues and race conditions with MiniMagick, or unsupported image types with ImageScience. All you need is a working Image- or GraphicsMagick installation -- the +convert+ command is all you need.
+Paperclip is a lightweight attachment manager for ActiveRecord. It saves and manages your attachments, be they images or Word Docs, very easily. You can automatically thumbnail images as they're uploaded, and you don't have to worry about installing any ruby-specific libraries. You don't have to worry about compiling or memory overhead headaches with RMagick, concurrency issues and race conditions with MiniMagick or Tempfiles, or unsupported image types with ImageScience. All you need is a working Image- or GraphicsMagick installation -- the +convert+ and +identify+ commands are all you need.
 
-Paperclip uses the filesystem to save your files. You specify a root that the files will be saved to, and, if you're attaching images, any other sizes they need to be converted to, and they'll all be saved to the right place when your object saves.
+Paperclip uses the filesystem to save your files. You specify a path that the files will be saved to, and, if you're attaching images, any other sizes they need to be converted to, and they'll all be saved to the right place when your object saves. The primary intent of Paperclip is to treat a file like any other attribute, as transparently as possible. As such, files will not be saved until the record is saved, errors will be placed on the record if there were any conversion problems or failed validations, and assigning an attachment is as easy as "record.attachment_name = file".
 
-See the documentation for the +has_attached_file+ method for extensive details.
+See the documentation for the +has_attached_file+ method for options.
 
 ==Usage
 
 In your model:
 
-  class Photo < ActiveRecord::Base
-    has_attached_file :image, :thumbnails => { :medium => "300x300>", :thumb => "100x100>" }
+  class User < ActiveRecord::Base
+    has_attached_file :avatar, :thumbnails => { :medium => "300x300>", :thumb => "100x100>" }
   end
 
 In your edit and new views:
 
-  <% form_for :photo, @photo, :url => photo_path, :html => { :multipart => true } do |form| %>
-    <%= form.file_field :image %>
+  <% form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
+    <%= form.file_field :avatar %>
   <% end %>
 
 In your controller:
 
   def create
-    @photo = Photo.create( params[:photo] )
+    @user = User.create( params[:user][:avatar] )
   end
 
 In your show view:
 
-  <%= image_tag @photo.image_url %>
-  <%= image_tag @photo.image_url(:original) %>
-  <%= image_tag @photo.image_url(:medium) %>
-  <%= image_tag @photo.image_url(:thumb) %>
+  <%= image_tag @user.avatar.url %>
+  <%= image_tag @user.avatar.url(:original) %>
+  <%= image_tag @user.avatar.url(:medium) %>
+  <%= image_tag @user.avatar.url(:thumb) %>
