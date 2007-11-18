@@ -12,6 +12,10 @@ module Paperclip
           :secret_access_key => secret_key,
           :persistent        => Paperclip.options[:s3][:persistent] || true
         )
+        
+        class << base
+          alias_method_chain :url, :s3
+        end
       end
       
       def self.credentials
@@ -32,7 +36,7 @@ module Paperclip
       
       def url_with_s3 style = nil
         http_host = definition.s3_host || "http://s3.amazonaws.com"
-        "#{http_host}/#{bucket}/#{url_without_s3(style)}"
+        "#{http_host}/#{bucket}#{url_without_s3(style)}"
       end
       
       def file_name style = nil
