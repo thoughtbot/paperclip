@@ -4,15 +4,15 @@ require File.dirname(__FILE__) + "/test_helper.rb"
 class TestAttachmentDefinition < Test::Unit::TestCase
   context "Attachment definitions" do  
     should "allow overriding options" do
-      not_expected = Paperclip::AttachmentDefinition.defaults[:path]
-      Paperclip::AttachmentDefinition.defaults[:path] = "123"
-      assert_not_equal not_expected, Paperclip::AttachmentDefinition.defaults[:path]
-      assert_equal "123", Paperclip::AttachmentDefinition.defaults[:path]
+      not_expected = Paperclip::AttachmentDefinition.defaults[:file_path]
+      Paperclip::AttachmentDefinition.defaults[:file_path] = "123"
+      assert_not_equal not_expected, Paperclip::AttachmentDefinition.defaults[:file_path]
+      assert_equal "123", Paperclip::AttachmentDefinition.defaults[:file_path]
     end
     
     should "accept options that override defaults" do
-      @def = Paperclip::AttachmentDefinition.new "attachment", :path => "123", :delete_on_destroy => false
-      assert_not_equal Paperclip::AttachmentDefinition.defaults[:path], @def.path
+      @def = Paperclip::AttachmentDefinition.new "attachment", :file_path => "123", :delete_on_destroy => false
+      assert_not_equal Paperclip::AttachmentDefinition.defaults[:file_path], @def.path
       assert_not_equal Paperclip::AttachmentDefinition.defaults[:delete_on_destroy], @def.delete_on_destroy
       assert_equal "123", @def.path
       assert_equal false, @def.delete_on_destroy
@@ -22,7 +22,7 @@ class TestAttachmentDefinition < Test::Unit::TestCase
   context "An attachment defintion" do
     setup do
       @options = {
-        :path => "/home/stuff/place",
+        :file_path => "/home/stuff/place",
         :url => "/attachments/:attachment/:name",
         :custom_definition => :boogie!,
         :thumbnails => {:thumb => "100x100", :large => "300x300>"},

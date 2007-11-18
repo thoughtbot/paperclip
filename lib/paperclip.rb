@@ -29,6 +29,8 @@ require 'paperclip/attachment_definition'
 require 'paperclip/attachment'
 require 'paperclip/thumbnail'
 require 'paperclip/upfile'
+require 'paperclip/storage/filesystem'
+require 'paperclip/storage/s3'
 
 module Paperclip
 
@@ -160,15 +162,21 @@ module Paperclip
       @attachments ||= {}
       @attachments[name] ||= Attachment.new(self, name, self.class.attachment_definition_for(name))
     end
+    
+    def each_attachment
+      self.class.attached_files.each do |name|
+        yield(name, attachment_for(name))
+      end
+    end
 
     def save_attached_files
-      @attachments.each do |name, attachment|
+      each_attachment do |name, attachment|
         attachment.save
       end
     end
 
     def destroy_attached_files
-      @attachments.each do |name, attachment|
+      each_attachment do |name, attachment|
         attachment.destroy!
       end
     end

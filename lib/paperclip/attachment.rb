@@ -19,10 +19,13 @@ module Paperclip
       self.original_filename  = @instance["#{name}_file_name"]
       self.content_type       = @instance["#{name}_content_type"]
       self.original_file_size = @instance["#{name}_file_size"]
+      
+      storage_module = Paperclip::Storage.const_get((definition.storage || :filesystem).to_s.camelize)
+      self.extend(storage_module)
     end
 
     def assign uploaded_file
-      return queue_destroy if uploaded_file.nil?
+      return destroy if uploaded_file.nil?
       return unless is_a_file? uploaded_file
 
       self.original_filename  = sanitize_filename(uploaded_file.original_filename)
@@ -46,7 +49,7 @@ module Paperclip
 
     def clear_files
       @files = {}
-      definition.styles.each{|style, geo| @files[style] = nil }
+      definition.styles.each{|style, geo| self[style] = nil }
       @dirty = false
     end
 
@@ -119,52 +122,10 @@ module Paperclip
       errors << "file too small. Must be over #{constraints.first} bytes." if original_file_size <= constraints.first
     end
 
-    protected
-
-    def write_attachment
-      ensure_directories
-      for_attached_files do |style, data|
-        File.open( file_name(style), "w" ) do |file|
-          file.rewind
-          file.write(data) if data
-        end
-      end
-    end
-    
-    def read_attachment style = nil
-      IO.read(file_name(style))
-    end
-
-    def delete_attachment complain = false
-      for_attached_files do |style, data|
-        file_path = file_name(style)
-        begin
-          FileUtils.rm file_path if file_path
-        rescue SystemCallError => e
-          raise PaperclipError, "could not be deleted." if Paperclip.options[:whiny_deletes] || complain
-        end
-      end
-    end
-
-    def file_name style = nil
+    def exists?(style)
       style ||= definition.default_style
-      interpolate( style, definition.path )
+      attachment_exists?(style)
     end
-
-    def attachment_exists?(style)
-      style ||= definition.default_style
-      dirty? ? self[style] : File.exists?( file_name(style) )
-    end
-
-    def ensure_directories
-      for_attached_files do |style, file|
-        dirname = File.dirname( file_name(style) )
-        FileUtils.mkdir_p dirname
-      end
-    end
-
-    # Image Methods
-    public
 
     def make_thumbnails_from data
       begin
@@ -178,27 +139,23 @@ module Paperclip
       end
     end
 
-    # Helper Methods
-
-    public
-
-    def interpolations
+    def self.interpolations
       @interpolations ||= {
-        :rails_root => lambda{|style| RAILS_ROOT },
-        :id         => lambda{|style| self.instance.id },
-        :class      => lambda{|style| self.instance.class.to_s.underscore.pluralize },
-        :style      => lambda{|style| style.to_s },
-        :attachment => lambda{|style| self.name.to_s.pluralize },
-        :filename   => lambda{|style| self.original_filename },
-        :basename   => lambda{|style| self.original_filename.gsub(/\..*$/, "") },
-        :extension  => lambda{|style| self.original_filename.gsub(/^.*./, "") }
+        :rails_root => lambda{|style, atch| RAILS_ROOT },
+        :id         => lambda{|style, atch| atch.instance.id },
+        :class      => lambda{|style, atch| atch.instance.class.to_s.underscore.pluralize },
+        :style      => lambda{|style, atch| style.to_s },
+        :attachment => lambda{|style, atch| atch.name.to_s.pluralize },
+        :filename   => lambda{|style, atch| atch.original_filename },
+        :basename   => lambda{|style, atch| atch.original_filename.gsub(/\..*$/, "") },
+        :extension  => lambda{|style, atch| atch.original_filename.gsub(/^.*\./, "") }
       }
     end
 
     def interpolate style, source
       returning source.dup do |s|
-        interpolations.each do |key, proc|
-          s.gsub!(/:#{key}/){ proc.call(style) }
+        Attachment.interpolations.each do |key, proc|
+          s.gsub!(/:#{key}/){ proc.call(style, self) }
         end
       end
     end

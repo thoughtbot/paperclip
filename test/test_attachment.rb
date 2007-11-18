@@ -60,6 +60,37 @@ class TestAttachment < Test::Unit::TestCase
           assert_match /405x375/, `identify '#{@foo.image.send(:file_name)}'`
           assert_equal IO.read(@file.path), @foo.image.read
         end
+        
+        context "and then deleted" do
+          setup do
+            assert @foo.destroy
+          end
+          
+          should "have no errors" do
+            assert @foo.image.errors.blank?
+          end
+          
+          should "have no files on the filesystem" do
+            assert !File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
+            assert !File.exist?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
+          end
+        end
+
+        context "and then set to null and resaved" do
+          setup do
+            @foo.image = nil
+            assert @foo.save
+          end
+
+          should "have no errors" do
+            assert @foo.image.errors.blank?
+          end
+
+          should "have no files on the filesystem" do
+            assert !File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
+            assert !File.exist?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
+          end
+        end
       end
     end
 
