@@ -32,7 +32,7 @@ module Paperclip
 
       def file_name style = nil
         style ||= definition.default_style
-        interpolate( style, definition.file_path )
+        interpolate( style, definition.path )
       end
 
       def ensure_directories

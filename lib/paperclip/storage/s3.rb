@@ -34,7 +34,6 @@ module Paperclip
         http_host = definition.s3_host || "http://s3.amazonaws.com"
         "#{http_host}/#{bucket}/#{url_without_s3(style)}"
       end
-      alias_method_chain :url, :s3
       
       def file_name style = nil
         style ||= definition.default_style
