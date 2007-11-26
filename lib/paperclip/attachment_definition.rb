@@ -10,8 +10,8 @@ module Paperclip
         :path               => ":rails_root/public/:class/:attachment/:id/:style_:filename",
         :url                => "/:class/:attachment/:id/:style_:filename",
         :missing_url        => "/:class/:attachment/:style_missing.png",
-        :attachment_type    => :image,
-        :thumbnails         => {},
+        :content_type       => :image,
+        :styles             => {},
         :delete_on_destroy  => true,
         :default_style      => :original
       }
@@ -26,15 +26,10 @@ module Paperclip
       @name
     end
 
-    # A hash of all styles of the attachment. Essentially all the thumbnails
-    # plus the original.
+    # A hash of all styles of the attachment, plus :original. If :original is specified
+    # in the styles option, it will be overwritten.
     def styles
-      @styles ||= thumbnails.merge(:original => nil)
-    end
-
-    # A hash of all defined thumbnails for this attachment.
-    def thumbnails
-      @thumbnails ||= @options[:thumbnails] || {}
+      @styles ||= @options[:styles].merge(:original => nil)
     end
 
     # A convenience method to insert validation options into the options hash

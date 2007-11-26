@@ -23,7 +23,8 @@ module Paperclip
       storage_module = Paperclip::Storage.const_get((definition.storage || :filesystem).to_s.camelize)
       self.extend(storage_module)
     end
-
+    
+    # Sets the file managed by this instance. It also creates the thumbnails if the attachment is an image.
     def assign uploaded_file
       return destroy if uploaded_file.nil?
       return unless is_a_file? uploaded_file
@@ -34,37 +35,45 @@ module Paperclip
       self[:original]         = uploaded_file.read
       @dirty                  = true
 
-      if definition.attachment_type == :image
-        make_thumbnails_from(self[:original])
+      if definition.content_type == :image
+        convert( self[:original] )
       end
     end
 
-    def [](style)
+    def [](style) #:nodoc:
       @files[style]
     end
 
-    def []=(style, data)
+    def []=(style, data) #:nodoc:
       @files[style] = data
     end
 
-    def clear_files
+    def clear_files #:nodoc:
       @files = {}
       definition.styles.each{|style, geo| self[style] = nil }
       @dirty = false
     end
 
-    def for_attached_files
+    # Iterates over the files that are stored in memory and hands them to the
+    # supplied block. If no assignment has happened since either the object
+    # was instantiated or the last time it was saved, +nil+ will be passed as
+    # the data argument.
+    def each_unsaved
       @files.each do |style, data|
-        yield style, data
+        yield( style, data ) if data
       end
     end
+    
+    def styles
+      @files.keys
+    end
 
+    # Returns true if the attachment has been assigned and not saved.
     def dirty?
       @dirty
     end
 
-    # Validations
-
+    # Runs any validations that have been defined on the attachment.
     def valid?
       definition.validations.each do |validation, constraints|
         send("validate_#{validation}", *constraints)
@@ -72,8 +81,8 @@ module Paperclip
       errors.uniq!.empty?
     end
 
-    # ActiveRecord Callbacks
-
+    # Writes (or deletes, if +nil+) the attachment. This is called automatically
+    # when the active record is saved; you do not need to call this yourself.
     def save
       write_attachment  if dirty?
       delete_attachment if @delete_on_save
@@ -81,6 +90,8 @@ module Paperclip
       clear_files
     end
 
+    # Queues up the attachment for destruction, but does not actually delete.
+    # The attachment will be deleted when the record is saved.
     def destroy(complain = false)
       returning true do
         @delete_on_save         = true
@@ -92,10 +103,16 @@ module Paperclip
       end
     end
 
+    # Immediately destroys the attachment. Typically called as an ActiveRecord
+    # callback on destroy. You shold not need to call this.
     def destroy!
       delete_attachment if definition.delete_on_destroy
     end
 
+    # Returns the public-facing URL of the attachment. If this record has not
+    # been saved or does not have an attachment, this method will return the
+    # "missing" url, which can be used to supply a default. This is what should
+    # be supplied to the +image_tag+ helper.
     def url style = nil
       style ||= definition.default_style
       pattern = if original_filename && instance.id
@@ -106,30 +123,37 @@ module Paperclip
       interpolate( style, pattern )
     end
 
+    # Returns the data contained by the attachment of a particular style. This
+    # should be used if you need to restrict permissions internally to the app.
     def read style = nil
       style ||= definition.default_style
       self[style] ? self[style] : read_attachment(style)  
     end
 
+    # Sets errors if there must be an attachment but isn't.
     def validate_existence *constraints
       definition.styles.keys.each do |style|
         errors << "requires a valid #{style} file." unless attachment_exists?(style)
       end
     end
 
+    # Sets errors if the file does not meet the file size constraints.
     def validate_size *constraints
       errors << "file too large. Must be under #{constraints.last} bytes." if original_file_size > constraints.last
       errors << "file too small. Must be over #{constraints.first} bytes." if original_file_size <= constraints.first
     end
 
+    # Returns true if all the files exist.
     def exists?(style)
       style ||= definition.default_style
       attachment_exists?(style)
     end
 
-    def make_thumbnails_from data
+    # Generates the thumbnails from the data supplied. Following this call, the data will
+    # be available from for_attached_files.
+    def convert data
       begin
-        definition.thumbnails.each do |style, geometry|
+        definition.styles.each do |style, geometry|
           self[style] = Thumbnail.make(geometry, data)
         end
       rescue PaperclipError => e
@@ -139,6 +163,13 @@ module Paperclip
       end
     end
 
+    # Returns a hash of procs that will perform the various interpolations for
+    # the path, url, and missing_url attachment options. The procs are used as
+    # arguments to gsub!, so the used will be replaced with the return value
+    # of the proc. You can add to this list by assigning to the hash:
+    #   Paperclip::Attachment.interpolations[:content_type] = lambda{|style, attachment| attachment.content_type }
+    #   attchment.interpolate("none", ":content_type")
+    #   # => "image/jpeg"
     def self.interpolations
       @interpolations ||= {
         :rails_root => lambda{|style, atch| RAILS_ROOT },
@@ -152,22 +183,29 @@ module Paperclip
       }
     end
 
+    # Searches for patterns in +source+ string supplied and replaces them with values
+    # returned by the procs in the interpolations hash.
     def interpolate style, source
       returning source.dup do |s|
         Attachment.interpolations.each do |key, proc|
-          s.gsub!(/:#{key}/){ proc.call(style, self) }
+          s.gsub!(/:#{key}/) do
+            proc.call(style, self) rescue ":#{key}"
+          end
         end
       end
     end
 
+    # Sets the *_file_name column on the activerecord for this attachment
     def original_filename= new_name
       instance["#{name}_file_name"] = @original_filename = new_name
     end
-
+    
+    # Sets the *_content_type column on the activerecord for this attachment
     def content_type= new_type
       instance["#{name}_content_type"] = @content_type = new_type
     end
 
+    # Sets the *_file_size column on the activerecord for this attachment
     def original_file_size= new_size
       instance["#{name}_file_size"] = @original_file_size = new_size
     end
@@ -178,13 +216,13 @@ module Paperclip
 
     protected
 
-    def is_a_file? data
+    def is_a_file? data #:nodoc:
       [:content_type, :original_filename, :read].map do |meth|
         data.respond_to? meth
       end.all?
     end
 
-    def sanitize_filename filename
+    def sanitize_filename filename #:nodoc:
       File.basename(filename).gsub(/[^\w\.\_]/,'_')
     end
   end

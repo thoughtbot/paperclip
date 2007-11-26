@@ -96,7 +96,7 @@ class TestAttachment < Test::Unit::TestCase
 
     context "with an image with thumbnails attached to :image and saved" do
       setup do
-        assert Foo.has_attached_file(:image, :thumbnails => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
+        assert Foo.has_attached_file(:image, :styles => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
         @foo = Foo.new
         @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_image.jpg"))
         assert_nothing_raised{ @foo.image = @file }
@@ -135,7 +135,7 @@ class TestAttachment < Test::Unit::TestCase
 
     context "with an invalid image with a square thumbnail attached to :image" do
       setup do
-        assert Foo.has_attached_file(:image, :thumbnails => {:square => "32x32#"})
+        assert Foo.has_attached_file(:image, :styles => {:square => "32x32#"})
         assert Foo.validates_attached_file(:image)
         @foo = Foo.new
         @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
@@ -151,7 +151,7 @@ class TestAttachment < Test::Unit::TestCase
     
     context "with an invalid image attached to :image" do
       setup do
-        assert Foo.has_attached_file(:image, :thumbnails => {:sorta_square => "32x32"})
+        assert Foo.has_attached_file(:image, :styles => {:sorta_square => "32x32"})
         assert Foo.validates_attached_file(:image)
         @foo = Foo.new
         @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))

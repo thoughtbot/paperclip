@@ -25,7 +25,7 @@ class TestAttachmentDefinition < Test::Unit::TestCase
         :path => "/home/stuff/place",
         :url => "/attachments/:attachment/:name",
         :custom_definition => :boogie!,
-        :thumbnails => {:thumb => "100x100", :large => "300x300>"},
+        :styles => {:thumb => "100x100", :large => "300x300>"},
         :validates_existance => true,
         :validates_size => [0, 2048]
       }
@@ -38,13 +38,13 @@ class TestAttachmentDefinition < Test::Unit::TestCase
     end
     
     should "be able to read options using attribute readers" do
-      @options.keys.each do |key|
+      (@options.keys - [:styles]).each do |key|
         assert_equal @options[key], @def.send(key)
       end
     end
     
-    should "return styles as thumbnails plus the original" do
-      assert( (@def.thumbnails.keys + [:original]).map(&:to_s).sort == @def.styles.keys.map(&:to_s).sort )
+    should "return styles as the styles option plus the original" do
+      assert_equal( (@options[:styles].keys + [:original]).map(&:to_s).sort.uniq, @def.styles.keys.map(&:to_s).sort )
     end
     
     should "return all validations when sent :validations" do

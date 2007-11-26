@@ -43,10 +43,6 @@ module Paperclip
         style ||= definition.default_style
         interpolate( style, definition.url )
       end
-      
-      def attachment_exists? style = nil
-        AWS::S3::S3Object.exists?( file_name(style), bucket )
-      end
 
       def bucket
         definition.bucket
@@ -61,9 +57,20 @@ module Paperclip
         end
       end
       
+      def stream style = nil, &block
+        AWS::S3::S3Object.stream( file_name(style), bucket, &block )
+      end
+      
+      # These four methods are the primary interface for the storage module.
+      # Everything above this is support for these methods.
+      
+      def attachment_exists? style = nil
+        AWS::S3::S3Object.exists?( file_name(style), bucket )
+      end
+      
       def write_attachment
         ensure_bucket
-        for_attached_files do |style, data|
+        each_unsaved do |style, data|
           AWS::S3::S3Object.store( file_name(style), data, bucket, :access => definition.s3_access || :public_read )
         end
       end
@@ -71,13 +78,9 @@ module Paperclip
       def read_attachment style = nil
         AWS::S3::S3Object.value( file_name(style), bucket )
       end
-      
-      def stream style = nil, &block
-        AWS::S3::S3Object.stream( file_name(style), bucket, &block )
-      end
 
       def delete_attachment complain = false
-        for_attached_files do |style|
+        styles.each do |style, data|
           AWS::S3::S3Object.delete( file_name(style), bucket )
         end
       end

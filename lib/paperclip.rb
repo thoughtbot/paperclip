@@ -79,8 +79,7 @@ module Paperclip
     #   is interpolated just as the url is. The default value is "/:class/:attachment/missing_:style.png"
     #     has_attached_file :avatar, :missing_url => "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
-    # * +attachment_type+: If this is set to :image (which it is, by default), Paperclip will attempt to make
-    #   thumbnails if they are specified.
+    # * +content_type+: The valid content types that this attachment may be.
     # * +thumbnails+: A hash of thumbnail styles and their geometries. You can find more about geometry strings
     #   at the ImageMagick website (http://www.imagemagick.org/script/command-line-options.php#resize). Paperclip
     #   also adds the "#" option (e.g. "50x50#"), which will resize the image to fit maximally inside

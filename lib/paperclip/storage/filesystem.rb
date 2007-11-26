@@ -3,10 +3,10 @@ module Paperclip
     module Filesystem
       def write_attachment
         ensure_directories
-        for_attached_files do |style, data|
+        each_unsaved do |style, data|
           File.open( file_name(style), "w" ) do |file|
             file.rewind
-            file.write(data) if data
+            file.write(data)
           end
         end
       end
@@ -16,7 +16,7 @@ module Paperclip
       end
 
       def delete_attachment complain = false
-        for_attached_files do |style, data|
+        styles.each do |style|
           file_path = file_name(style)
           begin
             FileUtils.rm file_path if file_path
@@ -36,7 +36,7 @@ module Paperclip
       end
 
       def ensure_directories
-        for_attached_files do |style, file|
+        each_unsaved do |style, file|
           dirname = File.dirname( file_name(style) )
           FileUtils.mkdir_p dirname
         end
