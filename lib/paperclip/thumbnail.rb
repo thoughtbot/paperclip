@@ -1,6 +1,52 @@
 module Paperclip
   class Thumbnail
     
+    class Geometry
+      attr_accessor :height, :width
+      def initialize width = nil, height = nil
+        @height = (height || width).to_f
+        @width = (width || height).to_f
+      end
+      
+      def self.parse string
+        if match = (string && string.match(/(\d*)x(\d*)/))
+          Geometry.new(*match[1,2])
+        end
+      end
+      
+      def square?
+        height == width
+      end
+      
+      def horizontal?
+        height < width
+      end
+      
+      def vertical?
+        height > width
+      end
+      
+      def aspect
+        width / height
+      end
+      
+      def larger
+        [height, width].max
+      end
+      
+      def smaller
+        [height, width].min
+      end
+      
+      def to_s
+        "#{width}x#{height}"
+      end
+      
+      def inspect
+        to_s
+      end
+    end
+    
     attr_accessor :geometry, :data
     
     def initialize geometry, data
@@ -35,31 +81,22 @@ module Paperclip
       identify = Paperclip.path_for_command("identify")
       piping data, :to => "#{identify} - 2>/dev/null" do |pipeout|
         dimensions = pipeout.split[2]
-        if dimensions && (match = dimensions.match(/(\d+)x(\d+)/))
-          src   = match[1,2].map(&:to_f)
-          srch  = src[0] > src[1]
-          dst   = geometry.match(/(\d+)x(\d+)/)[1,2].map(&:to_f)
-          dsth  = dst[0] > dst[1]
-          ar    = src[0] / src[1]
-
-          scale_geometry, scale = if dst[0] == dst[1]
-            if srch
-              [ "x#{dst[1].to_i}", src[1] / dst[1] ]
-            else
-              [ "#{dst[0].to_i}x", src[0] / dst[0] ]
-            end
-          elsif dsth
-            [ "#{dst[0].to_i}x", src[0] / dst[0] ]
+        if src = Geometry.parse(dimensions)
+          dst = Geometry.parse(geometry)
+          
+          ratio = Geometry.new( dst.width / src.width, dst.height / src.height )
+          scale_geometry, scale = if ratio.horizontal? || ratio.square?
+            [ "%dx" % dst.width, ratio.width ]
           else
-            [ "x#{dst[1].to_i}", src[1] / dst[1] ]
+            [ "x%d" % dst.height, ratio.height ]
           end
-
-          crop_geometry = if dsth
-            "%dx%d+%d+%d" % [ dst[0], dst[1], 0, (src[1] / scale - dst[1]) / 2 ]
+          
+          crop_geometry = if ratio.horizontal? || ratio.square?
+            "%dx%d+%d+%d" % [ dst.width, dst.height, 0, (src.height * scale - dst.height) / 2 ]
           else
-            "%dx%d+%d+%d" % [ dst[0], dst[1], (src[0] / scale - dst[0]) / 2, 0 ]
+            "%dx%d+%d+%d" % [ dst.width, dst.height, (src.width * scale - dst.width) / 2, 0 ]
           end
-
+          
           [ scale_geometry, crop_geometry ]
         else
           raise PaperclipError, "does not contain a valid image."
