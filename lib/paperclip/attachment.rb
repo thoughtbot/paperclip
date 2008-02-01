@@ -34,10 +34,9 @@ module Paperclip
       self.original_file_size = uploaded_file.size
       self[:original]         = uploaded_file.read
       @dirty                  = true
+      @delete_on_save         = false
 
-      if definition.content_type == :image
-        convert( self[:original] )
-      end
+      convert( self[:original] )
     end
 
     def [](style) #:nodoc:

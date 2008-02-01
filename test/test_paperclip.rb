@@ -5,9 +5,12 @@ class TestPaperclip < Test::Unit::TestCase
 
   context "Paperclip" do
     should "allow overriding options" do
-      not_expected = Paperclip.options[:image_magick_path]
-      Paperclip.options[:image_magick_path] = "123"
-      assert_equal "123", Paperclip.options[:image_magick_path]
+      [:image_magick_path, :whiny_deletes, :whiny_thumbnails].each do |option|
+        not_expected = Paperclip.options[option]
+        Paperclip.options[option] = "123"
+        assert_equal "123", Paperclip.options[option]
+        assert_not_equal not_expected, Paperclip.options[option]
+      end
     end
 
     should "give the correct path for a command" do
@@ -20,9 +23,10 @@ class TestPaperclip < Test::Unit::TestCase
       assert_equal expected, Paperclip.path_for_command("wtf")
     end
     
-    context "being used on class Improper" do
+    context "being used on improper class Improper" do
       setup do
         ActiveRecord::Base.connection.create_table :impropers, :force => true do |table|
+          # Empty table
         end
         Object.send(:remove_const, :Improper) rescue nil
         class ::Improper < ActiveRecord::Base; end
