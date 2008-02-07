@@ -9,7 +9,7 @@ module Paperclip
       type = self.path.match(/\.(\w+)$/)[1] || "data"
       case type
       when "jpg", "png", "gif" then "image/#{type}"
-      when "txt", "csv", "xml", "html", "htm" then "text/#{type}"
+      when "txt", "csv", "xml", "html", "htm", "css", "js" then "text/#{type}"
       else "x-application/#{type}"
       end
     end

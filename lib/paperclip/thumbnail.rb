@@ -49,12 +49,14 @@ module Paperclip
     
     attr_accessor :geometry, :data
     
-    def initialize geometry, data
+    def initialize geometry, data, whiny_thumbnails = nil
       @geometry, @data = geometry, data
+      @whiny_thumbnails = Paperclip.options[:whiny_thumbnails]
+      @whiny_thumbnails = whiny_thumbnails unless whiny_thumbnails.nil?
     end
 
-    def self.make geometry, data
-      new(geometry, data).make
+    def self.make geometry, data, whiny_thumbnails = nil
+      new(geometry, data, whiny_thumbnails).make
     end
 
     def make
@@ -70,8 +72,10 @@ module Paperclip
         raise PaperclipError, "could not be thumbnailed. Is ImageMagick or GraphicsMagick installed and available?"
       rescue SystemCallError => e
         raise PaperclipError, "could not be thumbnailed."
+      rescue PaperclipError
+        raise if @whiny_thumbnails
       end
-      if Paperclip.options[:whiny_thumbnails] && !$?.success?
+      if @whiny_thumbnails && !$?.success?
         raise PaperclipError, "could not be thumbnailed because of an error with 'convert'."
       end
       thumb

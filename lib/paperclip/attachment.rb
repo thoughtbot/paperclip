@@ -44,6 +44,7 @@ module Paperclip
     end
 
     def []=(style, data) #:nodoc:
+      @dirty = true
       @files[style] = data
     end
 
@@ -150,10 +151,10 @@ module Paperclip
 
     # Generates the thumbnails from the data supplied. Following this call, the data will
     # be available from for_attached_files.
-    def convert data
+    def convert(uploaded_file)
       begin
         definition.styles.each do |style, geometry|
-          self[style] = Thumbnail.make(geometry, data)
+          self[style] = Thumbnail.make(geometry, data, definition.whiny_thumbnails)
         end
       rescue PaperclipError => e
         errors << e.message
