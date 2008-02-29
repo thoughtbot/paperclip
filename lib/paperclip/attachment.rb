@@ -151,7 +151,7 @@ module Paperclip
 
     # Generates the thumbnails from the data supplied. Following this call, the data will
     # be available from for_attached_files.
-    def convert(uploaded_file)
+    def convert data
       begin
         definition.styles.each do |style, geometry|
           self[style] = Thumbnail.make(geometry, data, definition.whiny_thumbnails)
@@ -223,7 +223,7 @@ module Paperclip
     end
 
     def sanitize_filename filename #:nodoc:
-      File.basename(filename).gsub(/[^\w\.\_]/,'_')
+      File.basename(filename).gsub(/[^\w\.\_\-]/,'_')
     end
   end
 end
