@@ -10,7 +10,6 @@ module Paperclip
         :path               => ":rails_root/public/:class/:attachment/:id/:style_:filename",
         :url                => "/:class/:attachment/:id/:style_:filename",
         :missing_url        => "/:class/:attachment/:style_missing.png",
-        :content_type       => :image,
         :styles             => {},
         :delete_on_destroy  => true,
         :default_style      => :original

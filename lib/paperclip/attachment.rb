@@ -168,7 +168,8 @@ module Paperclip
     # arguments to gsub!, so the used will be replaced with the return value
     # of the proc. You can add to this list by assigning to the hash:
     #   Paperclip::Attachment.interpolations[:content_type] = lambda{|style, attachment| attachment.content_type }
-    #   attchment.interpolate("none", ":content_type")
+    #   ...
+    #   attachment.interpolate("original", ":content_type")
     #   # => "image/jpeg"
     def self.interpolations
       @interpolations ||= {

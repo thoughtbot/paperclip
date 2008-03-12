@@ -13,7 +13,7 @@
 # +has_attached_file+ method:
 #
 #   class User < ActiveRecord::Base
-#     has_attached_file :avatar, :thumbnails => { :thumb => "100x100" }
+#     has_attached_file :avatar, :styles => { :thumb => "100x100" }
 #   end
 #
 #   user = User.new
@@ -71,7 +71,8 @@ module Paperclip
     # * +url+: The full URL of where the attachment is publically accessible. This can just as easily
     #   point to a directory served directly through Apache as it can to an action that can control
     #   permissions. You can specify the full domain and path, but usually just an absolute path is
-    #   sufficient. The default value is "/:class/:attachment/:id/:style_:filename". See
+    #   sufficient. The leading slash must be included manually for absolute paths. The default value
+    #   is "/:class/:attachment/:id/:style_:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:attachment/:id/:style_:name"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
@@ -79,27 +80,30 @@ module Paperclip
     #   is interpolated just as the url is. The default value is "/:class/:attachment/missing_:style.png"
     #     has_attached_file :avatar, :missing_url => "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
-    # * +content_type+: The valid content types that this attachment may be.
-    # * +thumbnails+: A hash of thumbnail styles and their geometries. You can find more about geometry strings
+    # * +styles+: A hash of thumbnail styles and their geometries. You can find more about geometry strings
     #   at the ImageMagick website (http://www.imagemagick.org/script/command-line-options.php#resize). Paperclip
     #   also adds the "#" option (e.g. "50x50#"), which will resize the image to fit maximally inside
     #   the dimensions and then crop the rest off (weighted at the center). The default value is
     #   to generate no thumbnails.
-    # * +delete_on_destroy+: When records are deleted, the attachment that goes with it is also deleted. Set
-    #   this to +false+ to prevent the file from being deleted. Defaults to +true+.
     # * +default_style+: The thumbnail style that will be used by default URLs. Defaults to +original+.
-    #     has_attached_file :avatar, :thumbnails => { :normal => "100x100#" },
+    #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
     # * +path+: The location of the repository of attachments on disk. This can be coordinated
     #   with the value of the +url+ option to allow files to be saved into a place where Apache
-    #   can serve them without hitting your app. Defaults to ":rails_root/public/:class/:attachment/:id/:style_:filename". 
+    #   can serve them without hitting your app. Defaults to 
+    #   ":rails_root/public/:class/:attachment/:id/:style_:filename". 
     #   By default this places the files in the app's public directory which can be served directly.
     #   If you are using capistrano for deployment, a good idea would be to make a symlink to the
     #   capistrano-created system directory from inside your app's public directory.
     #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :path_prefix => ":rails_root/public"
-    #     :path_prefix => "/var/app/repository"
+    #     :path => "/var/app/attachments/:class/:id/:style/:filename"
+    # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
+    #   uploaded image. This will ovrride the global setting for this attachment. Defaults to true. 
+    # * +delete_on_destroy+: When records are deleted, the attachment that goes with it is also deleted. Set
+    #   this to +false+ to prevent the file from being deleted. Defaults to +true+.
+    # * +storage+: Specifies the storage method, either :filesystem or :s3. S3 storage is currently
+    #   experimental and should not be used. Defaults to :filesystem.
     def has_attached_file *attachment_names
       options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
 
@@ -107,7 +111,6 @@ module Paperclip
       after_save :save_attached_files
       before_destroy :destroy_attached_files
 
-      #class_inheritable_hash :attachment_definitions
       @attachment_definitions ||= {}
       @attachment_names       ||= []
       @attachment_names        += attachment_names
