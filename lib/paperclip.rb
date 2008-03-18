@@ -1,6 +1,6 @@
 # Paperclip allows file attachments that are stored in the filesystem. All graphical
 # transformations are done using the Graphics/ImageMagick command line utilities and
-# are stored in-memory until the record is saved. Paperclip does not require a
+# are stored in Tempfiles until the record is saved. Paperclip does not require a
 # separate model for storing the attachment's information, instead adding a few simple
 # columns to your table.
 #
