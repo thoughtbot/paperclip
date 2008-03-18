@@ -31,6 +31,7 @@ require 'paperclip/geometry'
 require 'paperclip/thumbnail'
 require 'paperclip/attachment'
 
+# The base module that gets included in ActiveRecord::Base.
 module Paperclip
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -136,9 +137,10 @@ module Paperclip
     end
 
     # Places ActiveRecord-style validations on the size of the file assigned. The
-    # possible options are :in, which takes a Range of bytes (i.e. +1..1.megabyte+),
-    # :less_than, which is equivalent to :in => 0..options[:less_than], and
-    # :greater_than, which is equivalent to :in => options[:greater_than]..Infinity
+    # possible options are:
+    # * +in+: a Range of bytes (i.e. +1..1.megabyte+),
+    # * +less_than+: equivalent to :in => 0..options[:less_than]
+    # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     def validates_attachment_size name, options = {}
       @attachment_definitions[name][:validations] << lambda do |attachment, instance|
         unless options[:greater_than].nil?

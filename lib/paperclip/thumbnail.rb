@@ -1,4 +1,5 @@
 module Paperclip
+  # Handles thumbnailing images that are uploaded.
   class Thumbnail
 
     attr_accessor :file, :current_geometry, :target_geometry, :format, :whiny_thumbnails
