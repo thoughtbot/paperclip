@@ -1,8 +1,6 @@
 =Paperclip
 
-Paperclip is a lightweight attachment manager for ActiveRecord. It saves and manages your attachments, be they images or Word Docs, very easily. You can automatically thumbnail images as they're uploaded, and you don't have to worry about installing any ruby-specific libraries. You don't have to worry about compiling or memory overhead headaches with RMagick, concurrency issues and race conditions with MiniMagick or Tempfiles, or unsupported image types with ImageScience. All you need is a working Image- or GraphicsMagick installation -- the +convert+ and +identify+ commands are all you need.
-
-Paperclip uses the filesystem to save your files. You specify a path that the files will be saved to, and, if you're attaching images, any other sizes they need to be converted to, and they'll all be saved to the right place when your object saves. The primary intent of Paperclip is to treat a file like any other attribute, as transparently as possible. As such, files will not be saved until the record is saved, errors will be placed on the record if there were any conversion problems or failed validations, and assigning an attachment is as easy as "record.attachment_name = file".
+Paperclip is intended as an easy file attachment library for ActiveRecord. The intent behind it was to keep setup as easy as possible and to treat files as much like other attributes as possible. This means they aren't saved to their final locations on disk, nor are they deleted if set to nil, until ActiveRecord::Base#save is called. It manages validations based on size and presence, if requires. It can transform its assigned image into thumbnails if needed, and the setup for that is as simple as installing ImageMagick (which, for most modern Unix-based systems, is as easy as installing the right packages). Attached files are saved to the filesystem and referenced in the browser by an easily understandable specification, which has sensible and useful defaults.
 
 See the documentation for the +has_attached_file+ method for options.
 
@@ -31,3 +29,4 @@ In your show view:
   <%= image_tag @user.avatar.url %>
   <%= image_tag @user.avatar.url(:medium) %>
   <%= image_tag @user.avatar.url(:thumb) %>
+

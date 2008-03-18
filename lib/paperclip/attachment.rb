@@ -1,9 +1,3 @@
-$LOAD_PATH << File.dirname(__FILE__)
-require 'iostream'
-require 'upfile'
-require 'thumbnail'
-require 'geometry'
-
 module Paperclip
   class Attachment
     
