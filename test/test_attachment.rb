@@ -1,168 +1,79 @@
-require 'test/unit'
-require File.dirname(__FILE__) + "/test_helper.rb"
+require 'test/helper'
 
-class TestAttachment < Test::Unit::TestCase
+class Dummy
+  # This is a dummy class
+end
+
+class AttachmentTest < Test::Unit::TestCase
   context "An attachment" do
     setup do
-      @dummy = {}
-      @definition = Paperclip::AttachmentDefinition.new("thing", {})
-      @attachment = Paperclip::Attachment.new(@dummy, "thing", @definition)
+      @default_options = {
+        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      }
+      @instance = stub
+      @instance.stubs(:id).returns(41)
+      @instance.stubs(:class).returns(Dummy)
+      @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
+      @instance.stubs(:[]).with(:test_content_type).returns("image/png")
+      @instance.stubs(:[]).with(:test_file_size).returns(12345)
+      @attachment = Paperclip::Attachment.new(:test, @instance, @default_options)
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+    end
+
+    context "when expecting three styles" do
+      setup do
+        @attachment = Paperclip::Attachment.new(:test, @instance, @default_options.merge({
+          :styles => { :large  => ["400x400", :png],
+                       :medium => ["100x100", :gif],
+                       :small => ["32x32#", :jpg]}
+        }))
+      end
+
+      context "and assigned a file" do
+        setup do
+          @instance.expects(:[]=).with(:test_file_name, File.basename(@file.path))
+          @instance.expects(:[]=).with(:test_content_type, "image/png")
+          @instance.expects(:[]=).with(:test_file_size, @file.size)
+          @instance.expects(:[]=).with(:test_file_name, nil)
+          @instance.expects(:[]=).with(:test_content_type, nil)
+          @instance.expects(:[]=).with(:test_file_size, nil)
+          @attachment.assign(@file)
+        end
+
+        should "be dirty" do
+          assert @attachment.dirty?
+        end
+
+        should "have its image and attachments as tempfiles" do
+          [nil, :large, :medium, :small].each do |style|
+            assert File.exists?(@attachment.to_io(style))
+          end
+        end
+
+        context "and saved" do
+          setup do
+            @attachment.save
+          end
+
+          should "commit the files to disk" do
+            [nil, :large, :medium, :small].each do |style|
+              io = @attachment.to_io(style)
+              assert File.exists?(io)
+              assert ! io.is_a?(::Tempfile)
+            end
+          end
+
+          should "save the files as the right formats and sizes" do
+            [[:large, 400, 61, "PNG"], [:medium, 100, 15, "GIF"], [:small, 32, 32, "JPEG"]].each do |style|
+              out = `identify -format "%w %h %b %m" #{@attachment.to_io(style.first).path}`
+              width, height, size, format = out.split(" ")
+              assert_equal style[1].to_s, width.to_s 
+              assert_equal style[2].to_s, height.to_s
+              assert_equal style[3].to_s, format.to_s
+            end
+          end
+        end
+      end
     end
   end
-
-  context "The class Foo" do
-    setup do
-      ActiveRecord::Base.connection.create_table :foos, :force => true do |table|
-        table.column :image_file_name, :string
-        table.column :image_content_type, :string
-        table.column :image_file_size, :integer
-
-        table.column :document_file_name, :string
-        table.column :document_content_type, :string
-        table.column :document_file_size, :integer
-      end
-      Object.send(:remove_const, :Foo) rescue nil
-      class ::Foo < ActiveRecord::Base; end
-    end
-
-    context "with an image attached to :image" do
-      setup do
-        assert Foo.has_attached_file(:image)
-        @foo = Foo.new
-        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_image.jpg"))
-        assert_nothing_raised{ @foo.image = @file }
-      end
-
-      should "be able to have a file assigned with :image=" do
-        assert_equal "test_image.jpg", @foo.image.original_filename
-        assert_equal "image/jpg", @foo.image.content_type
-      end
-
-      should "be able to retrieve the data as a blob" do
-        @file.rewind
-        assert_equal @file.read, @foo.image.read
-      end
-
-      context "and saved" do
-        setup do
-          assert @foo.save
-        end
-
-        should "have no errors" do
-          assert @foo.image.errors.blank?
-          assert @foo.errors.blank?
-        end
-
-        should "have a file on the filesystem" do
-          assert @foo.image.send(:file_name)
-          assert File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-          assert File.size(@foo.image.send(:file_name)) > 0
-          assert_match /405x375/, `identify '#{@foo.image.send(:file_name)}'`
-          assert_equal IO.read(@file.path), @foo.image.read
-        end
-        
-        context "and then deleted" do
-          setup do
-            assert @foo.destroy
-          end
-          
-          should "have no errors" do
-            assert @foo.image.errors.blank?
-          end
-          
-          should "have no files on the filesystem" do
-            assert !File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-            assert !File.exist?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-          end
-        end
-
-        context "and then set to null and resaved" do
-          setup do
-            @foo.image = nil
-            assert @foo.save
-          end
-
-          should "have no errors" do
-            assert @foo.image.errors.blank?
-          end
-
-          should "have no files on the filesystem" do
-            assert !File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-            assert !File.exist?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-          end
-        end
-      end
-    end
-
-    context "with an image with thumbnails attached to :image and saved" do
-      setup do
-        assert Foo.has_attached_file(:image, :styles => {:small => "16x16", :medium => "100x100", :large => "250x250", :square => "32x32#"})
-        @foo = Foo.new
-        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_image.jpg"))
-        assert_nothing_raised{ @foo.image = @file }
-        assert @foo.save
-      end
-
-      should "have no errors" do
-        assert @foo.image.errors.blank?, @foo.image.errors.inspect
-        assert @foo.errors.blank?
-      end
-
-      [:original, :small, :medium, :large, :square].each do |style|
-        should "have a file for #{style} on the filesystem" do
-          assert @foo.image.send(:file_name)
-          assert File.file?(@foo.image.send(:file_name)), @foo.image.send(:file_name)
-          assert File.size(@foo.image.send(:file_name)) > 0
-          assert_equal IO.read(@file.path), @foo.image.read
-        end
-
-        should "return the correct urls when asked for the #{style} image" do
-          assert_equal "/foos/images/1/#{style}_test_image.jpg", @foo.image.url(style)
-        end
-      end
-
-      should "produce the correct dimensions when each style is identified" do
-        assert_match /16x15/,   `identify '#{@foo.image.send(:file_name, :small)}'`
-        assert_match /32x32/,   `identify '#{@foo.image.send(:file_name, :square)}'`  
-        assert_match /100x93/,  `identify '#{@foo.image.send(:file_name, :medium)}'`
-        assert_match /250x231/, `identify '#{@foo.image.send(:file_name, :large)}'`
-        assert_match /405x375/, `identify '#{@foo.image.send(:file_name, :original)}'`
-      end
-    end
-
-    context "with an image with thumbnails attached to :image and a document attached to :document" do
-    end
-
-    context "with an invalid image with a square thumbnail attached to :image" do
-      setup do
-        assert Foo.has_attached_file(:image, :styles => {:square => "32x32#"})
-        assert Foo.validates_attached_file(:image)
-        @foo = Foo.new
-        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
-        assert_nothing_raised{ @foo.image = @file }
-      end
-
-      should "not save and should report errors from identify" do
-        assert !@foo.save
-        assert @foo.errors.on(:image)
-        assert @foo.errors.on(:image).any?{|e| e.match(/does not contain a valid image/) }, @foo.errors.on(:image)
-      end
-    end
-    
-    context "with an invalid image attached to :image" do
-      setup do
-        assert Foo.has_attached_file(:image, :styles => {:sorta_square => "32x32"})
-        assert Foo.validates_attached_file(:image)
-        @foo = Foo.new
-        @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "test_invalid_image.jpg"))
-        assert_nothing_raised{ @foo.image = @file }
-      end
-
-      should "not save and should report errors from convert" do
-        assert !@foo.save
-        assert @foo.errors.on(:image)
-        assert @foo.errors.on(:image).any?{|e| e.match(/because of an error/) }, @foo.errors.on(:image)
-      end
-    end
-  end  
 end

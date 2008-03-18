@@ -5,7 +5,7 @@
 # columns to your table.
 #
 # Author:: Jon Yurek
-# Copyright:: Copyright (c) 2007 thoughtbot, inc.
+# Copyright:: Copyright (c) 2008 thoughtbot, inc.
 # License:: Distrbutes under the same terms as Ruby
 #
 # Paperclip defines an attachment as any file, though it makes special considerations
@@ -25,25 +25,22 @@
 #
 # See the +has_attached_file+ documentation for more details.
 
-require 'paperclip/attachment_definition'
-require 'paperclip/attachment'
-require 'paperclip/thumbnail'
 require 'paperclip/upfile'
-require 'paperclip/storage/filesystem'
-require 'paperclip/storage/s3'
+require 'paperclip/iostream'
+require 'paperclip/geometry'
+require 'paperclip/thumbnail'
+require 'paperclip/attachment'
 
 module Paperclip
-
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
-    # * whiny_deletes: Will raise an error if Paperclip is unable to delete an attachment. Defaults to false.
-    # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of an uploaded image. Defaults to true.
-    # * image_magick_path: Defines the path at which to find the +convert+ and +identify+ programs if they are
-    #   not visible to Rails the system's search path. Defaults to nil, which uses the first executable found
-    #   in the search path.
+    # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
+    #   an uploaded image. Defaults to true.
+    # * image_magick_path: Defines the path at which to find the +convert+ and +identify+ 
+    #   programs if they are not visible to Rails the system's search path. Defaults to 
+    #   nil, which uses the first executable found in the search path.
     def options
       @options ||= {
-        :whiny_deletes     => false,
         :whiny_thumbnails  => true,
         :image_magick_path => nil
       }
@@ -53,39 +50,48 @@ module Paperclip
       path = [options[:image_magick_path], command].compact
       File.join(*path)
     end
+
+    def included base #:nodoc:
+      base.extend ClassMethods
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:
   end
 
   module ClassMethods
+    attr_reader :attachment_definitions
+
     # +has_attached_file+ gives the class it is called on an attribute that maps to a file. This
-    # is typically a file stored somewhere on the filesystem and has been uploaded by a user. The
-    # attribute returns a Paperclip::Attachment object which handles the management of that file.
-    # The intent is to make the attachment as much like a normal attribute. The thumbnails will be
-    # created when the new file is assigned, but they will *not* be saved until +save+ is called on
-    # the record. Likewise, if the attribute is set to +nil+ or +Paperclip::Attachment#destroy+
-    # is called on it, the attachment will *not* be deleted until +save+ is called. See the
-    # Paperclip::Attachment documentation for more specifics.
-    # There are a number of options you can set to change the behavior of a Paperclip attachment:
-    # * +url+: The full URL of where the attachment is publically accessible. This can just as easily
-    #   point to a directory served directly through Apache as it can to an action that can control
-    #   permissions. You can specify the full domain and path, but usually just an absolute path is
-    #   sufficient. The leading slash must be included manually for absolute paths. The default value
-    #   is "/:class/:attachment/:id/:style_:filename". See
+    # is typically a file stored somewhere on the filesystem and has been uploaded by a user. 
+    # The attribute returns a Paperclip::Attachment object which handles the management of
+    # that file. The intent is to make the attachment as much like a normal attribute. The 
+    # thumbnails will be created when the new file is assigned, but they will *not* be saved 
+    # until +save+ is called on the record. Likewise, if the attribute is set to +nil+ is 
+    # called on it, the attachment will *not* be deleted until +save+ is called. See the 
+    # Paperclip::Attachment documentation for more specifics. There are a number of options 
+    # you can set to change the behavior of a Paperclip attachment:
+    # * +url+: The full URL of where the attachment is publically accessible. This can just
+    #   as easily point to a directory served directly through Apache as it can to an action
+    #   that can control permissions. You can specify the full domain and path, but usually
+    #   just an absolute path is sufficient. The leading slash must be included manually for 
+    #   absolute paths. The default value is "/:class/:attachment/:id/:style_:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :url => "/:attachment/:id/:style_:name"
+    #     :url => "/:attachment/:id/:style_:basename:extension"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
-    # * +missing_url+: The URL that will be returned if there is no attachment assigned. This field
-    #   is interpolated just as the url is. The default value is "/:class/:attachment/missing_:style.png"
+    # * +missing_url+: The URL that will be returned if there is no attachment assigned. 
+    #   This field is interpolated just as the url is. The default value is 
+    #   "/:class/:attachment/missing_:style.png"
     #     has_attached_file :avatar, :missing_url => "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
-    # * +styles+: A hash of thumbnail styles and their geometries. You can find more about geometry strings
-    #   at the ImageMagick website (http://www.imagemagick.org/script/command-line-options.php#resize). Paperclip
-    #   also adds the "#" option (e.g. "50x50#"), which will resize the image to fit maximally inside
-    #   the dimensions and then crop the rest off (weighted at the center). The default value is
-    #   to generate no thumbnails.
-    # * +default_style+: The thumbnail style that will be used by default URLs. Defaults to +original+.
+    # * +styles+: A hash of thumbnail styles and their geometries. You can find more about 
+    #   geometry strings at the ImageMagick website 
+    #   (http://www.imagemagick.org/script/command-line-options.php#resize). Paperclip
+    #   also adds the "#" option (e.g. "50x50#"), which will resize the image to fit maximally 
+    #   inside the dimensions and then crop the rest off (weighted at the center). The 
+    #   default value is to generate no thumbnails.
+    # * +default_style+: The thumbnail style that will be used by default URLs. 
+    #   Defaults to +original+.
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
@@ -93,94 +99,96 @@ module Paperclip
     #   with the value of the +url+ option to allow files to be saved into a place where Apache
     #   can serve them without hitting your app. Defaults to 
     #   ":rails_root/public/:class/:attachment/:id/:style_:filename". 
-    #   By default this places the files in the app's public directory which can be served directly.
-    #   If you are using capistrano for deployment, a good idea would be to make a symlink to the
-    #   capistrano-created system directory from inside your app's public directory.
+    #   By default this places the files in the app's public directory which can be served 
+    #   directly. If you are using capistrano for deployment, a good idea would be to 
+    #   make a symlink to the capistrano-created system directory from inside your app's 
+    #   public directory.
     #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :path => "/var/app/attachments/:class/:id/:style/:filename"
     # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
-    #   uploaded image. This will ovrride the global setting for this attachment. Defaults to true. 
-    # * +delete_on_destroy+: When records are deleted, the attachment that goes with it is also deleted. Set
-    #   this to +false+ to prevent the file from being deleted. Defaults to +true+.
-    # * +storage+: Specifies the storage method, either :filesystem or :s3. S3 storage is currently
-    #   experimental and should not be used. Defaults to :filesystem.
-    def has_attached_file *attachment_names
-      options = attachment_names.last.is_a?(Hash) ? attachment_names.pop : {}
-
+    #   uploaded image. This will ovrride the global setting for this attachment. 
+    #   Defaults to true. 
+    def has_attached_file name, options = {}
       include InstanceMethods
+
+      @attachment_definitions ||= {} 
+      @attachment_definitions[name] = {:validations => []}.merge(options)
+
       after_save :save_attached_files
       before_destroy :destroy_attached_files
 
-      @attachment_definitions ||= {}
-      @attachment_names       ||= []
-      @attachment_names        += attachment_names
+      define_method name do |*args|
+        a = attachment_for(name)
+        (args.length > 0) ? a.to_s(args.first) : a
+      end
 
-      attachment_names.each do |aname|
-        whine_about_columns_for aname
-        @attachment_definitions[aname] = AttachmentDefinition.new(aname, options)
+      define_method "#{name}=" do |file|
+        attachment_for(name).assign(file)
+      end
 
-        define_method aname do
-          attachment_for(aname)
-        end
+      define_method "#{name}?" do
+        ! attachment_for(name).file.nil?
+      end
 
-        define_method "#{aname}=" do |uploaded_file|
-          attachment_for(aname).assign uploaded_file
-        end
+      validates_each(name) do |record, attr, value|
+        value.send(:flush_errors)
       end
     end
 
-    # Returns an array of all the attachments defined on this class.
-    def attached_files
-      @attachment_names
-    end
-
-    # Returns a AttachmentDefinition for the given attachment
-    def attachment_definition_for attachment
-      @attachment_definitions[attachment]
-    end
-
-    # Adds errors if the attachments you specify are either missing or had errors on them.
-    # Essentially, acts like validates_presence_of for attachments.
-    def validates_attached_file *attachment_names
-      validates_each *attachment_names do |record, name, attachment|
-        attachment.errors.each do |error|
-          record.errors.add(name, error)
+    # Places ActiveRecord-style validations on the size of the file assigned. The
+    # possible options are :in, which takes a Range of bytes (i.e. +1..1.megabyte+),
+    # :less_than, which is equivalent to :in => 0..options[:less_than], and
+    # :greater_than, which is equivalent to :in => options[:greater_than]..Infinity
+    def validates_attachment_size name, options = {}
+      @attachment_definitions[name][:validations] << lambda do |attachment, instance|
+        unless options[:greater_than].nil?
+          options[:in] = (options[:greater_than]..(1/0)) # 1/0 => Infinity
+        end
+        unless options[:less_than].nil?
+          options[:in] = (0..options[:less_than])
+        end
+        unless options[:in].include? instance[:"#{name}_file_size"].to_i
+          "file size is not between #{options[:in].first} and #{options[:in].last} bytes."
         end
       end
     end
 
-    # Throws errors if the model does not contain the necessary columns.
-    def whine_about_columns_for attachment #:nodoc:
-      unless column_names.include?("#{attachment}_file_name") && column_names.include?("#{attachment}_content_type")
-        error = "Class #{name} does not have the necessary columns to have an attachment named #{attachment}. " +
-                "(#{attachment}_file_name and #{attachment}_content_type)"
-        raise PaperclipError, error
+    # Places ActiveRecord-style validations on the presence of a file.
+    def validates_attachment_presence name
+      @attachment_definitions[name][:validations] << lambda do |attachment, instance|
+        if attachment.file.nil? || !File.exist?(attachment.file.path)
+          "must be set."
+        end
       end
     end
+
   end
 
   module InstanceMethods #:nodoc:
     def attachment_for name
       @attachments ||= {}
-      @attachments[name] ||= Attachment.new(self, name, self.class.attachment_definition_for(name))
+      @attachments[name] ||= Attachment.new(name, self, self.class.attachment_definitions[name])
     end
     
     def each_attachment
-      self.class.attached_files.each do |name|
+      self.class.attachment_definitions.each do |name, definition|
         yield(name, attachment_for(name))
       end
     end
 
     def save_attached_files
       each_attachment do |name, attachment|
-        attachment.save
+        attachment.send(:flush_writes)
+        attachment.send(:flush_deletes)
       end
     end
 
     def destroy_attached_files
       each_attachment do |name, attachment|
-        attachment.destroy!
+        attachment.send(:queue_existing_for_delete)
+        attachment.send(:flush_deletes)
       end
     end
   end
+
 end

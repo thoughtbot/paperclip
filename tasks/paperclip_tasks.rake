@@ -2,7 +2,7 @@ require 'environment'
 
 def obtain_class
   class_name = ENV['CLASS'] || ENV['class']
-  @klass = eval(class_name)
+  @klass = Object.const_get(class_name)
 end
 
 def obtain_attachments
@@ -10,7 +10,7 @@ def obtain_attachments
   if !name.blank? && @klass.attachment_names.include?(name)
     [ name ]
   else
-    @klass.attachment_names
+    @klass.attachment_definitions.keys
   end
 end
 
@@ -21,12 +21,17 @@ namespace :paperclip do
     instances = klass.find(:all)
     names     = obtain_attachments
     
-    puts "Regenerating thumbnails for #{instances.length} instances:"
+    puts "Regenerating thumbnails for #{instances.length} instances of #{klass.name}:"
     instances.each do |instance|
       names.each do |name|
-        instance.send("process_#{name}_thumbnails")
+        result = if instance.send("#{ name }?")
+          instance.send(name).send("post_process")
+          instance.send(name).save
+        else
+          true
+        end
+        print result ? "." : "x"; $stdout.flush
       end
-      print instance.save ? "." : "x"; $stdout.flush
     end
     puts " Done."
   end

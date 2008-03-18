@@ -1,230 +1,221 @@
+$LOAD_PATH << File.dirname(__FILE__)
+require 'iostream'
+require 'upfile'
+require 'thumbnail'
+require 'geometry'
+
 module Paperclip
-
-  # == Attachment
-  # Handles all the file management for the attachment, including saving, loading, presenting URLs,
-  # and database storage.
   class Attachment
-
-    attr_reader :name, :instance, :original_filename, :content_type, :original_file_size, :definition, :errors
-
-    def initialize active_record, name, definition
-      @instance   = active_record
-      @definition = definition
-      @name       = name
-      @errors     = []
-
-      clear_files
-      @dirty = true
-
-      self.original_filename  = @instance["#{name}_file_name"]
-      self.content_type       = @instance["#{name}_content_type"]
-      self.original_file_size = @instance["#{name}_file_size"]
-      
-      storage_module = Paperclip::Storage.const_get((definition.storage || :filesystem).to_s.camelize)
-      self.extend(storage_module)
-    end
     
-    # Sets the file managed by this instance. It also creates the thumbnails if the attachment is an image.
+    attr_reader :name, :instance, :file, :styles, :default_style
+
+    # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
+    # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
+    # passed to +has_attached_file+.
+    def initialize name, instance, options
+      @name              = name
+      @instance          = instance
+      @url               = options[:url]           || 
+                           "/:attachment/:id/:style/:basename.:extension"
+      @path              = options[:path]          || 
+                           ":attachment/:id/:style/:basename.:extension"
+      @styles            = options[:styles]        || {}
+      @default_url       = options[:default_url]   || "/:attachment/:style/missing.png"
+      @validations       = options[:validations]   || []
+      @default_style     = options[:default_style] || :original
+      @queued_for_delete = []
+      @processed_files   = {}
+      @errors            = []
+      @validation_errors = nil
+      @dirty             = false
+
+      @file              = File.new(path) if original_filename && File.exists?(path)
+    end
+
+    # What gets called when you call instance.attachment = File. It clears errors,
+    # assigns attributes, processes the file, and runs validations. It also queues up
+    # the previous file for deletion, to be flushed away on #save of its host.
     def assign uploaded_file
-      return destroy if uploaded_file.nil?
-      return unless is_a_file? uploaded_file
+      queue_existing_for_delete
+      @errors            = []
+      @validation_errors = nil 
 
-      self.original_filename  = sanitize_filename(uploaded_file.original_filename)
-      self.content_type       = uploaded_file.content_type
-      self.original_file_size = uploaded_file.size
-      self[:original]         = uploaded_file.read
-      @dirty                  = true
-      @delete_on_save         = false
+      return nil unless valid_file?(uploaded_file)
 
-      convert( self[:original] )
-    end
+      @file                               = uploaded_file.to_tempfile
+      @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename
+      @instance[:"#{@name}_content_type"] = uploaded_file.content_type
+      @instance[:"#{@name}_file_size"]    = uploaded_file.size
 
-    def [](style) #:nodoc:
-      @files[style]
-    end
-
-    def []=(style, data) #:nodoc:
       @dirty = true
-      @files[style] = data
+
+      post_process
+    ensure
+      validate
     end
 
-    def clear_files #:nodoc:
-      @files = {}
-      definition.styles.each{|style, geo| self[style] = nil }
-      @dirty = false
+    # Returns the public URL of the attachment, with a given style. Note that this
+    # does not necessarily need to point to a file that your web server can access
+    # and can point to an action in your app, if you need fine grained security.
+    # This is not recommended if you don't need the security, however, for
+    # performance reasons.
+    def url style = nil
+      interpolate(@url, style) || interpolate(@default_url, style)
     end
 
-    # Iterates over the files that are stored in memory and hands them to the
-    # supplied block. If no assignment has happened since either the object
-    # was instantiated or the last time it was saved, +nil+ will be passed as
-    # the data argument.
-    def each_unsaved
-      @files.each do |style, data|
-        yield( style, data ) if data
-      end
-    end
-    
-    def styles
-      @files.keys
+    # Alias to +url+
+    def to_s style = nil
+      url(style)
     end
 
-    # Returns true if the attachment has been assigned and not saved.
+    # Returns true if there are any errors on this attachment.
+    def valid?
+      errors.length == 0
+    end
+
+    # Returns an array containing the errors on this attachment.
+    def errors
+      @errors.compact.uniq
+    end
+
+    # Returns true if there are changes that need to be saved.
     def dirty?
       @dirty
     end
 
-    # Runs any validations that have been defined on the attachment.
-    def valid?
-      definition.validations.each do |validation, constraints|
-        send("validate_#{validation}", *constraints)
-      end
-      errors.uniq!.empty?
-    end
-
-    # Writes (or deletes, if +nil+) the attachment. This is called automatically
-    # when the active record is saved; you do not need to call this yourself.
+    # Saves the file, if there are no errors. If there are, it flushes them to
+    # the instance's errors and returns false, cancelling the save.
     def save
-      write_attachment  if dirty?
-      delete_attachment if @delete_on_save
-      @delete_on_save = false
-      clear_files
-    end
-
-    # Queues up the attachment for destruction, but does not actually delete.
-    # The attachment will be deleted when the record is saved.
-    def destroy(complain = false)
-      returning true do
-        @delete_on_save         = true
-        @complain_on_delete     = complain
-        self.original_filename  = nil
-        self.content_type       = nil
-        self.original_file_size = nil
-        clear_files
-      end
-    end
-
-    # Immediately destroys the attachment. Typically called as an ActiveRecord
-    # callback on destroy. You shold not need to call this.
-    def destroy!
-      delete_attachment if definition.delete_on_destroy
-    end
-
-    # Returns the public-facing URL of the attachment. If this record has not
-    # been saved or does not have an attachment, this method will return the
-    # "missing" url, which can be used to supply a default. This is what should
-    # be supplied to the +image_tag+ helper.
-    def url style = nil
-      style ||= definition.default_style
-      pattern = if original_filename && instance.id
-        definition.url
+      if valid?
+        flush_deletes
+        flush_writes
+        true
       else
-        definition.missing_url
-      end
-      interpolate( style, pattern )
-    end
-
-    # Returns the data contained by the attachment of a particular style. This
-    # should be used if you need to restrict permissions internally to the app.
-    def read style = nil
-      style ||= definition.default_style
-      self[style] ? self[style] : read_attachment(style)  
-    end
-
-    # Sets errors if there must be an attachment but isn't.
-    def validate_existence *constraints
-      definition.styles.keys.each do |style|
-        errors << "requires a valid #{style} file." unless attachment_exists?(style)
+        flush_errors
+        false
       end
     end
 
-    # Sets errors if the file does not meet the file size constraints.
-    def validate_size *constraints
-      errors << "file too large. Must be under #{constraints.last} bytes." if original_file_size > constraints.last
-      errors << "file too small. Must be over #{constraints.first} bytes." if original_file_size <= constraints.first
-    end
-
-    # Returns true if all the files exist.
-    def exists?(style)
-      style ||= definition.default_style
-      attachment_exists?(style)
-    end
-
-    # Generates the thumbnails from the data supplied. Following this call, the data will
-    # be available from for_attached_files.
-    def convert data
+    # Returns an +IO+ representing the data of the file assigned to the given
+    # style. Useful for streaming with +send_file+.
+    def to_io style = nil
       begin
-        definition.styles.each do |style, geometry|
-          self[style] = Thumbnail.make(geometry, data, definition.whiny_thumbnails)
-        end
-      rescue PaperclipError => e
-        errors << e.message
-        clear_files
-        self[:original] = data
+        @processed_files[style] || File.new(path(style))
+      rescue Errno::ENOENT
+        nil
       end
     end
 
-    # Returns a hash of procs that will perform the various interpolations for
-    # the path, url, and missing_url attachment options. The procs are used as
-    # arguments to gsub!, so the used will be replaced with the return value
-    # of the proc. You can add to this list by assigning to the hash:
-    #   Paperclip::Attachment.interpolations[:content_type] = lambda{|style, attachment| attachment.content_type }
-    #   ...
-    #   attachment.interpolate("original", ":content_type")
-    #   # => "image/jpeg"
+    # Returns the name of the file as originally assigned, and as lives in the
+    # <attachment>_file_name attribute of the model.
+    def original_filename
+      instance[:"#{name}_file_name"]
+    end
+
+    # A hash of procs that are run during the interpolation of a path or url.
+    # A variable of the format :name will be replaced with the return value of
+    # the proc named ":name". Each lambda takes the attachment and the current
+    # style as arguments. This hash can be added to with your own proc if
+    # necessary.
     def self.interpolations
       @interpolations ||= {
-        :rails_root => lambda{|style, atch| RAILS_ROOT },
-        :id         => lambda{|style, atch| atch.instance.id },
-        :class      => lambda{|style, atch| atch.instance.class.to_s.underscore.pluralize },
-        :style      => lambda{|style, atch| style.to_s },
-        :attachment => lambda{|style, atch| atch.name.to_s.pluralize },
-        :filename   => lambda{|style, atch| atch.original_filename },
-        :basename   => lambda{|style, atch| atch.original_filename.gsub(/\..*$/, "") },
-        :extension  => lambda{|style, atch| atch.original_filename.gsub(/^.*\./, "") }
+        :rails_root => lambda{|attachment,style| RAILS_ROOT },
+        :class      => lambda{|attachment,style| attachment.instance.class.to_s },
+        :basename   => lambda do |attachment,style|
+          attachment.original_filename.gsub(/\.(.*?)$/, "")
+        end,
+        :extension  => lambda do |attachment,style| 
+          ((style = attachment.styles[style]) && style.last) ||
+          File.extname(attachment.original_filename).gsub(/^\./, "")
+        end,
+        :id         => lambda{|attachment,style| attachment.instance.id },
+        :attachment => lambda{|attachment,style| attachment.name },
+        :style      => lambda{|attachment,style| style || attachment.default_style },
       }
     end
 
-    # Searches for patterns in +source+ string supplied and replaces them with values
-    # returned by the procs in the interpolations hash.
-    def interpolate style, source
-      returning source.dup do |s|
-        Attachment.interpolations.each do |key, proc|
-          s.gsub!(/:#{key}/) do
-            proc.call(style, self) rescue ":#{key}"
-          end
-        end
+    private
+
+    def valid_file? file #:nodoc:
+      file.respond_to?(:original_filename) && file.respond_to?(:content_type)
+    end
+
+    def validate #:nodoc:
+      unless @validation_errors
+        @validation_errors = @validations.collect do |v|
+          v.call(self, instance)
+        end.flatten.compact.uniq
+        @errors += @validation_errors
       end
     end
 
-    # Sets the *_file_name column on the activerecord for this attachment
-    def original_filename= new_name
-      instance["#{name}_file_name"] = @original_filename = new_name
-    end
-    
-    # Sets the *_content_type column on the activerecord for this attachment
-    def content_type= new_type
-      instance["#{name}_content_type"] = @content_type = new_type
-    end
-
-    # Sets the *_file_size column on the activerecord for this attachment
-    def original_file_size= new_size
-      instance["#{name}_file_size"] = @original_file_size = new_size
-    end
-
-    def to_s
-      url
-    end
-
-    protected
-
-    def is_a_file? data #:nodoc:
-      [:content_type, :original_filename, :read].map do |meth|
-        data.respond_to? meth
-      end.all?
+    def post_process #:nodoc:
+      return nil if @file.nil?
+      @styles.each do |name, args|
+        begin
+          dimensions, format     = [args, nil].flatten[0..1]
+          @styles[name]          = [dimensions, format]
+          @processed_files[name] = Thumbnail.make(self.file, 
+                                                  dimensions, 
+                                                  format, 
+                                                  @whiny_thumbnails)
+        rescue Errno::ENOENT  => e
+          @errors << "could not be processed because the file does not exist."
+        rescue PaperclipError => e
+          @errors << e.message
+        end
+      end
+      @processed_files[:original] = @file
     end
 
-    def sanitize_filename filename #:nodoc:
-      File.basename(filename).gsub(/[^\w\.\_\-]/,'_')
+    def interpolate pattern, style = nil #:nodoc:
+      style ||= @default_style
+      pattern = pattern.dup
+      self.class.interpolations.each do |tag, l|
+        pattern.gsub!(/:#{tag}/) do |match|
+          l.call( self, style )
+        end
+      end
+      pattern.gsub(%r{/+}, "/")
+    end
+
+    def path style = nil #:nodoc:
+      interpolate(@path, style)
+    end
+
+    def queue_existing_for_delete #:nodoc:
+      @queued_for_delete += @processed_files.values
+      @file               = nil
+      @processed_files    = {}
+      @instance[:"#{@name}_file_name"]    = nil
+      @instance[:"#{@name}_content_type"] = nil
+      @instance[:"#{@name}_file_size"]    = nil
+    end
+
+    def flush_errors #:nodoc:
+      @errors.each do |error|
+        instance.errors.add(name, error)
+      end
+    end
+
+    def flush_writes #:nodoc:
+      @processed_files.each do |style, file|
+        FileUtils.mkdir_p( File.dirname(path(style)) )
+        @processed_files[style] = file.stream_to(path(style)) unless file.path == path(style)
+      end
+      @file = @processed_files[nil]
+    end
+
+    def flush_deletes #:nodoc:
+      @queued_for_delete.compact.each do |file|
+        begin
+          FileUtils.rm(file.path)
+        rescue Errno::ENOENT => e
+          # ignore them
+        end
+      end
+      @queued_for_delete = []
     end
   end
 end
+

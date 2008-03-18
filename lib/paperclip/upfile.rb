@@ -26,3 +26,7 @@ module Paperclip
   end
 
 end
+
+class File #:nodoc:
+  include Paperclip::Upfile
+end

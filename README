@@ -11,7 +11,7 @@ See the documentation for the +has_attached_file+ method for options.
 In your model:
 
   class User < ActiveRecord::Base
-    has_attached_file :avatar, :thumbnails => { :medium => "300x300>", :thumb => "100x100>" }
+    has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }
   end
 
 In your edit and new views:
@@ -23,12 +23,11 @@ In your edit and new views:
 In your controller:
 
   def create
-    @user = User.create( params[:user][:avatar] )
+    @user = User.create( params[:user] )
   end
 
 In your show view:
 
   <%= image_tag @user.avatar.url %>
-  <%= image_tag @user.avatar.url(:original) %>
   <%= image_tag @user.avatar.url(:medium) %>
   <%= image_tag @user.avatar.url(:thumb) %>
