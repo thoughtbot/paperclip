@@ -14,7 +14,7 @@ module Paperclip
       @url               = options[:url]           || 
                            "/:attachment/:id/:style/:basename.:extension"
       @path              = options[:path]          || 
-                           ":attachment/:id/:style/:basename.:extension"
+                           ":rails_root/public/:attachment/:id/:style/:basename.:extension"
       @styles            = options[:styles]        || {}
       @default_url       = options[:default_url]   || "/:attachment/:style/missing.png"
       @validations       = options[:validations]   || []
@@ -24,6 +24,8 @@ module Paperclip
       @errors            = []
       @validation_errors = nil
       @dirty             = false
+
+      normalize_style_definition
 
       @file              = File.new(path) if original_filename && File.exists?(path)
     end
@@ -116,16 +118,16 @@ module Paperclip
     def self.interpolations
       @interpolations ||= {
         :rails_root => lambda{|attachment,style| RAILS_ROOT },
-        :class      => lambda{|attachment,style| attachment.instance.class.to_s },
+        :class      => lambda{|attachment,style| attachment.instance.class.to_s.pluralize },
         :basename   => lambda do |attachment,style|
           attachment.original_filename.gsub(/\.(.*?)$/, "")
         end,
         :extension  => lambda do |attachment,style| 
           ((style = attachment.styles[style]) && style.last) ||
-          File.extname(attachment.original_filename).gsub(/^\./, "")
+          File.extname(attachment.original_filename).gsub(/^\.+/, "")
         end,
         :id         => lambda{|attachment,style| attachment.instance.id },
-        :attachment => lambda{|attachment,style| attachment.name },
+        :attachment => lambda{|attachment,style| attachment.name.pluralize },
         :style      => lambda{|attachment,style| style || attachment.default_style },
       }
     end
@@ -145,12 +147,19 @@ module Paperclip
       end
     end
 
+    def normalize_style_definition
+      @styles.each do |name, args|
+        dimensions, format = [args, nil].flatten[0..1]
+        format             = nil if format == ""
+        @styles[name]      = [dimensions, format]
+      end
+    end
+
     def post_process #:nodoc:
       return nil if @file.nil?
       @styles.each do |name, args|
         begin
-          dimensions, format     = [args, nil].flatten[0..1]
-          @styles[name]          = [dimensions, format]
+          dimensions, format = args
           @processed_files[name] = Thumbnail.make(self.file, 
                                                   dimensions, 
                                                   format, 

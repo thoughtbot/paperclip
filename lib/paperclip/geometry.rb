@@ -17,7 +17,7 @@ module Paperclip
     # File or path.
     def self.from_file file
       file = file.path if file.respond_to? "path"
-      parse(`#{Paperclip.path_for_command('identify')} "#{file}" 2>/dev/null`) ||
+      parse(`#{Paperclip.path_for_command('identify')} "#{file}"`) ||
         raise(Errno::ENOENT, file)
     end
 
