@@ -127,7 +127,7 @@ module Paperclip
           File.extname(attachment.original_filename).gsub(/^\.+/, "")
         end,
         :id         => lambda{|attachment,style| attachment.instance.id },
-        :attachment => lambda{|attachment,style| attachment.name.pluralize },
+        :attachment => lambda{|attachment,style| attachment.name.to_s.pluralize },
         :style      => lambda{|attachment,style| style || attachment.default_style },
       }
     end

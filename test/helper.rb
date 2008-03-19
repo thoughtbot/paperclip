@@ -23,14 +23,6 @@ class String
   end
 end
 
-class Symbol
-  unless methods.include? :pluralize
-    def pluralize
-      "#{self}s"
-    end
-  end
-end
-
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures") 
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
