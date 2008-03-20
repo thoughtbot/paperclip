@@ -20,6 +20,12 @@ class AttachmentTest < Test::Unit::TestCase
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
     end
 
+    should "return its default_url when no file assigned" do
+      assert @attachment.file.nil?
+      assert_equal "/tests/original/missing.png", @attachment.url
+      assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
+    end
+
     context "when expecting three styles" do
       setup do
         @attachment = Paperclip::Attachment.new(:test, @instance, @default_options.merge({
@@ -38,6 +44,12 @@ class AttachmentTest < Test::Unit::TestCase
           @instance.expects(:[]=).with(:test_content_type, nil)
           @instance.expects(:[]=).with(:test_file_size, nil)
           @attachment.assign(@file)
+        end
+
+        should "return the real url" do
+          assert @attachment.file
+          assert_equal "/tests/41/original/5k.png", @attachment.url
+          assert_equal "/tests/41/blah/5k.png", @attachment.url(:blah)
         end
 
         should "be dirty" do

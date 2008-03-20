@@ -80,10 +80,10 @@ module Paperclip
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:attachment/:id/:style_:basename:extension"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
-    # * +missing_url+: The URL that will be returned if there is no attachment assigned. 
+    # * +default_url+: The URL that will be returned if there is no attachment assigned. 
     #   This field is interpolated just as the url is. The default value is 
     #   "/:class/:attachment/missing_:style.png"
-    #     has_attached_file :avatar, :missing_url => "/images/default_:style_avatar.png"
+    #     has_attached_file :avatar, :default_url => "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
     # * +styles+: A hash of thumbnail styles and their geometries. You can find more about 
     #   geometry strings at the ImageMagick website 

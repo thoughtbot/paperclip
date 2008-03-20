@@ -21,10 +21,14 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
+desc 'Update documentation on website'
+task :sync_docs => 'rdoc' do
+  `rsync -ave ssh doc/ dev@dev.thoughtbot.com:/home/dev/www/dev.thoughtbot.com/paperclip`
+end
+
 desc 'Clean up files.'
 task :clean do |t|
   FileUtils.rm_rf "doc"
-  FileUtils.rm_rf "test/public"
   FileUtils.rm_rf "tmp"
   FileUtils.rm "test/debug.log" rescue nil
   FileUtils.rm "test/paperclip.db" rescue nil

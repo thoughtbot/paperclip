@@ -58,7 +58,7 @@ module Paperclip
     # This is not recommended if you don't need the security, however, for
     # performance reasons.
     def url style = nil
-      interpolate(@url, style) || interpolate(@default_url, style)
+      @file ? interpolate(@url, style) : interpolate(@default_url, style)
     end
 
     # Alias to +url+
