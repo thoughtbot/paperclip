@@ -120,16 +120,16 @@ module Paperclip
         :rails_root   => lambda{|attachment,style| RAILS_ROOT },
         :class        => lambda{|attachment,style| attachment.instance.class.to_s.pluralize },
         :basename     => lambda do |attachment,style|
-          attachment.original_filename.gsub(/\.(.*?)$/, "")
-        end,
+                           attachment.original_filename.gsub(/\.(.*?)$/, "")
+                         end,
         :extension    => lambda do |attachment,style| 
-          ((style = attachment.styles[style]) && style.last) ||
-          File.extname(attachment.original_filename).gsub(/^\.+/, "")
-        end,
+                           ((style = attachment.styles[style]) && style.last) ||
+                           File.extname(attachment.original_filename).gsub(/^\.+/, "")
+                         end,
         :id           => lambda{|attachment,style| attachment.instance.id },
         :partition_id => lambda do |attachment, style|
-          ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")))
-        end
+                           ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
+                         end,
         :attachment   => lambda{|attachment,style| attachment.name.to_s.pluralize },
         :style        => lambda{|attachment,style| style || attachment.default_style },
       }
