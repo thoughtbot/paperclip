@@ -10,14 +10,14 @@ module Paperclip
     # unless specified. Thumbnail creation will raise no errors unless
     # +whiny_thumbnails+ is true (which it is, by default.
     def initialize file, target_geometry, format = nil, whiny_thumbnails = true
-      @file = file
-      @crop = target_geometry[-1,1] == '#'
-      @target_geometry = Geometry.parse target_geometry
+      @file             = file
+      @crop             = target_geometry[-1,1] == '#'
+      @target_geometry  = Geometry.parse target_geometry
       @current_geometry = Geometry.from_file file
       @whiny_thumbnails = whiny_thumbnails
 
-      @current_format = File.extname(@file.path)
-      @basename       = File.basename(@file.path, @current_format)
+      @current_format   = File.extname(@file.path)
+      @basename         = File.basename(@file.path, @current_format)
       
       @format = format
     end

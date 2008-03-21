@@ -79,22 +79,31 @@ module Paperclip
       ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
 
       if crop
-        scale_geometry, scale = if ratio.horizontal? || ratio.square?
-          [ "%dx" % dst.width, ratio.width ]
-        else
-          [ "x%d" % dst.height, ratio.height ]
-        end
-
-        crop_geometry = if ratio.horizontal? || ratio.square?
-          "%dx%d+%d+%d" % [ dst.width, dst.height, 0, (self.height * scale - dst.height) / 2 ]
-                        else
-          "%dx%d+%d+%d" % [ dst.width, dst.height, (self.width * scale - dst.width) / 2, 0 ]
-        end
+        scale_geometry, scale = scaling(dst, ratio)
+        crop_geometry         = cropping(dst, ratio, scale)
       else
-        scale_geometry = dst.to_s
+        scale_geometry        = dst.to_s
       end
       
       [ scale_geometry, crop_geometry ]
+    end
+
+    private
+
+    def scaling dst, ratio
+      if ratio.horizontal? || ratio.square?
+        [ "%dx" % dst.width, ratio.width ]
+      else
+        [ "x%d" % dst.height, ratio.height ]
+      end
+    end
+
+    def cropping dst, ratio, scale
+      if ratio.horizontal? || ratio.square?
+        "%dx%d+%d+%d" % [ dst.width, dst.height, 0, (self.height * scale - dst.height) / 2 ]
+      else
+        "%dx%d+%d+%d" % [ dst.width, dst.height, (self.width * scale - dst.width) / 2, 0 ]
+      end
     end
   end
 end
