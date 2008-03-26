@@ -22,6 +22,7 @@ ActiveRecord::Base.establish_connection(config[ENV['RAILS_ENV'] || 'test'])
 
 def rebuild_model options = {}
   ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+    table.column :other, :string
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
     table.column :avatar_file_size, :integer

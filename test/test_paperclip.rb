@@ -4,6 +4,36 @@ class PaperclipTest < Test::Unit::TestCase
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model
+      @file = File.new(File.join(FIXTURES_DIR, "5k.png"))
+    end
+
+    context "that is attr_protected" do
+      setup do
+        Dummy.class_eval do
+          attr_protected :avatar
+        end
+        @dummy = Dummy.new
+      end
+
+      should "not assign the avatar on mass-set" do
+        @dummy.logger.expects(:debug)
+
+        @dummy.attributes = { :other => "I'm set!",
+                              :avatar => @file }
+        
+        assert_equal "I'm set!", @dummy.other
+        assert ! @dummy.avatar?
+      end
+
+      should "still allow assigment on normal set" do
+        @dummy.logger.expects(:debug).times(0)
+
+        @dummy.other  = "I'm set!"
+        @dummy.avatar = @file
+        
+        assert_equal "I'm set!", @dummy.other
+        assert @dummy.avatar?
+      end
     end
 
     should "have an #avatar method" do
