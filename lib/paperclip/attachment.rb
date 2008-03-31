@@ -118,7 +118,7 @@ module Paperclip
     def self.interpolations
       @interpolations ||= {
         :rails_root   => lambda{|attachment,style| RAILS_ROOT },
-        :class        => lambda{|attachment,style| attachment.instance.class.to_s.pluralize },
+        :class        => lambda{|attachment,style| attachment.instance.class.to_s.downcase.pluralize },
         :basename     => lambda do |attachment,style|
                            attachment.original_filename.gsub(/\.(.*?)$/, "")
                          end,
@@ -130,7 +130,7 @@ module Paperclip
         :partition_id => lambda do |attachment, style|
                            ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
                          end,
-        :attachment   => lambda{|attachment,style| attachment.name.to_s.pluralize },
+        :attachment   => lambda{|attachment,style| attachment.name.to_s.downcase.pluralize },
         :style        => lambda{|attachment,style| style || attachment.default_style },
       }
     end
