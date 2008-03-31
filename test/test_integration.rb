@@ -20,11 +20,14 @@ class PaperclipTest < Test::Unit::TestCase
       assert @dummy.valid?
       assert @dummy.save
 
-      assert_equal "100x15", `identify -format "%wx%h" #{@dummy.avatar.to_io.path}`.chomp
-      assert_equal "434x66", `identify -format "%wx%h" #{@dummy.avatar.to_io(:original).path}`.chomp
-      assert_equal "300x46", `identify -format "%wx%h" #{@dummy.avatar.to_io(:large).path}`.chomp
-      assert_equal "100x15", `identify -format "%wx%h" #{@dummy.avatar.to_io(:medium).path}`.chomp
-      assert_equal "32x32",  `identify -format "%wx%h" #{@dummy.avatar.to_io(:thumb).path}`.chomp
+      [["100x15", nil],
+       ["434x66", :original],
+       ["300x46", :large],
+       ["100x15", :medium],
+       ["32x32", :thumb]].each do |geo, style|
+        cmd = %Q[identify -format "%wx%h" #{@dummy.avatar.to_io(style).path}]
+        assert_equal geo, `#{cmd}`.chomp, cmd
+      end
 
       saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.to_io(s).path }
 

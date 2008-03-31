@@ -60,7 +60,7 @@ module Paperclip
 
     # Returns the width and height in a format suitable to be passed to Geometry.parse
     def to_s
-      "%dx%d" % [width, height]
+      "%dx%d%s" % [width, height, modifier]
     end
 
     # Same as to_s

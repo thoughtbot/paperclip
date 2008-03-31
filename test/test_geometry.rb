@@ -59,6 +59,12 @@ class GeometryTest < Test::Unit::TestCase
       end
     end
 
+    should "make sure the modifier gets passed during transformation_to" do
+      assert @src = Paperclip::Geometry.parse("123x456")
+      assert @dst = Paperclip::Geometry.parse("123x456>")
+      assert_equal "123x456>", @src.transformation_to(@dst).to_s
+    end
+
     should "be generated from a file" do
       file = Dir.glob("/Users/jyurek/Pictures/*.jpg").first
       file = File.new(file)
