@@ -44,12 +44,12 @@ class GeometryTest < Test::Unit::TestCase
 
     should "ensure the modifier is nil if only one dimension present" do
       assert @geo = Paperclip::Geometry.parse("123x")
-      assert_nil mod, @geo.modifier
+      assert_nil @geo.modifier
     end
 
     should "ensure the modifier is nil if not present" do
       assert @geo = Paperclip::Geometry.parse("123x456")
-      assert_nil mod, @geo.modifier
+      assert_nil @geo.modifier
     end
 
     ['>', '<', '#', '@', '%', '^', '!'].each do |mod|
