@@ -4,7 +4,7 @@ require 'shoulda'
 
 require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'geometry.rb')
 
-class PaperclipTest < Test::Unit::TestCase
+class GeometryTest < Test::Unit::TestCase
   context "Paperclip::Geometry" do
     should "correctly report its given dimensions" do
       assert @geo = Paperclip::Geometry.new(1024, 768)
@@ -40,6 +40,23 @@ class PaperclipTest < Test::Unit::TestCase
       assert @geo = Paperclip::Geometry.parse("800x")
       assert_equal 800, @geo.width
       assert_equal 800, @geo.height
+    end
+
+    should "ensure the modifier is nil if only one dimension present" do
+      assert @geo = Paperclip::Geometry.parse("123x")
+      assert_nil mod, @geo.modifier
+    end
+
+    should "ensure the modifier is nil if not present" do
+      assert @geo = Paperclip::Geometry.parse("123x456")
+      assert_nil mod, @geo.modifier
+    end
+
+    ['>', '<', '#', '@', '%', '^', '!'].each do |mod|
+      should "ensure the modifier #{mod} is preserved" do
+        assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
+        assert_equal mod, @geo.modifier
+      end
     end
 
     should "be generated from a file" do

@@ -12,6 +12,12 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
+desc 'Start an IRB session with all necessary files required.'
+task :shell do |t|
+  chdir File.dirname(__FILE__)
+  exec 'irb -I lib/ -I lib/paperclip -r rubygems -r active_record -r tempfile -r init'
+end
+
 desc 'Generate documentation for the paperclip plugin.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'doc'
