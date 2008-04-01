@@ -66,7 +66,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file" do
-      file = Dir.glob("/Users/jyurek/Pictures/*.jpg").first
+      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
       file = File.new(file)
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
@@ -74,7 +74,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file path" do
-      file = Dir.glob("/Users/jyurek/Pictures/*.jpg").first
+      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
       assert @geo.width > 0
