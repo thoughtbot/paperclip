@@ -84,6 +84,14 @@ class AttachmentTest < Test::Unit::TestCase
               assert_equal style[3].to_s, format.to_s
             end
           end
+
+          should "have #file be equal #to_io(:original)" do
+            assert @attachment.file == @attachment.to_io(:original)
+          end
+
+          should "still have its #file attribute not be nil" do
+            assert ! @attachment.file.nil?
+          end
         end
       end
     end

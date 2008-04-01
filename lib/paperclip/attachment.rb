@@ -98,6 +98,7 @@ module Paperclip
     # style. Useful for streaming with +send_file+.
     def to_io style = nil
       begin
+        style ||= @default_style
         @processed_files[style] || File.new(path(style))
       rescue Errno::ENOENT
         nil
@@ -211,7 +212,7 @@ module Paperclip
         FileUtils.mkdir_p( File.dirname(path(style)) )
         @processed_files[style] = file.stream_to(path(style)) unless file.path == path(style)
       end
-      @file = @processed_files[nil]
+      @file = @processed_files[@default_style]
     end
 
     def flush_deletes #:nodoc:
