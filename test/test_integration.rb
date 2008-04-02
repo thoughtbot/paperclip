@@ -38,6 +38,15 @@ class PaperclipTest < Test::Unit::TestCase
       assert_equal "100x15", `identify -format "%wx%h" #{@d2.avatar.to_io(:medium).path}`.chomp
       assert_equal "32x32",  `identify -format "%wx%h" #{@d2.avatar.to_io(:thumb).path}`.chomp
 
+      @dummy.avatar = "not a valid file but not nil"
+      assert_equal File.basename(@file.path), @dummy.avatar_file_name
+      assert @dummy.valid?
+      assert @dummy.save
+
+      saved_paths.each do |p|
+        assert File.exists?(p)
+      end
+
       @dummy.avatar = nil
       assert_nil @dummy.avatar_file_name
       assert @dummy.valid?

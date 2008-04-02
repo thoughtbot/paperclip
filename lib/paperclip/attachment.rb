@@ -3,6 +3,17 @@ module Paperclip
   # deletes when the model is destroyed, and processes the file upon assignment.
   class Attachment
     
+    def self.defaults
+      @defaults ||= {
+        :url => "/:attachment/:id/:style/:basename.:extension",
+        :path => ":rails_root/public/:attachment/:id/:style/:basename.:extension",
+        :styles => {},
+        :default_url => "/:attachment/:style/missing.png",
+        :default_style => :original,
+        :validations => []
+      }
+    end
+
     attr_reader :name, :instance, :file, :styles, :default_style
 
     # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
@@ -11,6 +22,9 @@ module Paperclip
     def initialize name, instance, options
       @name              = name
       @instance          = instance
+
+      # options = options.merge(self.class.defaults)
+
       @url               = options[:url]           || 
                            "/:attachment/:id/:style/:basename.:extension"
       @path              = options[:path]          || 
@@ -34,11 +48,13 @@ module Paperclip
     # assigns attributes, processes the file, and runs validations. It also queues up
     # the previous file for deletion, to be flushed away on #save of its host.
     def assign uploaded_file
+      return nil unless valid_file?(uploaded_file) || uploaded_file.nil?
+
       queue_existing_for_delete
       @errors            = []
       @validation_errors = nil 
 
-      return nil unless valid_file?(uploaded_file)
+      return nil if uploaded_file.nil?
 
       @file                               = uploaded_file.to_tempfile
       @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename
