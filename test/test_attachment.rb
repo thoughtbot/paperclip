@@ -5,48 +5,51 @@ class Dummy
 end
 
 class AttachmentTest < Test::Unit::TestCase
-#  context "Attachment defaults" do
-#    setup do
-#      @old_defaults = Paperclip::Attachment.defaults
-#      @new_defaults = @old_defaults.merge({
-#        :path => "argle/bargle",
-#        :url => "fooferon",
-#        :default_url => "not here.png"
-#      })
-#    end
-#
-#    should "be overrideable" do
-#      Paperclip::Attachment.defaults.merge!(@new_defaults)
-#      @new_defaults.keys.each do |key|
-#        assert_equal @new_defaults[key], Paperclip::Attachment.defaults[key]
-#      end
-#    end
-#
-#    context "on an Attachment" do
-#      setup do
-#        @attachment = Dummy.new
-#      end
-#
-#      should "be the defaults" do
-#        @old_defaults.keys.each do |key|
-#          assert_equal @old_defaults[key], @attachment.instance_variable_get("@#{key}"), key
-#        end
-#      end
-#
-#      context "when redefined" do
-#        setup do
-#          Paperclip::Attachment.defaults.merge!(@new_defaults)
-#          @attachment = Dummy.new
-#        end
-#
-#        should "be the new defaults" do
-#          @new_defaults.keys.each do |key|
-#            assert_equal @new_defaults[key], @attachment.instance_variable_get("@#{key}"), key
-#          end
-#        end
-#      end
-#    end
-#  end
+  context "Attachment default_options" do
+    setup do
+      rebuild_model
+      @old_default_options = Paperclip::Attachment.default_options
+      @new_default_options = @old_default_options.merge({
+        :path => "argle/bargle",
+        :url => "fooferon",
+        :default_url => "not here.png"
+      })
+    end
+
+    should "be overrideable" do
+      Paperclip::Attachment.default_options.merge!(@new_default_options)
+      @new_default_options.keys.each do |key|
+        assert_equal @new_default_options[key], Paperclip::Attachment.default_options[key]
+      end
+    end
+
+    context "on an Attachment" do
+      setup do
+        @dummy = Dummy.new
+        @attachment = @dummy.avatar
+      end
+
+      should "be the default_options" do
+        @old_default_options.keys.each do |key|
+          assert_equal @old_default_options[key], @attachment.instance_variable_get("@#{key}"), key
+        end
+      end
+
+      context "when redefined" do
+        setup do
+          Paperclip::Attachment.default_options.merge!(@new_default_options)
+          @dummy = Dummy.new
+          @attachment = @dummy.avatar
+        end
+
+        should "be the new default_options" do
+          @new_default_options.keys.each do |key|
+            assert_equal @new_default_options[key], @attachment.instance_variable_get("@#{key}"), key
+          end
+        end
+      end
+    end
+  end
 
   context "An attachment" do
     setup do

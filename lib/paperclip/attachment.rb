@@ -3,14 +3,14 @@ module Paperclip
   # deletes when the model is destroyed, and processes the file upon assignment.
   class Attachment
     
-    def self.defaults
-      @defaults ||= {
-        :url => "/:attachment/:id/:style/:basename.:extension",
-        :path => ":rails_root/public/:attachment/:id/:style/:basename.:extension",
-        :styles => {},
-        :default_url => "/:attachment/:style/missing.png",
+    def self.default_options
+      @default_options ||= {
+        :url           => "/:attachment/:id/:style/:basename.:extension",
+        :path          => ":rails_root/public/:attachment/:id/:style/:basename.:extension",
+        :styles        => {},
+        :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
-        :validations => []
+        :validations   => []
       }
     end
 
@@ -23,16 +23,14 @@ module Paperclip
       @name              = name
       @instance          = instance
 
-      # options = options.merge(self.class.defaults)
+      options = self.class.default_options.merge(options)
 
-      @url               = options[:url]           || 
-                           "/:attachment/:id/:style/:basename.:extension"
-      @path              = options[:path]          || 
-                           ":rails_root/public/:attachment/:id/:style/:basename.:extension"
-      @styles            = options[:styles]        || {}
-      @default_url       = options[:default_url]   || "/:attachment/:style/missing.png"
-      @validations       = options[:validations]   || []
-      @default_style     = options[:default_style] || :original
+      @url               = options[:url]
+      @path              = options[:path]
+      @styles            = options[:styles]
+      @default_url       = options[:default_url]
+      @validations       = options[:validations]
+      @default_style     = options[:default_style]
       @queued_for_delete = []
       @processed_files   = {}
       @errors            = []
@@ -48,7 +46,7 @@ module Paperclip
     # assigns attributes, processes the file, and runs validations. It also queues up
     # the previous file for deletion, to be flushed away on #save of its host.
     def assign uploaded_file
-      return nil unless valid_file?(uploaded_file) || uploaded_file.nil?
+      return nil unless valid_assignment?(uploaded_file)
 
       queue_existing_for_delete
       @errors            = []
@@ -114,7 +112,7 @@ module Paperclip
     # style. Useful for streaming with +send_file+.
     def to_io style = nil
       begin
-        style ||= @default_style
+        style ||= default_style
         @processed_files[style] || File.new(path(style))
       rescue Errno::ENOENT
         nil
@@ -154,8 +152,8 @@ module Paperclip
 
     private
 
-    def valid_file? file #:nodoc:
-      file.respond_to?(:original_filename) && file.respond_to?(:content_type)
+    def valid_assignment? file #:nodoc:
+      file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
 
     def validate #:nodoc:
@@ -181,11 +179,11 @@ module Paperclip
         begin
           dimensions, format = args
           @processed_files[name] = Thumbnail.make(self.file, 
-                                                  dimensions, 
+                                                  dimensions,
                                                   format, 
-                                                  @whiny_thumbnails)
+                                                  @whiny_thumnails)
         rescue Errno::ENOENT  => e
-          @errors << "could not be processed because the file does not exist."
+          @errors << "could not be processed because the filedoes not exist."
         rescue PaperclipError => e
           @errors << e.message
         end
@@ -194,7 +192,7 @@ module Paperclip
     end
 
     def interpolate pattern, style = nil #:nodoc:
-      style ||= @default_style
+      style ||= default_style
       pattern = pattern.dup
       self.class.interpolations.each do |tag, l|
         pattern.gsub!(/:#{tag}/) do |match|
@@ -228,7 +226,7 @@ module Paperclip
         FileUtils.mkdir_p( File.dirname(path(style)) )
         @processed_files[style] = file.stream_to(path(style)) unless file.path == path(style)
       end
-      @file = @processed_files[@default_style]
+      @file = @processed_files[default_style]
     end
 
     def flush_deletes #:nodoc:
