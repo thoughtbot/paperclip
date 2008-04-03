@@ -19,7 +19,8 @@ class AttachmentTest < Test::Unit::TestCase
     should "be overrideable" do
       Paperclip::Attachment.default_options.merge!(@new_default_options)
       @new_default_options.keys.each do |key|
-        assert_equal @new_default_options[key], Paperclip::Attachment.default_options[key]
+        assert_equal @new_default_options[key],
+                     Paperclip::Attachment.default_options[key]
       end
     end
 
@@ -29,9 +30,11 @@ class AttachmentTest < Test::Unit::TestCase
         @attachment = @dummy.avatar
       end
 
-      should "be the default_options" do
-        @old_default_options.keys.each do |key|
-          assert_equal @old_default_options[key], @attachment.instance_variable_get("@#{key}"), key
+      Paperclip::Attachment.default_options.keys.each do |key|
+        should "be the default_options for #{key}" do
+          assert_equal @old_default_options[key], 
+                       @attachment.instance_variable_get("@#{key}"),
+                       key
         end
       end
 
@@ -42,9 +45,11 @@ class AttachmentTest < Test::Unit::TestCase
           @attachment = @dummy.avatar
         end
 
-        should "be the new default_options" do
-          @new_default_options.keys.each do |key|
-            assert_equal @new_default_options[key], @attachment.instance_variable_get("@#{key}"), key
+        Paperclip::Attachment.default_options.keys.each do |key|
+          should "be the new default_options for #{key}" do
+            assert_equal @new_default_options[key],
+                         @attachment.instance_variable_get("@#{key}"),
+                         key
           end
         end
       end
@@ -53,17 +58,20 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment" do
     setup do
-      @default_options = {
+      Paperclip::Attachment.default_options.merge!({
         :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
-      }
+      })
       @instance = stub
       @instance.stubs(:id).returns(41)
       @instance.stubs(:class).returns(Dummy)
       @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
       @instance.stubs(:[]).with(:test_content_type).returns("image/png")
       @instance.stubs(:[]).with(:test_file_size).returns(12345)
-      @attachment = Paperclip::Attachment.new(:test, @instance, @default_options)
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+      @attachment = Paperclip::Attachment.new(:test,
+                                              @instance)
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"))
     end
 
     should "return its default_url when no file assigned" do
@@ -74,16 +82,18 @@ class AttachmentTest < Test::Unit::TestCase
 
     context "when expecting three styles" do
       setup do
-        @attachment = Paperclip::Attachment.new(:test, @instance, @default_options.merge({
-          :styles => { :large  => ["400x400", :png],
-                       :medium => ["100x100", :gif],
-                       :small => ["32x32#", :jpg]}
-        }))
+        styles = {:styles => { :large  => ["400x400", :png],
+                               :medium => ["100x100", :gif],
+                               :small => ["32x32#", :jpg]}}
+        @attachment = Paperclip::Attachment.new(:test,
+                                                @instance,
+                                                styles)
       end
 
       context "and assigned a file" do
         setup do
-          @instance.expects(:[]=).with(:test_file_name, File.basename(@file.path))
+          @instance.expects(:[]=).with(:test_file_name,
+                                       File.basename(@file.path))
           @instance.expects(:[]=).with(:test_content_type, "image/png")
           @instance.expects(:[]=).with(:test_file_size, @file.size)
           @instance.expects(:[]=).with(:test_file_name, nil)
@@ -122,8 +132,12 @@ class AttachmentTest < Test::Unit::TestCase
           end
 
           should "save the files as the right formats and sizes" do
-            [[:large, 400, 61, "PNG"], [:medium, 100, 15, "GIF"], [:small, 32, 32, "JPEG"]].each do |style|
-              out = `identify -format "%w %h %b %m" #{@attachment.to_io(style.first).path}`
+            [[:large, 400, 61, "PNG"],
+             [:medium, 100, 15, "GIF"],
+             [:small, 32, 32, "JPEG"]].each do |style|
+              cmd = "identify -format '%w %h %b %m' " + 
+                    "#{@attachment.to_io(style.first).path}"
+              out = `#{cmd}`
               width, height, size, format = out.split(" ")
               assert_equal style[1].to_s, width.to_s 
               assert_equal style[2].to_s, height.to_s

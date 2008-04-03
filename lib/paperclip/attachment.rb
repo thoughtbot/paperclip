@@ -19,7 +19,7 @@ module Paperclip
     # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
     # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
     # passed to +has_attached_file+.
-    def initialize name, instance, options
+    def initialize name, instance, options = {}
       @name              = name
       @instance          = instance
 
