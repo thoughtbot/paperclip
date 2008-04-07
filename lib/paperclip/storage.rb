@@ -40,8 +40,8 @@ module Paperclip
         base.instance_eval do
           @bucket             = @options[:bucket]
           @s3_credentials     = parse_credentials(@options[:s3_credentials])
-          @s3_options         = {:creds => "public-read"}.merge(@options[:s3_options] || {})
-          @s3_permissions = @s3_options.delete(:creds)
+          @s3_options         = @options[:s3_options] || {}
+          @s3_permissions     = @options[:s3_permissions] || 'public-read'
 
           @s3                 = RightAws::S3.new(@s3_credentials['access_key_id'],
                                                  @s3_credentials['secret_access_key'],
