@@ -8,12 +8,16 @@ class AttachmentTest < Test::Unit::TestCase
   context "Attachment default_options" do
     setup do
       rebuild_model
-      @old_default_options = Paperclip::Attachment.default_options
+      @old_default_options = Paperclip::Attachment.default_options.dup
       @new_default_options = @old_default_options.merge({
         :path => "argle/bargle",
         :url => "fooferon",
         :default_url => "not here.png"
       })
+    end
+
+    teardown do
+      Paperclip::Attachment.default_options.merge! @old_default_options
     end
 
     should "be overrideable" do
@@ -146,13 +150,23 @@ class AttachmentTest < Test::Unit::TestCase
           end
 
           should "have #file be equal #to_io(:original)" do
-            assert @attachment.file == @attachment.to_io(:original)
+            assert_equal @attachment.file, @attachment.to_io(:original)
           end
 
           should "still have its #file attribute not be nil" do
             assert ! @attachment.file.nil?
           end
         end
+      end
+    end
+
+    context "when trying a nonexistant storage type" do
+      setup do
+        rebuild_model :storage => :not_here
+      end
+
+      should "not be able to find the module" do
+        assert_raise(NameError){ Dummy.new.avatar }
       end
     end
   end

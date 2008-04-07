@@ -30,6 +30,7 @@ require 'paperclip/upfile'
 require 'paperclip/iostream'
 require 'paperclip/geometry'
 require 'paperclip/thumbnail'
+require 'paperclip/storage'
 require 'paperclip/attachment'
 
 # The base module that gets included in ActiveRecord::Base.
@@ -181,8 +182,7 @@ module Paperclip
 
     def save_attached_files
       each_attachment do |name, attachment|
-        attachment.send(:flush_writes)
-        attachment.send(:flush_deletes)
+        attachment.send(:save)
       end
     end
 

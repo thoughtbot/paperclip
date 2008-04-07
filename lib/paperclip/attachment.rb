@@ -10,7 +10,8 @@ module Paperclip
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
-        :validations   => []
+        :validations   => [],
+        :storage       => :filesystem
       }
     end
 
@@ -31,15 +32,22 @@ module Paperclip
       @default_url       = options[:default_url]
       @validations       = options[:validations]
       @default_style     = options[:default_style]
+      @storage           = options[:storage]
+      @options           = options
       @queued_for_delete = []
       @processed_files   = {}
       @errors            = []
+      @file              = nil
       @validation_errors = nil
       @dirty             = false
 
       normalize_style_definition
+      initialize_storage
 
-      @file              = File.new(path) if original_filename && File.exists?(path)
+      if original_filename
+        @processed_files = locate_files
+        @file            = @processed_files[@default_style]
+      end
     end
 
     # What gets called when you call instance.attachment = File. It clears errors,
@@ -101,6 +109,8 @@ module Paperclip
       if valid?
         flush_deletes
         flush_writes
+        @dirty = false
+        @file = @processed_files[default_style]
         true
       else
         flush_errors
@@ -108,16 +118,13 @@ module Paperclip
       end
     end
 
-    # Returns an +IO+ representing the data of the file assigned to the given
-    # style. Useful for streaming with +send_file+.
-    def to_io style = nil
-      begin
-        style ||= default_style
-        @processed_files[style] || File.new(path(style))
-      rescue Errno::ENOENT
-        nil
-      end
+    # Returns representation of the data of the file assigned to the given
+    # style, in the format most representative of the current storage.
+    def to_file style = nil
+      @processed_files[style || default_style]
     end
+
+    alias_method :to_io, :to_file
 
     # Returns the name of the file as originally assigned, and as lives in the
     # <attachment>_file_name attribute of the model.
@@ -173,6 +180,11 @@ module Paperclip
       end
     end
 
+    def initialize_storage
+      @storage_module = Paperclip::Storage.const_get(@storage.to_s.capitalize)
+      self.extend(@storage_module)
+    end
+
     def post_process #:nodoc:
       return nil if @file.nil?
       @styles.each do |name, args|
@@ -183,7 +195,7 @@ module Paperclip
                                                   format, 
                                                   @whiny_thumnails)
         rescue Errno::ENOENT  => e
-          @errors << "could not be processed because the filedoes not exist."
+          @errors << "could not be processed because the file does not exist."
         rescue PaperclipError => e
           @errors << e.message
         end
@@ -199,7 +211,7 @@ module Paperclip
           l.call( self, style )
         end
       end
-      pattern.gsub(%r{/+}, "/")
+      pattern
     end
 
     def path style = nil #:nodoc:
@@ -221,24 +233,6 @@ module Paperclip
       end
     end
 
-    def flush_writes #:nodoc:
-      @processed_files.each do |style, file|
-        FileUtils.mkdir_p( File.dirname(path(style)) )
-        @processed_files[style] = file.stream_to(path(style)) unless file.path == path(style)
-      end
-      @file = @processed_files[default_style]
-    end
-
-    def flush_deletes #:nodoc:
-      @queued_for_delete.compact.each do |file|
-        begin
-          FileUtils.rm(file.path)
-        rescue Errno::ENOENT => e
-          # ignore them
-        end
-      end
-      @queued_for_delete = []
-    end
   end
 end
 
