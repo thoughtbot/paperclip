@@ -63,8 +63,6 @@ module Paperclip
   end
 
   module ClassMethods
-    attr_reader :attachment_definitions
-
     # +has_attached_file+ gives the class it is called on an attribute that maps to a file. This
     # is typically a file stored somewhere on the filesystem and has been uploaded by a user. 
     # The attribute returns a Paperclip::Attachment object which handles the management of
@@ -114,8 +112,8 @@ module Paperclip
     def has_attached_file name, options = {}
       include InstanceMethods
 
-      @attachment_definitions ||= {} 
-      @attachment_definitions[name] = {:validations => []}.merge(options)
+      write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
+      attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
       before_destroy :destroy_attached_files
@@ -144,7 +142,7 @@ module Paperclip
     # * +less_than+: equivalent to :in => 0..options[:less_than]
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     def validates_attachment_size name, options = {}
-      @attachment_definitions[name][:validations] << lambda do |attachment, instance|
+      attachment_definitions[name][:validations] << lambda do |attachment, instance|
         unless options[:greater_than].nil?
           options[:in] = (options[:greater_than]..(1/0)) # 1/0 => Infinity
         end
@@ -159,11 +157,16 @@ module Paperclip
 
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name
-      @attachment_definitions[name][:validations] << lambda do |attachment, instance|
+      attachment_definitions[name][:validations] << lambda do |attachment, instance|
         if attachment.file.nil? || !File.exist?(attachment.file.path)
           "must be set."
         end
       end
+    end
+
+    # Returns the attachment definitions defined by each call to has_attached_file.
+    def attachment_definitions
+      read_inheritable_attribute(:attachment_definitions)
     end
 
   end

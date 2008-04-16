@@ -3,7 +3,7 @@ require 'test/helper.rb'
 class PaperclipTest < Test::Unit::TestCase
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
-      rebuild_model
+      rebuild_model :path => "tmp/:class/omg/:style.:extension"
       @file = File.new(File.join(FIXTURES_DIR, "5k.png"))
     end
 
@@ -33,6 +33,26 @@ class PaperclipTest < Test::Unit::TestCase
         
         assert_equal "I'm set!", @dummy.other
         assert @dummy.avatar?
+      end
+    end
+
+    context "with a subclass" do
+      setup do
+        class ::SubDummy < Dummy; end
+      end
+
+      should "be able to use the attachment from the subclass" do
+        assert_nothing_raised do
+          @subdummy = SubDummy.create(:avatar => @file)
+        end
+      end
+
+      should "be able to see the attachment definition from the subclass's class" do
+        assert_equal "tmp/:class/omg/:style.:extension", SubDummy.attachment_definitions[:avatar][:path]
+      end
+
+      teardown do
+        Object.send(:remove_const, "SubDummy") rescue nil
       end
     end
 

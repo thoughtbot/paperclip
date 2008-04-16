@@ -5,7 +5,11 @@ require 'mocha'
 require 'tempfile'
 
 require 'active_record'
-require 'ruby-debug'
+begin
+  require 'ruby-debug'
+rescue LoadError
+  puts "ruby-debug not loaded"
+end
 
 ROOT       = File.join(File.dirname(__FILE__), '..')
 RAILS_ROOT = ROOT
