@@ -43,8 +43,8 @@ module Paperclip
           @s3_options         = @options[:s3_options] || {}
           @s3_permissions     = @options[:s3_permissions] || 'public-read'
 
-          @s3                 = RightAws::S3.new(@s3_credentials['access_key_id'],
-                                                 @s3_credentials['secret_access_key'],
+          @s3                 = RightAws::S3.new(@s3_credentials[:access_key_id],
+                                                 @s3_credentials[:secret_access_key],
                                                  @s3_options)
           @s3_bucket          = @s3.bucket(@bucket, true, @s3_permissions)
           @url                = ":s3_url"
@@ -55,17 +55,8 @@ module Paperclip
       end
 
       def parse_credentials creds
-        cred_hash = case creds
-                    when File:
-                      YAML.load_file(creds.path)
-                    when String:
-                      YAML.load_file(creds)
-                    when Hash:
-                      creds
-                    else
-                      raise ArgumentError, "Credentials are not a path, file, or hash."
-                    end
-        cred_hash[ENV['RAILS_ENV']] || cred_hash
+        creds = find_credentials(creds).stringify_keys
+        (creds[ENV['RAILS_ENV']] || creds).symbolize_keys
       end
 
       def locate_files
@@ -102,6 +93,20 @@ module Paperclip
         end
         @queued_for_delete = []
       end
+      
+      def find_credentials creds
+        case creds
+        when File:
+          YAML.load_file(creds.path)
+        when String:
+          YAML.load_file(creds)
+        when Hash:
+          creds
+        else
+          raise ArgumentError, "Credentials are not a path, file, or hash."
+        end
+      end
+      private :find_credentials
 
     end
   end

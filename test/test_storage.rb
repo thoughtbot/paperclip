@@ -28,12 +28,16 @@ class S3Test < Test::Unit::TestCase
 
     should "get the correct credentials when RAILS_ENV is production" do
       ENV['RAILS_ENV'] = 'production'
-      assert_equal "12345", @avatar.parse_credentials('production' => '12345', :production => "54321")
+      assert_equal({:key => "12345"},
+                   @avatar.parse_credentials('production' => {:key => '12345'},
+                                             :development => {:key => "54321"}))
     end
 
     should "get the correct credentials when RAILS_ENV is development" do
       ENV['RAILS_ENV'] = 'development'
-      assert_equal "12345", @avatar.parse_credentials('development' => '12345', :development => "54321")
+      assert_equal({:key => "54321"},
+                   @avatar.parse_credentials('production' => {:key => '12345'},
+                                             :development => {:key => "54321"}))
     end
 
     should "return the argument if the key does not exist" do
