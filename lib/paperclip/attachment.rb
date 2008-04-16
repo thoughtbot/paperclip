@@ -83,6 +83,14 @@ module Paperclip
       @file ? interpolate(@url, style) : interpolate(@default_url, style)
     end
 
+    # Returns the path of the attachment as defined by the :path optionn. If the
+    # file is stored in the filesystem the path refers to the path of the file on
+    # disk. If the file is stored in S3, the path is the "key" part of th URL,
+    # and the :bucket option refers to the S3 bucket.
+    def path style = nil #:nodoc:
+      interpolate(@path, style)
+    end
+
     # Alias to +url+
     def to_s style = nil
       url(style)
@@ -212,10 +220,6 @@ module Paperclip
         end
       end
       pattern
-    end
-
-    def path style = nil #:nodoc:
-      interpolate(@path, style)
     end
 
     def queue_existing_for_delete #:nodoc:
