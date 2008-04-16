@@ -6,6 +6,42 @@ require 'right_aws'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'geometry.rb')
 
 class S3Test < Test::Unit::TestCase
+  context "Parsing S3 credentials" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket => "testing",
+                    :s3_credentials => {:not => :important}
+
+      @s3_stub = stub
+      @bucket_stub = stub
+      RightAws::S3.expects(:new).returns(@s3_stub)
+      @s3_stub.expects(:bucket).returns(@bucket_stub)
+      @dummy = Dummy.new
+      @avatar = @dummy.avatar
+
+      @current_env = ENV['RAILS_ENV']
+    end
+
+    teardown do
+      ENV['RAILS_ENV'] = @current_env
+    end
+
+    should "get the correct credentials when RAILS_ENV is production" do
+      ENV['RAILS_ENV'] = 'production'
+      assert_equal "12345", @avatar.parse_credentials('production' => '12345', :production => "54321")
+    end
+
+    should "get the correct credentials when RAILS_ENV is development" do
+      ENV['RAILS_ENV'] = 'development'
+      assert_equal "12345", @avatar.parse_credentials('development' => '12345', :development => "54321")
+    end
+
+    should "return the argument if the key does not exist" do
+      ENV['RAILS_ENV'] = "not really an env"
+      assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
+    end
+  end
+
   context "An attachment with S3 storage" do
     setup do
       rebuild_model :storage => :s3,

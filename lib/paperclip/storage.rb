@@ -55,16 +55,17 @@ module Paperclip
       end
 
       def parse_credentials creds
-        case creds
-        when File:
-          YAML.load_file(creds.path)
-        when String:
-          YAML.load_file(creds)
-        when Hash:
-          creds
-        else
-          raise ArgumentError, "Credentials are not a path, file, or hash."
-        end
+        cred_hash = case creds
+                    when File:
+                      YAML.load_file(creds.path)
+                    when String:
+                      YAML.load_file(creds)
+                    when Hash:
+                      creds
+                    else
+                      raise ArgumentError, "Credentials are not a path, file, or hash."
+                    end
+        cred_hash[ENV['RAILS_ENV']] || cred_hash
       end
 
       def locate_files
