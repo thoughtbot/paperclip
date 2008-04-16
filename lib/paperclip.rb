@@ -6,7 +6,7 @@
 #
 # Author:: Jon Yurek
 # Copyright:: Copyright (c) 2008 thoughtbot, inc.
-# License:: Distrbutes under the same terms as Ruby
+# License:: MIT License (http://www.opensource.org/licenses/mit-license.php)
 #
 # Paperclip defines an attachment as any file, though it makes special considerations
 # for image files. You can declare that a model has an attached file with the
