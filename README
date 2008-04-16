@@ -30,3 +30,4 @@ In your show view:
   <%= image_tag @user.avatar.url(:medium) %>
   <%= image_tag @user.avatar.url(:thumb) %>
 
+
