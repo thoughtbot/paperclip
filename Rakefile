@@ -1,6 +1,7 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
+require 'rake/gempackagetask'
 
 desc 'Default: run unit tests.'
 task :default => [:clean, :test]
@@ -36,6 +37,33 @@ desc 'Clean up files.'
 task :clean do |t|
   FileUtils.rm_rf "doc"
   FileUtils.rm_rf "tmp"
+  FileUtils.rm_rf "pkg"
   FileUtils.rm "test/debug.log" rescue nil
   FileUtils.rm "test/paperclip.db" rescue nil
 end
+
+spec = Gem::Specification.new do |s| 
+  s.name              = "paperclip"
+  s.version           = "2.1.0"
+  s.author            = "Jon Yurek"
+  s.email             = "jyurek@thoughtbot.com"
+  s.homepage          = "http://www.thoughtbot.com/"
+  s.platform          = Gem::Platform::RUBY
+  s.summary           = "File attachments as attributes for ActiveRecord"
+  s.files             = FileList["README",
+                                 "LICENSE",
+                                 "Rakefile",
+                                 "init.rb",
+                                 "{generators,lib,tasks,test}/**/*"].to_a
+  s.require_path      = "lib"
+  s.test_files        = FileList["test/**/test_*.rb"].to_a
+  s.rubyforge_project = "paperclip"
+  s.has_rdoc          = true
+  s.extra_rdoc_files  = ["README"]
+  s.rdoc_options << '--line-numbers' << '--inline-source'
+  s.requirements << "ImageMagick"
+end
+ 
+Rake::GemPackageTask.new(spec) do |pkg| 
+  pkg.need_tar = true 
+end 
