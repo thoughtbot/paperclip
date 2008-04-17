@@ -60,6 +60,22 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with similarly named interpolations" do
+    setup do
+      rebuild_model :path => ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"
+      @dummy = Dummy.new
+      @dummy.stubs(:id).returns(1024)
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"))
+      @dummy.avatar = @file
+    end
+
+    should "make sure that they are interpolated correctly" do
+      assert_equal "1024.omg/1024-bbq/:idwhat/000/001/024.wtf", @dummy.avatar.path
+    end
+  end
+
   context "An attachment" do
     setup do
       Paperclip::Attachment.default_options.merge!({
