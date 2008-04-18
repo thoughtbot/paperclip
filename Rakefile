@@ -3,6 +3,9 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 
+$LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
+require 'paperclip'
+
 desc 'Default: run unit tests.'
 task :default => [:clean, :test]
 
@@ -44,7 +47,7 @@ end
 
 spec = Gem::Specification.new do |s| 
   s.name              = "paperclip"
-  s.version           = "2.1.0"
+  s.version           = Paperclip::VERSION
   s.author            = "Jon Yurek"
   s.email             = "jyurek@thoughtbot.com"
   s.homepage          = "http://www.thoughtbot.com/"
@@ -67,3 +70,15 @@ end
 Rake::GemPackageTask.new(spec) do |pkg| 
   pkg.need_tar = true 
 end 
+
+desc "Release new version"
+task :release => [:test, :sync_docs, :gem] do
+  require 'rubygems'
+  require 'rubyforge'
+  r = RubyForge.new
+  r.login
+  r.add_release spec.rubyforge_project,
+                spec.name,
+                spec.version,
+                File.join("pkg", "#{spec.name}-#{spec.version}.gem")
+end

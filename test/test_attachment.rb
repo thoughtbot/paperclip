@@ -81,6 +81,7 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Attachment.default_options.merge!({
         :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       })
+      FileUtils.rm_rf("tmp")
       @instance = stub
       @instance.stubs(:id).returns(41)
       @instance.stubs(:class).returns(Dummy)
@@ -171,6 +172,23 @@ class AttachmentTest < Test::Unit::TestCase
 
           should "still have its #file attribute not be nil" do
             assert ! @attachment.file.nil?
+          end
+
+          context "and deleted" do
+            setup do
+              @existing_names = @attachment.styles.keys.collect do |style|
+                @attachment.path(style)
+              end
+              @instance.expects(:[]=).with(:test_file_name, nil)
+              @instance.expects(:[]=).with(:test_content_type, nil)
+              @instance.expects(:[]=).with(:test_file_size, nil)
+              @attachment.assign nil
+              @attachment.save
+            end
+
+            should "delete the files" do
+              @existing_names.each{|f| assert ! File.exists?(f) }
+            end
           end
         end
       end
