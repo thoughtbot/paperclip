@@ -149,7 +149,7 @@ module Paperclip
       @interpolations ||= {
         :rails_root   => lambda{|attachment,style| RAILS_ROOT },
         :class        => lambda do |attachment,style|
-                           attachment.instance.class.to_s.downcase.pluralize
+                           attachment.instance.class.name.underscore.pluralize
                          end,
         :basename     => lambda do |attachment,style|
                            attachment.original_filename.gsub(/\.(.*?)$/, "")
