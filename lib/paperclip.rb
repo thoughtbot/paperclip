@@ -35,6 +35,9 @@ require 'paperclip/attachment'
 
 # The base module that gets included in ActiveRecord::Base.
 module Paperclip
+
+  VERSION = "2.1.0"
+
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
     # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
@@ -197,4 +200,10 @@ module Paperclip
     end
   end
 
+end
+
+# Set it all up.
+if Object.const_defined?("ActiveRecord")
+  ActiveRecord::Base.send(:include, Paperclip)
+  File.send(:include, Paperclip::Upfile)
 end
