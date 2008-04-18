@@ -1,5 +1,3 @@
-require 'environment'
-
 def obtain_class
   class_name = ENV['CLASS'] || ENV['class']
   @klass = Object.const_get(class_name)
@@ -16,7 +14,7 @@ end
 
 namespace :paperclip do
   desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT)"
-  task :refresh do
+  task :refresh => :environment do
     klass     = obtain_class
     instances = klass.find(:all)
     names     = obtain_attachments
