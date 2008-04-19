@@ -96,7 +96,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "return its default_url when no file assigned" do
-      assert @attachment.file.nil?
+      assert @attachment.to_file.nil?
       assert_equal "/tests/original/missing.png", @attachment.url
       assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
     end
@@ -123,20 +123,8 @@ class AttachmentTest < Test::Unit::TestCase
           @attachment.assign(@file)
         end
 
-        should "return the real url" do
-          assert @attachment.file
-          assert_equal "/tests/41/original/5k.png", @attachment.url
-          assert_equal "/tests/41/blah/5k.png", @attachment.url(:blah)
-        end
-
         should "be dirty" do
           assert @attachment.dirty?
-        end
-
-        should "have its image and attachments as tempfiles" do
-          [nil, :large, :medium, :small].each do |style|
-            assert File.exists?(@attachment.to_io(style))
-          end
         end
 
         context "and saved" do
@@ -144,8 +132,19 @@ class AttachmentTest < Test::Unit::TestCase
             @attachment.save
           end
 
+          should "return the real url" do
+            assert @attachment.to_file
+            assert_equal "/tests/41/original/5k.png", @attachment.url
+            assert_equal "/tests/41/small/5k.jpg", @attachment.url(:small)
+          end
+
+          should "return its default_url when no file assigned" do
+            assert @attachment.to_file
+            assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
+          end
+
           should "commit the files to disk" do
-            [nil, :large, :medium, :small].each do |style|
+            [:large, :medium, :small].each do |style|
               io = @attachment.to_io(style)
               assert File.exists?(io)
               assert ! io.is_a?(::Tempfile)
@@ -166,12 +165,8 @@ class AttachmentTest < Test::Unit::TestCase
             end
           end
 
-          should "have #file be equal #to_io(:original)" do
-            assert_equal @attachment.file, @attachment.to_io(:original)
-          end
-
           should "still have its #file attribute not be nil" do
-            assert ! @attachment.file.nil?
+            assert ! @attachment.to_file.nil?
           end
 
           context "and deleted" do

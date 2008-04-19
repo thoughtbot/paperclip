@@ -131,7 +131,7 @@ module Paperclip
       end
 
       define_method "#{name}?" do
-        ! attachment_for(name).file.nil?
+        ! attachment_for(name).original_filename.blank?
       end
 
       validates_each(name) do |record, attr, value|
@@ -161,7 +161,7 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
-        if attachment.file.nil? || !File.exist?(attachment.file.path)
+        if attachment.original_filename.blank?
           "must be set."
         end
       end
