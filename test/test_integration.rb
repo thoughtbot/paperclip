@@ -1,6 +1,23 @@
 require 'test/helper.rb'
 
 class IntegrationTest < Test::Unit::TestCase
+  context "Many models at once" do
+    setup do
+      rebuild_model
+      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"))
+      300.times do |i|
+        Dummy.create! :avatar => @file
+      end
+    end
+    
+    should "not exceed the open file limit" do
+       assert_nothing_raised do
+         dummies = Dummy.find(:all)
+         dummies.each { |dummy| dummy.avatar }
+       end
+    end
+  end
+  
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
@@ -19,8 +36,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
 
     should "write and delete its files" do
-      [["100x15", nil],
-       ["434x66", :original],
+      [["434x66", :original],
        ["300x46", :large],
        ["100x15", :medium],
        ["32x32", :thumb]].each do |geo, style|
@@ -78,10 +94,10 @@ class IntegrationTest < Test::Unit::TestCase
     end
 
     should "know the difference between good files, bad files, not files, and nil" do
-      expected = @dummy.avatar.file
+      expected = @dummy.avatar.to_file
       @dummy.avatar = "not a file"
       assert @dummy.valid?
-      assert_equal expected.path, @dummy.avatar.file.path
+      assert_equal expected.path, @dummy.avatar.to_file.path
 
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
@@ -204,10 +220,10 @@ class IntegrationTest < Test::Unit::TestCase
       end
 
       should "know the difference between good files, bad files, not files, and nil" do
-        expected = @dummy.avatar.file
+        expected = @dummy.avatar.to_file
         @dummy.avatar = "not a file"
         assert @dummy.valid?
-        assert_equal expected, @dummy.avatar.file
+        assert_equal expected, @dummy.avatar.to_file
 
         @dummy.avatar = @bad_file
         assert ! @dummy.valid?

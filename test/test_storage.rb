@@ -78,10 +78,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      should "still return a Tempfile when sent #to_io" do
-        assert_equal Tempfile, @dummy.avatar.to_io.class
-      end
-
       context "and saved" do
         setup do
           @key_mock = stub

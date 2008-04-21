@@ -15,7 +15,7 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :file, :styles, :default_style
+    attr_reader :name, :instance, :styles, :default_style
 
     # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
     # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
@@ -35,19 +35,13 @@ module Paperclip
       @storage           = options[:storage]
       @options           = options
       @queued_for_delete = []
-      @processed_files   = {}
+      @queued_for_write  = {}
       @errors            = []
-      @file              = nil
       @validation_errors = nil
       @dirty             = false
 
       normalize_style_definition
       initialize_storage
-
-      if original_filename
-        @processed_files = locate_files
-        @file            = @processed_files[@default_style]
-      end
     end
 
     # What gets called when you call instance.attachment = File. It clears errors,
@@ -58,11 +52,11 @@ module Paperclip
 
       queue_existing_for_delete
       @errors            = []
-      @validation_errors = nil 
+      @validation_errors = nil
 
       return nil if uploaded_file.nil?
 
-      @file                               = uploaded_file.to_tempfile
+      @queued_for_write[:original]        = uploaded_file.to_tempfile
       @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename
       @instance[:"#{@name}_content_type"] = uploaded_file.content_type
       @instance[:"#{@name}_file_size"]    = uploaded_file.size
@@ -79,8 +73,8 @@ module Paperclip
     # and can point to an action in your app, if you need fine grained security.
     # This is not recommended if you don't need the security, however, for
     # performance reasons.
-    def url style = nil
-      @file ? interpolate(@url, style) : interpolate(@default_url, style)
+    def url style = default_style
+      exists?(style) ? interpolate(@url, style) : interpolate(@default_url, style)
     end
 
     # Returns the path of the attachment as defined by the :path optionn. If the
@@ -118,21 +112,12 @@ module Paperclip
         flush_deletes
         flush_writes
         @dirty = false
-        @file = @processed_files[default_style]
         true
       else
         flush_errors
         false
       end
     end
-
-    # Returns representation of the data of the file assigned to the given
-    # style, in the format most representative of the current storage.
-    def to_file style = nil
-      @processed_files[style || default_style]
-    end
-
-    alias_method :to_io, :to_file
 
     # Returns the name of the file as originally assigned, and as lives in the
     # <attachment>_file_name attribute of the model.
@@ -149,7 +134,7 @@ module Paperclip
       @interpolations ||= {
         :rails_root   => lambda{|attachment,style| RAILS_ROOT },
         :class        => lambda do |attachment,style|
-                           attachment.instance.class.to_s.downcase.pluralize
+                           attachment.instance.class.name.underscore.pluralize
                          end,
         :basename     => lambda do |attachment,style|
                            attachment.original_filename.gsub(/\.(.*?)$/, "")
@@ -196,11 +181,11 @@ module Paperclip
     end
 
     def post_process #:nodoc:
-      return nil if @file.nil?
+      return if @queued_for_write[:original].nil?
       @styles.each do |name, args|
         begin
           dimensions, format = args
-          @processed_files[name] = Thumbnail.make(self.file, 
+          @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                   dimensions,
                                                   format, 
                                                   @whiny_thumnails)
@@ -210,11 +195,9 @@ module Paperclip
           @errors << e.message
         end
       end
-      @processed_files[:original] = @file
     end
 
-    def interpolate pattern, style = nil #:nodoc:
-      style ||= default_style
+    def interpolate pattern, style = default_style #:nodoc:
       pattern = pattern.dup
       self.class.interpolations.each do |tag, l|
         pattern.gsub!(/:\b#{tag}\b/) do |match|
@@ -225,9 +208,10 @@ module Paperclip
     end
 
     def queue_existing_for_delete #:nodoc:
-      @queued_for_delete += @processed_files.values
-      @file               = nil
-      @processed_files    = {}
+      return if original_filename.blank?
+      @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
+        path(style) if exists?(style)
+      end.compact
       @instance[:"#{@name}_file_name"]    = nil
       @instance[:"#{@name}_content_type"] = nil
       @instance[:"#{@name}_file_size"]    = nil

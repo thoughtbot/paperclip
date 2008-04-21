@@ -1,29 +1,39 @@
 module Paperclip
   module Storage
 
-    # With the Filesystem module installed, @file and @processed_files are just File instances.
     module Filesystem
       def self.extended base
       end
-
-      def locate_files
-        [:original, *@styles.keys].uniq.inject({}) do |files, style|
-          files[style] = File.new(path(style), "rb") if File.exist?(path(style))
-          files
+      
+      def exists?(style = default_style)
+        if original_filename
+          File.exist?(path(style))
+        else
+          false
         end
       end
 
+      # Returns representation of the data of the file assigned to the given
+      # style, in the format most representative of the current storage.
+      def to_file style = default_style
+        File.new(path(style)) if exists?(style)
+      end
+      alias_method :to_io, :to_file
+
       def flush_writes #:nodoc:
-        @processed_files.each do |style, file|
-          FileUtils.mkdir_p( File.dirname(path(style)) )
-          @processed_files[style] = file.stream_to(path(style)) unless file.path == path(style)
+        @queued_for_write.each do |style, file|
+          FileUtils.mkdir_p(File.dirname(path(style)))
+          result = file.stream_to(path(style))
+          file.close
+          result.close
         end
+        @queued_for_write = {}
       end
 
       def flush_deletes #:nodoc:
-        @queued_for_delete.compact.each do |file|
+        @queued_for_delete.each do |path|
           begin
-            FileUtils.rm(file.path)
+            FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore them
           end
@@ -32,8 +42,6 @@ module Paperclip
       end
     end
 
-    # With the S3 module included, @file and the @processed_files will be
-    # RightAws::S3::Key instances.
     module S3
       def self.extended base
         require 'right_aws'
@@ -58,35 +66,37 @@ module Paperclip
         creds = find_credentials(creds).stringify_keys
         (creds[ENV['RAILS_ENV']] || creds).symbolize_keys
       end
-
-      def locate_files
-        [:original, *@styles.keys].uniq.inject({}) do |files, style|
-          files[style] = @s3_bucket.key(path(style))
-          files
-        end
+      
+      def exists?(style = default_style)
+        @s3_bucket.key(path(style)) ? true : false
       end
 
+      # Returns representation of the data of the file assigned to the given
+      # style, in the format most representative of the current storage.
+      def to_file style = default_style
+        @s3_bucket.key(path(style))
+      end
+      alias_method :to_io, :to_file
+
       def flush_writes #:nodoc:
-        return if not dirty?
-        @processed_files.each do |style, key|
+        @queued_for_write.each do |style, file|
           begin
-            unless key.is_a? RightAws::S3::Key
-              saved_data = key
-              key = @processed_files[style] = @s3_bucket.key(path(style))
-              key.data = saved_data
-            end
+            key = @s3_bucket.key(path(style))
+            key.data = file
             key.put(nil, @s3_permissions)
           rescue RightAws::AwsError => e
-            @processed_files[style] = nil
             raise
           end
         end
+        @queued_for_write = {}
       end
 
       def flush_deletes #:nodoc:
-        @queued_for_delete.compact.each do |file|
+        @queued_for_delete.each do |path|
           begin
-            file.delete
+            if file = @s3_bucket.key(path)
+              file.delete
+            end
           rescue RightAws::AwsError
             # Ignore this.
           end
