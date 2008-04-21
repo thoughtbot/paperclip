@@ -6,7 +6,11 @@ module Paperclip
       end
       
       def exists?(style = default_style)
-        File.exist?(path(style))
+        if original_filename
+          File.exist?(path(style))
+        else
+          false
+        end
       end
 
       # Returns representation of the data of the file assigned to the given

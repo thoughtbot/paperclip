@@ -28,6 +28,16 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
+    context "without an Attachment" do
+      setup do
+        @dummy = Dummy.new
+      end
+      
+      should "return false when asked exists?" do
+        assert !@dummy.avatar.exists?
+      end
+    end
+
     context "on an Attachment" do
       setup do
         @dummy = Dummy.new
