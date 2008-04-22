@@ -186,9 +186,9 @@ module Paperclip
         begin
           dimensions, format = args
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
-                                                  dimensions,
-                                                  format, 
-                                                  @whiny_thumnails)
+                                                   dimensions,
+                                                   format, 
+                                                   @whiny_thumnails)
         rescue Errno::ENOENT  => e
           @errors << "could not be processed because the file does not exist."
         rescue PaperclipError => e

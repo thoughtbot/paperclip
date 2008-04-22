@@ -16,7 +16,7 @@ module Paperclip
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style = default_style
-        File.new(path(style)) if exists?(style)
+        @queued_for_write[style] || (File.new(path(style)) if exists?(style))
       end
       alias_method :to_io, :to_file
 
@@ -35,7 +35,7 @@ module Paperclip
           begin
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
-            # ignore them
+            # ignore file-not-found, let everything else pass
           end
         end
         @queued_for_delete = []
@@ -74,7 +74,7 @@ module Paperclip
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style = default_style
-        @s3_bucket.key(path(style))
+        @queued_for_write[style] || @s3_bucket.key(path(style))
       end
       alias_method :to_io, :to_file
 

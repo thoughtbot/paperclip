@@ -195,23 +195,6 @@ class AttachmentTest < Test::Unit::TestCase
               @existing_names.each{|f| assert ! File.exists?(f) }
             end
           end
-
-          context "and deleted" do
-            setup do
-              @existing_names = @attachment.styles.keys.collect do |style|
-                @attachment.path(style)
-              end
-              @instance.expects(:[]=).with(:test_file_name, nil)
-              @instance.expects(:[]=).with(:test_content_type, nil)
-              @instance.expects(:[]=).with(:test_file_size, nil)
-              @attachment.assign nil
-              @attachment.save
-            end
-
-            should "delete the files" do
-              @existing_names.each{|f| assert ! File.exists?(f) }
-            end
-          end
         end
       end
     end

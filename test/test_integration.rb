@@ -223,7 +223,7 @@ class IntegrationTest < Test::Unit::TestCase
         expected = @dummy.avatar.to_file
         @dummy.avatar = "not a file"
         assert @dummy.valid?
-        assert_equal expected, @dummy.avatar.to_file
+        assert_equal expected.full_name, @dummy.avatar.to_file.full_name
 
         @dummy.avatar = @bad_file
         assert ! @dummy.valid?
