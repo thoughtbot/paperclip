@@ -198,13 +198,13 @@ module Paperclip
     end
 
     def interpolate pattern, style = default_style #:nodoc:
-      pattern = pattern.dup
-      self.class.interpolations.each do |tag, l|
-        pattern.gsub!(/:\b#{tag}\b/) do |match|
-          l.call( self, style )
+      interpolations = self.class.interpolations.sort{|a,b| a.first.to_s <=> b.first.to_s }
+      interpolations.reverse.inject( pattern.dup ) do |result, interpolation|
+        tag, blk = interpolation
+        result.gsub(/:#{tag}/) do |match|
+          blk.call( self, style )
         end
       end
-      pattern
     end
 
     def queue_existing_for_delete #:nodoc:
