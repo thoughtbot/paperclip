@@ -137,7 +137,7 @@ module Paperclip
                            attachment.instance.class.name.underscore.pluralize
                          end,
         :basename     => lambda do |attachment,style|
-                           attachment.original_filename.gsub(/\.(.*?)$/, "")
+                           attachment.original_filename.gsub(File.extname(attachment.original_filename), "")
                          end,
         :extension    => lambda do |attachment,style| 
                            ((style = attachment.styles[style]) && style.last) ||
