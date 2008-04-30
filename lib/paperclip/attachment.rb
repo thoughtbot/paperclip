@@ -74,7 +74,7 @@ module Paperclip
     # This is not recommended if you don't need the security, however, for
     # performance reasons.
     def url style = default_style
-      exists?(style) ? interpolate(@url, style) : interpolate(@default_url, style)
+      original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
     end
 
     # Returns the path of the attachment as defined by the :path optionn. If the

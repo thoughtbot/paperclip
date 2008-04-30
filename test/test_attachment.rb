@@ -95,9 +95,9 @@ class AttachmentTest < Test::Unit::TestCase
       @instance = stub
       @instance.stubs(:id).returns(41)
       @instance.stubs(:class).returns(Dummy)
-      @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
-      @instance.stubs(:[]).with(:test_content_type).returns("image/png")
-      @instance.stubs(:[]).with(:test_file_size).returns(12345)
+      @instance.stubs(:[]).with(:test_file_name).returns(nil)
+      @instance.stubs(:[]).with(:test_content_type).returns(nil)
+      @instance.stubs(:[]).with(:test_file_size).returns(nil)
       @attachment = Paperclip::Attachment.new(:test,
                                               @instance)
       @file = File.new(File.join(File.dirname(__FILE__),
@@ -111,92 +111,101 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
     end
 
-    context "when expecting three styles" do
+    context "with a file assigned in the database" do
       setup do
-        styles = {:styles => { :large  => ["400x400", :png],
-                               :medium => ["100x100", :gif],
-                               :small => ["32x32#", :jpg]}}
-        @attachment = Paperclip::Attachment.new(:test,
-                                                @instance,
-                                                styles)
+        @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
+        @instance.stubs(:[]).with(:test_content_type).returns("image/png")
+        @instance.stubs(:[]).with(:test_file_size).returns(12345)
       end
 
-      context "and assigned a file" do
+      should "return a correct url even if the file does not exist" do
+        assert_nil @attachment.to_file
+        assert_equal "/tests/41/blah/5k.png", @attachment.url(:blah)
+      end
+
+      context "when expecting three styles" do
         setup do
-          @instance.expects(:[]=).with(:test_file_name,
-                                       File.basename(@file.path))
-          @instance.expects(:[]=).with(:test_content_type, "image/png")
-          @instance.expects(:[]=).with(:test_file_size, @file.size)
-          @instance.expects(:[]=).with(:test_file_name, nil)
-          @instance.expects(:[]=).with(:test_content_type, nil)
-          @instance.expects(:[]=).with(:test_file_size, nil)
-          @attachment.assign(@file)
+          styles = {:styles => { :large  => ["400x400", :png],
+                                 :medium => ["100x100", :gif],
+                                 :small => ["32x32#", :jpg]}}
+          @attachment = Paperclip::Attachment.new(:test,
+                                                  @instance,
+                                                  styles)
         end
 
-        should "be dirty" do
-          assert @attachment.dirty?
-        end
-
-        context "and saved" do
+        context "and assigned a file" do
           setup do
-            @attachment.save
+            @instance.expects(:[]=).with(:test_file_name,
+                                         File.basename(@file.path))
+            @instance.expects(:[]=).with(:test_content_type, "image/png")
+            @instance.expects(:[]=).with(:test_file_size, @file.size)
+            @instance.expects(:[]=).with(:test_file_name, nil)
+            @instance.expects(:[]=).with(:test_content_type, nil)
+            @instance.expects(:[]=).with(:test_file_size, nil)
+            @attachment.assign(@file)
           end
 
-          should "return the real url" do
-            assert @attachment.to_file
-            assert_equal "/tests/41/original/5k.png", @attachment.url
-            assert_equal "/tests/41/small/5k.jpg", @attachment.url(:small)
+          should "be dirty" do
+            assert @attachment.dirty?
           end
 
-          should "return its default_url when no file assigned" do
-            assert @attachment.to_file
-            assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
-          end
-
-          should "commit the files to disk" do
-            [:large, :medium, :small].each do |style|
-              io = @attachment.to_io(style)
-              assert File.exists?(io)
-              assert ! io.is_a?(::Tempfile)
-            end
-          end
-
-          should "save the files as the right formats and sizes" do
-            [[:large, 400, 61, "PNG"],
-             [:medium, 100, 15, "GIF"],
-             [:small, 32, 32, "JPEG"]].each do |style|
-              cmd = "identify -format '%w %h %b %m' " + 
-                    "#{@attachment.to_io(style.first).path}"
-              out = `#{cmd}`
-              width, height, size, format = out.split(" ")
-              assert_equal style[1].to_s, width.to_s 
-              assert_equal style[2].to_s, height.to_s
-              assert_equal style[3].to_s, format.to_s
-            end
-          end
-
-          should "still have its #file attribute not be nil" do
-            assert ! @attachment.to_file.nil?
-          end
-
-          context "and deleted" do
+          context "and saved" do
             setup do
-              @existing_names = @attachment.styles.keys.collect do |style|
-                @attachment.path(style)
-              end
-              @instance.expects(:[]=).with(:test_file_name, nil)
-              @instance.expects(:[]=).with(:test_content_type, nil)
-              @instance.expects(:[]=).with(:test_file_size, nil)
-              @attachment.assign nil
               @attachment.save
             end
 
-            should "delete the files" do
-              @existing_names.each{|f| assert ! File.exists?(f) }
+            should "return the real url" do
+              assert @attachment.to_file
+              assert_equal "/tests/41/original/5k.png", @attachment.url
+              assert_equal "/tests/41/small/5k.jpg", @attachment.url(:small)
+            end
+
+            should "commit the files to disk" do
+              [:large, :medium, :small].each do |style|
+                io = @attachment.to_io(style)
+                assert File.exists?(io)
+                assert ! io.is_a?(::Tempfile)
+              end
+            end
+
+            should "save the files as the right formats and sizes" do
+              [[:large, 400, 61, "PNG"],
+               [:medium, 100, 15, "GIF"],
+               [:small, 32, 32, "JPEG"]].each do |style|
+                cmd = "identify -format '%w %h %b %m' " + 
+                      "#{@attachment.to_io(style.first).path}"
+                out = `#{cmd}`
+                width, height, size, format = out.split(" ")
+                assert_equal style[1].to_s, width.to_s 
+                assert_equal style[2].to_s, height.to_s
+                assert_equal style[3].to_s, format.to_s
+              end
+            end
+
+            should "still have its #file attribute not be nil" do
+              assert ! @attachment.to_file.nil?
+            end
+
+            context "and deleted" do
+              setup do
+                @existing_names = @attachment.styles.keys.collect do |style|
+                  @attachment.path(style)
+                end
+                @instance.expects(:[]=).with(:test_file_name, nil)
+                @instance.expects(:[]=).with(:test_content_type, nil)
+                @instance.expects(:[]=).with(:test_file_size, nil)
+                @attachment.assign nil
+                @attachment.save
+              end
+
+              should "delete the files" do
+                @existing_names.each{|f| assert ! File.exists?(f) }
+              end
             end
           end
         end
       end
+
     end
 
     context "when trying a nonexistant storage type" do

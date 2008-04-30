@@ -50,16 +50,21 @@ module Paperclip
           @s3_credentials     = parse_credentials(@options[:s3_credentials])
           @s3_options         = @options[:s3_options] || {}
           @s3_permissions     = @options[:s3_permissions] || 'public-read'
-
-          @s3                 = RightAws::S3.new(@s3_credentials[:access_key_id],
-                                                 @s3_credentials[:secret_access_key],
-                                                 @s3_options)
-          @s3_bucket          = @s3.bucket(@bucket, true, @s3_permissions)
           @url                = ":s3_url"
         end
         base.class.interpolations[:s3_url] = lambda do |attachment, style|
           attachment.to_io(style).public_link
         end
+      end
+
+      def s3
+        @s3 ||= RightAws::S3.new(@s3_credentials[:access_key_id],
+                                 @s3_credentials[:secret_access_key],
+                                 @s3_options)
+      end
+
+      def s3_bucket
+        @s3_bucket ||= s3.bucket(@bucket, true, @s3_permissions)
       end
 
       def parse_credentials creds
@@ -68,20 +73,20 @@ module Paperclip
       end
       
       def exists?(style = default_style)
-        @s3_bucket.key(path(style)) ? true : false
+        s3_bucket.key(path(style)) ? true : false
       end
 
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style = default_style
-        @queued_for_write[style] || @s3_bucket.key(path(style))
+        @queued_for_write[style] || s3_bucket.key(path(style))
       end
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
-            key = @s3_bucket.key(path(style))
+            key = s3_bucket.key(path(style))
             key.data = file
             key.put(nil, @s3_permissions)
           rescue RightAws::AwsError => e
@@ -94,7 +99,7 @@ module Paperclip
       def flush_deletes #:nodoc:
         @queued_for_delete.each do |path|
           begin
-            if file = @s3_bucket.key(path)
+            if file = s3_bucket.key(path)
               file.delete
             end
           rescue RightAws::AwsError
