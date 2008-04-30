@@ -110,6 +110,15 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "/tests/original/missing.png", @attachment.url
       assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
     end
+    
+    should "return the proper path when filename has a single .'s" do
+      assert_equal "./test/../tmp/tests/dummies/original/41/5k.png", @attachment.path
+    end
+    
+    should "return the proper path when filename has multiple .'s" do
+      @instance.stubs(:[]).with(:test_file_name).returns("5k.old.png")      
+      assert_equal "./test/../tmp/tests/dummies/original/41/5k.old.png", @attachment.path
+    end
 
     context "with a file assigned in the database" do
       setup do
