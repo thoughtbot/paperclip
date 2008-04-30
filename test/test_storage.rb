@@ -46,7 +46,7 @@ class StorageTest < Test::Unit::TestCase
     setup do
       rebuild_model :storage => :s3,
                     :bucket => "testing",
-                    :path => "/:attachment/:style/:basename.:extension",
+                    :path => ":attachment/:style/:basename.:extension",
                     :s3_credentials => {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"

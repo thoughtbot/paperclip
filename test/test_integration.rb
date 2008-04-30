@@ -127,6 +127,7 @@ class IntegrationTest < Test::Unit::TestCase
   if ENV['S3_TEST_BUCKET']
     def s3_files_for attachment
       [:thumb, :medium, :large, :original].inject({}) do |files, style|
+        p attachment.url(style)
         data = `curl '#{attachment.url(style)}' 2>/dev/null`.chomp
         t = Tempfile.new("paperclip-test")
         t.write(data)
