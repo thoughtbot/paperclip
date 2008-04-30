@@ -46,6 +46,7 @@ class StorageTest < Test::Unit::TestCase
     setup do
       rebuild_model :storage => :s3,
                     :bucket => "testing",
+                    :path => "/:attachment/:style/:basename.:extension",
                     :s3_credentials => {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
@@ -65,6 +66,12 @@ class StorageTest < Test::Unit::TestCase
         @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'))
         @dummy = Dummy.new
         @dummy.avatar = @file
+      end
+
+      should "not get a bucket to get a URL" do
+        @dummy.avatar.expects(:s3).never
+        @dummy.avatar.expects(:s3_bucket).never
+        assert_equal "https://s3.amazonaws.com/testing/avatars/original/5k.png", @dummy.avatar.url
       end
 
       context "and saved" do

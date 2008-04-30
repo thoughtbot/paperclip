@@ -53,7 +53,7 @@ module Paperclip
           @url                = ":s3_url"
         end
         base.class.interpolations[:s3_url] = lambda do |attachment, style|
-          attachment.to_io(style).public_link
+          "https://s3.amazonaws.com/#{attachment.bucket_name}#{attachment.path(style)}"
         end
       end
 
@@ -65,6 +65,10 @@ module Paperclip
 
       def s3_bucket
         @s3_bucket ||= s3.bucket(@bucket, true, @s3_permissions)
+      end
+
+      def bucket_name
+        @bucket
       end
 
       def parse_credentials creds
