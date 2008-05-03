@@ -156,7 +156,7 @@ module Paperclip
         unless options[:less_than].nil?
           options[:in] = (0..options[:less_than])
         end
-        unless options[:in].include? instance[:"#{name}_file_size"].to_i
+        unless attachment.original_filename.blank? || options[:in].include?(instance[:"#{name}_file_size"].to_i)
           min = options[:in].first
           max = options[:in].last
           
@@ -187,7 +187,7 @@ module Paperclip
         options[:content_type] = [options[:content_type]].flatten.collect! { |t| t == :image ? Paperclip.content_types : t }.flatten unless options[:content_type].nil?
         
         unless options[:content_type].empty?
-          unless options[:content_type].include?(instance[:"#{name}_content_type"])
+          unless attachment.original_filename.blank? || options[:content_type].include?(instance[:"#{name}_content_type"])
             options[:message] || ActiveRecord::Errors.default_error_messages[:inclusion]
           end
         end

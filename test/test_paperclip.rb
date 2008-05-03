@@ -71,7 +71,9 @@ class PaperclipTest < Test::Unit::TestCase
      [:content_type3, {:content_type => "text/plain"},     "text.txt", "5k.png"],
      [:presence2,   {:message => "error"},                 "5k.png", nil, "error"],
      [:size2,       {:in => 1..10240, :message => 'size is not between #{min} and #{max} bytes.'}, "5k.png", "12k.png", "size is not between 1 and 10240 bytes."],
-     [:content_type4,{:content_type => "image/png", :message => "error"},       "5k.png", "text.txt", "error"]].each do |args|
+     [:size3,       {:in => 1..10240},                      nil, "12k.png"],
+     [:content_type4,{:content_type => "image/png", :message => "error"},       "5k.png", "text.txt", "error"],
+     [:content_type5,{:content_type => "image/png"},       nil, "text.txt"]].each do |args|
       context "with #{args[0]} validations" do
         setup do
           Dummy.class_eval do
