@@ -37,9 +37,6 @@ require 'paperclip/attachment'
 module Paperclip
 
   VERSION = "2.1.0"
-  
-  @@content_types      = ['image/jpeg', 'image/pjpeg', 'image/gif', 'image/png', 'image/x-png', 'image/jpg']
-  mattr_reader :content_types
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -180,15 +177,18 @@ module Paperclip
     
     # Places ActiveRecord-style validations on the content type of the file assigned. The
     # possible options are:
-    # * +content_type+: Allowed content types.  Can be a single content type or an array.  Allows all by default.  Use :image to allow all standard image types.
+    # * +content_type+: Allowed content types.  Can be a single content type or an array.  Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid content type.
     def validates_attachment_content_type name, options = {}
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
-        options[:content_type] = [options[:content_type]].flatten.collect! { |t| t == :image ? Paperclip.content_types : t }.flatten unless options[:content_type].nil?
+        valid_types = [options[:content_type]].flatten
         
-        unless options[:content_type].empty?
-          unless attachment.original_filename.blank? || options[:content_type].include?(instance[:"#{name}_content_type"])
-            options[:message] || ActiveRecord::Errors.default_error_messages[:inclusion]
+        unless attachment.original_filename.nil?
+          unless options[:content_type].blank?
+            content_type = instance[:"#{name}_content_type"]
+            unless valid_types.any?{|t| t === content_type }
+              options[:message] || ActiveRecord::Errors.default_error_messages[:inclusion]
+            end
           end
         end
       end
