@@ -144,7 +144,7 @@ module Paperclip
     # * +in+: a Range of bytes (i.e. +1..1.megabyte+),
     # * +less_than+: equivalent to :in => 0..options[:less_than]
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
-    # * +message+: error message to display, use #{min} and #{max} as replacements
+    # * +message+: error message to display, use :min and :max as replacements
     def validates_attachment_size name, options = {}
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
         unless options[:greater_than].nil?
@@ -158,7 +158,7 @@ module Paperclip
           max = options[:in].last
           
           if options[:message]
-            eval('"' + options[:message] + '"')
+            options[:message].gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
           else
             "file size is not between #{min} and #{max} bytes."
           end
