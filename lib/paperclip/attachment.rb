@@ -189,10 +189,8 @@ module Paperclip
                                                    dimensions,
                                                    format, 
                                                    @whiny_thumnails)
-        rescue Errno::ENOENT  => e
-          @errors << "could not be processed because the file does not exist."
         rescue PaperclipError => e
-          @errors << e.message
+          @errors << e.message if @whiny_thumbnails
         end
       end
     end

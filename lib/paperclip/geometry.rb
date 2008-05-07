@@ -18,7 +18,7 @@ module Paperclip
     def self.from_file file
       file = file.path if file.respond_to? "path"
       parse(`#{Paperclip.path_for_command('identify')} "#{file}"`) ||
-        raise(Errno::ENOENT, file)
+        raise NotIdentifiedByImageMagickError, "#{file} is not recognized by the 'identify' command."
     end
 
     # Parses a "WxH" formatted string, where W is the width and H is the height.

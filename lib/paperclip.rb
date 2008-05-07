@@ -65,6 +65,9 @@ module Paperclip
   class PaperclipError < StandardError #:nodoc:
   end
 
+  class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
+  end
+
   module ClassMethods
     # +has_attached_file+ gives the class it is called on an attribute that maps to a file. This
     # is typically a file stored somewhere on the filesystem and has been uploaded by a user. 
