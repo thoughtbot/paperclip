@@ -82,7 +82,7 @@ class GeometryTest < Test::Unit::TestCase
 
     should "not generate from a bad file" do
       file = "/home/This File Does Not Exist.omg"
-      assert_raise(Errno::ENOENT){ @geo = Paperclip::Geometry.from_file(file) }
+      assert_raise(Paperclip::NotIdentifiedByImageMagick){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
     [['vertical',   900,  1440, true,  false, false, 1440, 900, 0.625],
