@@ -169,6 +169,11 @@ module Paperclip
       end
     end
 
+    # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
+    def validates_attachment_thumbnails name, options = {}
+      attachment_definitions[name][:whiny_thumbnails] = true
+    end
+
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name, options = {}
       attachment_definitions[name][:validations] << lambda do |attachment, instance|

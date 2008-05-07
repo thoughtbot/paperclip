@@ -33,6 +33,7 @@ module Paperclip
       @validations       = options[:validations]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
+      @whiny_thumbnails  = options[:whiny_thumbnails]
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}

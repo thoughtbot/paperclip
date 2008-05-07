@@ -17,12 +17,55 @@ class IntegrationTest < Test::Unit::TestCase
        end
     end
   end
+
+  context "A model with no attachment validation" do
+    setup do
+      rebuild_model :styles => { :large => "300x300>",
+                                 :medium => "100x100",
+                                 :thumb => ["32x32#", :gif] },
+                    :default_style => :medium,
+                    :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                    :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      @dummy     = Dummy.new
+    end
+
+    should "have its definition return false when asked about whiny_thumbnails" do
+      assert ! Dummy.attachment_definitions[:avatar][:whiny_thumbnails]
+    end
+
+    context "when validates_attachment_thumbnails is called" do
+      setup do
+        Dummy.validates_attachment_thumbnails :avatar
+      end
+
+      should "have its definition return true when asked about whiny_thumbnails" do
+        assert_equal true, Dummy.attachment_definitions[:avatar][:whiny_thumbnails]
+      end
+    end
+
+    context "redefined to have attachment validations" do
+      setup do
+        rebuild_model :styles => { :large => "300x300>",
+                                   :medium => "100x100",
+                                   :thumb => ["32x32#", :gif] },
+                      :whiny_thumbnails => true,
+                      :default_style => :medium,
+                      :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                      :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      end
+
+      should "have its definition return true when asked about whiny_thumbnails" do
+        assert_equal true, Dummy.attachment_definitions[:avatar][:whiny_thumbnails]
+      end
+    end
+  end
   
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
                                  :medium => "100x100",
                                  :thumb => ["32x32#", :gif] },
+                    :whiny_thumbnails => true,
                     :default_style => :medium,
                     :url => "/:attachment/:class/:style/:id/:basename.:extension",
                     :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
@@ -103,7 +146,9 @@ class IntegrationTest < Test::Unit::TestCase
       assert ! @dummy.valid?
       @dummy.avatar = nil
       assert @dummy.valid?
+    end
 
+    should "know the difference between good files, bad files, not files, and nil when validating" do
       Dummy.validates_attachment_presence :avatar
       @d2 = Dummy.find(@dummy.id)
       @d2.avatar = @file
@@ -142,6 +187,7 @@ class IntegrationTest < Test::Unit::TestCase
                                    :medium => "100x100",
                                    :thumb => ["32x32#", :gif] },
                       :storage => :s3,
+                      :whiny_thumbnails => true,
                       # :s3_options => {:logger => Logger.new(StringIO.new)},
                       :s3_credentials => File.new(File.join(File.dirname(__FILE__), "s3.yml")),
                       :default_style => :medium,
