@@ -6,8 +6,8 @@ end
 
 def obtain_attachments
   name = ENV['ATTACHMENT'] || ENV['attachment']
-  raise "Class #{@klass.name} has no attachments specified" unless @klass.respond_to?(:attachment_names)
-  if !name.blank? && @klass.attachment_names.include?(name)
+  raise "Class #{@klass.name} has no attachments specified" unless @klass.respond_to?(:attachment_definitions)
+  if !name.blank? && @klass.attachment_definitions.keys.include?(name)
     [ name ]
   else
     @klass.attachment_definitions.keys
@@ -19,9 +19,10 @@ namespace :paperclip do
   task :refresh => :environment do
     klass     = obtain_class
     names     = obtain_attachments
+    instances = klass.find(:all)
     
     puts "Regenerating thumbnails for #{instances.length} instances of #{klass.name}:"
-    klass.find(:all).each do |instance|
+    instances.each do |instance|
       names.each do |name|
         result = if instance.send("#{ name }?")
           instance.send(name).send("post_process")
