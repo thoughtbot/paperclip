@@ -18,6 +18,37 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment" do
+    setup do
+      rebuild_model :styles => { :thumb => "50x50#" }
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"))
+      @dummy.avatar = @file
+      assert @dummy.save
+    end
+
+    should "create its thumbnails properly" do
+      assert_match /\b50x50\b/, `identify '#{@dummy.avatar.path(:thumb)}'`
+    end
+
+    context "redefining its attachment styles" do
+      setup do
+        Dummy.class_eval do
+          has_attached_file :avatar, :styles => { :thumb => "150x25#" }
+        end
+        @d2 = Dummy.find(@dummy.id)
+        @d2.avatar.reprocess!
+        @d2.save
+      end
+
+      should "create its thumbnails properly" do
+        assert_match /\b150x25\b/, `identify '#{@dummy.avatar.path(:thumb)}'`
+      end
+    end
+  end
+
   context "A model with no attachment validation" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
