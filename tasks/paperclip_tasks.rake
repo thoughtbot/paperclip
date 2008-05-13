@@ -25,7 +25,7 @@ namespace :paperclip do
     instances.each do |instance|
       names.each do |name|
         result = if instance.send("#{ name }?")
-          instance.send(name).send("post_process")
+          instance.send(name).reprocess!
           instance.send(name).save
         else
           true

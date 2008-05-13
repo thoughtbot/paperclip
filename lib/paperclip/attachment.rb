@@ -153,6 +153,22 @@ module Paperclip
       }
     end
 
+    # This method really shouldn't be called that often. It's expected use is in the
+    # paperclip:refresh rake task and that's it. It will regenerate all thumbnails
+    # forcefully, by reobtaining the original file and going through the post-process
+    # again.
+    def reprocess!
+      new_original = Tempfile.new("paperclip-reprocess")
+      old_original = to_file(:original)
+      new_original.write( old_original.read )
+      new_original.rewind
+
+      @queued_for_write = { :original => new_original }
+      post_process
+
+      old_original.close if old_original.respond_to?(:close)
+    end
+
     private
 
     def valid_assignment? file #:nodoc:
