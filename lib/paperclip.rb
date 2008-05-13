@@ -36,7 +36,7 @@ require 'paperclip/attachment'
 # The base module that gets included in ActiveRecord::Base.
 module Paperclip
 
-  VERSION = "2.1.0"
+  VERSION = "2.1.2"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
