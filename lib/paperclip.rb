@@ -33,7 +33,8 @@ require 'paperclip/thumbnail'
 require 'paperclip/storage'
 require 'paperclip/attachment'
 
-# The base module that gets included in ActiveRecord::Base.
+# The base module that gets included in ActiveRecord::Base. See the
+# documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
   VERSION = "2.1.2"
@@ -102,19 +103,13 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
-    # * +path+: The location of the repository of attachments on disk. This can be coordinated
-    #   with the value of the +url+ option to allow files to be saved into a place where Apache
-    #   can serve them without hitting your app. Defaults to 
-    #   ":rails_root/public/:class/:attachment/:id/:style_:filename". 
-    #   By default this places the files in the app's public directory which can be served 
-    #   directly. If you are using capistrano for deployment, a good idea would be to 
-    #   make a symlink to the capistrano-created system directory from inside your app's 
-    #   public directory.
-    #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :path => "/var/app/attachments/:class/:id/:style/:filename"
     # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
     #   uploaded image. This will ovrride the global setting for this attachment. 
     #   Defaults to true. 
+    # * +storage+: Chooses the storage backend where the files will be stored. The current
+    #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
+    #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
+    #   for backend-specific options.
     def has_attached_file name, options = {}
       include InstanceMethods
 

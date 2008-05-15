@@ -1,6 +1,21 @@
 module Paperclip
   module Storage
 
+    # The default place to store attachments is in the filesystem. Files on the local
+    # filesystem can be very easily served by Apache without requiring a hit to your app.
+    # They also can be processed more easily after they've been saved, as they're just
+    # normal files. There is one Filesystem-specific option for has_attached_file.
+    # * +path+: The location of the repository of attachments on disk. This can (and, in
+    #   almost all cases, should) be coordinated with the value of the +url+ option to
+    #   allow files to be saved into a place where Apache can serve them without
+    #   hitting your app. Defaults to 
+    #   ":rails_root/public/:class/:attachment/:id/:style_:filename". 
+    #   By default this places the files in the app's public directory which can be served 
+    #   directly. If you are using capistrano for deployment, a good idea would be to 
+    #   make a symlink to the capistrano-created system directory from inside your app's 
+    #   public directory.
+    #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
+    #     :path => "/var/app/attachments/:class/:id/:style/:filename"
     module Filesystem
       def self.extended base
       end
@@ -42,6 +57,38 @@ module Paperclip
       end
     end
 
+    # Amazon's S3 file hosting service is a scalable, easy place to store files for
+    # distribution. You can find out more about it at http://aws.amazon.com/s3
+    # There are a few S3-specific options for has_attached_file:
+    # * +s3_credentials+: Takes a path, a File, or a Hash. The path (or File) must point
+    #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
+    #   gives you. You can 'environment-space' this just like you do to your
+    #   database.yml file, so different environments can use different accounts:
+    #     development:
+    #       access_key_id: 123...
+    #       secret_access_key: 123... 
+    #     test:
+    #       access_key_id: abc...
+    #       secret_access_key: abc... 
+    #     production:
+    #       access_key_id: 456...
+    #       secret_access_key: 456... 
+    #   This is not required, however, and the file may simply look like this:
+    #     access_key_id: 456...
+    #     secret_access_key: 456... 
+    #   In which case, those access keys will be used in all environments.
+    # * +s3_permissions+: This is a String that should be one of the "canned" access
+    #   policies that S3 provides (more information can be found here:
+    #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
+    #   The default for Paperclip is "public-read".
+    # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
+    #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
+    #   Paperclip will attempt to create it. The bucket name will not be interpolated.
+    # * +path+: This is the key under the bucket in which the file will be stored. The
+    #   URL will be constructed from the bucket and the path. This is what you will want
+    #   to interpolate. Keys should be unique, like filenames, and despite the fact that
+    #   S3 (strictly speaking) does not support directories, you can still use a / to
+    #   separate parts of your file name.
     module S3
       def self.extended base
         require 'right_aws'
