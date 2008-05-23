@@ -70,6 +70,28 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with a style that is a proc" do
+    setup do
+      rebuild_model :styles => {:custom => proc{|i| "#{i.width}x#{i.height}#{i.modifier}"}}
+      Dummy.class_eval do
+        attr_accessor :height, :width, :modifier
+      end
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"))
+    end
+
+    should "create a thumbnail with size 100x1000!" do
+      @dummy.height = 1000
+      @dummy.width = 100
+      @dummy.modifier = "!"
+      @dummy.avatar = @file
+      assert @dummy.save
+      assert_match(/100x1000/, `identify #{@dummy.avatar.path(:custom)}`)
+    end
+  end
+
   context "An attachment with similarly named interpolations" do
     setup do
       rebuild_model :path => ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"

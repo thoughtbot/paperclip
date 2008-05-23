@@ -202,6 +202,7 @@ module Paperclip
       @styles.each do |name, args|
         begin
           dimensions, format = args
+          dimensions = dimensions.call(instance) if dimensions.respond_to?(:call)
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                    dimensions,
                                                    format, 
