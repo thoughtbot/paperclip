@@ -58,9 +58,9 @@ module Paperclip
       return nil if uploaded_file.nil?
 
       @queued_for_write[:original]        = uploaded_file.to_tempfile
-      @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename
-      @instance[:"#{@name}_content_type"] = uploaded_file.content_type
-      @instance[:"#{@name}_file_size"]    = uploaded_file.size
+      @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip
+      @instance[:"#{@name}_content_type"] = uploaded_file.content_type.strip
+      @instance[:"#{@name}_file_size"]    = uploaded_file.size.to_i
 
       @dirty = true
 
@@ -202,7 +202,6 @@ module Paperclip
       @styles.each do |name, args|
         begin
           dimensions, format = args
-          dimensions = dimensions.call(instance) if dimensions.respond_to?(:call)
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                    dimensions,
                                                    format, 

@@ -70,28 +70,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "An attachment with a style that is a proc" do
-    setup do
-      rebuild_model :styles => {:custom => proc{|i| "#{i.width}x#{i.height}#{i.modifier}"}}
-      Dummy.class_eval do
-        attr_accessor :height, :width, :modifier
-      end
-      @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"))
-    end
-
-    should "create a thumbnail with size 100x1000!" do
-      @dummy.height = 1000
-      @dummy.width = 100
-      @dummy.modifier = "!"
-      @dummy.avatar = @file
-      assert @dummy.save
-      assert_match(/100x1000/, `identify #{@dummy.avatar.path(:custom)}`)
-    end
-  end
-
   context "An attachment with similarly named interpolations" do
     setup do
       rebuild_model :path => ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"
@@ -105,6 +83,35 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "make sure that they are interpolated correctly" do
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
+    end
+  end
+
+  context "Assigning an attachment" do
+    setup do
+      rebuild_model
+      
+      @not_file = mock
+      @not_file.stubs(:nil?).returns(false)
+      @not_file.expects(:to_tempfile).returns(self)
+      @not_file.expects(:original_filename).returns("filename.png\r\n")
+      @not_file.expects(:content_type).returns("image/png\r\n")
+      @not_file.expects(:size).returns(10)
+      
+      @dummy = Dummy.new
+      @attachment = @dummy.avatar
+      @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
+      @attachment.expects(:queue_existing_for_delete)
+      @attachment.expects(:post_process)
+      @attachment.expects(:validate)
+      @dummy.avatar = @not_file
+    end
+
+    should "strip whitespace from original_filename field" do
+      assert_equal "filename.png", @dummy.avatar.original_filename
+    end
+
+    should "strip whitespace from content_type field" do
+      assert_equal "image/png", @dummy.avatar.instance.avatar_content_type
     end
   end
 
