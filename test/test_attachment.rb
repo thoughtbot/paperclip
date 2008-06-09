@@ -113,6 +113,33 @@ class AttachmentTest < Test::Unit::TestCase
     should "strip whitespace from content_type field" do
       assert_equal "image/png", @dummy.avatar.instance.avatar_content_type
     end
+    
+  end
+
+  context "Attachment with strange letters" do
+    setup do
+      rebuild_model
+      
+      @not_file = mock
+      @not_file.stubs(:nil?).returns(false)
+      @not_file.expects(:to_tempfile).returns(self)
+      @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
+      @not_file.expects(:content_type).returns("image/png\r\n")
+      @not_file.expects(:size).returns(10)
+      
+      @dummy = Dummy.new
+      @attachment = @dummy.avatar
+      @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
+      @attachment.expects(:queue_existing_for_delete)
+      @attachment.expects(:post_process)
+      @attachment.expects(:validate)
+      @dummy.avatar = @not_file
+    end
+    
+    should "remove strange letters and replace with underscore (_)" do
+      assert_equal "sheep_say_b__.png", @dummy.avatar.original_filename
+    end
+    
   end
 
   context "An attachment" do

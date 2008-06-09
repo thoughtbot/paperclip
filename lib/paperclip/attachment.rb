@@ -58,7 +58,7 @@ module Paperclip
       return nil if uploaded_file.nil?
 
       @queued_for_write[:original]        = uploaded_file.to_tempfile
-      @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip
+      @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip.gsub /[^A-Za-z0-9\.]/, '_'
       @instance[:"#{@name}_content_type"] = uploaded_file.content_type.strip
       @instance[:"#{@name}_file_size"]    = uploaded_file.size.to_i
 
