@@ -4,6 +4,7 @@ class <%= migration_name %> < ActiveRecord::Migration
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_name, :string
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_content_type, :string
     add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_size, :integer
+    add_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_updated_at, :datetime
 <% end -%>
   end
 
@@ -12,6 +13,7 @@ class <%= migration_name %> < ActiveRecord::Migration
     remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_name
     remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_content_type
     remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_file_size
+    remove_column :<%= class_name.underscore.camelize.tableize %>, :<%= attachment %>_updated_at
 <% end -%>
   end
 end

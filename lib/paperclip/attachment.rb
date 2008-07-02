@@ -61,6 +61,7 @@ module Paperclip
       @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip.gsub /[^\w\d\.\-]+/, '_'
       @instance[:"#{@name}_content_type"] = uploaded_file.content_type.strip
       @instance[:"#{@name}_file_size"]    = uploaded_file.size.to_i
+      @instance[:"#{@name}_updated_at"]   = Time.now
 
       @dirty = true
 
@@ -230,6 +231,7 @@ module Paperclip
       @instance[:"#{@name}_file_name"]    = nil
       @instance[:"#{@name}_content_type"] = nil
       @instance[:"#{@name}_file_size"]    = nil
+      @instance[:"#{@name}_updated_at"]   = nil
     end
 
     def flush_errors #:nodoc:

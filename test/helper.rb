@@ -32,6 +32,7 @@ def rebuild_model options = {}
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
     table.column :avatar_file_size, :integer
+    table.column :avatar_updated_at, :datetime
   end
 
   ActiveRecord::Base.send(:include, Paperclip)
