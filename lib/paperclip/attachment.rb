@@ -79,9 +79,9 @@ module Paperclip
       original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
     end
 
-    # Returns the path of the attachment as defined by the :path optionn. If the
+    # Returns the path of the attachment as defined by the :path option. If the
     # file is stored in the filesystem the path refers to the path of the file on
-    # disk. If the file is stored in S3, the path is the "key" part of th URL,
+    # disk. If the file is stored in S3, the path is the "key" part of the URL,
     # and the :bucket option refers to the S3 bucket.
     def path style = nil #:nodoc:
       interpolate(@path, style)
