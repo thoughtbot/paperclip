@@ -76,7 +76,8 @@ module Paperclip
     # This is not recommended if you don't need the security, however, for
     # performance reasons.
     def url style = default_style
-      original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
+      url = original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
+      [url, mtime].compact.join(url.include?("?") ? "&" : "?")
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -125,6 +126,11 @@ module Paperclip
     # <attachment>_file_name attribute of the model.
     def original_filename
       instance[:"#{name}_file_name"]
+    end
+    
+    def mtime
+      time = instance[:"#{name}_updated_at"]
+      time && time.to_i
     end
 
     # A hash of procs that are run during the interpolation of a path or url.
