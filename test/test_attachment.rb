@@ -154,6 +154,7 @@ class AttachmentTest < Test::Unit::TestCase
       @instance.stubs(:[]).with(:test_file_name).returns(nil)
       @instance.stubs(:[]).with(:test_content_type).returns(nil)
       @instance.stubs(:[]).with(:test_file_size).returns(nil)
+      @instance.stubs(:[]).with(:test_updated_at).returns(nil)
       @attachment = Paperclip::Attachment.new(:test,
                                               @instance)
       @file = File.new(File.join(File.dirname(__FILE__),
@@ -172,11 +173,12 @@ class AttachmentTest < Test::Unit::TestCase
         @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
         @instance.stubs(:[]).with(:test_content_type).returns("image/png")
         @instance.stubs(:[]).with(:test_file_size).returns(12345)
+        @instance.stubs(:[]).with(:test_updated_at).returns(Time.now)
       end
 
       should "return a correct url even if the file does not exist" do
         assert_nil @attachment.to_file
-        assert_equal "/tests/41/blah/5k.png", @attachment.url(:blah)
+        assert_match %r{^/tests/41/blah/5k\.png}, @attachment.url(:blah)
       end
 
       should "return the proper path when filename has a single .'s" do
@@ -200,6 +202,8 @@ class AttachmentTest < Test::Unit::TestCase
 
         context "and assigned a file" do
           setup do
+            now = Time.mktime(2008)
+            Time.stubs(:now).returns(now)
             @instance.expects(:[]=).with(:test_file_name,
                                          File.basename(@file.path))
             @instance.expects(:[]=).with(:test_content_type, "image/png")
@@ -207,6 +211,8 @@ class AttachmentTest < Test::Unit::TestCase
             @instance.expects(:[]=).with(:test_file_name, nil)
             @instance.expects(:[]=).with(:test_content_type, nil)
             @instance.expects(:[]=).with(:test_file_size, nil)
+            @instance.expects(:[]=).with(:test_updated_at, nil)
+            @instance.expects(:[]=).with(:test_updated_at, now)
             @attachment.assign(@file)
           end
 
@@ -221,8 +227,8 @@ class AttachmentTest < Test::Unit::TestCase
 
             should "return the real url" do
               assert @attachment.to_file
-              assert_equal "/tests/41/original/5k.png", @attachment.url
-              assert_equal "/tests/41/small/5k.jpg", @attachment.url(:small)
+              assert_match %r{^/tests/41/original/5k\.png}, @attachment.url
+              assert_match %r{^/tests/41/small/5k\.jpg}, @attachment.url(:small)
             end
 
             should "commit the files to disk" do
@@ -259,6 +265,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @instance.expects(:[]=).with(:test_file_name, nil)
                 @instance.expects(:[]=).with(:test_content_type, nil)
                 @instance.expects(:[]=).with(:test_file_size, nil)
+                @instance.expects(:[]=).with(:test_updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
               end
