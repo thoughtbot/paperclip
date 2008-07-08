@@ -93,6 +93,7 @@ module Paperclip
 
     # Returns true if there are any errors on this attachment.
     def valid?
+      validate
       errors.length == 0
     end
 
@@ -183,6 +184,7 @@ module Paperclip
         end.flatten.compact.uniq
         @errors += @validation_errors
       end
+      @validation_errors
     end
 
     def normalize_style_definition

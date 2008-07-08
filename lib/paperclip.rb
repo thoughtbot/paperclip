@@ -133,7 +133,7 @@ module Paperclip
       end
 
       validates_each(name) do |record, attr, value|
-        value.send(:flush_errors)
+        value.send(:flush_errors) unless value.valid?
       end
     end
 
