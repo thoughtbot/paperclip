@@ -44,6 +44,7 @@ namespace :paperclip do
   desc "Cleans out invalid attachments. Useful after you've added new validations."
   task :clean => :environment do
     for_all_attachments do |instance, name|
+      instance.send(name).send(:validate)
       if instance.valid?
         true
       else
