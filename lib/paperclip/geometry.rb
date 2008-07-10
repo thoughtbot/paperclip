@@ -76,9 +76,9 @@ module Paperclip
     # overhanging image would be cropped. Useful for square thumbnail images. The cropping 
     # is weighted at the center of the Geometry.
     def transformation_to dst, crop = false
-      ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
 
       if crop
+        ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
         scale_geometry, scale = scaling(dst, ratio)
         crop_geometry         = cropping(dst, ratio, scale)
       else
