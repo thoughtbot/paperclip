@@ -175,7 +175,10 @@ module Paperclip
 
         old_original.close if old_original.respond_to?(:close)
 
-        @errors.empty?
+        clean = @errors.empty?
+        save_attached_files if clean
+
+        clean
       else
         true
       end
