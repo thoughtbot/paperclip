@@ -43,6 +43,8 @@ module Paperclip
 
       normalize_style_definition
       initialize_storage
+
+      logger.info("[paperclip] Paperclip attachment #{name} on #{instance.class} initialized.")
     end
 
     # What gets called when you call instance.attachment = File. It clears errors,
@@ -50,6 +52,7 @@ module Paperclip
     # the previous file for deletion, to be flushed away on #save of its host.
     def assign uploaded_file
       return nil unless valid_assignment?(uploaded_file)
+      logger.info("[paperclip] Assigning #{uploaded_file} to #{name}")
 
       queue_existing_for_delete
       @errors            = []
@@ -57,6 +60,7 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
+      logger.info("[paperclip] Writing attributes for #{name}")
       @queued_for_write[:original]        = uploaded_file.to_tempfile
       @instance[:"#{@name}_file_name"]    = uploaded_file.original_filename.strip.gsub /[^\w\d\.\-]+/, '_'
       @instance[:"#{@name}_content_type"] = uploaded_file.content_type.strip
@@ -111,11 +115,13 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       if valid?
+        logger.info("[paperclip] Saving files for #{name}")
         flush_deletes
         flush_writes
         @dirty = false
         true
       else
+        logger.info("[paperclip] Errors on #{name}. Not saving.")
         flush_errors
         false
       end
@@ -173,6 +179,10 @@ module Paperclip
 
     private
 
+    def logger
+      instance.logger
+    end
+
     def valid_assignment? file #:nodoc:
       file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
@@ -202,6 +212,7 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
+      logger.info("[paperclip] Post-processing #{name}")
       @styles.each do |name, args|
         begin
           dimensions, format = args
@@ -228,6 +239,7 @@ module Paperclip
 
     def queue_existing_for_delete #:nodoc:
       return if original_filename.blank?
+      logger.info("[paperclip] Queueing the existing files for #{name} for deletion.")
       @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact
