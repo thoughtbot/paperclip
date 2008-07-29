@@ -174,6 +174,10 @@ module Paperclip
         post_process
 
         old_original.close if old_original.respond_to?(:close)
+
+        @errors.empty?
+      else
+        true
       end
     end
 

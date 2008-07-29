@@ -40,9 +40,13 @@ namespace :paperclip do
   namespace :refresh do
     desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT)."
     task :thumbnails => :environment do
+      errors = []
       for_all_attachments do |instance, name|
-        instance.send(name).reprocess!
+        result = instance.send(name).reprocess!
+        errors << [instance.id, instance.errors] unless instance.errors.blank?
+        result
       end
+      errors.each{|e| puts "#{e.first}: #{e.last.full_messages.inspect}" }
     end
 
     desc "Regenerates content_type/size metadata for a given CLASS (and optional ATTACHMENT)."
