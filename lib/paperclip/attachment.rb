@@ -187,6 +187,10 @@ module Paperclip
         true
       end
     end
+    
+    def file?
+      !original_filename.blank?
+    end
 
     private
 
@@ -249,7 +253,7 @@ module Paperclip
     end
 
     def queue_existing_for_delete #:nodoc:
-      return if original_filename.blank?
+      return unless file?
       logger.info("[paperclip] Queueing the existing files for #{name} for deletion.")
       @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
         path(style) if exists?(style)

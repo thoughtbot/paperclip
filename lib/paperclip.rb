@@ -135,7 +135,7 @@ module Paperclip
       end
 
       define_method "#{name}?" do
-        ! attachment_for(name).original_filename.blank?
+        attachment_for(name).file?
       end
 
       validates_each(name) do |record, attr, value|
@@ -157,7 +157,8 @@ module Paperclip
         unless options[:less_than].nil?
           options[:in] = (0..options[:less_than])
         end
-        unless attachment.original_filename.blank? || options[:in].include?(instance[:"#{name}_file_size"].to_i)
+        
+        if attachment.file? && !options[:in].include?(instance[:"#{name}_file_size"].to_i)
           min = options[:in].first
           max = options[:in].last
           
@@ -178,7 +179,7 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name, options = {}
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
-        if attachment.original_filename.blank?
+        unless attachment.file?
           options[:message] || "must be set."
         end
       end
