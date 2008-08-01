@@ -199,20 +199,35 @@ class IntegrationTest < Test::Unit::TestCase
       assert_equal "5k.png", @dummy.avatar_file_name
     end
     
-    should "assign images from other Paperclips as well" do
-      @dummy2 = Dummy.new
-      @file2  = File.new(File.join(FIXTURES_DIR, "12k.png"))
-      assert  @dummy2.avatar = @file2
-      @dummy2.save
-
-      assert_not_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
-                       `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
+    context "that is assigned its file from another Paperclip attachment" do
+      setup do
+        @dummy2 = Dummy.new
+        @file2  = File.new(File.join(FIXTURES_DIR, "12k.png"))
+        assert  @dummy2.avatar = @file2
+        @dummy2.save
+      end
       
-      assert @dummy.avatar = @dummy2.avatar
-      @dummy.save
-      assert_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
-                   `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
-    end
+      should "work when assigned a file" do
+        assert_not_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
+                         `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
+
+        assert @dummy.avatar = @dummy2.avatar
+        @dummy.save
+        assert_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
+                     `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
+      end
+      
+      should "work when assigned a nil file" do
+        @dummy2.avatar = nil
+        @dummy2.save
+
+        @dummy.avatar = @dummy2.avatar
+        @dummy.save
+        
+        assert !@dummy.avatar?
+      end
+    end    
+
   end
 
   if ENV['S3_TEST_BUCKET']
