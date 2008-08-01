@@ -174,12 +174,28 @@ class AttachmentTest < Test::Unit::TestCase
         @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
         @instance.stubs(:[]).with(:test_content_type).returns("image/png")
         @instance.stubs(:[]).with(:test_file_size).returns(12345)
+        now = Time.now
+        Time.stubs(:now).returns(now)
         @instance.stubs(:[]).with(:test_updated_at).returns(Time.now)
       end
 
       should "return a correct url even if the file does not exist" do
         assert_nil @attachment.to_file
         assert_match %r{^/tests/41/blah/5k\.png}, @attachment.url(:blah)
+      end
+
+      should "make sure the updated_at mtime is in the url if it is defined" do
+        assert_match %r{#{Time.now.to_i}$}, @attachment.url(:blah)
+      end
+
+      context "with the updated_at field removed" do
+        setup do
+          @instance.stubs(:[]).with(:test_updated_at).returns(nil)
+        end
+
+        should "only return the url without the updated_at when sent #url" do
+          assert_match "/tests/41/blah/5k.png", @attachment.url(:blah)
+        end
       end
 
       should "return the proper path when filename has a single .'s" do
@@ -203,7 +219,7 @@ class AttachmentTest < Test::Unit::TestCase
 
         context "and assigned a file" do
           setup do
-            now = Time.mktime(2008)
+            now = Time.now
             Time.stubs(:now).returns(now)
             @instance.expects(:[]=).with(:test_file_name,
                                          File.basename(@file.path))

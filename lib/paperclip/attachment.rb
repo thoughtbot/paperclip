@@ -87,7 +87,7 @@ module Paperclip
     # performance reasons.
     def url style = default_style
       url = original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
-      [url, mtime].compact.join(url.include?("?") ? "&" : "?")
+      updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -141,7 +141,7 @@ module Paperclip
       instance[:"#{name}_file_name"]
     end
     
-    def mtime
+    def updated_at
       time = instance[:"#{name}_updated_at"]
       time && time.to_i
     end
