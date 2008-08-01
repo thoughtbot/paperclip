@@ -11,7 +11,7 @@ module IOStream
 
   # Copies one read-able object from one place to another in blocks, obviating the need to load
   # the whole thing into memory. Defaults to 8k blocks. If this module is included in both
-  # both StringIO and Tempfile, then either can have its data copied anywhere else without typing
+  # StringIO and Tempfile, then either can have its data copied anywhere else without typing
   # worries or memory overhead worries. Returns a File if a String is passed in as the destination
   # and returns the IO or Tempfile as passed in if one is sent as the destination.
   def stream_to path_or_file, in_blocks_of = 8192
