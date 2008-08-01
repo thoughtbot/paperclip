@@ -58,7 +58,7 @@ module Paperclip
       end
 
       return nil unless valid_assignment?(uploaded_file)
-      logger.info("[paperclip] Assigning #{uploaded_file} to #{name}")
+      logger.info("[paperclip] Assigning #{uploaded_file.inspect} to #{name}")
 
       queue_existing_for_delete
       @errors            = []
