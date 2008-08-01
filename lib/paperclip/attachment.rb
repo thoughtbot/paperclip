@@ -50,7 +50,13 @@ module Paperclip
     # What gets called when you call instance.attachment = File. It clears errors,
     # assigns attributes, processes the file, and runs validations. It also queues up
     # the previous file for deletion, to be flushed away on #save of its host.
+    # In addition to form uploads, you can also assign another Paperclip attachment:
+    #   new_user.avatar = old_user.avatar
     def assign uploaded_file
+      if uploaded_file.is_a?(Paperclip::Attachment)
+        uploaded_file = uploaded_file.to_file(:original)
+      end
+
       return nil unless valid_assignment?(uploaded_file)
       logger.info("[paperclip] Assigning #{uploaded_file} to #{name}")
 
