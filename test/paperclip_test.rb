@@ -7,6 +7,14 @@ class PaperclipTest < Test::Unit::TestCase
       @file = File.new(File.join(FIXTURES_DIR, "5k.png"))
     end
 
+    should "error when trying to also create a 'blah' attachment" do
+      assert_raises(Paperclip::PaperclipError) do
+        Dummy.class_eval do
+          has_attached_file :blah
+        end
+      end
+    end
+
     context "that is attr_protected" do
       setup do
         Dummy.class_eval do
@@ -64,6 +72,38 @@ class PaperclipTest < Test::Unit::TestCase
       assert Dummy.new.respond_to?(:avatar=)
     end
 
+    context "that is valid" do
+      setup do
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "be valid" do
+        assert @dummy.valid?
+      end
+
+      context "then has a validation added that makes it invalid" do
+        setup do
+          assert @dummy.save
+          Dummy.class_eval do
+            validates_attachment_content_type :avatar, :content_type => ["text/plain"]
+          end
+          @dummy2 = Dummy.find(@dummy.id)
+        end
+
+        should "be invalid when reloaded" do
+          assert ! @dummy2.valid?, @dummy2.errors.inspect
+        end
+
+        should "be able to call #valid? twice without having duplicate errors" do
+          @dummy2.avatar.valid?
+          first_errors = @dummy2.avatar.errors
+          @dummy2.avatar.valid?
+          assert_equal first_errors, @dummy2.avatar.errors
+        end
+      end
+    end
+
     [[:presence,      nil,                             "5k.png",   nil],
      [:size,          {:in => 1..10240},               "5k.png",   "12k.png"],
      [:size2,         {:in => 1..10240},               nil,        "12k.png"],
@@ -102,21 +142,6 @@ class PaperclipTest < Test::Unit::TestCase
             assert_equal 1, @dummy.avatar.errors.length
           end
         end
-        
-#        context "and an invalid file with :message" do
-#          setup do
-#            @file = args[3] && File.new(File.join(FIXTURES_DIR, args[3]))
-#          end
-#
-#          should "have errors" do
-#            if args[1] && args[1][:message] && args[4]
-#              @dummy.avatar = @file
-#              assert ! @dummy.avatar.valid?
-#              assert_equal 1, @dummy.avatar.errors.length
-#              assert_equal args[4], @dummy.avatar.errors[0]
-#            end
-#          end
-#        end
       end
     end
   end

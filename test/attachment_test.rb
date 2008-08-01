@@ -155,6 +155,7 @@ class AttachmentTest < Test::Unit::TestCase
       @instance.stubs(:[]).with(:test_content_type).returns(nil)
       @instance.stubs(:[]).with(:test_file_size).returns(nil)
       @instance.stubs(:[]).with(:test_updated_at).returns(nil)
+      @instance.stubs(:logger).returns(ActiveRecord::Base.logger)
       @attachment = Paperclip::Attachment.new(:test,
                                               @instance)
       @file = File.new(File.join(File.dirname(__FILE__),

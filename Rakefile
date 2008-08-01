@@ -12,7 +12,7 @@ task :default => [:clean, :test]
 desc 'Test the paperclip plugin.'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib' << 'profile'
-  t.pattern = 'test/**/test_*.rb'
+  t.pattern = 'test/**/*_test.rb'
   t.verbose = true
 end
 
@@ -46,6 +46,7 @@ task :clean do |t|
 end
 
 spec = Gem::Specification.new do |s| 
+  s.rubygems_version  = "1.2.0"
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
   s.author            = "Jon Yurek"
@@ -65,6 +66,9 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files  = ["README"]
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
+  s.add_runtime_dependency 'right_aws'
+  s.add_development_dependency 'Shoulda'
+  s.add_development_dependency 'mocha'
 end
  
 Rake::GemPackageTask.new(spec) do |pkg| 

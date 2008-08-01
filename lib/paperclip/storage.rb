@@ -9,7 +9,7 @@ module Paperclip
     #   almost all cases, should) be coordinated with the value of the +url+ option to
     #   allow files to be saved into a place where Apache can serve them without
     #   hitting your app. Defaults to 
-    #   ":rails_root/public/:class/:attachment/:id/:style_:filename". 
+    #   ":rails_root/public/:attachment/:id/:style/:basename.:extension"
     #   By default this places the files in the app's public directory which can be served 
     #   directly. If you are using capistrano for deployment, a good idea would be to 
     #   make a symlink to the capistrano-created system directory from inside your app's 
@@ -36,8 +36,10 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
+        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           FileUtils.mkdir_p(File.dirname(path(style)))
+          logger.info("[paperclip] -> #{path(style)}")
           result = file.stream_to(path(style))
           file.close
           result.close
@@ -46,8 +48,10 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
+        logger.info("[paperclip] Deleting files for #{name}")
         @queued_for_delete.each do |path|
           begin
+            logger.info("[paperclip] -> #{path}")
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
@@ -102,6 +106,7 @@ module Paperclip
         base.class.interpolations[:s3_url] = lambda do |attachment, style|
           "https://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
+        ActiveRecord::Base.logger.info("[paperclip] S3 Storage Initalized.")
       end
 
       def s3
@@ -135,8 +140,10 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
+        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           begin
+            logger.info("[paperclip] -> #{path(style)}")
             key = s3_bucket.key(path(style))
             key.data = file
             key.put(nil, @s3_permissions)
@@ -148,8 +155,10 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
+        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_delete.each do |path|
           begin
+            logger.info("[paperclip] -> #{path(style)}")
             if file = s3_bucket.key(path)
               file.delete
             end
