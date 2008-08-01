@@ -97,7 +97,7 @@ module Paperclip
       url(style)
     end
 
-    # Returns true if there are any errors on this attachment.
+    # Returns true if there are no errors on this attachment.
     def valid?
       validate
       errors.length == 0
