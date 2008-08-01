@@ -332,7 +332,7 @@ class IntegrationTest < Test::Unit::TestCase
         assert ! @d2.valid?
       end
 
-      should "be able to reload without saving an not have the file disappear" do
+      should "be able to reload without saving and not have the file disappear" do
         @dummy.avatar = @file
         assert @dummy.save
         @dummy.avatar = nil
