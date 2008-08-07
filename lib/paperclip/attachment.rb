@@ -34,6 +34,7 @@ module Paperclip
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @whiny_thumbnails  = options[:whiny_thumbnails]
+      @convert_options   = options[:thumbnail_convert_options]
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}
@@ -241,7 +242,8 @@ module Paperclip
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                    dimensions,
                                                    format, 
-                                                   @whiny_thumnails)
+                                                   @whiny_thumnails,
+                                                   @convert_options)
         rescue PaperclipError => e
           @errors << e.message if @whiny_thumbnails
         end
