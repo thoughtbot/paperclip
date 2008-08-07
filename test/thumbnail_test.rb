@@ -128,6 +128,18 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         assert_match /100x50/, `identify #{dst.path}`
       end
+      
+      context "redefined to have bad convert_options setting" do
+        setup do
+          @thumb = Paperclip::Thumbnail.new(@file, "100x50#", format=nil, whiny_thumbnails=true, convert_options="-this-aint-no-option")
+        end
+
+        should "error when trying to create the thumbnail" do
+          assert_raises(Paperclip::PaperclipError) do
+            @thumb.make
+          end
+        end
+      end      
     end
   end
 end
