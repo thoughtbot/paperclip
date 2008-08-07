@@ -55,7 +55,7 @@ module Paperclip
       end_command
       success = system(command.gsub(/\s+/, " "))
 
-      if success && $?.exitstatus != 0 && @whiny_thumbnails
+      if !success && $?.exitstatus != 0 && @whiny_thumbnails
         raise PaperclipError, "There was an error processing this thumbnail"
       end
 
