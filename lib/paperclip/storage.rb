@@ -158,7 +158,7 @@ module Paperclip
         logger.info("[paperclip] Writing files for #{name}")
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] -> #{path(style)}")
+            logger.info("[paperclip] -> #{path}")
             if file = s3_bucket.key(path)
               file.delete
             end

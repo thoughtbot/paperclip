@@ -91,6 +91,23 @@ class StorageTest < Test::Unit::TestCase
           assert true
         end
       end
+      
+      context "and remove" do
+        setup do
+          @s3_mock     = stub
+          @bucket_mock = stub
+          RightAws::S3.expects(:new).with("12345", "54321", {}).returns(@s3_mock)
+          @s3_mock.expects(:bucket).with("testing", true, "public-read").returns(@bucket_mock)
+          @key_mock = stub
+          @bucket_mock.expects(:key).at_least(2).returns(@key_mock)
+          @key_mock.expects(:delete)
+          @dummy.destroy_attached_files
+        end
+
+        should "succeed" do
+          assert true
+        end
+      end
     end
   end
 
