@@ -10,7 +10,7 @@ class PaperclipGenerator < Rails::Generator::NamedBase
     file_name = generate_file_name
     @migration_name = file_name.camelize
     record do |m|
-      m.migration_template "paperclip_migration.rb",
+      m.migration_template "paperclip_migration.rb.erb",
                            File.join('db', 'migrate'),
                            :migration_file_name => file_name
     end
