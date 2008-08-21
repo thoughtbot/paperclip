@@ -113,12 +113,6 @@ module Paperclip
     def has_attached_file name, options = {}
       include InstanceMethods
 
-      %w(file_name).each do |field|
-        unless column_names.include?("#{name}_#{field}")
-          raise PaperclipError.new("#{self} model does not have required column '#{name}_#{field}'")
-        end
-      end
-
       write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
       attachment_definitions[name] = {:validations => []}.merge(options)
 

@@ -53,6 +53,12 @@ module Paperclip
     # In addition to form uploads, you can also assign another Paperclip attachment:
     #   new_user.avatar = old_user.avatar
     def assign uploaded_file
+      %w(file_name).each do |field|
+        unless @instance.class.column_names.include?("#{name}_#{field}")
+          raise PaperclipError.new("#{self} model does not have required column '#{name}_#{field}'")
+        end
+      end
+
       if uploaded_file.is_a?(Paperclip::Attachment)
         uploaded_file = uploaded_file.to_file(:original)
       end

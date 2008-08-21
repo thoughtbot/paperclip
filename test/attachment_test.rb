@@ -148,40 +148,40 @@ class AttachmentTest < Test::Unit::TestCase
         :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
-      @instance = stub
-      @instance.stubs(:id).returns(41)
-      @instance.stubs(:class).returns(Dummy)
-      @instance.stubs(:[]).with(:test_file_name).returns(nil)
-      @instance.stubs(:[]).with(:test_content_type).returns(nil)
-      @instance.stubs(:[]).with(:test_file_size).returns(nil)
-      @instance.stubs(:[]).with(:test_updated_at).returns(nil)
-      @instance.stubs(:logger).returns(ActiveRecord::Base.logger)
-      @attachment = Paperclip::Attachment.new(:test,
-                                              @instance)
+      rebuild_model
+      @instance = Dummy.new
+      @attachment = Paperclip::Attachment.new(:avatar, @instance)
       @file = File.new(File.join(File.dirname(__FILE__),
                                  "fixtures",
                                  "5k.png"))
     end
 
+    should "raise if there are not the correct columns when you try to assign" do
+      @other_attachment = Paperclip::Attachment.new(:not_here, @instance)
+      assert_raises(Paperclip::PaperclipError) do
+        @other_attachment.assign(@file)
+      end
+    end
+
     should "return its default_url when no file assigned" do
       assert @attachment.to_file.nil?
-      assert_equal "/tests/original/missing.png", @attachment.url
-      assert_equal "/tests/blah/missing.png", @attachment.url(:blah)
+      assert_equal "/avatars/original/missing.png", @attachment.url
+      assert_equal "/avatars/blah/missing.png", @attachment.url(:blah)
     end
     
     context "with a file assigned in the database" do
       setup do
-        @instance.stubs(:[]).with(:test_file_name).returns("5k.png")
-        @instance.stubs(:[]).with(:test_content_type).returns("image/png")
-        @instance.stubs(:[]).with(:test_file_size).returns(12345)
+        @instance.stubs(:[]).with(:avatar_file_name).returns("5k.png")
+        @instance.stubs(:[]).with(:avatar_content_type).returns("image/png")
+        @instance.stubs(:[]).with(:avatar_file_size).returns(12345)
         now = Time.now
         Time.stubs(:now).returns(now)
-        @instance.stubs(:[]).with(:test_updated_at).returns(Time.now)
+        @instance.stubs(:[]).with(:avatar_updated_at).returns(Time.now)
       end
 
       should "return a correct url even if the file does not exist" do
         assert_nil @attachment.to_file
-        assert_match %r{^/tests/41/blah/5k\.png}, @attachment.url(:blah)
+        assert_match %r{^/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
       end
 
       should "make sure the updated_at mtime is in the url if it is defined" do
@@ -190,21 +190,21 @@ class AttachmentTest < Test::Unit::TestCase
 
       context "with the updated_at field removed" do
         setup do
-          @instance.stubs(:[]).with(:test_updated_at).returns(nil)
+          @instance.stubs(:[]).with(:avatar_updated_at).returns(nil)
         end
 
         should "only return the url without the updated_at when sent #url" do
-          assert_match "/tests/41/blah/5k.png", @attachment.url(:blah)
+          assert_match "/avatars/#{@instance.id}/blah/5k.png", @attachment.url(:blah)
         end
       end
 
       should "return the proper path when filename has a single .'s" do
-        assert_equal "./test/../tmp/tests/dummies/original/41/5k.png", @attachment.path
+        assert_equal "./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.png", @attachment.path
       end
 
       should "return the proper path when filename has multiple .'s" do
-        @instance.stubs(:[]).with(:test_file_name).returns("5k.old.png")      
-        assert_equal "./test/../tmp/tests/dummies/original/41/5k.old.png", @attachment.path
+        @instance.stubs(:[]).with(:avatar_file_name).returns("5k.old.png")      
+        assert_equal "./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.old.png", @attachment.path
       end
 
       context "when expecting three styles" do
@@ -212,7 +212,7 @@ class AttachmentTest < Test::Unit::TestCase
           styles = {:styles => { :large  => ["400x400", :png],
                                  :medium => ["100x100", :gif],
                                  :small => ["32x32#", :jpg]}}
-          @attachment = Paperclip::Attachment.new(:test,
+          @attachment = Paperclip::Attachment.new(:avatar,
                                                   @instance,
                                                   styles)
         end
@@ -221,15 +221,6 @@ class AttachmentTest < Test::Unit::TestCase
           setup do
             now = Time.now
             Time.stubs(:now).returns(now)
-            @instance.expects(:[]=).with(:test_file_name,
-                                         File.basename(@file.path))
-            @instance.expects(:[]=).with(:test_content_type, "image/png")
-            @instance.expects(:[]=).with(:test_file_size, @file.size)
-            @instance.expects(:[]=).with(:test_file_name, nil)
-            @instance.expects(:[]=).with(:test_content_type, nil)
-            @instance.expects(:[]=).with(:test_file_size, nil)
-            @instance.expects(:[]=).with(:test_updated_at, nil)
-            @instance.expects(:[]=).with(:test_updated_at, now)
             @attachment.assign(@file)
           end
 
@@ -244,8 +235,8 @@ class AttachmentTest < Test::Unit::TestCase
 
             should "return the real url" do
               assert @attachment.to_file
-              assert_match %r{^/tests/41/original/5k\.png}, @attachment.url
-              assert_match %r{^/tests/41/small/5k\.jpg}, @attachment.url(:small)
+              assert_match %r{^/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
+              assert_match %r{^/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
             end
 
             should "commit the files to disk" do
@@ -279,10 +270,10 @@ class AttachmentTest < Test::Unit::TestCase
                 @existing_names = @attachment.styles.keys.collect do |style|
                   @attachment.path(style)
                 end
-                @instance.expects(:[]=).with(:test_file_name, nil)
-                @instance.expects(:[]=).with(:test_content_type, nil)
-                @instance.expects(:[]=).with(:test_file_size, nil)
-                @instance.expects(:[]=).with(:test_updated_at, nil)
+                @instance.expects(:[]=).with(:avatar_file_name, nil)
+                @instance.expects(:[]=).with(:avatar_content_type, nil)
+                @instance.expects(:[]=).with(:avatar_file_size, nil)
+                @instance.expects(:[]=).with(:avatar_updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
               end

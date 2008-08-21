@@ -71,7 +71,7 @@ class StorageTest < Test::Unit::TestCase
       should "not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
-        assert_match %r{^https://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
+        assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
       context "and saved" do
