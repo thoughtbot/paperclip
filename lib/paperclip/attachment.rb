@@ -15,7 +15,7 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :styles, :default_style
+    attr_reader :name, :instance, :styles, :default_style, :convert_options
 
     # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
     # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
@@ -34,6 +34,7 @@ module Paperclip
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @whiny_thumbnails  = options[:whiny_thumbnails]
+      @convert_options   = options[:convert_options]
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}
@@ -247,6 +248,7 @@ module Paperclip
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                    dimensions,
                                                    format, 
+                                                   convert_options[name],
                                                    @whiny_thumnails)
         rescue PaperclipError => e
           @errors << e.message if @whiny_thumbnails
