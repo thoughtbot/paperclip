@@ -110,7 +110,7 @@ module Paperclip
           @s3_options     = @options[:s3_options] || {}
           @s3_permissions = @options[:s3_permissions] || 'public-read'
           @s3_protocol    = @options[:s3_protocol] || (@s3_permissions == 'public-read' ? 'http' : 'https')
-          @url            = ":s3_path_url" unless @url.to_s.match(/^s3.*url$/)
+          @url            = ":s3_path_url" unless @url.to_s.match(/^:s3.*url$/)
         end
         base.class.interpolations[:s3_path_url] = lambda do |attachment, style|
           "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
