@@ -34,7 +34,7 @@ module Paperclip
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @whiny_thumbnails  = options[:whiny_thumbnails]
-      @convert_options   = options[:convert_options]
+      @convert_options   = options[:convert_options] || {}
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}
