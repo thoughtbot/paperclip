@@ -86,6 +86,26 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with a :rails_env interpolation" do
+    setup do
+      @rails_env = "blah"
+      @id = 1024
+      rebuild_model :path => ":rails_env/:id.png"
+      @dummy = Dummy.new
+      @dummy.stubs(:id).returns(@id)
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"))
+      @dummy.avatar = @file
+    end
+
+    should "return the proper path" do
+      temporary_rails_env(@rails_env) {
+        assert_equal "#{@rails_env}/#{@id}.png", @dummy.avatar.path
+      }
+    end
+  end
+
   context "Assigning an attachment" do
     setup do
       rebuild_model
