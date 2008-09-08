@@ -43,7 +43,7 @@ module Paperclip
 
       command = <<-end_command
         #{ Paperclip.path_for_command('convert') }
-        "#{ File.expand_path(src.path) }"
+        "#{ File.expand_path(src.path) }[0]"
         #{ transformation_command }
         "#{ File.expand_path(dst.path) }"
       end_command
@@ -60,7 +60,7 @@ module Paperclip
     # into the thumbnail.
     def transformation_command
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
-      trans = "-scale \"#{scale}\""
+      trans = "-resize \"#{scale}\""
       trans << " -crop \"#{crop}\" +repage" if crop
       trans << " #{convert_options}" if convert_options
       trans
