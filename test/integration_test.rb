@@ -91,6 +91,38 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
   
+  context "A model with no thumbnail_convert_options setting" do
+    setup do
+      rebuild_model :styles => { :large => "300x300>",
+                                 :medium => "100x100",
+                                 :thumb => ["32x32#", :gif] },
+                    :default_style => :medium,
+                    :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                    :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      @dummy     = Dummy.new
+    end
+    
+    should "have its definition return nil when asked about convert_options" do
+      assert ! Dummy.attachment_definitions[:avatar][:thumbnail_convert_options]
+    end
+
+    context "redefined to have convert_options setting" do
+      setup do
+        rebuild_model :styles => { :large => "300x300>",
+                                   :medium => "100x100",
+                                   :thumb => ["32x32#", :gif] },
+                      :thumbnail_convert_options => "-strip -depth 8",
+                      :default_style => :medium,
+                      :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                      :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      end
+
+      should "have its definition return convert_options value when asked about convert_options" do
+        assert_equal "-strip -depth 8", Dummy.attachment_definitions[:avatar][:thumbnail_convert_options]
+      end
+    end
+  end
+  
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",

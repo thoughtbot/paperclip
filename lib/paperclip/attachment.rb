@@ -242,6 +242,10 @@ module Paperclip
       self.extend(@storage_module)
     end
 
+    def extra_options_for(style) #:nodoc:
+      [ convert_options[style], convert_options[:all] ].compact.join(" ")
+    end
+
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
       logger.info("[paperclip] Post-processing #{name}")
@@ -252,7 +256,7 @@ module Paperclip
           @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
                                                    dimensions,
                                                    format, 
-                                                   convert_options[name],
+                                                   extra_options_for(name),
                                                    @whiny_thumnails)
         rescue PaperclipError => e
           @errors << e.message if @whiny_thumbnails
