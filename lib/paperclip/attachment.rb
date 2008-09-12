@@ -83,6 +83,9 @@ module Paperclip
       @dirty = true
 
       post_process
+ 
+      # Reset the file size if the original file was reprocessed.
+      @instance[:"#{@name}_file_size"]    = uploaded_file.size.to_i
     ensure
       validate
     end
