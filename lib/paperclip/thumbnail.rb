@@ -8,7 +8,8 @@ module Paperclip
     # will attempt to transform the image into one defined by +target_geometry+
     # which is a "WxH"-style string. +format+ will be inferred from the +file+
     # unless specified. Thumbnail creation will raise no errors unless
-    # +whiny_thumbnails+ is true (which it is, by default.
+    # +whiny_thumbnails+ is true (which it is, by default. If +convert_options+ is
+    # set, the options will be appended to the convert command upon image conversion 
     def initialize file, target_geometry, format = nil, convert_options = nil, whiny_thumbnails = true
       @file             = file
       @crop             = target_geometry[-1,1] == '#'
@@ -33,6 +34,11 @@ module Paperclip
     def crop?
       @crop
     end
+    
+    # Returns true if the image is meant to make use of additional convert options.
+    def convert_options?
+      not @convert_options.blank?
+    end
 
     # Performs the conversion of the +file+ into a thumbnail. Returns the Tempfile
     # that contains the new image.
@@ -49,7 +55,7 @@ module Paperclip
       end_command
       success = system(command.gsub(/\s+/, " "))
 
-      if success && $?.exitstatus != 0 && @whiny_thumbnails
+      if !success && $?.exitstatus != 0 && @whiny_thumbnails
         raise PaperclipError, "There was an error processing this thumbnail"
       end
 
@@ -62,7 +68,7 @@ module Paperclip
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
       trans = "-scale \"#{scale}\""
       trans << " -crop \"#{crop}\" +repage" if crop
-      trans << " #{convert_options}" if convert_options
+      trans << " #{convert_options}" if convert_options?
       trans
     end
   end

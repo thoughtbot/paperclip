@@ -90,6 +90,10 @@ class ThumbnailTest < Test::Unit::TestCase
       should "have whiny_thumbnails turned on by default" do
         assert @thumb.whiny_thumbnails
       end
+      
+      should "have convert_options set to nil by default" do
+        assert_equal nil, @thumb.convert_options
+      end
 
       should "send the right command to convert when sent #make" do
         @thumb.expects(:system).with do |arg|
@@ -102,6 +106,40 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         assert_match /100x50/, `identify #{dst.path}`
       end
+    end
+    
+    context "being thumbnailed with convert options set" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, "100x50#", format=nil, convert_options="-strip -depth 8", whiny_thumbnails=true)
+      end
+
+      should "have convert_options value set" do
+        assert_equal "-strip -depth 8", @thumb.convert_options
+      end
+
+      should "send the right command to convert when sent #make" do
+        @thumb.expects(:system).with do |arg|
+          arg.match %r{convert\s+"#{File.expand_path(@thumb.file.path)}"\s+-scale\s+\"x50\"\s+-crop\s+\"100x50\+114\+0\"\s+\+repage\s+-strip\s+-depth\s+8\s+".*?"}
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /100x50/, `identify #{dst.path}`
+      end
+      
+      context "redefined to have bad convert_options setting" do
+        setup do
+          @thumb = Paperclip::Thumbnail.new(@file, "100x50#", format=nil, convert_options="-this-aint-no-option", whiny_thumbnails=true)
+        end
+
+        should "error when trying to create the thumbnail" do
+          assert_raises(Paperclip::PaperclipError) do
+            @thumb.make
+          end
+        end
+      end      
     end
   end
 end
