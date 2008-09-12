@@ -105,8 +105,8 @@ module Paperclip
       def self.extended base
         require 'right_aws'
         base.instance_eval do
-          @bucket         = @options[:bucket]
           @s3_credentials = parse_credentials(@options[:s3_credentials])
+          @bucket         = @options[:bucket] || @s3_credentials[:bucket]
           @s3_options     = @options[:s3_options] || {}
           @s3_permissions = @options[:s3_permissions] || 'public-read'
           @s3_protocol    = @options[:s3_protocol] || (@s3_permissions == 'public-read' ? 'http' : 'https')

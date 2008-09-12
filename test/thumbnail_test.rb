@@ -119,7 +119,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "send the right command to convert when sent #make" do
         @thumb.expects(:system).with do |arg|
-          arg.match %r{convert\s+"#{File.expand_path(@thumb.file.path)}"\s+-scale\s+\"x50\"\s+-crop\s+\"100x50\+114\+0\"\s+\+repage\s+-strip\s+-depth\s+8\s+".*?"}
+          arg.match %r{convert\s+"#{File.expand_path(@thumb.file.path)}\[0\]"\s+-resize\s+"x50"\s+-crop\s+"100x50\+114\+0"\s+\+repage\s+-strip\s+-depth\s+8\s+".*?"}
         end
         @thumb.make
       end

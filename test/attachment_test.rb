@@ -156,7 +156,7 @@ class AttachmentTest < Test::Unit::TestCase
       @not_file.expects(:to_tempfile).returns(self)
       @not_file.expects(:original_filename).returns("filename.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
-      @not_file.expects(:size).returns(10)
+      @not_file.expects(:size).returns(10).times(2)
       
       @dummy = Dummy.new
       @attachment = @dummy.avatar
@@ -186,7 +186,7 @@ class AttachmentTest < Test::Unit::TestCase
       @not_file.expects(:to_tempfile).returns(self)
       @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
-      @not_file.expects(:size).returns(10)
+      @not_file.expects(:size).returns(10).times(2)
       
       @dummy = Dummy.new
       @attachment = @dummy.avatar

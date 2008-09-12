@@ -42,6 +42,25 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "Parsing S3 credentials with a bucket in them" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => { :bucket => "prod_bucket" },
+                      :development  => { :bucket => "dev_bucket" }
+                    }
+      @dummy = Dummy.new
+    end
+
+    should "get the right bucket in production", :before => lambda{ ENV.expects(:[]).returns('production') } do
+      assert_equal "prod_bucket", @dummy.avatar.bucket_name
+    end
+
+    should "get the right bucket in development", :before => lambda{ ENV.expects(:[]).returns('development') } do
+      assert_equal "dev_bucket", @dummy.avatar.bucket_name
+    end
+  end
+
   context "An attachment with S3 storage" do
     setup do
       rebuild_model :storage => :s3,
