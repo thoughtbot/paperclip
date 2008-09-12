@@ -106,11 +106,21 @@ module Paperclip
     # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
     #   uploaded image. This will ovrride the global setting for this attachment. 
     #   Defaults to true. 
-    # * +thumbnail_convert_options+: When creating thumbnails, use this free-form options
+    # * +convert_options+: When creating thumbnails, use this free-form options
     #   field to pass in various convert command options.  Typical options are "-strip" to
     #   remove all Exif data from the image (save space for thumbnails and avatars) or
     #   "-depth 8" to specify the bit depth of the resulting conversion.  See ImageMagick
     #   convert documentation for more options: (http://www.imagemagick.org/script/convert.php)
+    #   Note that this option takes a hash of options, each of which correspond to the style
+    #   of thumbnail being generated. You can also specify :all as a key, which will apply
+    #   to all of the thumbnails being generated. If you specify options for the :original,
+    #   it would be best if you did not specify destructive options, as the intent of keeping
+    #   the original around is to regenerate all the thumbnails then requirements change.
+    #     has_attached_file :avatar, :styles => { :large => "300x300", :negative => "100x100" }
+    #                                :convert_options => {
+    #                                  :all => "-strip",
+    #                                  :negative => "-negate"
+    #                                }
     # * +storage+: Chooses the storage backend where the files will be stored. The current
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
