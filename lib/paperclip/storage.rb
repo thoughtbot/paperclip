@@ -80,7 +80,10 @@ module Paperclip
     #   This is not required, however, and the file may simply look like this:
     #     access_key_id: 456...
     #     secret_access_key: 456... 
-    #   In which case, those access keys will be used in all environments.
+    #   In which case, those access keys will be used in all environments. You can also
+    #   put your bucket name in this file, instead of adding it to the code directly.
+    #   This is useful when you want the same account but a different bucket for 
+    #   development versus production.
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
     #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
