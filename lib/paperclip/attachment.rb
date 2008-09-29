@@ -106,7 +106,7 @@ module Paperclip
     # disk. If the file is stored in S3, the path is the "key" part of the URL,
     # and the :bucket option refers to the S3 bucket.
     def path style = nil #:nodoc:
-      interpolate(@path, style)
+      original_filename.nil? ? nil : interpolate(@path, style)
     end
 
     # Alias to +url+
