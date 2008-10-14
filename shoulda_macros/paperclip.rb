@@ -4,16 +4,16 @@ module Paperclip
       klass = self.name.gsub(/Test$/, '').constantize
       context "Class #{klass.name} with attachment #{name}" do
         should "respond to all the right methods" do
-          ["#{name}_file_name", name, "#{name}?"].each do |meth|
-            assert_responds_to object, meth, "#{klass.name} does not respond to #{name}."
+          [name, "#{name}=", "#{name}?"].each do |meth|
+            assert klass.instance_methods.include?(meth), "#{klass.name} does not respond to #{name}."
           end
         end
 
         should "have the correct definition" do
           expected = options
-          actual   = klass.attachment_definition[name]
-          expected.delete(:validations) unless options.key?(:validations)
-          expected.delete(:whiny_thumbnails) unless options.key?(:whiny_thumbnails)
+          actual   = klass.attachment_definitions[name]
+          expected.delete(:validations)      if not options.key?(:validations)
+          expected.delete(:whiny_thumbnails) if not options.key?(:whiny_thumbnails)
 
           assert_equal expected, actual
         end
