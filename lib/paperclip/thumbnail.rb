@@ -48,15 +48,15 @@ module Paperclip
       dst.binmode
 
       command = <<-end_command
-        #{ Paperclip.path_for_command('convert') }
         "#{ File.expand_path(src.path) }[0]"
         #{ transformation_command }
         "#{ File.expand_path(dst.path) }"
       end_command
-      success = system(command.gsub(/\s+/, " "))
 
-      if !success && $?.exitstatus != 0 && @whiny_thumbnails
-        raise PaperclipError, "There was an error processing this thumbnail"
+      begin
+        success = Paperclip.run("convert", command.gsub(/\s+/, " "))
+      rescue PaperclipCommandLineError
+        raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny_thumbnails
       end
 
       dst

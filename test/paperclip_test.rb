@@ -1,6 +1,37 @@
 require 'test/helper.rb'
 
 class PaperclipTest < Test::Unit::TestCase
+  context "Calling Paperclip.run" do
+    should "execute the right command" do
+      Paperclip.expects(:path_for_command).with("convert").returns("/usr/bin/convert")
+      Paperclip.expects(:bit_bucket).returns("/dev/null")
+      Paperclip.expects(:"`").with("/usr/bin/convert one.jpg two.jpg 2>/dev/null")
+      Paperclip.run("convert", "one.jpg two.jpg")
+    end
+  end
+
+  context "Paperclip.bit_bucket" do
+    context "on systems without /dev/null" do
+      setup do
+        File.expects(:exists?).with("/dev/null").returns(false)
+      end
+      
+      should "return 'NUL'" do
+        assert_equal "NUL", Paperclip.bit_bucket
+      end
+    end
+
+    context "on systems with /dev/null" do
+      setup do
+        File.expects(:exists?).with("/dev/null").returns(true)
+      end
+      
+      should "return '/dev/null'" do
+        assert_equal "/dev/null", Paperclip.bit_bucket
+      end
+    end
+  end
+
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"

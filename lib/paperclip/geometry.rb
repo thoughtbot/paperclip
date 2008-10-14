@@ -1,15 +1,13 @@
 module Paperclip
-  
+
   # Defines the geometry of an image.
   class Geometry
     attr_accessor :height, :width, :modifier
 
     # Gives a Geometry representing the given height and width
     def initialize width = nil, height = nil, modifier = nil
-      height = nil if height == ""
-      width  = nil if width  == ""
-      @height = (height || width).to_f
-      @width  = (width  || height).to_f
+      @height = height.to_f
+      @width  = width.to_f
       @modifier = modifier
     end
 
@@ -17,13 +15,18 @@ module Paperclip
     # File or path.
     def self.from_file file
       file = file.path if file.respond_to? "path"
-      parse(`#{Paperclip.path_for_command('identify')} "#{file}"`) ||
+      geometry = begin
+                   Paperclip.run("identify", %Q[-format "%wx%h" "#{file}"])
+                 rescue PaperclipCommandLineError
+                   ""
+                 end
+      parse(geometry) ||
         raise(NotIdentifiedByImageMagickError.new("#{file} is not recognized by the 'identify' command."))
     end
 
     # Parses a "WxH" formatted string, where W is the width and H is the height.
     def self.parse string
-      if match = (string && string.match(/\b(\d*)x(\d*)\b([\>\<\#\@\%^!])?/))
+      if match = (string && string.match(/\b(\d*)x?(\d*)\b([\>\<\#\@\%^!])?/))
         Geometry.new(*match[1,3])
       end
     end
@@ -60,7 +63,10 @@ module Paperclip
 
     # Returns the width and height in a format suitable to be passed to Geometry.parse
     def to_s
-      "%dx%d%s" % [width, height, modifier]
+      s = ""
+      s << width.to_i.to_s if width > 0
+      s << "x#{height.to_i}#{modifier}" if height > 0
+      s
     end
 
     # Same as to_s
@@ -76,7 +82,6 @@ module Paperclip
     # overhanging image would be cropped. Useful for square thumbnail images. The cropping 
     # is weighted at the center of the Geometry.
     def transformation_to dst, crop = false
-
       if crop
         ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
         scale_geometry, scale = scaling(dst, ratio)
@@ -84,7 +89,7 @@ module Paperclip
       else
         scale_geometry        = dst.to_s
       end
-      
+
       [ scale_geometry, crop_geometry ]
     end
 

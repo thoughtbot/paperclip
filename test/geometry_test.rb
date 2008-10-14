@@ -12,15 +12,15 @@ class GeometryTest < Test::Unit::TestCase
       assert_equal 768, @geo.height
     end
 
-    should "correctly create a square if the height dimension is missing" do
+    should "set height to 0 if height dimension is missing" do
       assert @geo = Paperclip::Geometry.new(1024)
       assert_equal 1024, @geo.width
-      assert_equal 1024, @geo.height
+      assert_equal 0, @geo.height
     end
 
-    should "correctly create a square if the width dimension is missing" do
+    should "set width to 0 if width dimension is missing" do
       assert @geo = Paperclip::Geometry.new(nil, 768)
-      assert_equal 768, @geo.width
+      assert_equal 0, @geo.width
       assert_equal 768, @geo.height
     end
 
@@ -32,14 +32,20 @@ class GeometryTest < Test::Unit::TestCase
 
     should "be generated from a xH-formatted string" do
       assert @geo = Paperclip::Geometry.parse("x600")
-      assert_equal 600, @geo.width
+      assert_equal 0, @geo.width
       assert_equal 600, @geo.height
     end
-      
+
     should "be generated from a Wx-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800x")
       assert_equal 800, @geo.width
-      assert_equal 800, @geo.height
+      assert_equal 0, @geo.height
+    end
+
+    should "be generated from a W-formatted string" do
+      assert @geo = Paperclip::Geometry.parse("800")
+      assert_equal 800, @geo.width
+      assert_equal 0, @geo.height
     end
 
     should "ensure the modifier is nil if only one dimension present" do
@@ -63,6 +69,26 @@ class GeometryTest < Test::Unit::TestCase
       assert @src = Paperclip::Geometry.parse("123x456")
       assert @dst = Paperclip::Geometry.parse("123x456>")
       assert_equal "123x456>", @src.transformation_to(@dst).to_s
+    end
+
+    should "generate correct ImageMagick formatting string for W-formatted string" do
+      assert @geo = Paperclip::Geometry.parse("800")
+      assert_equal "800", @geo.to_s
+    end
+
+    should "generate correct ImageMagick formatting string for Wx-formatted string" do
+      assert @geo = Paperclip::Geometry.parse("800x")
+      assert_equal "800", @geo.to_s
+    end
+
+    should "generate correct ImageMagick formatting string for xH-formatted string" do
+      assert @geo = Paperclip::Geometry.parse("x600")
+      assert_equal "x600", @geo.to_s
+    end
+
+    should "generate correct ImageMagick formatting string for WxH-formatted string" do
+      assert @geo = Paperclip::Geometry.parse("800x600")
+      assert_equal "800x600", @geo.to_s
     end
 
     should "be generated from a file" do

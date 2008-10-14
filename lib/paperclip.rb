@@ -58,12 +58,27 @@ module Paperclip
       File.join(*path)
     end
 
+    def run cmd, params = "", expected_outcodes = 0
+      output = `#{%Q[#{path_for_command(cmd)} #{params} 2>#{bit_bucket}].gsub(/\s+/, " ")}`
+      unless [expected_outcodes].flatten.include?($?.exitstatus)
+        raise PaperclipCommandLineError, "Error while running #{cmd}"
+      end
+      output
+    end
+
+    def bit_bucket
+      File.exists?("/dev/null") ? "/dev/null" : "NUL"
+    end
+
     def included base #:nodoc:
       base.extend ClassMethods
     end
   end
 
   class PaperclipError < StandardError #:nodoc:
+  end
+
+  class PaperclipCommandLineError < StandardError #:nodoc:
   end
 
   class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
