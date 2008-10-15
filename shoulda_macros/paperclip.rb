@@ -4,7 +4,7 @@ module Paperclip
       klass = self.name.gsub(/Test$/, '').constantize
       context "Class #{klass.name} with attachment #{name}" do
         should "respond to all the right methods" do
-          [name, "#{name}=", "#{name}?"].each do |meth|
+          ["#{name}", "#{name}=", "#{name}?"].each do |meth|
             assert klass.instance_methods.include?(meth), "#{klass.name} does not respond to #{name}."
           end
         end
