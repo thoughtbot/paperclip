@@ -221,7 +221,7 @@ module Paperclip
       attachment_definitions[name][:validations] << lambda do |attachment, instance|
         valid_types = [options[:content_type]].flatten
         
-        unless attachment.original_filename.nil?
+        unless attachment.original_filename.blank?
           unless options[:content_type].blank?
             content_type = instance[:"#{name}_content_type"]
             unless valid_types.any?{|t| t === content_type }
