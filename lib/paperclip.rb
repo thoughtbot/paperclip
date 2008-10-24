@@ -130,7 +130,7 @@ module Paperclip
     #   of thumbnail being generated. You can also specify :all as a key, which will apply
     #   to all of the thumbnails being generated. If you specify options for the :original,
     #   it would be best if you did not specify destructive options, as the intent of keeping
-    #   the original around is to regenerate all the thumbnails then requirements change.
+    #   the original around is to regenerate all the thumbnails when requirements change.
     #     has_attached_file :avatar, :styles => { :large => "300x300", :negative => "100x100" }
     #                                :convert_options => {
     #                                  :all => "-strip",
