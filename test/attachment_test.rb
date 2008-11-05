@@ -174,7 +174,6 @@ class AttachmentTest < Test::Unit::TestCase
     should "strip whitespace from content_type field" do
       assert_equal "image/png", @dummy.avatar.instance.avatar_content_type
     end
-    
   end
 
   context "Attachment with strange letters" do

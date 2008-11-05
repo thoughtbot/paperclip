@@ -74,11 +74,11 @@ module Paperclip
       return nil if uploaded_file.nil?
 
       logger.info("[paperclip] Writing attributes for #{name}")
-      @queued_for_write[:original]        = uploaded_file.to_tempfile
-      instance_write(:file_name, uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
-      instance_write(:content_type, uploaded_file.content_type.strip)
-      instance_write(:file_size, uploaded_file.size.to_i)
-      instance_write(:updated_at, Time.now)
+      @queued_for_write[:original]   = uploaded_file.to_tempfile
+      instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
+      instance_write(:content_type,    uploaded_file.content_type.strip)
+      instance_write(:file_size,       uploaded_file.size.to_i)
+      instance_write(:updated_at,      Time.now)
 
       @dirty = true
 
@@ -169,7 +169,7 @@ module Paperclip
                            attachment.instance.class.name.underscore.pluralize
                          end,
         :basename     => lambda do |attachment,style|
-                           attachment.original_filename.gsub(File.extname(attachment.original_filename), "")
+                           attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
                          end,
         :extension    => lambda do |attachment,style| 
                            ((style = attachment.styles[style]) && style.last) ||
