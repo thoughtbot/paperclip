@@ -17,7 +17,7 @@ end
 def for_all_attachments
   klass = obtain_class
   names = obtain_attachments
-  ids   = klass.connection.select_values("SELECT id FROM #{klass.table_name}")
+  ids   = klass.connection.select_values("SELECT #{klass.primary_key} FROM #{klass.table_name}")
 
   ids.each do |id|
     instance = klass.find(id)
