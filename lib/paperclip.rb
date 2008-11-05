@@ -182,7 +182,7 @@ module Paperclip
           options[:in] = (0..options[:less_than])
         end
         
-        if attachment.file? && !options[:in].include?(instance[:"#{name}_file_size"].to_i)
+        if attachment.file? && !options[:in].include?(attachment.instance_read(:file_size).to_i)
           min = options[:in].first
           max = options[:in].last
           
@@ -223,7 +223,7 @@ module Paperclip
         
         unless attachment.original_filename.blank?
           unless options[:content_type].blank?
-            content_type = instance[:"#{name}_content_type"]
+            content_type = attachment.instance_read(:content_type)
             unless valid_types.any?{|t| t === content_type }
               options[:message] || "is not one of the allowed file types."
             end
