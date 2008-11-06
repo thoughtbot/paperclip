@@ -1,8 +1,4 @@
-require 'rubygems'
-require 'test/unit'
-require 'shoulda'
-
-require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'geometry.rb')
+require 'test/helper'
 
 class GeometryTest < Test::Unit::TestCase
   context "Paperclip::Geometry" do

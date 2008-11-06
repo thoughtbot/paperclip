@@ -1,11 +1,4 @@
-require 'rubygems'
-require 'test/unit'
-require 'shoulda'
-require 'mocha'
-require 'tempfile'
-
-require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'geometry.rb')
-require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'thumbnail.rb')
+require 'test/helper'
 
 class ThumbnailTest < Test::Unit::TestCase
 

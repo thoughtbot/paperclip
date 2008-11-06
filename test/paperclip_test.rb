@@ -1,4 +1,4 @@
-require 'test/helper.rb'
+require 'test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do

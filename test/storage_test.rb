@@ -1,9 +1,4 @@
-require 'rubygems'
-require 'test/unit'
-require 'shoulda'
-require 'right_aws'
-
-require File.join(File.dirname(__FILE__), '..', 'lib', 'paperclip', 'geometry.rb')
+require 'test/helper'
 
 class StorageTest < Test::Unit::TestCase
   context "Parsing S3 credentials" do
