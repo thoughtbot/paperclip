@@ -15,7 +15,7 @@ module Paperclip
     #   make a symlink to the capistrano-created system directory from inside your app's 
     #   public directory.
     #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :path => "/var/app/attachments/:class/:id/:style/:filename"
+    #     :path => "/var/app/attachments/:class/:id/:style/:basename.:extension"
     module Filesystem
       def self.extended base
       end
