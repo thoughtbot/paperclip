@@ -97,7 +97,7 @@ class StorageTest < Test::Unit::TestCase
           @key_mock = stub
           @bucket_mock.expects(:key).returns(@key_mock)
           @key_mock.expects(:data=)
-          @key_mock.expects(:put)
+          @key_mock.expects(:put).with(nil, 'public-read', 'Content-type' => 'image/png')
           @dummy.save
         end
 
