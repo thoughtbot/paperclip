@@ -49,17 +49,19 @@ class GeometryTest < Test::Unit::TestCase
       assert_nil @geo.modifier
     end
 
-    ['>', '<', '#', '@', '%', '^', '!'].each do |mod|
-      should "ensure the modifier #{mod} is preserved" do
+    ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
+      should "ensure the modifier #{mod.inspect} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
         assert_equal mod, @geo.modifier
+        assert_equal "123x456#{mod}", @geo.to_s
       end
     end
     
-    ['>', '<', '#', '@', '%', '^', '!'].each do |mod|
-      should "ensure the modifier #{mod} gets passed to ImageMagic" do
+    ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
+      should "ensure the modifier #{mod.inspect} is preserved with no height" do
         assert @geo = Paperclip::Geometry.parse("123x#{mod}")
-        assert_equal mod, @geo.to_s.last
+        assert_equal mod, @geo.modifier
+        assert_equal "123#{mod}", @geo.to_s
       end
     end
 
