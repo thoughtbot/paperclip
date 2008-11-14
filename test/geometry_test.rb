@@ -44,11 +44,6 @@ class GeometryTest < Test::Unit::TestCase
       assert_equal 0, @geo.height
     end
 
-    should "ensure the modifier is nil if only one dimension present" do
-      assert @geo = Paperclip::Geometry.parse("123x")
-      assert_nil @geo.modifier
-    end
-
     should "ensure the modifier is nil if not present" do
       assert @geo = Paperclip::Geometry.parse("123x456")
       assert_nil @geo.modifier
@@ -58,6 +53,13 @@ class GeometryTest < Test::Unit::TestCase
       should "ensure the modifier #{mod} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
         assert_equal mod, @geo.modifier
+      end
+    end
+    
+    ['>', '<', '#', '@', '%', '^', '!'].each do |mod|
+      should "ensure the modifier #{mod} gets passed to ImageMagic" do
+        assert @geo = Paperclip::Geometry.parse("123x#{mod}")
+        assert_equal mod, @geo.to_s.last
       end
     end
 
