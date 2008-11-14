@@ -274,6 +274,14 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
 
+    def s3_headers_for attachment, style
+      `curl --head '#{attachment.url(style)}' 2>/dev/null`.split("\n").inject({}) do |h,head|
+        split_head = head.chomp.split(/\s*:\s*/, 2)
+        h[split_head.first.downcase] = split_head.last unless split_head.empty?
+        h
+      end
+    end
+
     context "A model with an S3 attachment" do
       setup do
         rebuild_model :styles => { :large => "300x300>",
@@ -386,6 +394,12 @@ class IntegrationTest < Test::Unit::TestCase
         assert_nil @dummy.avatar_file_name
         @dummy.reload
         assert_equal "5k.png", @dummy.avatar_file_name
+      end
+
+      should "have the right content type" do
+        headers = s3_headers_for(@dummy.avatar, :original)
+        p headers
+        assert_equal 'image/png', headers['content-type']
       end
     end
   end
