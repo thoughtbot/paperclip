@@ -41,3 +41,18 @@ end
     end
   end
 end
+
+# Corrects a bug in Windows when asking for Tempfile size.
+if defined? Tempfile
+  class Tempfile
+    def size
+      if @tmpfile
+        @tmpfile.fsync
+        @tmpfile.flush
+        @tmpfile.stat.size
+      else
+        0
+      end
+    end
+  end
+end

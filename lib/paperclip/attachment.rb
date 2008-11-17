@@ -67,6 +67,7 @@ module Paperclip
       return nil unless valid_assignment?(uploaded_file)
       logger.info("[paperclip] Assigning #{uploaded_file.inspect} to #{name}")
 
+      uploaded_file.binmode if uploaded_file.respond_to? :binmode
       queue_existing_for_delete
       @errors            = []
       @validation_errors = nil
