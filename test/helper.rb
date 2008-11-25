@@ -3,6 +3,7 @@ require 'test/unit'
 require 'shoulda'
 require 'mocha'
 require 'tempfile'
+require 'sqlite3-ruby'
 
 require 'active_record'
 require 'active_support'
