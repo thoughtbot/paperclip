@@ -215,7 +215,7 @@ class IntegrationTest < Test::Unit::TestCase
       Dummy.validates_attachment_presence :avatar
       @d2 = Dummy.find(@dummy.id)
       @d2.avatar = @file
-      assert   @d2.valid?
+      assert   @d2.valid?, @d2.errors.full_messages.inspect 
       @d2.avatar = @bad_file
       assert ! @d2.valid?
       @d2.avatar = nil

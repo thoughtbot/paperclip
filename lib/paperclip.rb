@@ -145,7 +145,7 @@ module Paperclip
       include InstanceMethods
 
       write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
-      attachment_definitions[name] = {:validations => []}.merge(options)
+      attachment_definitions[name] = {:validations => {}}.merge(options)
 
       after_save :save_attached_files
       before_destroy :destroy_attached_files
@@ -175,23 +175,14 @@ module Paperclip
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     # * +message+: error message to display, use :min and :max as replacements
     def validates_attachment_size name, options = {}
-      attachment_definitions[name][:validations] << lambda do |attachment, instance|
-        unless options[:greater_than].nil?
-          options[:in] = (options[:greater_than]..(1/0)) # 1/0 => Infinity
-        end
-        unless options[:less_than].nil?
-          options[:in] = (0..options[:less_than])
-        end
-        
-        if attachment.file? && !options[:in].include?(attachment.instance_read(:file_size).to_i)
-          min = options[:in].first
-          max = options[:in].last
-          
-          if options[:message]
-            options[:message].gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
-          else
-            "file size is not between #{min} and #{max} bytes."
-          end
+      min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
+      max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
+      range   = (min..max)
+      message = options[:message] || "file size must be between :min and :max bytes."
+
+      attachment_definitions[name][:validations][:size] = lambda do |attachment, instance|
+        if attachment.file? && !range.include?(attachment.instance_read(:file_size).to_i)
+          message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
         end
       end
     end
@@ -203,10 +194,9 @@ module Paperclip
 
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name, options = {}
-      attachment_definitions[name][:validations] << lambda do |attachment, instance|
-        unless attachment.file?
-          options[:message] || "must be set."
-        end
+      message = options[:message] || "must be set."
+      attachment_definitions[name][:validations][:presence] = lambda do |attachment, instance|
+        message unless attachment.file?
       end
     end
     
@@ -219,7 +209,7 @@ module Paperclip
     #   Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid content type.
     def validates_attachment_content_type name, options = {}
-      attachment_definitions[name][:validations] << lambda do |attachment, instance|
+      attachment_definitions[name][:validations][:content_type] = lambda do |attachment, instance|
         valid_types = [options[:content_type]].flatten
         
         unless attachment.original_filename.blank?

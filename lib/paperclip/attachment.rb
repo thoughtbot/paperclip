@@ -10,7 +10,7 @@ module Paperclip
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
-        :validations   => [],
+        :validations   => {},
         :storage       => :filesystem
       }
     end
@@ -38,7 +38,7 @@ module Paperclip
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}
-      @errors            = []
+      @errors            = {}
       @validation_errors = nil
       @dirty             = false
 
@@ -69,7 +69,7 @@ module Paperclip
 
       uploaded_file.binmode if uploaded_file.respond_to? :binmode
       queue_existing_for_delete
-      @errors            = []
+      @errors            = {}
       @validation_errors = nil
 
       return nil if uploaded_file.nil?
@@ -122,7 +122,7 @@ module Paperclip
 
     # Returns an array containing the errors on this attachment.
     def errors
-      @errors.compact.uniq
+      @errors
     end
 
     # Returns true if there are changes that need to be saved.
@@ -230,10 +230,12 @@ module Paperclip
 
     def validate #:nodoc:
       unless @validation_errors
-        @validation_errors = @validations.collect do |v|
-          v.call(self, instance)
-        end.flatten.compact.uniq
-        @errors += @validation_errors
+        @validation_errors = @validations.inject({}) do |errors, validation|
+          name, block = validation
+          errors[name] = block.call(self, instance) if block
+          errors
+        end
+        @errors.merge!(@validation_errors)
       end
       @validation_errors
     end
@@ -268,7 +270,7 @@ module Paperclip
                                                    extra_options_for(name),
                                                    @whiny_thumbnails)
         rescue PaperclipError => e
-          @errors << e.message if @whiny_thumbnails
+          (@errors[:processing] ||= []) << e.message if @whiny_thumbnails
         end
       end
     end
@@ -296,8 +298,8 @@ module Paperclip
     end
 
     def flush_errors #:nodoc:
-      @errors.each do |error|
-        instance.errors.add(name, error)
+      @errors.each do |error, message|
+        instance.errors.add(name, message) if message
       end
     end
 

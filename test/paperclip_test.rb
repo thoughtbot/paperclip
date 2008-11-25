@@ -135,45 +135,52 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
-    [[:presence,      nil,                             "5k.png",   nil],
-     [:size,          {:in => 1..10240},               "5k.png",   "12k.png"],
-     [:size2,         {:in => 1..10240},               nil,        "12k.png"],
-     [:content_type1, {:content_type => "image/png"},  "5k.png",   "text.txt"],
-     [:content_type2, {:content_type => "text/plain"}, "text.txt", "5k.png"],
-     [:content_type3, {:content_type => %r{image/.*}}, "5k.png",   "text.txt"],
-     [:content_type4, {:content_type => "image/png"},  nil,        "text.txt"]].each do |args|
-      context "with #{args[0]} validations" do
+    def self.should_validate validation, options, valid_file, invalid_file
+      context "with #{validation} validation and #{options.inspect} options" do
         setup do
-          Dummy.class_eval do
-            send(*[:"validates_attachment_#{args[0].to_s[/[a-z_]*/]}", :avatar, args[1]].compact)
-          end
+          Dummy.send(:"validates_attachment_#{validation}", :avatar, options)
           @dummy = Dummy.new
         end
-
-        context "and a valid file" do
+        context "and assigned a valid file" do
           setup do
-            @file = args[2] && File.new(File.join(FIXTURES_DIR, args[2]))
+            @dummy.avatar = valid_file
+            @dummy.valid?
           end
-
-          should "not have any errors" do
-            @dummy.avatar = @file
-            assert @dummy.avatar.valid?
-            assert_equal 0, @dummy.avatar.errors.length
+          should "not have an error when assigned a valid file" do
+            assert_nil @dummy.avatar.errors[validation]
+          end
+          should "not have an error on the attachment" do
+            assert_nil @dummy.errors.on(:avatar)
           end
         end
-
-        context "and an invalid file" do
+        context "and assigned an invalid file" do
           setup do
-            @file = args[3] && File.new(File.join(FIXTURES_DIR, args[3]))
+            @dummy.avatar = invalid_file
+            @dummy.valid?
           end
-
-          should "have errors" do
-            @dummy.avatar = @file
-            assert ! @dummy.avatar.valid?
-            assert_equal 1, @dummy.avatar.errors.length
+          should "have an error when assigned a valid file" do
+            assert_not_nil @dummy.avatar.errors[validation]
+          end
+          should "have an error on the attachment" do
+            assert @dummy.errors.on(:avatar)
           end
         end
       end
     end
+
+    [[:presence,      {},                              "5k.png",   nil],
+     [:size,          {:in => 1..10240},               nil,        "12k.png"],
+     [:size,          {:less_than => 10240},           "5k.png",   "12k.png"],
+     [:size,          {:greater_than => 8096},         "12k.png",  "5k.png"],
+     [:content_type,  {:content_type => "image/png"},  "5k.png",   "text.txt"],
+     [:content_type,  {:content_type => "text/plain"}, "text.txt", "5k.png"],
+     [:content_type,  {:content_type => %r{image/.*}}, "5k.png",   "text.txt"]].each do |args|
+      validation, options, valid_file, invalid_file = args
+      valid_file   &&= File.new(File.join(FIXTURES_DIR, valid_file))
+      invalid_file &&= File.new(File.join(FIXTURES_DIR, invalid_file))
+      
+      should_validate validation, options, valid_file, invalid_file
+    end
+
   end
 end
