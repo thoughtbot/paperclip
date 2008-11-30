@@ -147,7 +147,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "not have an error when assigned a valid file" do
-            assert_nil @dummy.avatar.errors[validation]
+            assert ! @dummy.avatar.errors.key?(validation)
           end
           should "not have an error on the attachment" do
             assert_nil @dummy.errors.on(:avatar)
