@@ -40,9 +40,8 @@ module Paperclip
         @queued_for_write.each do |style, file|
           FileUtils.mkdir_p(File.dirname(path(style)))
           logger.info("[paperclip] -> #{path(style)}")
-          result = file.stream_to(path(style))
+          FileUtils.mv(file.path, path(style))
           file.close
-          result.close
         end
         @queued_for_write = {}
       end
