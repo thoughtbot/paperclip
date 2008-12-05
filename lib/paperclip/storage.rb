@@ -41,6 +41,7 @@ module Paperclip
           FileUtils.mkdir_p(File.dirname(path(style)))
           logger.info("[paperclip] -> #{path(style)}")
           FileUtils.mv(file.path, path(style))
+          FileUtils.chmod(0644, path(style))
           file.close
         end
         @queued_for_write = {}
