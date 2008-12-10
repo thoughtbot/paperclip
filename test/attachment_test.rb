@@ -295,6 +295,10 @@ class AttachmentTest < Test::Unit::TestCase
       should "make sure the updated_at mtime is in the url if it is defined" do
         assert_match %r{#{Time.now.to_i}$}, @attachment.url(:blah)
       end
+ 
+      should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
+        assert_no_match %r{#{Time.now.to_i}$}, @attachment.url(:blah, false)
+      end
 
       context "with the updated_at field removed" do
         setup do

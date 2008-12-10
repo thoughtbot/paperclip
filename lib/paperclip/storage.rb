@@ -91,6 +91,7 @@ module Paperclip
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either 
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are 'public-read' (the
     #   default), and 'https' when your :s3_permissions are anything else.
+    # * +s3_headers+: A hash of headers such as {'Expires' => 1.year.from_now.httpdate}
     # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
     #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
@@ -113,6 +114,7 @@ module Paperclip
           @s3_options     = @options[:s3_options] || {}
           @s3_permissions = @options[:s3_permissions] || 'public-read'
           @s3_protocol    = @options[:s3_protocol] || (@s3_permissions == 'public-read' ? 'http' : 'https')
+		  @s3_headers     = @options[:s3_headers] || {}
           @url            = ":s3_path_url" unless @url.to_s.match(/^:s3.*url$/)
         end
         base.class.interpolations[:s3_path_url] = lambda do |attachment, style|
@@ -165,7 +167,7 @@ module Paperclip
             logger.info("[paperclip] -> #{path(style)}")
             key = s3_bucket.key(path(style))
             key.data = file
-            key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)})
+            key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)}.merge(@s3_headers))
           rescue RightAws::AwsError => e
             raise
           end
