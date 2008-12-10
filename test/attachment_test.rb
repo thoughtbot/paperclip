@@ -367,4 +367,61 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
+
+  context "An attachment with only a avatar_file_name column" do
+    setup do
+      ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+        table.column :avatar_file_name, :string
+      end
+      rebuild_class
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+    end
+
+    should "not error when assigned an attachment" do
+      assert_nothing_raised { @dummy.avatar = @file }
+    end
+
+    should "return nil when sent #avatar_updated_at" do
+      @dummy.avatar = @file
+      assert_nil @dummy.avatar.updated_at
+    end
+
+    context "and avatar_updated_at column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_updated_at" do
+        now = Time.now
+        Time.stubs(:now).returns(now)
+        @dummy.avatar = @file
+        assert_equal now.to_i, @dummy.avatar.updated_at
+      end
+    end
+
+    context "and avatar_content_type column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_content_type" do
+        @dummy.avatar = @file
+        assert_equal "image/png", @dummy.avatar.content_type
+      end
+    end
+
+  end
 end

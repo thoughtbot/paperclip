@@ -35,7 +35,10 @@ def rebuild_model options = {}
     table.column :avatar_file_size, :integer
     table.column :avatar_updated_at, :datetime
   end
+  rebuild_class options
+end
 
+def rebuild_class options = {}
   ActiveRecord::Base.send(:include, Paperclip)
   Object.send(:remove_const, "Dummy") rescue nil
   Object.const_set("Dummy", Class.new(ActiveRecord::Base))

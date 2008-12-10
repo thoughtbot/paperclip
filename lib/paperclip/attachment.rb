@@ -62,7 +62,6 @@ module Paperclip
 
       if uploaded_file.is_a?(Paperclip::Attachment)
         uploaded_file = uploaded_file.to_file(:original)
-        close_uploaded_file = true if uploaded_file.respond_to?(:close)
       end
 
       return nil unless valid_assignment?(uploaded_file)
@@ -89,7 +88,6 @@ module Paperclip
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size, uploaded_file.size.to_i)
     ensure
-      uploaded_file.close if close_uploaded_file
       validate
     end
 
@@ -153,6 +151,10 @@ module Paperclip
     def original_filename
       instance_read(:file_name)
     end
+
+    def content_type
+      instance_read(:content_type)
+    end
     
     def updated_at
       time = instance_read(:updated_at)
@@ -193,7 +195,6 @@ module Paperclip
     # again.
     def reprocess!
       new_original = Tempfile.new("paperclip-reprocess")
-      new_original.binmode
       if old_original = to_file(:original)
         new_original.write( old_original.read )
         new_original.rewind
@@ -214,11 +215,15 @@ module Paperclip
     end
 
     def instance_write(attr, value)
-      instance.send(:"#{name}_#{attr}=", value)
+      setter = :"#{name}_#{attr}="
+      responds = instance.respond_to?(setter)
+      instance.send(setter, value) if responds || attr.to_s == "file_name"
     end
 
     def instance_read(attr)
-      instance.send(:"#{name}_#{attr}")
+      getter = :"#{name}_#{attr}"
+      responds = instance.respond_to?(getter)
+      instance.send(getter) if responds || attr.to_s == "file_name"
     end
 
     private
