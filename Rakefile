@@ -46,19 +46,18 @@ task :clean do |t|
 end
 
 spec = Gem::Specification.new do |s| 
-  s.rubygems_version  = "1.2.0"
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
   s.author            = "Jon Yurek"
   s.email             = "jyurek@thoughtbot.com"
-  s.homepage          = "http://www.thoughtbot.com/"
+  s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "File attachments as attributes for ActiveRecord"
   s.files             = FileList["README",
                                  "LICENSE",
                                  "Rakefile",
                                  "init.rb",
-                                 "{generators,lib,tasks,test}/**/*"].to_a
+                                 "{generators,lib,tasks,test,shoulda_macros}/**/*"].to_a
   s.require_path      = "lib"
   s.test_files        = FileList["test/**/test_*.rb"].to_a
   s.rubyforge_project = "paperclip"
@@ -67,7 +66,7 @@ spec = Gem::Specification.new do |s|
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
   s.add_runtime_dependency 'right_aws'
-  s.add_development_dependency 'Shoulda'
+  s.add_development_dependency 'thoughtbot-shoulda'
   s.add_development_dependency 'mocha'
 end
  
@@ -85,4 +84,11 @@ task :release => [:test, :sync_docs, :gem] do
                 spec.name,
                 spec.version,
                 File.join("pkg", "#{spec.name}-#{spec.version}.gem")
+end
+
+desc "Generate a gemspec file for GitHub"
+task :gemspec do
+  File.open("#{spec.name}.gemspec", 'w') do |f|
+    f.write spec.to_ruby
+  end
 end
