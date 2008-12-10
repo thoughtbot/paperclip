@@ -93,7 +93,7 @@ class GeometryTest < Test::Unit::TestCase
 
     should "be generated from a file" do
       file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
-      file = File.new(file)
+      file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
       assert @geo.width > 0

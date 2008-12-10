@@ -4,7 +4,7 @@ class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do
     setup do
       rebuild_model
-      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"))
+      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
       300.times do |i|
         Dummy.create! :avatar => @file
       end
@@ -24,13 +24,13 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy = Dummy.new
       @file = File.new(File.join(File.dirname(__FILE__),
                                  "fixtures",
-                                 "5k.png"))
+                                 "5k.png"), 'rb')
       @dummy.avatar = @file
       assert @dummy.save
     end
 
     should "create its thumbnails properly" do
-      assert_match /\b50x50\b/, `identify '#{@dummy.avatar.path(:thumb)}'`
+      assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
 
     context "redefining its attachment styles" do
@@ -44,7 +44,7 @@ class IntegrationTest < Test::Unit::TestCase
       end
 
       should "create its thumbnails properly" do
-        assert_match /\b150x25\b/, `identify '#{@dummy.avatar.path(:thumb)}'`
+        assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
       end
     end
   end
@@ -133,8 +133,8 @@ class IntegrationTest < Test::Unit::TestCase
                     :url => "/:attachment/:class/:style/:id/:basename.:extension",
                     :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       @dummy     = Dummy.new
-      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"))
-      @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"))
+      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"), 'rb')
 
       assert @dummy.avatar = @file
       assert @dummy.valid?
@@ -146,18 +146,18 @@ class IntegrationTest < Test::Unit::TestCase
        ["300x46", :large],
        ["100x15", :medium],
        ["32x32", :thumb]].each do |geo, style|
-        cmd = %Q[identify -format "%wx%h" #{@dummy.avatar.to_file(style).path}]
+        cmd = %Q[identify -format "%wx%h" "#{@dummy.avatar.path(style)}"]
         assert_equal geo, `#{cmd}`.chomp, cmd
       end
 
-      saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.to_file(s).path }
+      saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.path(s) }
 
       @d2 = Dummy.find(@dummy.id)
-      assert_equal "100x15", `identify -format "%wx%h" #{@d2.avatar.to_file.path}`.chomp
-      assert_equal "434x66", `identify -format "%wx%h" #{@d2.avatar.to_file(:original).path}`.chomp
-      assert_equal "300x46", `identify -format "%wx%h" #{@d2.avatar.to_file(:large).path}`.chomp
-      assert_equal "100x15", `identify -format "%wx%h" #{@d2.avatar.to_file(:medium).path}`.chomp
-      assert_equal "32x32",  `identify -format "%wx%h" #{@d2.avatar.to_file(:thumb).path}`.chomp
+      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path}"`.chomp
+      assert_equal "434x66", `identify -format "%wx%h" "#{@d2.avatar.path(:original)}"`.chomp
+      assert_equal "300x46", `identify -format "%wx%h" "#{@d2.avatar.path(:large)}"`.chomp
+      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
+      assert_equal "32x32",  `identify -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
 
       @dummy.avatar = "not a valid file but not nil"
       assert_equal File.basename(@file.path), @dummy.avatar_file_name
@@ -186,10 +186,10 @@ class IntegrationTest < Test::Unit::TestCase
 
       assert_equal @dummy.avatar_file_name, @d2.avatar_file_name
       [:thumb, :medium, :large, :original].each do |style|
-        assert_equal @dummy.avatar.to_file(style).path, @d2.avatar.to_file(style).path
+        assert_equal @dummy.avatar.path(style), @d2.avatar.path(style)
       end
 
-      saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.to_file(s).path }
+      saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.path(s) }
 
       @d2.avatar = nil
       assert @d2.save
@@ -203,7 +203,8 @@ class IntegrationTest < Test::Unit::TestCase
       expected = @dummy.avatar.to_file
       @dummy.avatar = "not a file"
       assert @dummy.valid?
-      assert_equal expected.path, @dummy.avatar.to_file.path
+      assert_equal expected.path, @dummy.avatar.path
+      expected.close
 
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
@@ -234,19 +235,19 @@ class IntegrationTest < Test::Unit::TestCase
     context "that is assigned its file from another Paperclip attachment" do
       setup do
         @dummy2 = Dummy.new
-        @file2  = File.new(File.join(FIXTURES_DIR, "12k.png"))
+        @file2  = File.new(File.join(FIXTURES_DIR, "12k.png"), 'rb')
         assert  @dummy2.avatar = @file2
         @dummy2.save
       end
       
       should "work when assigned a file" do
-        assert_not_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
-                         `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
+        assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
+                         `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
 
         assert @dummy.avatar = @dummy2.avatar
         @dummy.save
-        assert_equal `identify -format "%wx%h" #{@dummy.avatar.to_file(:original).path}`,
-                     `identify -format "%wx%h" #{@dummy2.avatar.to_file(:original).path}`
+        assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
+                     `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
       end
       
       should "work when assigned a nil file" do
@@ -265,8 +266,9 @@ class IntegrationTest < Test::Unit::TestCase
   if ENV['S3_TEST_BUCKET']
     def s3_files_for attachment
       [:thumb, :medium, :large, :original].inject({}) do |files, style|
-        data = `curl '#{attachment.url(style)}' 2>/dev/null`.chomp
+        data = `curl "#{attachment.url(style)}" 2>/dev/null`.chomp
         t = Tempfile.new("paperclip-test")
+        t.binmode
         t.write(data)
         t.rewind
         files[style] = t
@@ -275,7 +277,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
 
     def s3_headers_for attachment, style
-      `curl --head '#{attachment.url(style)}' 2>/dev/null`.split("\n").inject({}) do |h,head|
+      `curl --head "#{attachment.url(style)}" 2>/dev/null`.split("\n").inject({}) do |h,head|
         split_head = head.chomp.split(/\s*:\s*/, 2)
         h[split_head.first.downcase] = split_head.last unless split_head.empty?
         h
@@ -295,8 +297,8 @@ class IntegrationTest < Test::Unit::TestCase
                       :bucket => ENV['S3_TEST_BUCKET'],
                       :path => ":class/:attachment/:id/:style/:basename.:extension"
         @dummy     = Dummy.new
-        @file      = File.new(File.join(FIXTURES_DIR, "5k.png"))
-        @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"))
+        @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+        @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"), 'rb')
 
         assert @dummy.avatar = @file
         assert @dummy.valid?
@@ -310,7 +312,7 @@ class IntegrationTest < Test::Unit::TestCase
          ["300x46", :large],
          ["100x15", :medium],
          ["32x32", :thumb]].each do |geo, style|
-          cmd = %Q[identify -format "%wx%h" #{@files_on_s3[style].path}]
+          cmd = %Q[identify -format "%wx%h" "#{@files_on_s3[style].path}"]
           assert_equal geo, `#{cmd}`.chomp, cmd
         end
 
@@ -320,7 +322,7 @@ class IntegrationTest < Test::Unit::TestCase
          ["300x46", :large],
          ["100x15", :medium],
          ["32x32", :thumb]].each do |geo, style|
-          cmd = %Q[identify -format "%wx%h" #{@d2_files[style].path}]
+          cmd = %Q[identify -format "%wx%h" "#{@d2_files[style].path}"]
           assert_equal geo, `#{cmd}`.chomp, cmd
         end
 

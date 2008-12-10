@@ -77,7 +77,7 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.stubs(:id).returns(1024)
       @file = File.new(File.join(File.dirname(__FILE__),
                                  "fixtures",
-                                 "5k.png"))
+                                 "5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
@@ -95,7 +95,7 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.stubs(:id).returns(@id)
       @file = File.new(File.join(File.dirname(__FILE__),
                                  "fixtures",
-                                 "5k.png"))
+                                 "5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
@@ -131,7 +131,7 @@ class AttachmentTest < Test::Unit::TestCase
       setup do
         @file = File.new(File.join(File.dirname(__FILE__),
                                    "fixtures",
-                                   "5k.png"))
+                                   "5k.png"), 'rb')
         Paperclip::Thumbnail.stubs(:make)
         [:thumb, :large].each do |style|
           @dummy.avatar.stubs(:extra_options_for).with(style)
@@ -213,7 +213,7 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment = Paperclip::Attachment.new(:avatar, @instance)
       @file = File.new(File.join(File.dirname(__FILE__),
                                  "fixtures",
-                                 "5k.png"))
+                                 "5k.png"), 'rb')
     end
 
     should "raise if there are not the correct columns when you try to assign" do
@@ -300,9 +300,11 @@ class AttachmentTest < Test::Unit::TestCase
             end
 
             should "return the real url" do
-              assert @attachment.to_file
+              file = @attachment.to_file
+              assert file
               assert_match %r{^/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
               assert_match %r{^/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
+              file.close
             end
 
             should "commit the files to disk" do
@@ -310,6 +312,7 @@ class AttachmentTest < Test::Unit::TestCase
                 io = @attachment.to_io(style)
                 assert File.exists?(io)
                 assert ! io.is_a?(::Tempfile)
+                io.close
               end
             end
 
@@ -317,8 +320,7 @@ class AttachmentTest < Test::Unit::TestCase
               [[:large, 400, 61, "PNG"],
                [:medium, 100, 15, "GIF"],
                [:small, 32, 32, "JPEG"]].each do |style|
-                cmd = "identify -format '%w %h %b %m' " + 
-                      "#{@attachment.to_io(style.first).path}"
+                cmd = %Q[identify -format "%w %h %b %m" "#{@attachment.path(style.first)}"]
                 out = `#{cmd}`
                 width, height, size, format = out.split(" ")
                 assert_equal style[1].to_s, width.to_s 
@@ -328,7 +330,8 @@ class AttachmentTest < Test::Unit::TestCase
             end
 
             should "still have its #file attribute not be nil" do
-              assert ! @attachment.to_file.nil?
+              assert ! (file = @attachment.to_file).nil?
+              file.close
             end
 
             context "and deleted" do

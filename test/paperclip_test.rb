@@ -35,7 +35,7 @@ class PaperclipTest < Test::Unit::TestCase
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
-      @file = File.new(File.join(FIXTURES_DIR, "5k.png"))
+      @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
     end
 
     should "not error when trying to also create a 'blah' attachment" do
@@ -176,8 +176,8 @@ class PaperclipTest < Test::Unit::TestCase
      [:content_type,  {:content_type => "text/plain"}, "text.txt", "5k.png"],
      [:content_type,  {:content_type => %r{image/.*}}, "5k.png",   "text.txt"]].each do |args|
       validation, options, valid_file, invalid_file = args
-      valid_file   &&= File.new(File.join(FIXTURES_DIR, valid_file))
-      invalid_file &&= File.new(File.join(FIXTURES_DIR, invalid_file))
+      valid_file   &&= File.open(File.join(FIXTURES_DIR, valid_file), "rb")
+      invalid_file &&= File.open(File.join(FIXTURES_DIR, invalid_file), "rb")
       
       should_validate validation, options, valid_file, invalid_file
     end

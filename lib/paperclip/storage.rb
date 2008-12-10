@@ -31,7 +31,7 @@ module Paperclip
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style = default_style
-        @queued_for_write[style] || (File.new(path(style)) if exists?(style))
+        @queued_for_write[style] || (File.new(path(style), 'rb') if exists?(style))
       end
       alias_method :to_io, :to_file
 

@@ -77,7 +77,7 @@ class StorageTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'))
+        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -144,7 +144,7 @@ class StorageTest < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'))
+          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
           @dummy.avatar = @file
         end
 
