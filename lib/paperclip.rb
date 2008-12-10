@@ -37,7 +37,7 @@ require 'paperclip/attachment'
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.1.4"
+  VERSION = "2.1.5"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
