@@ -152,6 +152,10 @@ module Paperclip
       instance_read(:file_name)
     end
 
+    def size
+      instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
+    end
+
     def content_type
       instance_read(:content_type)
     end

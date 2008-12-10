@@ -181,7 +181,7 @@ module Paperclip
       message = options[:message] || "file size must be between :min and :max bytes."
 
       attachment_definitions[name][:validations][:size] = lambda do |attachment, instance|
-        if attachment.file? && !range.include?(attachment.instance_read(:file_size).to_i)
+        if attachment.file? && !range.include?(attachment.size.to_i)
           message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
         end
       end

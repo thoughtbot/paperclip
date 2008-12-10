@@ -387,6 +387,11 @@ class AttachmentTest < Test::Unit::TestCase
       assert_nil @dummy.avatar.updated_at
     end
 
+    should "return the right value when sent #avatar_file_size" do
+      @dummy.avatar = @file
+      assert_equal @file.size, @dummy.avatar.size
+    end
+
     context "and avatar_updated_at column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
@@ -423,5 +428,28 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
+    context "and avatar_file_size column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :integer
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_size" do
+        @dummy.avatar = @file
+        assert_equal @file.size, @dummy.avatar.size
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_size" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal @file.size, @dummy.avatar.size
+      end
+    end
   end
 end
