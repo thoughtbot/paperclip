@@ -53,7 +53,7 @@ spec = Gem::Specification.new do |s|
   s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "File attachments as attributes for ActiveRecord"
-  s.files             = FileList["README",
+  s.files             = FileList["README*",
                                  "LICENSE",
                                  "Rakefile",
                                  "init.rb",
@@ -62,7 +62,7 @@ spec = Gem::Specification.new do |s|
   s.test_files        = FileList["test/**/test_*.rb"].to_a
   s.rubyforge_project = "paperclip"
   s.has_rdoc          = true
-  s.extra_rdoc_files  = ["README"]
+  s.extra_rdoc_files  = FileList["README*"].to_a
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
   s.add_runtime_dependency 'right_aws'
