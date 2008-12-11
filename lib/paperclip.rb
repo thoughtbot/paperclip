@@ -232,8 +232,8 @@ module Paperclip
 
   module InstanceMethods #:nodoc:
     def attachment_for name
-      @attachments ||= {}
-      @attachments[name] ||= Attachment.new(name, self, self.class.attachment_definitions[name])
+      @_paperclip_attachments ||= {}
+      @_paperclip_attachments[name] ||= Attachment.new(name, self, self.class.attachment_definitions[name])
     end
     
     def each_attachment

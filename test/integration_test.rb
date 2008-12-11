@@ -263,6 +263,25 @@ class IntegrationTest < Test::Unit::TestCase
 
   end
 
+  context "A model with an attachments association and a Paperclip attachment" do
+    setup do
+      Dummy.class_eval do
+        has_many :attachments, :class_name => 'Dummy'
+      end
+
+      @dummy = Dummy.new
+      @dummy.avatar = File.new(File.join(File.dirname(__FILE__),
+                               "fixtures",
+                               "5k.png"), 'rb')
+    end
+
+    should "should not error when saving" do
+      assert_nothing_raised do
+        @dummy.save!
+      end
+    end
+  end
+
   if ENV['S3_TEST_BUCKET']
     def s3_files_for attachment
       [:thumb, :medium, :large, :original].inject({}) do |files, style|
