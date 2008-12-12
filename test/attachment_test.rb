@@ -163,6 +163,7 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
       @attachment.expects(:queue_existing_for_delete)
       @attachment.expects(:post_process)
+      @attachment.expects(:valid?).returns(true)
       @attachment.expects(:validate)
       @dummy.avatar = @not_file
     end
@@ -192,6 +193,7 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
       @attachment.expects(:queue_existing_for_delete)
       @attachment.expects(:post_process)
+      @attachment.expects(:valid?).returns(true)
       @attachment.expects(:validate)
       @dummy.avatar = @not_file
     end

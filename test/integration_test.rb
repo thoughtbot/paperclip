@@ -209,7 +209,7 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
       @dummy.avatar = nil
-      assert @dummy.valid?
+      assert @dummy.valid?, @dummy.errors.inspect 
     end
 
     should "know the difference between good files, bad files, not files, and nil when validating" do

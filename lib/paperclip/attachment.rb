@@ -83,7 +83,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process
+      post_process if valid?
  
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size, uploaded_file.size.to_i)
