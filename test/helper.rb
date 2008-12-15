@@ -4,6 +4,8 @@ require 'shoulda'
 require 'mocha'
 require 'tempfile'
 
+gem 'sqlite3-ruby'
+
 require 'active_record'
 require 'active_support'
 begin
