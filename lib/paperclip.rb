@@ -150,6 +150,9 @@ module Paperclip
       after_save :save_attached_files
       before_destroy :destroy_attached_files
 
+      define_callbacks :before_post_process, :after_post_process
+      define_callbacks :"before_#{name}_post_process", :"after_#{name}_post_process"
+     
       define_method name do |*args|
         a = attachment_for(name)
         (args.length > 0) ? a.to_s(args.first) : a

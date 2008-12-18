@@ -15,7 +15,7 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :styles, :default_style, :convert_options
+    attr_reader :name, :instance, :styles, :default_style, :convert_options, :queued_for_write
 
     # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
     # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
@@ -272,6 +272,8 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
+      return if callback(:before_post_process) == false
+      return if callback(:"before_#{name}_post_process") == false
       logger.info("[paperclip] Post-processing #{name}")
       @styles.each do |name, args|
         begin
@@ -286,6 +288,12 @@ module Paperclip
           (@errors[:processing] ||= []) << e.message if @whiny_thumbnails
         end
       end
+      callback(:"after_#{name}_post_process")
+      callback(:after_post_process)
+    end
+
+    def callback which
+      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
     end
 
     def interpolate pattern, style = default_style #:nodoc:

@@ -147,29 +147,82 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "Assigning an attachment with post_process hooks" do
+    setup do
+      rebuild_model :styles => { :something => "100x100#" }
+      Dummy.class_eval do
+        before_avatar_post_process :do_before_avatar
+        after_avatar_post_process :do_after_avatar
+        before_post_process :do_before_all
+        after_post_process :do_after_all
+        def do_before_avatar; end
+        def do_after_avatar; end
+        def do_before_all; end
+        def do_after_all; end
+      end
+      @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file.stubs(:to_tempfile).returns(@file)
+      @dummy = Dummy.new
+      Paperclip::Thumbnail.stubs(:make).returns(@file)
+      @attachment = @dummy.avatar
+    end
+
+    should "call the defined callbacks when assigned" do
+      @dummy.expects(:do_before_avatar).with()
+      @dummy.expects(:do_after_avatar).with()
+      @dummy.expects(:do_before_all).with()
+      @dummy.expects(:do_after_all).with()
+      Paperclip::Thumbnail.expects(:make).returns(@file)
+      @dummy.avatar = @file
+    end
+
+    should "not cancel the processing if a before_post_process returns nil" do
+      @dummy.expects(:do_before_avatar).with().returns(nil)
+      @dummy.expects(:do_after_avatar).with()
+      @dummy.expects(:do_before_all).with().returns(nil)
+      @dummy.expects(:do_after_all).with()
+      Paperclip::Thumbnail.expects(:make).returns(@file)
+      @dummy.avatar = @file
+    end
+
+    should "cancel the processing if a before_post_process returns false" do
+      @dummy.expects(:do_before_avatar).never
+      @dummy.expects(:do_after_avatar).never
+      @dummy.expects(:do_before_all).with().returns(false)
+      @dummy.expects(:do_after_all).never
+      Paperclip::Thumbnail.expects(:make).never
+      @dummy.avatar = @file
+    end
+
+    should "cancel the processing if a before_avatar_post_process returns false" do
+      @dummy.expects(:do_before_avatar).with().returns(false)
+      @dummy.expects(:do_after_avatar).never
+      @dummy.expects(:do_before_all).with().returns(true)
+      @dummy.expects(:do_after_all).never
+      Paperclip::Thumbnail.expects(:make).never
+      @dummy.avatar = @file
+    end
+  end
+
   context "Assigning an attachment" do
     setup do
-      rebuild_model
-      
-      @not_file = mock
-      @not_file.stubs(:nil?).returns(false)
-      @not_file.expects(:to_tempfile).returns(self)
-      @not_file.expects(:original_filename).returns("filename.png\r\n")
-      @not_file.expects(:content_type).returns("image/png\r\n")
-      @not_file.expects(:size).returns(10).times(2)
-      
+      rebuild_model :styles => { :something => "100x100#" }
+      @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file.expects(:original_filename).returns("5k.png\n\n")
+      @file.expects(:content_type).returns("image/png\n\n")
+      @file.stubs(:to_tempfile).returns(@file)
       @dummy = Dummy.new
+      Paperclip::Thumbnail.expects(:make).returns(@file)
+      @dummy.expects(:run_callbacks).with(:before_avatar_post_process, {:original => @file})
+      @dummy.expects(:run_callbacks).with(:before_post_process, {:original => @file})
+      @dummy.expects(:run_callbacks).with(:after_avatar_post_process, {:original => @file, :something => @file})
+      @dummy.expects(:run_callbacks).with(:after_post_process, {:original => @file, :something => @file})
       @attachment = @dummy.avatar
-      @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
-      @attachment.expects(:queue_existing_for_delete)
-      @attachment.expects(:post_process)
-      @attachment.expects(:valid?).returns(true)
-      @attachment.expects(:validate)
-      @dummy.avatar = @not_file
+      @dummy.avatar = @file
     end
 
     should "strip whitespace from original_filename field" do
-      assert_equal "filename.png", @dummy.avatar.original_filename
+      assert_equal "5k.png", @dummy.avatar.original_filename
     end
 
     should "strip whitespace from content_type field" do
