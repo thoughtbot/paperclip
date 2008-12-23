@@ -33,8 +33,9 @@ module Paperclip
       @validations       = options[:validations]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
-      @whiny_thumbnails  = options[:whiny_thumbnails]
+      @whiny             = options[:whiny_thumbnails]
       @convert_options   = options[:convert_options] || {}
+      @processors        = [:thumbnail]
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}
@@ -181,7 +182,7 @@ module Paperclip
                            attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
                          end,
         :extension    => lambda do |attachment,style| 
-                           ((style = attachment.styles[style]) && style.last) ||
+                           ((style = attachment.styles[style]) && style[:format]) ||
                            File.extname(attachment.original_filename).gsub(/^\.+/, "")
                          end,
         :id           => lambda{|attachment,style| attachment.instance.id },
@@ -255,9 +256,17 @@ module Paperclip
 
     def normalize_style_definition
       @styles.each do |name, args|
-        dimensions, format = [args, nil].flatten[0..1]
-        format             = nil if format == ""
-        @styles[name]      = [dimensions, format]
+        unless args.is_a? Hash
+          dimensions, format = [args, nil].flatten[0..1]
+          format             = nil if format.blank?
+          @styles[name]      = {
+            :processors      => @processors,
+            :geometry        => dimensions,
+            :format          => format,
+            :whiny           => @whiny,
+            :convert_options => extra_options_for(name)
+          }
+        end
       end
     end
 
@@ -277,15 +286,12 @@ module Paperclip
       logger.info("[paperclip] Post-processing #{name}")
       @styles.each do |name, args|
         begin
-          dimensions, format = args
-          dimensions = dimensions.call(instance) if dimensions.respond_to? :call
-          @queued_for_write[name] = Thumbnail.make(@queued_for_write[:original], 
-                                                   dimensions,
-                                                   format, 
-                                                   extra_options_for(name),
-                                                   @whiny_thumbnails)
+          @queued_for_write[name] = @queued_for_write[:original]
+          args[:processors].each do |processor|
+            @queued_for_write[name] = Paperclip.processor(processor).make(@queued_for_write[name], args)
+          end
         rescue PaperclipError => e
-          (@errors[:processing] ||= []) << e.message if @whiny_thumbnails
+          (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
       callback(:"after_#{name}_post_process")

@@ -117,6 +117,7 @@ class AttachmentTest < Test::Unit::TestCase
                       :thumb => "-thumbnailize"
                     }
       @dummy = Dummy.new
+      @dummy.avatar
     end
 
     should "report the correct options when sent #extra_options_for(:thumb)" do
@@ -127,23 +128,9 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "-do_stuff", @dummy.avatar.send(:extra_options_for, :large)
     end
 
-    context "when given a file" do
-      setup do
-        @file = File.new(File.join(File.dirname(__FILE__),
-                                   "fixtures",
-                                   "5k.png"), 'rb')
-        Paperclip::Thumbnail.stubs(:make)
-        [:thumb, :large].each do |style|
-          @dummy.avatar.stubs(:extra_options_for).with(style)
-        end
-      end
-
-      [:thumb, :large].each do |style|
-        should "call extra_options_for(#{style})" do
-          @dummy.avatar.expects(:extra_options_for).with(style)
-          @dummy.avatar = @file
-        end
-      end
+    before_should "call extra_options_for(:thumb/:large)" do
+      Paperclip::Attachment.any_instance.expects(:extra_options_for).with(:thumb)
+      Paperclip::Attachment.any_instance.expects(:extra_options_for).with(:large)
     end
   end
 

@@ -73,6 +73,11 @@ module Paperclip
     def included base #:nodoc:
       base.extend ClassMethods
     end
+
+    def processor name
+      name = name.to_s.camelize
+      Paperclip.const_get(name) if Paperclip.const_defined?(name)
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:

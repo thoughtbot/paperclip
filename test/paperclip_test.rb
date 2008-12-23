@@ -10,6 +10,14 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  should "return nil when sent #processor and the name of a class that doesn't exist" do
+    assert_nil Paperclip.processor(:boogey_man)
+  end
+
+  should "return a class when sent #processor and the name of a class under Paperclip" do
+    assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
+  end
+
   context "Paperclip.bit_bucket" do
     context "on systems without /dev/null" do
       setup do
