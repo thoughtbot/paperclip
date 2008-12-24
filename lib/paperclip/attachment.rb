@@ -35,7 +35,7 @@ module Paperclip
       @storage           = options[:storage]
       @whiny             = options[:whiny_thumbnails]
       @convert_options   = options[:convert_options] || {}
-      @processors        = [:thumbnail]
+      @processors        = options[:processors] || [:thumbnail]
       @options           = options
       @queued_for_delete = []
       @queued_for_write  = {}

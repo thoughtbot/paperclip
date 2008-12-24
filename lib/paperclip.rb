@@ -43,18 +43,23 @@ module Paperclip
     # Provides configurability to Paperclip. There are a number of options available, such as:
     # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
     #   an uploaded image. Defaults to true.
-    # * image_magick_path: Defines the path at which to find the +convert+ and +identify+ 
+    # * command_path: Defines the path at which to find the command line
     #   programs if they are not visible to Rails the system's search path. Defaults to 
-    #   nil, which uses the first executable found in the search path.
+    #   nil, which uses the first executable found in the user's search path.
+    # * image_magick_path: Deprecated alias of command_path.
     def options
       @options ||= {
         :whiny_thumbnails  => true,
-        :image_magick_path => nil
+        :image_magick_path => nil,
+        :command_path      => nil
       }
     end
 
     def path_for_command command #:nodoc:
-      path = [options[:image_magick_path], command].compact
+      if options[:image_magick_path]
+        ActiveSupport::Deprecation.warn(":image_magick_path is deprecated and will be removed. Use :command_path instead")
+      end
+      path = [options[:image_magick_path] || options[:command_path], command].compact
       File.join(*path)
     end
 
@@ -124,8 +129,8 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
-    # * +whiny_thumbnails+: Will raise an error if Paperclip cannot process thumbnails of an
-    #   uploaded image. This will ovrride the global setting for this attachment. 
+    # * +whiny_thumbnails+: Will raise an error if Paperclip cannot post_process an uploaded file due
+    #   to a command line error. This will override the global setting for this attachment. 
     #   Defaults to true. 
     # * +convert_options+: When creating thumbnails, use this free-form options
     #   field to pass in various convert command options.  Typical options are "-strip" to

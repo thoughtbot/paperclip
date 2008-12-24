@@ -1,11 +1,33 @@
 require 'test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
-  context "Calling Paperclip.run" do
+  [:image_magick_path, :convert_path].each do |path|
+    context "Calling Paperclip.run with an #{path} specified" do
+      setup do
+        Paperclip.options[:image_magick_path] = nil
+        Paperclip.options[:convert_path]      = nil
+        Paperclip.options[path]               = "/usr/bin"
+      end
+
+      should "execute the right command" do
+        Paperclip.expects(:path_for_command).with("convert").returns("/usr/bin/convert")
+        Paperclip.expects(:bit_bucket).returns("/dev/null")
+        Paperclip.expects(:"`").with("/usr/bin/convert one.jpg two.jpg 2>/dev/null")
+        Paperclip.run("convert", "one.jpg two.jpg")
+      end
+    end
+  end
+
+  context "Calling Paperclip.run with no path specified" do
+    setup do
+      Paperclip.options[:image_magick_path] = nil
+      Paperclip.options[:convert_path]      = nil
+    end
+
     should "execute the right command" do
-      Paperclip.expects(:path_for_command).with("convert").returns("/usr/bin/convert")
+      Paperclip.expects(:path_for_command).with("convert").returns("convert")
       Paperclip.expects(:bit_bucket).returns("/dev/null")
-      Paperclip.expects(:"`").with("/usr/bin/convert one.jpg two.jpg 2>/dev/null")
+      Paperclip.expects(:"`").with("convert one.jpg two.jpg 2>/dev/null")
       Paperclip.run("convert", "one.jpg two.jpg")
     end
   end
