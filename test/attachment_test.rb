@@ -134,6 +134,46 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with both 'normal' and hash-style styles" do
+    setup do
+      rebuild_model :styles => {
+                      :normal => ["50x50#", :png],
+                      :hash => { :geometry => "50x50#", :format => :png }
+                    }
+      @dummy = Dummy.new
+      @attachment = @dummy.avatar
+    end
+
+    [:processors, :whiny, :convert_options, :geometry, :format].each do |field|
+      should "have the same #{field} field" do
+        assert_equal @attachment.styles[:normal][field], @attachment.styles[:hash][field]
+      end
+    end
+  end
+
+  context "An attachment with multiple processors" do
+    setup do
+      class Paperclip::Test < Paperclip::Processor; end
+      @style_params = { :once => {:one => 1, :two => 2} }
+      rebuild_model :processors => [:thumbnail, :test], :styles => @style_params
+      @dummy = Dummy.new
+      @file = StringIO.new("...")
+      @file.stubs(:to_tempfile).returns(@file)
+      Paperclip::Test.stubs(:make).returns(@file)
+      Paperclip::Thumbnail.stubs(:make).returns(@file)
+    end
+
+    context "when assigned" do
+      setup { @dummy.avatar = @file }
+
+      before_should "call #make on all specified processors" do
+        expected_params = @style_params[:once].merge({:processors => [:thumbnail, :test], :whiny => nil, :convert_options => ""})
+        Paperclip::Thumbnail.expects(:make).with(@file, expected_params).returns(@file)
+        Paperclip::Test.expects(:make).with(@file, expected_params).returns(@file)
+      end
+    end
+  end
+
   context "Assigning an attachment with post_process hooks" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }

@@ -267,6 +267,12 @@ module Paperclip
             :whiny           => @whiny,
             :convert_options => extra_options_for(name)
           }
+        else
+          @styles[name] = {
+            :processors => @processors,
+            :whiny => @whiny,
+            :convert_options => extra_options_for(name)
+          }.merge(@styles[name])
         end
       end
     end
