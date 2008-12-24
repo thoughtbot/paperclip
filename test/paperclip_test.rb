@@ -32,8 +32,12 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
-  should "return nil when sent #processor and the name of a class that doesn't exist" do
-    assert_nil Paperclip.processor(:boogey_man)
+  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
+    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
+  end
+
+  should "raise when sent #processor and the name of a class that doesn't exist" do
+    assert_raises(NameError){ Paperclip.processor(:boogey_man) }
   end
 
   should "return a class when sent #processor and the name of a class under Paperclip" do

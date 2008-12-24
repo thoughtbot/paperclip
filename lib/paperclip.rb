@@ -29,9 +29,15 @@ require 'tempfile'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
 require 'paperclip/geometry'
+require 'paperclip/processor'
 require 'paperclip/thumbnail'
 require 'paperclip/storage'
 require 'paperclip/attachment'
+if defined? RAILS_ROOT
+  Dir.glob(File.join(File.expand_path(RAILS_ROOT), "lib", "paperclip_processors", "*.rb")).each do |processor|
+    require processor
+  end
+end
 
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
@@ -81,7 +87,9 @@ module Paperclip
 
     def processor name
       name = name.to_s.camelize
-      Paperclip.const_get(name) if Paperclip.const_defined?(name)
+      processor = Paperclip.const_get(name)
+      raise PaperclipError.new("Processor #{name} was not found") unless processor.ancestors.include?(Paperclip::Processor)
+      processor
     end
   end
 
