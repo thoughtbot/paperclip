@@ -97,7 +97,7 @@ module Paperclip
     # and can point to an action in your app, if you need fine grained security.
     # This is not recommended if you don't need the security, however, for
     # performance reasons.
-	# set include_updated_timestamp to false if you want to stop the attachment update time appended to the url
+    # set include_updated_timestamp to false if you want to stop the attachment update time appended to the url
     def url style = default_style, include_updated_timestamp = true
       url = original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
       include_updated_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url

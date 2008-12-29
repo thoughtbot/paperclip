@@ -83,6 +83,7 @@ module Paperclip
 
     def included base #:nodoc:
       base.extend ClassMethods
+      base.send(:include, Paperclip::CallbackCompatability) unless base.respond_to?(:define_callbacks)
     end
 
     def processor name
