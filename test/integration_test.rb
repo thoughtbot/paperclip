@@ -49,6 +49,46 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  context "A model with attachments scoped under an id" do
+    setup do
+      rebuild_model :styles => { :large => "100x100",
+                                 :medium => "50x50" },
+                    :path => ":rails_root/tmp/:id/:attachments/:style.:extension"
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+      @dummy.avatar = @file
+    end
+
+    context "when saved" do
+      setup do
+        @dummy.save
+        @saved_path = @dummy.avatar.path(:large)
+      end
+
+      should "have a large file in the right place" do
+        assert File.exists?(@dummy.avatar.path(:large))
+      end
+
+      context "and deleted" do
+        setup do
+          @dummy.avatar = nil
+          @dummy.save
+        end
+
+        should "not have a large file in the right place anymore" do
+          assert ! File.exists?(@saved_path)
+        end
+
+        should "not have its next two parent directories" do
+          assert ! File.exists?(File.dirname(@saved_path))
+          assert ! File.exists?(File.dirname(File.dirname(@saved_path)))
+        end
+      end
+    end
+  end
+
   context "A model with no attachment validation" do
     setup do
       rebuild_model :styles => { :large => "300x300>",

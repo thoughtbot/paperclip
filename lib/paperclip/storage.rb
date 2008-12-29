@@ -56,6 +56,14 @@ module Paperclip
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
           end
+          begin
+            while(true)
+              path = File.dirname(path)
+              FileUtils.rmdir(path)
+            end
+          rescue Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL
+            # Stop trying to remove parent directories
+          end
         end
         @queued_for_delete = []
       end
