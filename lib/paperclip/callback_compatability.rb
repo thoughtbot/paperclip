@@ -1,6 +1,6 @@
 module Paperclip
-  # This module is intended as a compatability shim for the differences in callbacks
-  # between Rails 2.0 and Rails 2.1.
+  # This module is intended as a compatability shim for the differences in
+  # callbacks between Rails 2.0 and Rails 2.1.
   module CallbackCompatability
     def self.included(base)
       base.extend(ClassMethods)

@@ -1,12 +1,13 @@
 module Paperclip
-  # The Attachment class manages the files for a given attachment. It saves when the model saves,
-  # deletes when the model is destroyed, and processes the file upon assignment.
+  # The Attachment class manages the files for a given attachment. It saves
+  # when the model saves, deletes when the model is destroyed, and processes
+  # the file upon assignment.
   class Attachment
     
     def self.default_options
       @default_options ||= {
-        :url           => "/:attachment/:id/:style/:basename.:extension",
-        :path          => ":rails_root/public/:attachment/:id/:style/:basename.:extension",
+        :url           => "/system/:attachment/:id/:style/:basename.:extension",
+        :path          => ":rails_root/public/system/:attachment/:id/:style/:basename.:extension",
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
@@ -17,9 +18,9 @@ module Paperclip
 
     attr_reader :name, :instance, :styles, :default_style, :convert_options, :queued_for_write
 
-    # Creates an Attachment object. +name+ is the name of the attachment, +instance+ is the
-    # ActiveRecord object instance it's attached to, and +options+ is the same as the hash
-    # passed to +has_attached_file+.
+    # Creates an Attachment object. +name+ is the name of the attachment,
+    # +instance+ is the ActiveRecord object instance it's attached to, and
+    # +options+ is the same as the hash passed to +has_attached_file+.
     def initialize name, instance, options = {}
       @name              = name
       @instance          = instance
@@ -46,14 +47,17 @@ module Paperclip
       normalize_style_definition
       initialize_storage
 
-      logger.info("[paperclip] Paperclip attachment #{name} on #{instance.class} initialized.")
+      log("Paperclip attachment #{name} on #{instance.class} initialized.")
     end
 
-    # What gets called when you call instance.attachment = File. It clears errors,
-    # assigns attributes, processes the file, and runs validations. It also queues up
-    # the previous file for deletion, to be flushed away on #save of its host.
-    # In addition to form uploads, you can also assign another Paperclip attachment:
+    # What gets called when you call instance.attachment = File. It clears
+    # errors, assigns attributes, processes the file, and runs validations. It
+    # also queues up the previous file for deletion, to be flushed away on
+    # #save of its host.  In addition to form uploads, you can also assign
+    # another Paperclip attachment: 
     #   new_user.avatar = old_user.avatar
+    # If the file that is assigned is not valid, the processing (i.e.
+    # thumbnailing, etc) will NOT be run.
     def assign uploaded_file
       %w(file_name).each do |field|
         unless @instance.class.column_names.include?("#{name}_#{field}")
@@ -66,7 +70,7 @@ module Paperclip
       end
 
       return nil unless valid_assignment?(uploaded_file)
-      logger.info("[paperclip] Assigning #{uploaded_file.inspect} to #{name}")
+      log("Assigning #{uploaded_file.inspect} to #{name}")
 
       uploaded_file.binmode if uploaded_file.respond_to? :binmode
       queue_existing_for_delete
@@ -75,7 +79,7 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
-      logger.info("[paperclip] Writing attributes for #{name}")
+      log("Writing attributes for #{name}")
       @queued_for_write[:original]   = uploaded_file.to_tempfile
       instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
@@ -92,21 +96,22 @@ module Paperclip
       validate
     end
 
-    # Returns the public URL of the attachment, with a given style. Note that this
-    # does not necessarily need to point to a file that your web server can access
-    # and can point to an action in your app, if you need fine grained security.
-    # This is not recommended if you don't need the security, however, for
-    # performance reasons.
-    # set include_updated_timestamp to false if you want to stop the attachment update time appended to the url
+    # Returns the public URL of the attachment, with a given style. Note that
+    # this does not necessarily need to point to a file that your web server
+    # can access and can point to an action in your app, if you need fine
+    # grained security.  This is not recommended if you don't need the
+    # security, however, for performance reasons.  set
+    # include_updated_timestamp to false if you want to stop the attachment
+    # update time appended to the url
     def url style = default_style, include_updated_timestamp = true
       url = original_filename.nil? ? interpolate(@default_url, style) : interpolate(@url, style)
       include_updated_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
-    # file is stored in the filesystem the path refers to the path of the file on
-    # disk. If the file is stored in S3, the path is the "key" part of the URL,
-    # and the :bucket option refers to the S3 bucket.
+    # file is stored in the filesystem the path refers to the path of the file
+    # on disk. If the file is stored in S3, the path is the "key" part of the
+    # URL, and the :bucket option refers to the S3 bucket.
     def path style = nil #:nodoc:
       original_filename.nil? ? nil : interpolate(@path, style)
     end
@@ -136,32 +141,38 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       if valid?
-        logger.info("[paperclip] Saving files for #{name}")
+        log("Saving files for #{name}")
         flush_deletes
         flush_writes
         @dirty = false
         true
       else
-        logger.info("[paperclip] Errors on #{name}. Not saving.")
+        log("Errors on #{name}. Not saving.")
         flush_errors
         false
       end
     end
 
-    # Returns the name of the file as originally assigned, and as lives in the
+    # Returns the name of the file as originally assigned, and lives in the
     # <attachment>_file_name attribute of the model.
     def original_filename
       instance_read(:file_name)
     end
 
+    # Returns the size of the file as originally assigned, and lives in the
+    # <attachment>_file_size attribute of the model.
     def size
       instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
     end
 
+    # Returns the content_type of the file as originally assigned, and lives
+    # in the <attachment>_content_type attribute of the model.
     def content_type
       instance_read(:content_type)
     end
     
+    # Returns the last modified time of the file as originally assigned, and 
+    # lives in the <attachment>_updated_at attribute of the model.
     def updated_at
       time = instance_read(:updated_at)
       time && time.to_i
@@ -195,10 +206,10 @@ module Paperclip
       }
     end
 
-    # This method really shouldn't be called that often. It's expected use is in the
-    # paperclip:refresh rake task and that's it. It will regenerate all thumbnails
-    # forcefully, by reobtaining the original file and going through the post-process
-    # again.
+    # This method really shouldn't be called that often. It's expected use is
+    # in the paperclip:refresh rake task and that's it. It will regenerate all
+    # thumbnails forcefully, by reobtaining the original file and going through
+    # the post-process again.
     def reprocess!
       new_original = Tempfile.new("paperclip-reprocess")
       if old_original = to_file(:original)
@@ -216,16 +227,22 @@ module Paperclip
       end
     end
     
+    # Returns true if a file has been assigned.
     def file?
       !original_filename.blank?
     end
 
+    # Writes the attachment-specific attribute on the instance. For example,
+    # instance_write(:file_name, "me.jpg") will write "me.jpg" to the instance's
+    # "avatar_file_name" field (assuming the attachment is called avatar).
     def instance_write(attr, value)
       setter = :"#{name}_#{attr}="
       responds = instance.respond_to?(setter)
       instance.send(setter, value) if responds || attr.to_s == "file_name"
     end
 
+    # Reads the attachment-specific attribute on the instance. See instance_write
+    # for more details.
     def instance_read(attr)
       getter = :"#{name}_#{attr}"
       responds = instance.respond_to?(getter)
@@ -236,6 +253,10 @@ module Paperclip
 
     def logger
       instance.logger
+    end
+
+    def log message
+      logger.info("[paperclip] #{message}")
     end
 
     def valid_assignment? file #:nodoc:
@@ -290,7 +311,7 @@ module Paperclip
       return if @queued_for_write[:original].nil?
       return if callback(:before_post_process) == false
       return if callback(:"before_#{name}_post_process") == false
-      logger.info("[paperclip] Post-processing #{name}")
+      log("Post-processing #{name}")
       @styles.each do |name, args|
         begin
           @queued_for_write[name] = @queued_for_write[:original]
@@ -321,7 +342,7 @@ module Paperclip
 
     def queue_existing_for_delete #:nodoc:
       return unless file?
-      logger.info("[paperclip] Queueing the existing files for #{name} for deletion.")
+      log("Queueing the existing files for #{name} for deletion.")
       @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact

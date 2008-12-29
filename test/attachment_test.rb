@@ -329,7 +329,7 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "return a correct url even if the file does not exist" do
         assert_nil @attachment.to_file
-        assert_match %r{^/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
+        assert_match %r{^/system/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
       end
 
       should "make sure the updated_at mtime is in the url if it is defined" do
@@ -388,8 +388,8 @@ class AttachmentTest < Test::Unit::TestCase
             should "return the real url" do
               file = @attachment.to_file
               assert file
-              assert_match %r{^/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
-              assert_match %r{^/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
+              assert_match %r{^/system/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
+              assert_match %r{^/system/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
               file.close
             end
 

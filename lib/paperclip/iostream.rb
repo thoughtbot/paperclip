@@ -30,7 +30,7 @@ module IOStream
   end
 end
 
-class IO
+class IO #:nodoc:
   include IOStream
 end
 

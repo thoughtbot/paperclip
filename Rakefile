@@ -27,7 +27,7 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = 'Paperclip'
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
@@ -70,10 +70,6 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'mocha'
 end
  
-Rake::GemPackageTask.new(spec) do |pkg| 
-  pkg.need_tar = true 
-end 
-
 desc "Release new version"
 task :release => [:test, :sync_docs, :gem] do
   require 'rubygems'

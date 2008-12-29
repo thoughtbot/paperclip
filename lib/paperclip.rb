@@ -63,13 +63,15 @@ module Paperclip
 
     def path_for_command command #:nodoc:
       if options[:image_magick_path]
-        ActiveSupport::Deprecation.warn(":image_magick_path is deprecated and will be removed. Use :command_path instead")
+        ActiveSupport::Deprecation.warn(":image_magick_path is deprecated and "+
+                                        "will be removed. Use :command_path "+
+                                        "instead")
       end
       path = [options[:image_magick_path] || options[:command_path], command].compact
       File.join(*path)
     end
 
-    def run cmd, params = "", expected_outcodes = 0
+    def run cmd, params = "", expected_outcodes = 0 #:nodoc:
       output = `#{%Q[#{path_for_command(cmd)} #{params} 2>#{bit_bucket}].gsub(/\s+/, " ")}`
       unless [expected_outcodes].flatten.include?($?.exitstatus)
         raise PaperclipCommandLineError, "Error while running #{cmd}"
@@ -77,19 +79,23 @@ module Paperclip
       output
     end
 
-    def bit_bucket
+    def bit_bucket #:nodoc:
       File.exists?("/dev/null") ? "/dev/null" : "NUL"
     end
 
     def included base #:nodoc:
       base.extend ClassMethods
-      base.send(:include, Paperclip::CallbackCompatability) unless base.respond_to?(:define_callbacks)
+      unless base.respond_to?(:define_callbacks)
+        base.send(:include, Paperclip::CallbackCompatability)
+      end
     end
 
-    def processor name
+    def processor name #:nodoc:
       name = name.to_s.camelize
       processor = Paperclip.const_get(name)
-      raise PaperclipError.new("Processor #{name} was not found") unless processor.ancestors.include?(Paperclip::Processor)
+      unless processor.ancestors.include?(Paperclip::Processor)
+        raise PaperclipError.new("Processor #{name} was not found") 
+      end
       processor
     end
   end
@@ -116,15 +122,15 @@ module Paperclip
     # * +url+: The full URL of where the attachment is publically accessible. This can just
     #   as easily point to a directory served directly through Apache as it can to an action
     #   that can control permissions. You can specify the full domain and path, but usually
-    #   just an absolute path is sufficient. The leading slash must be included manually for 
+    #   just an absolute path is sufficient. The leading slash *must* be included manually for 
     #   absolute paths. The default value is 
-    #   "/:class/:attachment/:id/:style_:basename.:extension". See
+    #   "/system/:attachment/:id/:style/:basename.:extension". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :url => "/:attachment/:id/:style_:basename:extension"
+    #     :url => "/:class/:attachment/:id/:style_:basename.:extension"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
     # * +default_url+: The URL that will be returned if there is no attachment assigned. 
     #   This field is interpolated just as the url is. The default value is 
-    #   "/:class/:attachment/missing_:style.png"
+    #   "/:attachment/:style/missing.png"
     #     has_attached_file :avatar, :default_url => "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
     # * +styles+: A hash of thumbnail styles and their geometries. You can find more about 
@@ -222,14 +228,16 @@ module Paperclip
       end
     end
     
-    # Places ActiveRecord-style validations on the content type of the file assigned. The
-    # possible options are:
-    # * +content_type+: Allowed content types.  Can be a single content type or an array.
-    #   Each type can be a String or a Regexp. It should be noted that Internet Explorer uploads
-    #   files with content_types that you may not expect. For example, JPEG images are given
-    #   image/pjpeg and PNGs are image/x-png, so keep that in mind when determining how you match.
-    #   Allows all by default.
-    # * +message+: The message to display when the uploaded file has an invalid content type.
+    # Places ActiveRecord-style validations on the content type of the file
+    # assigned. The possible options are: 
+    # * +content_type+: Allowed content types.  Can be a single content type 
+    #   or an array.  Each type can be a String or a Regexp. It should be 
+    #   noted that Internet Explorer upload files with content_types that you 
+    #   may not expect. For example, JPEG images are given image/pjpeg and 
+    #   PNGs are image/x-png, so keep that in mind when determining how you 
+    #   match.  Allows all by default.
+    # * +message+: The message to display when the uploaded file has an invalid
+    #   content type.
     def validates_attachment_content_type name, options = {}
       attachment_definitions[name][:validations][:content_type] = lambda do |attachment, instance|
         valid_types = [options[:content_type]].flatten
@@ -245,11 +253,11 @@ module Paperclip
       end
     end
 
-    # Returns the attachment definitions defined by each call to has_attached_file.
+    # Returns the attachment definitions defined by each call to
+    # has_attached_file.
     def attachment_definitions
       read_inheritable_attribute(:attachment_definitions)
     end
-
   end
 
   module InstanceMethods #:nodoc:
