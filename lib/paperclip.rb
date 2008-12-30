@@ -43,7 +43,7 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.1.5"
+  VERSION = "2.2.0"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
