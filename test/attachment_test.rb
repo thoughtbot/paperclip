@@ -210,6 +210,17 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with no processors defined" do
+    setup do
+      rebuild_model :processors => [], :styles => {:something => 1}
+      @dummy = Dummy.new
+      @file = StringIO.new("...")
+    end
+    should "raise when assigned to" do
+      assert_raises(RuntimeError){ @dummy.avatar = @file }
+    end
+  end
+
   context "Assigning an attachment with post_process hooks" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }

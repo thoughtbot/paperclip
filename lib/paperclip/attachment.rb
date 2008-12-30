@@ -326,11 +326,13 @@ module Paperclip
       log("Post-processing #{name}")
       @styles.each do |name, args|
         begin
-          @queued_for_write[name] = @queued_for_write[:original]
-          args[:processors].each do |processor|
-            @queued_for_write[name] = Paperclip.processor(processor).make(@queued_for_write[name], args)
+          raise RuntimeError.new("Style #{name} has no processors defined.") if args[:processors].blank?
+          @queued_for_write[name] = args[:processors].inject(@queued_for_write[:original]) do |file, processor|
+            log("Processing #{name} #{file} in the #{processor} processor.")
+            Paperclip.processor(processor).make(file, args)
           end
         rescue PaperclipError => e
+          log("An error was received while processing: #{e.inspect}")
           (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
