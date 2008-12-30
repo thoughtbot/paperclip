@@ -71,7 +71,16 @@ module Paperclip
       File.join(*path)
     end
 
-    def run cmd, params = "", expected_outcodes = 0 #:nodoc:
+    # The run method takes a command to execute and a string of parameters
+    # that get passed to it. The command is prefixed with the :command_path
+    # option from Paperclip.options. If you have many commands to run and
+    # they are in different paths, the suggested course of action is to
+    # symlink them so they are all in the same directory.
+    #
+    # If the command returns with a result code that is not one of the
+    # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
+    # a code of 0 is expected, but a list of codes may be passed if necessary.
+    def run cmd, params = "", expected_outcodes = 0
       output = `#{%Q[#{path_for_command(cmd)} #{params} 2>#{bit_bucket}].gsub(/\s+/, " ")}`
       unless [expected_outcodes].flatten.include?($?.exitstatus)
         raise PaperclipCommandLineError, "Error while running #{cmd}"
