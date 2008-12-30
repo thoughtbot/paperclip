@@ -92,7 +92,7 @@ module Paperclip
       post_process if valid?
  
       # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size, uploaded_file.size.to_i)
+      instance_write(:file_size, @queued_for_write[:original].size.to_i)
     ensure
       uploaded_file.close if close_uploaded_file
       validate
