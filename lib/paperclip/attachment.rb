@@ -304,7 +304,12 @@ module Paperclip
     end
 
     def extra_options_for(style) #:nodoc:
-      [ convert_options[style], convert_options[:all] ].compact.join(" ")
+      all_options   = convert_options[:all]
+      all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
+      style_options = convert_options[style]
+      style_options = style_options.call(instance) if style_options.respond_to?(:call)
+
+      [ style_options, all_options ].compact.join(" ")
     end
 
     def post_process #:nodoc:

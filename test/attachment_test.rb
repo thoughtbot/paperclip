@@ -138,6 +138,38 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :convert_options that is a proc" do
+    setup do
+      rebuild_model :styles => {
+                      :thumb => "100x100",
+                      :large => "400x400"
+                    },
+                    :convert_options => {
+                      :all => lambda{|i| i.all },
+                      :thumb => lambda{|i| i.thumb }
+                    }
+      Dummy.class_eval do
+        def all;   "-all";   end
+        def thumb; "-thumb"; end
+      end
+      @dummy = Dummy.new
+      @dummy.avatar
+    end
+
+    should "report the correct options when sent #extra_options_for(:thumb)" do
+      assert_equal "-thumb -all", @dummy.avatar.send(:extra_options_for, :thumb), @dummy.avatar.convert_options.inspect
+    end
+
+    should "report the correct options when sent #extra_options_for(:large)" do
+      assert_equal "-all", @dummy.avatar.send(:extra_options_for, :large)
+    end
+
+    before_should "call extra_options_for(:thumb/:large)" do
+      Paperclip::Attachment.any_instance.expects(:extra_options_for).with(:thumb)
+      Paperclip::Attachment.any_instance.expects(:extra_options_for).with(:large)
+    end
+  end
+
   context "An attachment with both 'normal' and hash-style styles" do
     setup do
       rebuild_model :styles => {
