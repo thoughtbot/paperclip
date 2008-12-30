@@ -49,6 +49,8 @@ module Paperclip
     # Provides configurability to Paperclip. There are a number of options available, such as:
     # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
     #   an uploaded image. Defaults to true.
+    # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
+    #   log levels, etc. Defaults to true.
     # * command_path: Defines the path at which to find the command line
     #   programs if they are not visible to Rails the system's search path. Defaults to 
     #   nil, which uses the first executable found in the user's search path.
@@ -57,7 +59,8 @@ module Paperclip
       @options ||= {
         :whiny_thumbnails  => true,
         :image_magick_path => nil,
-        :command_path      => nil
+        :command_path      => nil,
+        :log               => true
       }
     end
 

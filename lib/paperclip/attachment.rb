@@ -256,7 +256,11 @@ module Paperclip
     end
 
     def log message
-      logger.info("[paperclip] #{message}")
+      logger.info("[paperclip] #{message}") if logging?
+    end
+
+    def logging?
+      Paperclip.options[:log]
     end
 
     def valid_assignment? file #:nodoc:
