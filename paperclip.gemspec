@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{paperclip}
-  s.version = "2.2.0"
+  s.version = "2.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jon Yurek"]
-  s.date = %q{2008-12-29}
+  s.date = %q{2008-12-30}
   s.email = %q{jyurek@thoughtbot.com}
   s.extra_rdoc_files = ["README.rdoc"]
   s.files = ["README.rdoc", "LICENSE", "Rakefile", "init.rb", "generators/paperclip", "generators/paperclip/paperclip_generator.rb", "generators/paperclip/templates", "generators/paperclip/templates/paperclip_migration.rb.erb", "generators/paperclip/USAGE", "lib/paperclip", "lib/paperclip/attachment.rb", "lib/paperclip/callback_compatability.rb", "lib/paperclip/geometry.rb", "lib/paperclip/iostream.rb", "lib/paperclip/processor.rb", "lib/paperclip/storage.rb", "lib/paperclip/thumbnail.rb", "lib/paperclip/upfile.rb", "lib/paperclip.rb", "tasks/paperclip_tasks.rake", "test/attachment_test.rb", "test/database.yml", "test/debug.log", "test/fixtures", "test/fixtures/12k.png", "test/fixtures/50x50.png", "test/fixtures/5k.png", "test/fixtures/bad.png", "test/fixtures/text.txt", "test/geometry_test.rb", "test/helper.rb", "test/integration_test.rb", "test/iostream_test.rb", "test/paperclip_test.rb", "test/processor_test.rb", "test/s3.yml", "test/storage_test.rb", "test/thumbnail_test.rb", "shoulda_macros/paperclip.rb"]
