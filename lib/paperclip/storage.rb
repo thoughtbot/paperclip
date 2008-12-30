@@ -38,11 +38,11 @@ module Paperclip
       def flush_writes #:nodoc:
         logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
+          file.close
           FileUtils.mkdir_p(File.dirname(path(style)))
           logger.info("[paperclip] -> #{path(style)}")
           FileUtils.mv(file.path, path(style))
           FileUtils.chmod(0644, path(style))
-          file.close
         end
         @queued_for_write = {}
       end

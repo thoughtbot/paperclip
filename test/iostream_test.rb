@@ -20,7 +20,8 @@ class IOStreamTest < Test::Unit::TestCase
 
       context "and given a String" do
         setup do
-          assert @result = @file.stream_to("/tmp/iostream.string.test")
+          FileUtils.mkdir_p(File.join(ROOT, 'tmp'))
+          assert @result = @file.stream_to(File.join(ROOT, 'tmp', 'iostream.string.test'))
         end
 
         should "return a File" do
