@@ -81,6 +81,8 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.avatar = @file
     end
 
+    teardown { @file.close }
+
     should "make sure that they are interpolated correctly" do
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
     end
@@ -98,6 +100,8 @@ class AttachmentTest < Test::Unit::TestCase
                                  "5k.png"), 'rb')
       @dummy.avatar = @file
     end
+
+    teardown { @file.close }
 
     should "return the proper path" do
       temporary_rails_env(@rails_env) {
@@ -298,6 +302,8 @@ class AttachmentTest < Test::Unit::TestCase
                                  "5k.png"), 'rb')
     end
 
+    teardown { @file.close }
+
     should "raise if there are not the correct columns when you try to assign" do
       @other_attachment = Paperclip::Attachment.new(:not_here, @instance)
       assert_raises(Paperclip::PaperclipError) do
@@ -463,6 +469,8 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy = Dummy.new
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
     end
+
+    teardown { @file.close }
 
     should "not error when assigned an attachment" do
       assert_nothing_raised { @dummy.avatar = @file }

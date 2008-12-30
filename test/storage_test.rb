@@ -82,6 +82,8 @@ class StorageTest < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
+      teardown { @file.close }
+
       should "not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
@@ -144,6 +146,8 @@ class StorageTest < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
+      teardown { @file.close }
+
       context "and saved" do
         setup do
           @s3_mock     = stub
@@ -189,6 +193,8 @@ class StorageTest < Test::Unit::TestCase
           @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
           @dummy.avatar = @file
         end
+
+        teardown { @file.close }
 
         should "still return a Tempfile when sent #to_io" do
           assert_equal Tempfile, @dummy.avatar.to_io.class

@@ -72,6 +72,8 @@ class PaperclipTest < Test::Unit::TestCase
       @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
     end
 
+    teardown { @file.close }
+
     should "not error when trying to also create a 'blah' attachment" do
       assert_nothing_raised do
         Dummy.class_eval do

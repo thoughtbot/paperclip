@@ -35,6 +35,8 @@ class ThumbnailTest < Test::Unit::TestCase
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
     end
 
+    teardown { @file.close }
+
     [["600x600>", "434x66"],
      ["400x400>", "400x61"],
      ["32x32<", "434x66"]

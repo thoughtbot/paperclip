@@ -14,6 +14,8 @@ class IOStreamTest < Test::Unit::TestCase
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
     end
 
+    teardown { @file.close }
+
     context "that is sent #stream_to" do
 
       context "and given a String" do

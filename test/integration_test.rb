@@ -29,6 +29,8 @@ class IntegrationTest < Test::Unit::TestCase
       assert @dummy.save
     end
 
+    teardown { @file.close }
+
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
@@ -60,6 +62,8 @@ class IntegrationTest < Test::Unit::TestCase
                                  "5k.png"), 'rb')
       @dummy.avatar = @file
     end
+
+    teardown { @file.close }
 
     context "when saved" do
       setup do
