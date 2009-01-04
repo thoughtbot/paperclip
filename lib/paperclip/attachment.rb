@@ -36,6 +36,7 @@ module Paperclip
       @storage           = options[:storage]
       @whiny             = options[:whiny_thumbnails]
       @convert_options   = options[:convert_options] || {}
+      @background        = options[:background].nil? ? instance.respond_to?(:spawn) : options[:background]
       @processors        = options[:processors] || [:thumbnail]
       @options           = options
       @queued_for_delete = []
@@ -254,15 +255,15 @@ module Paperclip
 
     private
 
-    def logger
+    def logger #:nodoc:
       instance.logger
     end
 
-    def log message
+    def log message #:nodoc:
       logger.info("[paperclip] #{message}") if logging?
     end
 
-    def logging?
+    def logging? #:nodoc:
       Paperclip.options[:log]
     end
 
@@ -283,7 +284,7 @@ module Paperclip
       @validation_errors
     end
 
-    def normalize_style_definition
+    def normalize_style_definition #:nodoc:
       @styles.each do |name, args|
         unless args.is_a? Hash
           dimensions, format = [args, nil].flatten[0..1]
@@ -305,7 +306,7 @@ module Paperclip
       end
     end
 
-    def initialize_storage
+    def initialize_storage #:nodoc:
       @storage_module = Paperclip::Storage.const_get(@storage.to_s.capitalize)
       self.extend(@storage_module)
     end
@@ -321,8 +322,19 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
-      return if callback(:before_post_process) == false
-      return if callback(:"before_#{name}_post_process") == false
+      background do
+        return if fire_events(:before)
+        post_process_styles
+        return if fire_events(:after)
+      end
+    end
+
+    def fire_events(which)
+      return true if callback(:"#{which}_post_process") == false
+      return true if callback(:"#{which}_#{name}_post_process") == false
+    end
+
+    def post_process_styles
       log("Post-processing #{name}")
       @styles.each do |name, args|
         begin
@@ -336,11 +348,19 @@ module Paperclip
           (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
-      callback(:"after_#{name}_post_process")
-      callback(:after_post_process)
     end
 
-    def callback which
+    # When processing, if the spawn plugin is installed, processing can be done in
+    # a background fork or thread if desired.
+    def background(&blk)
+      if instance.respond_to?(:spawn) && @background
+        instance.spawn(&blk)
+      else
+        blk.call
+      end
+    end
+
+    def callback which #:nodoc:
       instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
     end
 
