@@ -353,11 +353,11 @@ module Paperclip
     # When processing, if the spawn plugin is installed, processing can be done in
     # a background fork or thread if desired.
     def background(&blk)
-      if instance.respond_to?(:spawn) && @background
-        instance.spawn(&blk)
-      else
+      # if instance.respond_to?(:spawn) && @background
+      #   instance.spawn(&blk)
+      # else
         blk.call
-      end
+      # end
     end
 
     def callback which #:nodoc:

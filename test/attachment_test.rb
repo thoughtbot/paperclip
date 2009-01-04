@@ -232,19 +232,19 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "When spawn is defined on the instance" do
-    setup do
-      Dummy.any_instance.stubs(:spawn)
-      rebuild_model :styles => {:foo => true}
-      @dummy = Dummy.new
-      @file = StringIO.new("12345")
-    end
+  # context "When spawn is defined on the instance" do
+  #   setup do
+  #     Dummy.any_instance.stubs(:spawn)
+  #     rebuild_model :styles => {:foo => true}
+  #     @dummy = Dummy.new
+  #     @file = StringIO.new("12345")
+  #   end
 
-    should "not call spawn on the instance when assigned a file" do
-      @dummy.expects(:spawn)
-      @dummy.avatar = @file
-    end
-  end
+  #   should "not call spawn on the instance when assigned a file" do
+  #     @dummy.expects(:spawn)
+  #     @dummy.avatar = @file
+  #   end
+  # end
 
   context "An attachment with no processors defined" do
     setup do

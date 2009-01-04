@@ -60,7 +60,8 @@ module Paperclip
         :whiny_thumbnails  => true,
         :image_magick_path => nil,
         :command_path      => nil,
-        :log               => true
+        :log               => true,
+        :swallow_stderr    => true
       }
     end
 
@@ -84,7 +85,9 @@ module Paperclip
     # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
     def run cmd, params = "", expected_outcodes = 0
-      output = `#{%Q[#{path_for_command(cmd)} #{params} 2>#{bit_bucket}].gsub(/\s+/, " ")}`
+      command = %Q<#{%Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")}>
+      command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
+      output = `#{command}`
       unless [expected_outcodes].flatten.include?($?.exitstatus)
         raise PaperclipCommandLineError, "Error while running #{cmd}"
       end
