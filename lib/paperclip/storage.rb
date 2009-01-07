@@ -61,7 +61,7 @@ module Paperclip
               path = File.dirname(path)
               FileUtils.rmdir(path)
             end
-          rescue Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL
+          rescue Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR
             # Stop trying to remove parent directories
           end
         end
