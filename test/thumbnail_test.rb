@@ -141,4 +141,37 @@ class ThumbnailTest < Test::Unit::TestCase
       end      
     end
   end
+
+  context "A multipage PDF" do
+    setup do
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "twopage.pdf"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    should "start with two pages with dimensions 612x792" do
+      cmd = %Q[identify -format "%wx%h" "#{@file.path}"] 
+      assert_equal "612x792"*2, `#{cmd}`.chomp
+    end
+
+    context "being thumbnailed at 100x100 with cropping" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x100#", :format => :png)
+      end
+
+      should "report its correct current and target geometries" do
+        assert_equal "100x100#", @thumb.target_geometry.to_s
+        assert_equal "612x792", @thumb.current_geometry.to_s
+      end
+
+      should "report its correct format" do
+        assert_equal :png, @thumb.format
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /100x100/, `identify "#{dst.path}"`
+      end
+    end
+  end
 end
