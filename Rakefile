@@ -1,7 +1,6 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
-require 'rake/gempackagetask'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'paperclip'
@@ -70,18 +69,6 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'mocha'
 end
  
-desc "Release new version"
-task :release => [:test, :sync_docs, :gem] do
-  require 'rubygems'
-  require 'rubyforge'
-  r = RubyForge.new
-  r.login
-  r.add_release spec.rubyforge_project,
-                spec.name,
-                spec.version,
-                File.join("pkg", "#{spec.name}-#{spec.version}.gem")
-end
-
 desc "Generate a gemspec file for GitHub"
 task :gemspec do
   File.open("#{spec.name}.gemspec", 'w') do |f|
