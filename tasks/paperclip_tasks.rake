@@ -14,26 +14,10 @@ def obtain_attachments
   end
 end
 
-def quote_table(table)
-  ActiveRecord::Base.connection.quote_table_name(table)
-end
-
-def quote_column(column)
-  ActiveRecord::Base.connection.quote_column_name(column)
-end
-
-def type_condition(klass)
-  if klass.superclass == ActiveRecord::Base
-    ""
-  else
-    "WHERE #{quote_column(klass.inheritance_column)} = '#{klass.name}'"
-  end
-end
-
 def for_all_attachments
   klass = obtain_class
   names = obtain_attachments
-  ids   = klass.connection.select_values("SELECT #{quote_column(klass.primary_key)} FROM #{quote_table(klass.table_name)} #{type_condition(klass)}")
+  ids   = klass.connection.select_values(klass.send(:construct_finder_sql, :select => 'id'))
 
   ids.each do |id|
     instance = klass.find(id)
