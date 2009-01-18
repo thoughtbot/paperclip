@@ -211,6 +211,22 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
+  
+  context "An attachment with erroring processor" do
+    setup do
+      rebuild_model :processor => [:thumbnail], :styles => { :small => '' }, :whiny_thumbnails => true
+      @dummy = Dummy.new
+      Paperclip::Thumbnail.expects(:make).raises(Paperclip::PaperclipError, "cannot be processed.")
+      @file = StringIO.new("...")
+      @file.stubs(:to_tempfile).returns(@file)
+      @dummy.avatar = @file
+    end
+
+    should "correctly forward processing error message to the instance" do
+      @dummy.valid?
+      assert_contains @dummy.errors.full_messages, "Avatar cannot be processed."
+    end
+  end
 
   context "An attachment with multiple processors" do
     setup do
