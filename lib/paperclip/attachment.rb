@@ -303,6 +303,9 @@ module Paperclip
             :convert_options => extra_options_for(name)
           }.merge(@styles[name])
         end
+        if @styles[name][:geometry].respond_to?(:call)
+          @styles[name][:geometry] = @styles[name][:geometry].call(instance) 
+        end
       end
     end
 

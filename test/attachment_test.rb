@@ -170,6 +170,24 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  geometry_specs = [ 
+    [ lambda{|z| "50x50#" }, :png ],
+    lambda{|z| "50x50#" },
+    { :geometry => lambda{|z| "50x50#" } }
+  ]
+  geometry_specs.each do |geometry_spec|
+    context "An attachment geomtry like #{geometry_spec}" do
+      setup do
+        rebuild_model :styles => { :normal => geometry_spec }
+        @attachment = Dummy.new.avatar
+      end
+
+      should "have the correct geometry" do
+        assert_equal "50x50#", @attachment.styles[:normal][:geometry]
+      end
+    end
+  end
+
   context "An attachment with both 'normal' and hash-style styles" do
     setup do
       rebuild_model :styles => {
