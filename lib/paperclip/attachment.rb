@@ -90,6 +90,7 @@ module Paperclip
 
       @dirty = true
 
+      solidify_style_definitions
       post_process if valid?
  
       # Reset the file size if the original file was reprocessed.
@@ -303,6 +304,11 @@ module Paperclip
             :convert_options => extra_options_for(name)
           }.merge(@styles[name])
         end
+      end
+    end
+
+    def solidify_style_definitions #:nodoc:
+      @styles.each do |name, args|
         if @styles[name][:geometry].respond_to?(:call)
           @styles[name][:geometry] = @styles[name][:geometry].call(instance) 
         end

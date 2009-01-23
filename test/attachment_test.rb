@@ -182,8 +182,19 @@ class AttachmentTest < Test::Unit::TestCase
         @attachment = Dummy.new.avatar
       end
 
-      should "have the correct geometry" do
-        assert_equal "50x50#", @attachment.styles[:normal][:geometry]
+      should "not run the procs immediately" do
+        assert_kind_of Proc, @attachment.styles[:normal][:geometry]
+      end
+
+      context "when assigned" do
+        setup do
+          @file = StringIO.new(".")
+          @attachment.assign(@file)
+        end
+
+        should "have the correct geometry" do
+          assert_equal "50x50#", @attachment.styles[:normal][:geometry]
+        end
       end
     end
   end
