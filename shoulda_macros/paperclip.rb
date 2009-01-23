@@ -31,16 +31,17 @@ module Paperclip
             @attachment.assign(nil)
           end
           should "have a :presence validation error" do
-            assert @assignment.errors[:presence]
+            assert @attachment.errors[:presence]
           end
         end
         context "when the assignment is valid" do
           setup do
+            @file = StringIO.new(".")
             @attachment = klass.new.send(name)
-            @attachment.assign(nil)
+            @attachment.assign(@file)
           end
           should "have a :presence validation error" do
-            assert ! @assignment.errors[:presence]
+            assert ! @attachment.errors[:presence]
           end
         end
       end
@@ -65,7 +66,7 @@ module Paperclip
               @attachment.assign(@file)
             end
             should "not have a :content_type validation error" do
-              assert ! @assignment.errors[:content_type]
+              assert ! @attachment.errors[:content_type]
             end
           end
         end
@@ -79,7 +80,7 @@ module Paperclip
               @attachment.assign(@file)
             end
             should "have a :content_type validation error" do
-              assert @assignment.errors[:content_type]
+              assert @attachment.errors[:content_type]
             end
           end
         end
