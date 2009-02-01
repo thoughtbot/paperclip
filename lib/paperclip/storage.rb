@@ -118,11 +118,11 @@ module Paperclip
         require 'right_aws'
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
-          @bucket         = @options[:bucket] || @s3_credentials[:bucket]
-          @s3_options     = @options[:s3_options] || {}
+          @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
+          @s3_options     = @options[:s3_options]     || {}
           @s3_permissions = @options[:s3_permissions] || 'public-read'
-          @s3_protocol    = @options[:s3_protocol] || (@s3_permissions == 'public-read' ? 'http' : 'https')
-          @s3_headers     = @options[:s3_headers] || {}
+          @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == 'public-read' ? 'http' : 'https')
+          @s3_headers     = @options[:s3_headers]     || {}
           @url            = ":s3_path_url" unless @url.to_s.match(/^:s3.*url$/)
         end
         base.class.interpolations[:s3_path_url] = lambda do |attachment, style|
