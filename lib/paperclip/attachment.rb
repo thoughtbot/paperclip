@@ -28,7 +28,9 @@ module Paperclip
       options = self.class.default_options.merge(options)
 
       @url               = options[:url]
+      @url               = @url.call(self) if @url.is_a?(Proc)
       @path              = options[:path]
+      @path              = @path.call(self) if @path.is_a?(Proc)
       @styles            = options[:styles]
       @default_url       = options[:default_url]
       @validations       = options[:validations]

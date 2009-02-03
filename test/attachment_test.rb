@@ -195,6 +195,48 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Attachment.any_instance.expects(:extra_options_for).with(:large)
     end
   end
+  
+  context "An attachment with :path that is a proc" do
+    setup do
+      rebuild_model :path => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
+      
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+      @dummyA = Dummy.new(:other => 'a')
+      @dummyA.avatar = @file
+      @dummyB = Dummy.new(:other => 'b')
+      @dummyB.avatar = @file
+    end
+    
+    teardown { @file.close }
+    
+    should "return correct path" do
+      assert_equal "path/a.png", @dummyA.avatar.path
+      assert_equal "path/b.png", @dummyB.avatar.path
+    end
+  end
+  
+  context "An attachment with :url that is a proc" do
+    setup do
+      rebuild_model :url => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
+      
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+      @dummyA = Dummy.new(:other => 'a')
+      @dummyA.avatar = @file
+      @dummyB = Dummy.new(:other => 'b')
+      @dummyB.avatar = @file
+    end
+    
+    teardown { @file.close }
+    
+    should "return correct url" do
+      assert_equal "path/a.png", @dummyA.avatar.url(:original, false)
+      assert_equal "path/b.png", @dummyB.avatar.url(:original, false)
+    end
+  end
 
   geometry_specs = [ 
     [ lambda{|z| "50x50#" }, :png ],
