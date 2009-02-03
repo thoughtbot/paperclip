@@ -126,6 +126,19 @@ class StorageTest < Test::Unit::TestCase
       end
     end
   end
+  
+  context "An attachment with S3 storage and bucket defined as a Proc" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket => lambda { |attachment| "bucket_#{attachment.instance.other}" },
+                    :s3_credentials => {:not => :important}
+    end
+    
+    should "get the right bucket name" do
+      assert "bucket_a", Dummy.new(:other => 'a').avatar.bucket_name
+      assert "bucket_b", Dummy.new(:other => 'b').avatar.bucket_name
+    end
+  end
 
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
