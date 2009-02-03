@@ -106,6 +106,10 @@ class IntegrationTest < Test::Unit::TestCase
           assert ! File.exists?(File.dirname(@saved_path))
           assert ! File.exists?(File.dirname(File.dirname(@saved_path)))
         end
+
+        before_should "not die if an unexpected SystemCallError happens" do
+          FileUtils.stubs(:rmdir).raises(Errno::EEXIST)
+        end
       end
     end
   end

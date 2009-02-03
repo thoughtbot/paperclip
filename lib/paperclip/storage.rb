@@ -63,6 +63,9 @@ module Paperclip
             end
           rescue Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR
             # Stop trying to remove parent directories
+          rescue SystemCallError => e
+            logger.info("[paperclip] There was an unexpected error while deleting directories: #{e.class}")
+            # Ignore it
           end
         end
         @queued_for_delete = []
