@@ -17,18 +17,19 @@ module Paperclip
   # See Paperclip.run for more information about using command-line
   # utilities from within Processors.
   class Processor
-    attr_accessor :file, :options
+    attr_accessor :file, :options, :attachment
 
-    def initialize file, options = {}
+    def initialize file, options = {}, attachment = nil
       @file = file
       @options = options
+      @attachment = attachment
     end
 
     def make
     end
 
-    def self.make file, options = {}
-      new(file, options).make
+    def self.make file, options = {}, attachment = nil
+      new(file, options, attachment).make
     end
   end
   

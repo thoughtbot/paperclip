@@ -317,8 +317,13 @@ class AttachmentTest < Test::Unit::TestCase
 
       before_should "call #make on all specified processors" do
         expected_params = @style_params[:once].merge({:processors => [:thumbnail, :test], :whiny => nil, :convert_options => ""})
-        Paperclip::Thumbnail.expects(:make).with(@file, expected_params).returns(@file)
-        Paperclip::Test.expects(:make).with(@file, expected_params).returns(@file)
+        Paperclip::Thumbnail.expects(:make).with(@file, expected_params, @dummy.avatar).returns(@file)
+        Paperclip::Test.expects(:make).with(@file, expected_params, @dummy.avatar).returns(@file)
+      end
+      
+      before_should "call #make with attachment passed as third argument" do
+        expected_params = @style_params[:once].merge({:processors => [:thumbnail, :test], :whiny => nil, :convert_options => ""})
+        Paperclip::Test.expects(:make).with(@file, expected_params, @dummy.avatar).returns(@file)
       end
     end
   end
