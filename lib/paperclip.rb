@@ -71,8 +71,12 @@ module Paperclip
                                         "will be removed. Use :command_path "+
                                         "instead")
       end
-      path = [options[:image_magick_path] || options[:command_path], command].compact
+      path = [options[:command_path] || options[:image_magick_path], command].compact
       File.join(*path)
+    end
+
+    def interpolates key, &block
+      Paperclip::Attachment.interpolations[key] = block
     end
 
     # The run method takes a command to execute and a string of parameters
