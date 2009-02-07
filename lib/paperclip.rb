@@ -67,9 +67,7 @@ module Paperclip
 
     def path_for_command command #:nodoc:
       if options[:image_magick_path]
-        ActiveSupport::Deprecation.warn(":image_magick_path is deprecated and "+
-                                        "will be removed. Use :command_path "+
-                                        "instead")
+        warn("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
       path = [options[:command_path] || options[:image_magick_path], command].compact
       File.join(*path)
