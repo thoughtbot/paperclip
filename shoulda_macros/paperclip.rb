@@ -1,3 +1,5 @@
+require 'shoulda_macros/matchers'
+
 module Paperclip
   # =Paperclip Shoulda Macros
   #
@@ -10,40 +12,20 @@ module Paperclip
     # This will test whether you have defined your attachment correctly by
     # checking for all the required fields exist after the definition of the
     # attachment.
-    def should_have_attached_file name, options = {}
-      klass = self.name.gsub(/Test$/, '').constantize
-      context "Class #{klass.name} with attachment #{name}" do
-        should "respond to all the right methods" do
-          ["#{name}", "#{name}=", "#{name}?"].each do |meth|
-            assert klass.instance_methods.include?(meth), "#{klass.name} does not respond to #{name}."
-          end
-        end
+    def should_have_attached_file name
+      klass   = self.name.gsub(/Test$/, '').constantize
+      matcher = have_attached_file name
+      should matcher.description do
+        assert_accepts(matcher, klass)
       end
     end
 
     # Tests for validations on the presence of the attachment.
     def should_validate_attachment_presence name
       klass   = self.name.gsub(/Test$/, '').constantize
-      context "Class #{klass.name} validating presence on #{name}" do
-        context "when the assignment is nil" do
-          setup do
-            @attachment = klass.new.send(name)
-            @attachment.assign(nil)
-          end
-          should "have a :presence validation error" do
-            assert @attachment.errors[:presence]
-          end
-        end
-        context "when the assignment is valid" do
-          setup do
-            @file = StringIO.new(".")
-            @attachment = klass.new.send(name)
-            @attachment.assign(@file)
-          end
-          should "have a :presence validation error" do
-            assert ! @attachment.errors[:presence]
-          end
-        end
+      matcher = validate_attachment_presence name
+      should matcher.description do
+        assert_accepts(matcher, klass)
       end
     end
 
@@ -151,4 +133,7 @@ module Paperclip
   end
 end
 
-Test::Unit::TestCase.extend(Paperclip::Shoulda)
+class Test::Unit::TestCase #:nodoc:
+ extend  Paperclip::Shoulda
+ include Paperclip::Shoulda::Matchers
+end

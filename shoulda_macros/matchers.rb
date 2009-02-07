@@ -1,0 +1,2 @@
+require 'shoulda_macros/matchers/have_attached_file_matcher'
+require 'shoulda_macros/matchers/validate_attachment_presence_matcher'

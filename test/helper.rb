@@ -23,12 +23,31 @@ $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
 
 require File.join(ROOT, 'lib', 'paperclip.rb')
 
+require 'shoulda_macros/paperclip'
+
 ENV['RAILS_ENV'] ||= 'test'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures") 
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
+
+def reset_class class_name
+  ActiveRecord::Base.send(:include, Paperclip)
+  Object.send(:remove_const, class_name) rescue nil
+  klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
+  klass.class_eval{ include Paperclip }
+  klass
+end
+
+def reset_table table_name, &block
+  block ||= lambda{ true }
+  ActiveRecord::Base.connection.create_table :dummies, {:force => true}, &block
+end
+
+def modify_table table_name, &block
+  ActiveRecord::Base.connection.change_table :dummies, &block
+end
 
 def rebuild_model options = {}
   ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
