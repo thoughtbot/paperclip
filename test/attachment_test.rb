@@ -95,13 +95,9 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model :path => ":rails_env/:id.png"
       @dummy = Dummy.new
       @dummy.stubs(:id).returns(@id)
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = StringIO.new(".")
       @dummy.avatar = @file
     end
-
-    teardown { @file.close }
 
     should "return the proper path" do
       temporary_rails_env(@rails_env) {
@@ -176,7 +172,7 @@ class AttachmentTest < Test::Unit::TestCase
     { :geometry => lambda{|z| "50x50#" } }
   ]
   geometry_specs.each do |geometry_spec|
-    context "An attachment geomtry like #{geometry_spec}" do
+    context "An attachment geometry like #{geometry_spec}" do
       setup do
         rebuild_model :styles => { :normal => geometry_spec }
         @attachment = Dummy.new.avatar
@@ -299,7 +295,7 @@ class AttachmentTest < Test::Unit::TestCase
         def do_before_all; end
         def do_after_all; end
       end
-      @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file  = StringIO.new(".")
       @file.stubs(:to_tempfile).returns(@file)
       @dummy = Dummy.new
       Paperclip::Thumbnail.stubs(:make).returns(@file)
@@ -346,7 +342,7 @@ class AttachmentTest < Test::Unit::TestCase
   context "Assigning an attachment" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }
-      @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file  = StringIO.new(".")
       @file.expects(:original_filename).returns("5k.png\n\n")
       @file.expects(:content_type).returns("image/png\n\n")
       @file.stubs(:to_tempfile).returns(@file)
