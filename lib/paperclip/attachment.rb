@@ -387,8 +387,7 @@ module Paperclip
 
     def flush_errors #:nodoc:
       @errors.each do |error, message|
-        # messages from processors are arrays, so convert everything to an array
-        Array(message).each {|err_message| instance.errors.add(name, err_message) }
+        [message].flatten.each {|m| instance.errors.add(name, m) }
       end
     end
 
