@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'test/unit'
-gem 'thoughtbot-shoulda', ">= 2.0.0"
+gem 'thoughtbot-shoulda', ">= 2.9.0"
 require 'shoulda'
 require 'mocha'
 require 'tempfile'
