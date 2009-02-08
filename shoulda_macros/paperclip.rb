@@ -37,35 +37,9 @@ module Paperclip
       klass   = self.name.gsub(/Test$/, '').constantize
       valid   = [options[:valid]].flatten
       invalid = [options[:invalid]].flatten
-      context "Class #{klass.name} validating content_types on #{name}" do
-        valid.each do |type|
-          context "being assigned a file with a content_type of #{type}" do
-            setup do
-              @file = StringIO.new(".")
-              class << @file; attr_accessor :content_type; end
-              @file.content_type = type
-              @attachment = klass.new.send(name)
-              @attachment.assign(@file)
-            end
-            should "not have a :content_type validation error" do
-              assert ! @attachment.errors[:content_type]
-            end
-          end
-        end
-        invalid.each do |type|
-          context "being assigned a file with a content_type of #{type}" do
-            setup do
-              @file = StringIO.new(".")
-              class << @file; attr_accessor :content_type; end
-              @file.content_type = type
-              @attachment = klass.new.send(name)
-              @attachment.assign(@file)
-            end
-            should "have a :content_type validation error" do
-              assert @attachment.errors[:content_type]
-            end
-          end
-        end
+      matcher = validate_attachment_presence(name).allows(valid).rejects(invalid)
+      should matcher.description do
+        assert_accepts(matcher, klass)
       end
     end
 
