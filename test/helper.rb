@@ -9,6 +9,7 @@ gem 'sqlite3-ruby'
 
 require 'active_record'
 require 'active_support'
+require 'action_controller'
 begin
   require 'ruby-debug'
 rescue LoadError
