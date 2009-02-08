@@ -36,7 +36,6 @@ module Paperclip
       @storage           = options[:storage]
       @whiny             = options[:whiny_thumbnails]
       @convert_options   = options[:convert_options] || {}
-      @background        = options[:background].nil? ? instance.respond_to?(:spawn) : options[:background]
       @processors        = options[:processors] || [:thumbnail]
       @options           = options
       @queued_for_delete = []
@@ -334,11 +333,9 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
-      background do
-        return if fire_events(:before)
-        post_process_styles
-        return if fire_events(:after)
-      end
+      return if fire_events(:before)
+      post_process_styles
+      return if fire_events(:after)
     end
 
     def fire_events(which)
@@ -360,16 +357,6 @@ module Paperclip
           (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
-    end
-
-    # When processing, if the spawn plugin is installed, processing can be done in
-    # a background fork or thread if desired.
-    def background(&blk)
-      # if instance.respond_to?(:spawn) && @background
-      #   instance.spawn(&blk)
-      # else
-        blk.call
-      # end
     end
 
     def callback which #:nodoc:
