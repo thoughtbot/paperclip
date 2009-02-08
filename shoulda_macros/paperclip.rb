@@ -54,54 +54,9 @@ module Paperclip
       min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
       range   = (min..max)
-      context "Class #{klass.name} validating file size on #{name}" do
-        context "with an attachment that is #{max+1} bytes" do
-          setup do
-            @file = StringIO.new("." * (max+1))
-            @attachment = klass.new.send(name)
-            @attachment.assign(@file)
-          end
-
-          should "have a :size validation error" do
-            assert @attachment.errors[:size]
-          end
-        end
-        context "with an attachment that us #{max-1} bytes" do
-          setup do
-            @file = StringIO.new("." * (max-1))
-            @attachment = klass.new.send(name)
-            @attachment.assign(@file)
-          end
-
-          should "not have a :size validation error" do
-            assert ! @attachment.errors[:size]
-          end
-        end
-
-        if min > 0
-          context "with an attachment that is #{min-1} bytes" do
-            setup do
-              @file = StringIO.new("." * (min-1))
-              @attachment = klass.new.send(name)
-              @attachment.assign(@file)
-            end
-
-            should "have a :size validation error" do
-              assert @attachment.errors[:size]
-            end
-          end
-          context "with an attachment that us #{min+1} bytes" do
-            setup do
-              @file = StringIO.new("." * (min+1))
-              @attachment = klass.new.send(name)
-              @attachment.assign(@file)
-            end
-
-            should "not have a :size validation error" do
-              assert ! @attachment.errors[:size]
-            end
-          end
-        end
+      matcher = validate_attachment_size(name).in(range)
+      should matcher.description do
+        assert_accepts(matcher, klass)
       end
     end
   end
