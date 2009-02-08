@@ -243,6 +243,7 @@ module Paperclip
     def instance_write(attr, value)
       setter = :"#{name}_#{attr}="
       responds = instance.respond_to?(setter)
+      self.instance_variable_set("@_#{setter.to_s.chop}", value)
       instance.send(setter, value) if responds || attr.to_s == "file_name"
     end
 
@@ -251,6 +252,8 @@ module Paperclip
     def instance_read(attr)
       getter = :"#{name}_#{attr}"
       responds = instance.respond_to?(getter)
+      cached = self.instance_variable_get("@_#{getter}")
+      return cached if cached
       instance.send(getter) if responds || attr.to_s == "file_name"
     end
 

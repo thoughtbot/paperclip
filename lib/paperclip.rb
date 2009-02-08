@@ -258,6 +258,9 @@ module Paperclip
     #   match.  Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid
     #   content type.
+    # NOTE: If you do not specify an [attachment]_content_type field on your
+    # model, content_type validation will work _ONLY upon assignment_ and
+    # re-validation after the instance has been reloaded will always succeed.
     def validates_attachment_content_type name, options = {}
       attachment_definitions[name][:validations][:content_type] = lambda do |attachment, instance|
         valid_types = [options[:content_type]].flatten
@@ -265,7 +268,7 @@ module Paperclip
         unless attachment.original_filename.blank?
           unless valid_types.blank?
             content_type = attachment.instance_read(:content_type)
-            unless valid_types.any?{|t| t === content_type }
+            unless valid_types.any?{|t| content_type.nil? || t === content_type }
               options[:message] || "is not one of the allowed file types."
             end
           end
