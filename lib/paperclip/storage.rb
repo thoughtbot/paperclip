@@ -61,7 +61,7 @@ module Paperclip
               path = File.dirname(path)
               FileUtils.rmdir(path)
             end
-          rescue Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR
+          rescue Errno::EEXIST, Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR
             # Stop trying to remove parent directories
           rescue SystemCallError => e
             logger.info("[paperclip] There was an unexpected error while deleting directories: #{e.class}")

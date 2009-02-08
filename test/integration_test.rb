@@ -108,7 +108,7 @@ class IntegrationTest < Test::Unit::TestCase
         end
 
         before_should "not die if an unexpected SystemCallError happens" do
-          FileUtils.stubs(:rmdir).raises(Errno::EEXIST)
+          FileUtils.stubs(:rmdir).raises(Errno::EPIPE)
         end
       end
     end
