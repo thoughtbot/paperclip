@@ -32,6 +32,7 @@ module Paperclip
       @path              = options[:path]
       @path              = @path.call(self) if @path.is_a?(Proc)
       @styles            = options[:styles]
+      @styles            = @styles.call(self) if @styles.is_a?(Proc)
       @default_url       = options[:default_url]
       @validations       = options[:validations]
       @default_style     = options[:default_style]

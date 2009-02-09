@@ -217,6 +217,18 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
   
+  context "An attachment with :styles that is a proc" do
+    setup do
+      rebuild_model :styles => lambda{ |attachment| {:thumb => "50x50#", :large => "400x400"} }
+      
+      @attachment = Dummy.new.avatar
+    end
+    
+    should "have the correct geometry" do
+      assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
+    end
+  end
+  
   context "An attachment with :url that is a proc" do
     setup do
       rebuild_model :url => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
