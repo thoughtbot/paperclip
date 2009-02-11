@@ -1,4 +1,4 @@
-require 'shoulda_macros/matchers'
+require 'paperclip/matchers'
 
 module Paperclip
   # =Paperclip Shoulda Macros
