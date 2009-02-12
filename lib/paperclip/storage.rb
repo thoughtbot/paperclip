@@ -206,11 +206,11 @@ module Paperclip
       
       def find_credentials creds
         case creds
-        when File:
+        when File
           YAML.load_file(creds.path)
-        when String:
+        when String
           YAML.load_file(creds)
-        when Hash:
+        when Hash
           creds
         else
           raise ArgumentError, "Credentials are not a path, file, or hash."
