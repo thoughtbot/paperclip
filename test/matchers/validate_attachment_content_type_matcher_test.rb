@@ -8,7 +8,7 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
       end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar
-      @matcher     = validate_attachment_content_type(:avatar).
+      @matcher     = self.class.validate_attachment_content_type(:avatar).
                        allowing(%w(image/png image/jpeg)).
                        rejecting(%w(audio/mp3 application/octet-stream))
     end

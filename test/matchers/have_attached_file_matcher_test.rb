@@ -5,7 +5,7 @@ class HaveAttachedFileMatcherTest < Test::Unit::TestCase
     setup do
       @dummy_class = reset_class "Dummy"
       reset_table "dummies"
-      @matcher     = have_attached_file(:avatar)
+      @matcher     = self.class.have_attached_file(:avatar)
     end
 
     should "reject a class with no attachment" do

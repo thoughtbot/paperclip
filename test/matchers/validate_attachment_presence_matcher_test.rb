@@ -6,7 +6,7 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
       reset_table("dummies"){|d| d.string :avatar_file_name }
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar
-      @matcher     = validate_attachment_presence(:avatar)
+      @matcher     = self.class.validate_attachment_presence(:avatar)
     end
 
     should "reject a class with no validation" do

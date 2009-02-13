@@ -11,7 +11,7 @@ class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
     end
 
     context "of limited size" do
-      setup{ @matcher = validate_attachment_size(:avatar).in(256..1024) }
+      setup{ @matcher = self.class.validate_attachment_size(:avatar).in(256..1024) }
 
       should "reject a class with no validation" do
         assert_rejects @matcher, @dummy_class
@@ -34,7 +34,7 @@ class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
     end
 
     context "validates_attachment_size with infinite range" do
-      setup{ @matcher = validate_attachment_size(:avatar) }
+      setup{ @matcher = self.class.validate_attachment_size(:avatar) }
 
       should "accept a class with an upper limit" do
         @dummy_class.validates_attachment_size :avatar, :less_than => 1
