@@ -9,6 +9,7 @@ module Paperclip
   # you're testing (that is, UserTest is the test for the User model), and
   # will load that class for testing purposes.
   module Shoulda
+    include Matchers
     # This will test whether you have defined your attachment correctly by
     # checking for all the required fields exist after the definition of the
     # attachment.
@@ -64,5 +65,4 @@ end
 
 class Test::Unit::TestCase #:nodoc:
  extend  Paperclip::Shoulda
- include Paperclip::Shoulda::Matchers
 end
