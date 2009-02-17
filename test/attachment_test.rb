@@ -106,36 +106,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "An attachment with a :relative_root interpolation" do
-    setup do
-      rebuild_model :url => ":relative_root/:id.png"
-      @dummy = Dummy.new
-      @dummy.stubs(:id).returns(1024)
-      @dummy.avatar = StringIO.new(".")
-
-      ActionController::Base.stubs(:respond_to?).with(:relative_url_root).returns(false)
-      ActionController::Base.stubs(:relative_url_root).returns("/base")
-      ActionController::AbstractRequest.stubs(:respond_to?).with(:relative_url_root).returns(false)
-      ActionController::AbstractRequest.stubs(:relative_url_root).returns("/request")
-    end
-
-    should "return the proper path when the path is nil" do
-      assert_equal "/1024.png", @dummy.avatar.url(:original, false)
-    end
-
-    should "return the proper path when using Rails < 2.1" do
-      ActionController::AbstractRequest.expects(:respond_to?).with(:relative_url_root).returns(true)
-      ActionController::AbstractRequest.expects(:relative_url_root).returns("/request")
-      assert_equal "/request/1024.png", @dummy.avatar.url(:original, false)
-    end
-
-    should "return the proper path when using Rails >= 2.1" do
-      ActionController::Base.expects(:respond_to?).with(:relative_url_root).returns(true)
-      ActionController::Base.expects(:relative_url_root).returns("/base")
-      assert_equal "/base/1024.png", @dummy.avatar.url(:original, false)
-    end
-  end
-
   context "An attachment with :convert_options" do
     setup do
       rebuild_model :styles => {
