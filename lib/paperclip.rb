@@ -315,4 +315,5 @@ end
 if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, Paperclip)
   File.send(:include, Paperclip::Upfile)
+  ActionController::Base.send(:include, Paperclip::Storage::Database::ControllerClassMethods)
 end

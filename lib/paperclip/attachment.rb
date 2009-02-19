@@ -69,6 +69,9 @@ module Paperclip
       end
 
       if uploaded_file.is_a?(Paperclip::Attachment)
+        if (@storage == :database)
+          database_file_name = uploaded_file.instance_read(:file_name)
+        end
         uploaded_file = uploaded_file.to_file(:original)
         close_uploaded_file = uploaded_file.respond_to?(:close)
       end
@@ -85,7 +88,7 @@ module Paperclip
 
       log("Writing attributes for #{name}")
       @queued_for_write[:original]   = uploaded_file.to_tempfile
-      instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
+      instance_write(:file_name,       database_file_name || uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
       instance_write(:updated_at,      Time.now)
