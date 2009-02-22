@@ -39,6 +39,7 @@ class IntegrationTest < Test::Unit::TestCase
       setup do
         Dummy.class_eval do
           has_attached_file :avatar, :styles => { :thumb => "150x25#" }
+          has_attached_file :avatar, :styles => { :thumb => "150x25#", :dynamic => lambda { |a| '50x50#' } }
         end
         @d2 = Dummy.find(@dummy.id)
         @d2.avatar.reprocess!
@@ -47,6 +48,7 @@ class IntegrationTest < Test::Unit::TestCase
 
       should "create its thumbnails properly" do
         assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
+        assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`
       end
     end
   end

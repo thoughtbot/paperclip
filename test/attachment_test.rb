@@ -265,7 +265,28 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
-  
+
+  context "An attachment with :processors that is a proc" do
+    setup do
+      rebuild_model :styles => { :normal => '' }, :processors => lambda { |a| [ :test ] }
+      @attachment = Dummy.new.avatar
+    end
+
+    should "not run the proc immediately" do
+      assert_kind_of Proc, @attachment.styles[:normal][:processors]
+    end
+
+    context "when assigned" do
+      setup do
+        @attachment.assign(StringIO.new("."))
+      end
+
+      should "have the correct processors" do
+        assert_equal [ :test ], @attachment.styles[:normal][:processors]
+      end
+    end
+  end
+
   context "An attachment with erroring processor" do
     setup do
       rebuild_model :processor => [:thumbnail], :styles => { :small => '' }, :whiny_thumbnails => true

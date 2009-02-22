@@ -92,7 +92,6 @@ module Paperclip
 
       @dirty = true
 
-      solidify_style_definitions
       post_process if valid?
  
       # Reset the file size if the original file was reprocessed.
@@ -314,9 +313,8 @@ module Paperclip
 
     def solidify_style_definitions #:nodoc:
       @styles.each do |name, args|
-        if @styles[name][:geometry].respond_to?(:call)
-          @styles[name][:geometry] = @styles[name][:geometry].call(instance) 
-        end
+        @styles[name][:geometry] = @styles[name][:geometry].call(instance) if @styles[name][:geometry].respond_to?(:call)
+        @styles[name][:processors] = @styles[name][:processors].call(instance) if @styles[name][:processors].respond_to?(:call)
       end
     end
 
@@ -336,6 +334,7 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
+      solidify_style_definitions
       return if fire_events(:before)
       post_process_styles
       return if fire_events(:after)
