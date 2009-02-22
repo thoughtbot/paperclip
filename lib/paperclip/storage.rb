@@ -108,10 +108,13 @@ module Paperclip
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
     #   You can define the bucket as a Proc if you want to determine it's name at runtime.
     #   Paperclip will call that Proc with attachment as the only argument.
+    # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
+    #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
+    #   link in the +url+ entry for more information about S3 domains and buckets.
     # * +url+: There are three options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
     #   Lastly, you can specify a CNAME (which requires the CNAME to be specified as
-    #   :s3_cname. You can read more about CNAMEs and S3 at 
+    #   :s3_alias_url. You can read more about CNAMEs and S3 at 
     #   http://docs.amazonwebservices.com/AmazonS3/latest/index.html?VirtualHosting.html
     #   Normally, this won't matter in the slightest and you can leave the default (which is
     #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
