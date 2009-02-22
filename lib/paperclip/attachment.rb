@@ -346,6 +346,10 @@ module Paperclip
       return true if callback(:"#{which}_#{name}_post_process") == false
     end
 
+    def callback which #:nodoc:
+      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
+    end
+
     def post_process_styles
       log("Post-processing #{name}")
       @styles.each do |name, args|
@@ -360,10 +364,6 @@ module Paperclip
           (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
-    end
-
-    def callback which #:nodoc:
-      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
     end
 
     def interpolate pattern, style = default_style #:nodoc:
