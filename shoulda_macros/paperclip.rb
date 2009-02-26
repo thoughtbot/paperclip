@@ -38,7 +38,7 @@ module Paperclip
       klass   = self.name.gsub(/Test$/, '').constantize
       valid   = [options[:valid]].flatten
       invalid = [options[:invalid]].flatten
-      matcher = validate_attachment_presence(name).allows(valid).rejects(invalid)
+      matcher = validate_attachment_content_type(name).allowing(valid).rejecting(invalid)
       should matcher.description do
         assert_accepts(matcher, klass)
       end
