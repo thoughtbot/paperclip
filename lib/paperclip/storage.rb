@@ -292,8 +292,9 @@ module Paperclip
           rescue NameError
           end
           if !relative_url_root && ActionController::Base.respond_to?(:relative_url_root)
-            ActionController::Base.relative_url_root
+            relative_url_root = ActionController::Base.relative_url_root
           end
+          relative_url_root
         end
         
         ActiveRecord::Base.logger.info("[paperclip] Database Storage Initalized.")
@@ -361,9 +362,10 @@ module Paperclip
         instance.send(@paperclip_files).detect { |file| file.style == style.to_s }
       end
         
-      def file_contents(style)
+      def file_contents(style = default_style)
         file_for(style).file_contents
       end
+      alias_method :data, :file_contents
 
       def flush_writes
         logger.info("[paperclip] Writing files for #{name}")
