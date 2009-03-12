@@ -592,20 +592,39 @@ class AttachmentTest < Test::Unit::TestCase
               file.close
             end
 
-            context "and deleted" do
+            context "and trying to delete" do
               setup do
                 @existing_names = @attachment.styles.keys.collect do |style|
                   @attachment.path(style)
                 end
+              end
+
+              should "not delete the files saving in a deprecated manner" do
+                @attachment.expects(:instance_write).with(:file_name, nil).never
+                @attachment.expects(:instance_write).with(:content_type, nil).never
+                @attachment.expects(:instance_write).with(:file_size, nil).never
+                @attachment.expects(:instance_write).with(:updated_at, nil).never
+                @attachment.assign nil
+                @attachment.save
+                @existing_names.each{|f| assert File.exists?(f) }
+              end
+
+              should "delete the files when you call #clear and #save" do
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
-                @attachment.assign nil
+                @attachment.clear
                 @attachment.save
+                @existing_names.each{|f| assert ! File.exists?(f) }
               end
 
-              should "delete the files" do
+              should "delete the files when you call #delete" do
+                @attachment.expects(:instance_write).with(:file_name, nil)
+                @attachment.expects(:instance_write).with(:content_type, nil)
+                @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:updated_at, nil)
+                @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
               end
             end

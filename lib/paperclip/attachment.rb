@@ -62,6 +62,9 @@ module Paperclip
     # If the file that is assigned is not valid, the processing (i.e.
     # thumbnailing, etc) will NOT be run.
     def assign uploaded_file
+      # This is because of changes in Rails 2.3 that cause blank fields to send nil
+      return nil if uploaded_file.nil?
+
       %w(file_name).each do |field|
         unless @instance.class.column_names.include?("#{name}_#{field}")
           raise PaperclipError.new("#{@instance.class} model does not have required column '#{name}_#{field}'")
@@ -156,6 +159,23 @@ module Paperclip
         flush_errors
         false
       end
+    end
+
+    # Clears out the attachment. Has the same effect as previously assigning
+    # nil to the attachment. Does NOT save. If you wish to clear AND save,
+    # use #destroy.
+    def clear
+      queue_existing_for_delete
+      @errors            = {}
+      @validation_errors = nil
+    end
+
+    # Destroys the attachment. Has the same effect as previously assigning
+    # nil to the attachment *and saving*. This is permanent. If you wish to
+    # wipe out the existing attachment but not save, use #clear.
+    def destroy
+      clear
+      save
     end
 
     # Returns the name of the file as originally assigned, and lives in the
@@ -273,7 +293,7 @@ module Paperclip
     end
 
     def valid_assignment? file #:nodoc:
-      file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
+      file.respond_to?(:original_filename) && file.respond_to?(:content_type)
     end
 
     def validate #:nodoc:
