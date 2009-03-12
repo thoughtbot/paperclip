@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{paperclip}
-  s.version = "2.2.6"
+  s.version = "2.2.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jon Yurek"]
-  s.date = %q{2009-02-17}
+  s.date = %q{2009-03-12}
   s.email = %q{jyurek@thoughtbot.com}
   s.extra_rdoc_files = ["README.rdoc"]
   s.files = ["README.rdoc", "LICENSE", "Rakefile", "init.rb", "generators/paperclip", "generators/paperclip/paperclip_generator.rb", "generators/paperclip/templates", "generators/paperclip/templates/paperclip_migration.rb.erb", "generators/paperclip/USAGE", "lib/paperclip", "lib/paperclip/attachment.rb", "lib/paperclip/callback_compatability.rb", "lib/paperclip/geometry.rb", "lib/paperclip/iostream.rb", "lib/paperclip/matchers", "lib/paperclip/matchers/have_attached_file_matcher.rb", "lib/paperclip/matchers/validate_attachment_content_type_matcher.rb", "lib/paperclip/matchers/validate_attachment_presence_matcher.rb", "lib/paperclip/matchers/validate_attachment_size_matcher.rb", "lib/paperclip/matchers.rb", "lib/paperclip/processor.rb", "lib/paperclip/storage.rb", "lib/paperclip/thumbnail.rb", "lib/paperclip/upfile.rb", "lib/paperclip.rb", "tasks/paperclip_tasks.rake", "test/attachment_test.rb", "test/database.yml", "test/debug.log", "test/fixtures", "test/fixtures/12k.png", "test/fixtures/50x50.png", "test/fixtures/5k.png", "test/fixtures/bad.png", "test/fixtures/text.txt", "test/fixtures/twopage.pdf", "test/geometry_test.rb", "test/helper.rb", "test/integration_test.rb", "test/iostream_test.rb", "test/matchers", "test/matchers/have_attached_file_matcher_test.rb", "test/matchers/validate_attachment_content_type_matcher_test.rb", "test/matchers/validate_attachment_presence_matcher_test.rb", "test/matchers/validate_attachment_size_matcher_test.rb", "test/paperclip_test.rb", "test/processor_test.rb", "test/s3.yml", "test/storage_test.rb", "test/thumbnail_test.rb", "shoulda_macros/paperclip.rb"]
