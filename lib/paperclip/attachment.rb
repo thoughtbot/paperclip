@@ -49,8 +49,6 @@ module Paperclip
 
       normalize_style_definition
       initialize_storage
-
-      log("Paperclip attachment #{name} on #{instance.class} initialized.")
     end
 
     # What gets called when you call instance.attachment = File. It clears
@@ -62,9 +60,6 @@ module Paperclip
     # If the file that is assigned is not valid, the processing (i.e.
     # thumbnailing, etc) will NOT be run.
     def assign uploaded_file
-      # This is because of changes in Rails 2.3 that cause blank fields to send nil
-      return nil if uploaded_file.nil?
-
       %w(file_name).each do |field|
         unless @instance.class.column_names.include?("#{name}_#{field}")
           raise PaperclipError.new("#{@instance.class} model does not have required column '#{name}_#{field}'")
@@ -77,16 +72,12 @@ module Paperclip
       end
 
       return nil unless valid_assignment?(uploaded_file)
-      log("Assigning #{uploaded_file.inspect} to #{name}")
 
       uploaded_file.binmode if uploaded_file.respond_to? :binmode
-      queue_existing_for_delete
-      @errors            = {}
-      @validation_errors = nil
+      self.clear
 
       return nil if uploaded_file.nil?
 
-      log("Writing attributes for #{name}")
       @queued_for_write[:original]   = uploaded_file.to_tempfile
       instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
@@ -149,13 +140,11 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       if valid?
-        log("Saving files for #{name}")
         flush_deletes
         flush_writes
         @dirty = false
         true
       else
-        log("Errors on #{name}. Not saving.")
         flush_errors
         false
       end
@@ -293,7 +282,7 @@ module Paperclip
     end
 
     def valid_assignment? file #:nodoc:
-      file.respond_to?(:original_filename) && file.respond_to?(:content_type)
+      file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
     end
 
     def validate #:nodoc:
@@ -370,12 +359,10 @@ module Paperclip
     end
 
     def post_process_styles
-      log("Post-processing #{name}")
       @styles.each do |name, args|
         begin
           raise RuntimeError.new("Style #{name} has no processors defined.") if args[:processors].blank?
           @queued_for_write[name] = args[:processors].inject(@queued_for_write[:original]) do |file, processor|
-            log("Processing #{name} #{file} in the #{processor} processor.")
             Paperclip.processor(processor).make(file, args, self)
           end
         rescue PaperclipError => e
@@ -397,7 +384,6 @@ module Paperclip
 
     def queue_existing_for_delete #:nodoc:
       return unless file?
-      log("Queueing the existing files for #{name} for deletion.")
       @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact

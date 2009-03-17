@@ -91,8 +91,6 @@ class PaperclipTest < Test::Unit::TestCase
       end
 
       should "not assign the avatar on mass-set" do
-        @dummy.logger.expects(:debug)
-
         @dummy.attributes = { :other => "I'm set!",
                               :avatar => @file }
         
@@ -101,8 +99,6 @@ class PaperclipTest < Test::Unit::TestCase
       end
 
       should "still allow assigment on normal set" do
-        @dummy.logger.expects(:debug).times(0)
-
         @dummy.other  = "I'm set!"
         @dummy.avatar = @file
         

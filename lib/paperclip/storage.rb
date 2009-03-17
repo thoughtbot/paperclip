@@ -36,11 +36,10 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           file.close
           FileUtils.mkdir_p(File.dirname(path(style)))
-          logger.info("[paperclip] -> #{path(style)}")
+          logger.info("[paperclip] saving #{path(style)}")
           FileUtils.mv(file.path, path(style))
           FileUtils.chmod(0644, path(style))
         end
@@ -48,10 +47,9 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        logger.info("[paperclip] Deleting files for #{name}")
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] -> #{path}")
+            logger.info("[paperclip] deleting #{path}")
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
@@ -151,7 +149,6 @@ module Paperclip
         base.class.interpolations[:s3_domain_url] = lambda do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
-        ActiveRecord::Base.logger.info("[paperclip] S3 Storage Initalized.")
       end
 
       def s3
@@ -193,10 +190,9 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           begin
-            logger.info("[paperclip] -> #{path(style)}")
+            logger.info("[paperclip] saving #{path(style)}")
             key = s3_bucket.key(path(style))
             key.data = file
             key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)}.merge(@s3_headers))
@@ -208,10 +204,9 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] -> #{path}")
+            logger.info("[paperclip] deleting #{path}")
             if file = s3_bucket.key(path)
               file.delete
             end

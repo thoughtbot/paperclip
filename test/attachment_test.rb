@@ -599,14 +599,14 @@ class AttachmentTest < Test::Unit::TestCase
                 end
               end
 
-              should "not delete the files saving in a deprecated manner" do
-                @attachment.expects(:instance_write).with(:file_name, nil).never
-                @attachment.expects(:instance_write).with(:content_type, nil).never
-                @attachment.expects(:instance_write).with(:file_size, nil).never
-                @attachment.expects(:instance_write).with(:updated_at, nil).never
+              should "delete the files after assigning nil" do
+                @attachment.expects(:instance_write).with(:file_name, nil)
+                @attachment.expects(:instance_write).with(:content_type, nil)
+                @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
-                @existing_names.each{|f| assert File.exists?(f) }
+                @existing_names.each{|f| assert ! File.exists?(f) }
               end
 
               should "delete the files when you call #clear and #save" do
