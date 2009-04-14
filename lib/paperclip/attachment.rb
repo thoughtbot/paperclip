@@ -49,8 +49,6 @@ module Paperclip
 
       normalize_style_definition
       initialize_storage
-
-      log("Paperclip attachment #{name} on #{instance.class} initialized.")
     end
 
     # What gets called when you call instance.attachment = File. It clears
@@ -77,16 +75,12 @@ module Paperclip
       end
 
       return nil unless valid_assignment?(uploaded_file)
-      log("Assigning #{uploaded_file.inspect} to #{name}")
 
       uploaded_file.binmode if uploaded_file.respond_to? :binmode
-      queue_existing_for_delete
-      @errors            = {}
-      @validation_errors = nil
+      self.clear
 
       return nil if uploaded_file.nil?
 
-      log("Writing attributes for #{name}")
       @queued_for_write[:original]   = uploaded_file.to_tempfile
       instance_write(:file_name,       database_file_name || uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
@@ -95,7 +89,6 @@ module Paperclip
 
       @dirty = true
 
-      solidify_style_definitions
       post_process if valid?
  
       # Reset the file size if the original file was reprocessed.
@@ -150,16 +143,31 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       if valid?
-        log("Saving files for #{name}")
         flush_deletes
         flush_writes
         @dirty = false
         true
       else
-        log("Errors on #{name}. Not saving.")
         flush_errors
         false
       end
+    end
+
+    # Clears out the attachment. Has the same effect as previously assigning
+    # nil to the attachment. Does NOT save. If you wish to clear AND save,
+    # use #destroy.
+    def clear
+      queue_existing_for_delete
+      @errors            = {}
+      @validation_errors = nil
+    end
+
+    # Destroys the attachment. Has the same effect as previously assigning
+    # nil to the attachment *and saving*. This is permanent. If you wish to
+    # wipe out the existing attachment but not save, use #clear.
+    def destroy
+      clear
+      save
     end
 
     # Returns the name of the file as originally assigned, and lives in the
@@ -317,9 +325,8 @@ module Paperclip
 
     def solidify_style_definitions #:nodoc:
       @styles.each do |name, args|
-        if @styles[name][:geometry].respond_to?(:call)
-          @styles[name][:geometry] = @styles[name][:geometry].call(instance) 
-        end
+        @styles[name][:geometry] = @styles[name][:geometry].call(instance) if @styles[name][:geometry].respond_to?(:call)
+        @styles[name][:processors] = @styles[name][:processors].call(instance) if @styles[name][:processors].respond_to?(:call)
       end
     end
 
@@ -339,6 +346,7 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
+      solidify_style_definitions
       return if fire_events(:before)
       post_process_styles
       return if fire_events(:after)
@@ -349,13 +357,15 @@ module Paperclip
       return true if callback(:"#{which}_#{name}_post_process") == false
     end
 
+    def callback which #:nodoc:
+      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
+    end
+
     def post_process_styles
-      log("Post-processing #{name}")
       @styles.each do |name, args|
         begin
           raise RuntimeError.new("Style #{name} has no processors defined.") if args[:processors].blank?
           @queued_for_write[name] = args[:processors].inject(@queued_for_write[:original]) do |file, processor|
-            log("Processing #{name} #{file} in the #{processor} processor.")
             Paperclip.processor(processor).make(file, args, self)
           end
         rescue PaperclipError => e
@@ -363,10 +373,6 @@ module Paperclip
           (@errors[:processing] ||= []) << e.message if @whiny
         end
       end
-    end
-
-    def callback which #:nodoc:
-      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
     end
 
     def interpolate pattern, style = default_style #:nodoc:
@@ -381,7 +387,6 @@ module Paperclip
 
     def queue_existing_for_delete #:nodoc:
       return unless file?
-      log("Queueing the existing files for #{name} for deletion.")
       @queued_for_delete += [:original, *@styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact

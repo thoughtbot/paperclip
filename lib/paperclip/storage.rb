@@ -36,11 +36,10 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           file.close
           FileUtils.mkdir_p(File.dirname(path(style)))
-          logger.info("[paperclip] -> #{path(style)}")
+          logger.info("[paperclip] saving #{path(style)}")
           FileUtils.mv(file.path, path(style))
           FileUtils.chmod(0644, path(style))
         end
@@ -48,10 +47,9 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        logger.info("[paperclip] Deleting files for #{name}")
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] -> #{path}")
+            logger.info("[paperclip] deleting #{path}")
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
@@ -108,11 +106,21 @@ module Paperclip
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
     #   You can define the bucket as a Proc if you want to determine it's name at runtime.
     #   Paperclip will call that Proc with attachment as the only argument.
-    # * +url+: There are two options for the S3 url. You can choose to have the bucket's name
+    # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
+    #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
+    #   link in the +url+ entry for more information about S3 domains and buckets.
+    # * +url+: There are three options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
+    #   Lastly, you can specify a CNAME (which requires the CNAME to be specified as
+    #   :s3_alias_url. You can read more about CNAMEs and S3 at 
+    #   http://docs.amazonwebservices.com/AmazonS3/latest/index.html?VirtualHosting.html
     #   Normally, this won't matter in the slightest and you can leave the default (which is
     #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
     #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
+    #   NOTE: If you use a CNAME for use with CloudFront, you can NOT specify https as your
+    #   :s3_protocol; This is *not supported* by S3/CloudFront. Finally, when using the host
+    #   alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
+    #   by S3.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
@@ -129,7 +137,11 @@ module Paperclip
           @s3_permissions = @options[:s3_permissions] || 'public-read'
           @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == 'public-read' ? 'http' : 'https')
           @s3_headers     = @options[:s3_headers]     || {}
+          @s3_host_alias  = @options[:s3_host_alias]
           @url            = ":s3_path_url" unless @url.to_s.match(/^:s3.*url$/)
+        end
+        base.class.interpolations[:s3_alias_url] = lambda do |attachment, style|
+          "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
         base.class.interpolations[:s3_path_url] = lambda do |attachment, style|
           "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -137,7 +149,6 @@ module Paperclip
         base.class.interpolations[:s3_domain_url] = lambda do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
-        ActiveRecord::Base.logger.info("[paperclip] S3 Storage Initalized.")
       end
 
       def s3
@@ -152,6 +163,10 @@ module Paperclip
 
       def bucket_name
         @bucket
+      end
+
+      def s3_host_alias
+        @s3_host_alias
       end
 
       def parse_credentials creds
@@ -175,10 +190,9 @@ module Paperclip
       alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_write.each do |style, file|
           begin
-            logger.info("[paperclip] -> #{path(style)}")
+            logger.info("[paperclip] saving #{path(style)}")
             key = s3_bucket.key(path(style))
             key.data = file
             key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)}.merge(@s3_headers))
@@ -190,10 +204,9 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
-        logger.info("[paperclip] Writing files for #{name}")
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] -> #{path}")
+            logger.info("[paperclip] deleting #{path}")
             if file = s3_bucket.key(path)
               file.delete
             end

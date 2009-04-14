@@ -265,7 +265,28 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
-  
+
+  context "An attachment with :processors that is a proc" do
+    setup do
+      rebuild_model :styles => { :normal => '' }, :processors => lambda { |a| [ :test ] }
+      @attachment = Dummy.new.avatar
+    end
+
+    should "not run the proc immediately" do
+      assert_kind_of Proc, @attachment.styles[:normal][:processors]
+    end
+
+    context "when assigned" do
+      setup do
+        @attachment.assign(StringIO.new("."))
+      end
+
+      should "have the correct processors" do
+        assert_equal [ :test ], @attachment.styles[:normal][:processors]
+      end
+    end
+  end
+
   context "An attachment with erroring processor" do
     setup do
       rebuild_model :processor => [:thumbnail], :styles => { :small => '' }, :whiny_thumbnails => true
@@ -571,20 +592,39 @@ class AttachmentTest < Test::Unit::TestCase
               file.close
             end
 
-            context "and deleted" do
+            context "and trying to delete" do
               setup do
                 @existing_names = @attachment.styles.keys.collect do |style|
                   @attachment.path(style)
                 end
+              end
+
+              should "delete the files after assigning nil" do
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
+                @existing_names.each{|f| assert ! File.exists?(f) }
               end
 
-              should "delete the files" do
+              should "delete the files when you call #clear and #save" do
+                @attachment.expects(:instance_write).with(:file_name, nil)
+                @attachment.expects(:instance_write).with(:content_type, nil)
+                @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:updated_at, nil)
+                @attachment.clear
+                @attachment.save
+                @existing_names.each{|f| assert ! File.exists?(f) }
+              end
+
+              should "delete the files when you call #delete" do
+                @attachment.expects(:instance_write).with(:file_name, nil)
+                @attachment.expects(:instance_write).with(:content_type, nil)
+                @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:updated_at, nil)
+                @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
               end
             end
