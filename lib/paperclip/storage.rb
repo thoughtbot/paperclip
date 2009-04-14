@@ -248,7 +248,7 @@ module Paperclip
     # If you have defined different styles, these files will be stored in additional columns called
     # [attachment name]_[style name]_file (e.g. "avatar_thumb_file") by default.
     # 
-    # To specify a different column names for styles, use :column in the style definition, like this:
+    # To specify different column names for styles, use :column in the style definition, like this:
     #   has_attached_file :avatar,
     #                     :storage => :database,
     #                     :styles => { 
@@ -256,20 +256,30 @@ module Paperclip
     #                       :thumb => {:geometry => "100x100>", :column => 'thumb_file'}
     #                     }
     # 
-    # 3. You need to create these new columns in your migrations or you'll get an exception.
+    # 3. You need to create these new columns in your migrations or you'll get an exception. Example:
+    #   add_column :users, :avatar_file, :binary
+    #   add_column :users, :avatar_medium_file, :binary
+    #   add_column :users, :avatar_thumb_file, :binary
     # 
-    # Note the "binary" migration will not work for the LONGBLOG type in MySQL for the
-    # file_cotents column. You may need to craft a SQL statement for your migration,
+    # Note the "binary" migration will not work for the LONGBLOB type in MySQL for the
+    # file_contents column. You may need to craft a SQL statement for your migration,
     # depending on which database server you are using. Here's an example migration for MySQL:
-    #   add_column :users, :avatar_file_name,    :string
-    #   add_column :users, :avatar_content_type, :string
-    #   add_column :users, :avatar_file_size,    :integer
-    #   add_column :users, :avatar_updated_at,   :datetime
     #   execute 'ALTER TABLE users ADD COLUMN avatar_file LONGBLOB'
     #   execute 'ALTER TABLE users ADD COLUMN avatar_medium_file LONGBLOB'
     #   execute 'ALTER TABLE users ADD COLUMN avatar_thumb_file LONGBLOB'
     # 
-    # 4. By default, URLs will be set to this pattern:
+    # 4. To avoid performance problems loading all of the BLOB columns every time you access
+    # your ActiveRecord object, a class method is provided on your model called
+    # “select_without_file_columns_for.” This is set to a :select scope hash that will
+    # instruct ActiveRecord::Base.find to load all of the columns except the BLOB/file data columns.
+    # 
+    # If you’re using Rails 2.3, you can specify this as a default scope:
+    #   default_scope select_without_file_columns_for(:avatar)
+    # 
+    # Or if you’re using Rails 2.1 or 2.2 you can use it to create a named scope:
+    #   named_scope :without_file_data, select_without_file_columns_for(:avatar)
+    # 
+    # 5. By default, URLs will be set to this pattern:
     #   /:relative_root/:class/:attachment/:id?style=:style
     # 
     # Example:
@@ -289,7 +299,7 @@ module Paperclip
     # If you prefer a different URL for downloading files you can specify that in the model; e.g.:
     #   has_attached_file :avatar, :storage => :database, :url => '/users/show_avatar/:id/:style'
     # 
-    # 5. Add a route for the download to the controller which will handle downloads, if necessary.
+    # 6. Add a route for the download to the controller which will handle downloads, if necessary.
     # 
     # The default URL, /:relative_root/:class/:attachment/:id?style=:style, will be matched by
     # the default route: :controller/:action/:id
