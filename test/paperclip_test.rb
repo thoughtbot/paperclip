@@ -44,6 +44,18 @@ class PaperclipTest < Test::Unit::TestCase
     assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
   end
 
+  should "call a proc sent to check_guard" do
+    @dummy = Dummy.new
+    @dummy.expects(:one).returns(:one)
+    assert_equal :one, @dummy.avatar.send(:check_guard, lambda{|x| x.one })
+  end
+
+  should "call a method name sent to check_guard" do
+    @dummy = Dummy.new
+    @dummy.expects(:one).returns(:one)
+    assert_equal :one, @dummy.avatar.send(:check_guard, :one)
+  end
+
   context "Paperclip.bit_bucket" do
     context "on systems without /dev/null" do
       setup do
@@ -164,6 +176,44 @@ class PaperclipTest < Test::Unit::TestCase
           @dummy2.avatar.valid?
           assert_equal first_errors, @dummy2.avatar.errors
         end
+      end
+    end
+
+    context "a validation with an if guard clause" do
+      setup do
+        Dummy.send(:"validates_attachment_presence", :avatar, :if => lambda{|i| i.foo })
+        @dummy = Dummy.new
+      end
+
+      should "attempt validation if the guard returns true" do
+        @dummy.expects(:foo).returns(true)
+        @dummy.avatar.expects(:validate_presence).returns(nil)
+        @dummy.valid?
+      end
+
+      should "not attempt validation if the guard returns false" do
+        @dummy.expects(:foo).returns(false)
+        @dummy.avatar.expects(:validate_presence).never
+        @dummy.valid?
+      end
+    end
+
+    context "a validation with an unless guard clause" do
+      setup do
+        Dummy.send(:"validates_attachment_presence", :avatar, :unless => lambda{|i| i.foo })
+        @dummy = Dummy.new
+      end
+
+      should "attempt validation if the guard returns true" do
+        @dummy.expects(:foo).returns(false)
+        @dummy.avatar.expects(:validate_presence).returns(nil)
+        @dummy.valid?
+      end
+
+      should "not attempt validation if the guard returns false" do
+        @dummy.expects(:foo).returns(true)
+        @dummy.avatar.expects(:validate_presence).never
+        @dummy.valid?
       end
     end
 

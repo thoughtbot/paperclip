@@ -11,7 +11,7 @@ module Paperclip
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
-        :validations   => {},
+        :validations   => [],
         :storage       => :filesystem
       }
     end
@@ -269,14 +269,48 @@ module Paperclip
     def validate #:nodoc:
       unless @validation_errors
         @validation_errors = @validations.inject({}) do |errors, validation|
-          name, block = validation
-          errors[name] = block.call(self, instance) if block
+          name, options = validation
+          errors[name] = send(:"validate_#{name}", options) if allow_validation?(options)
           errors
         end
         @validation_errors.reject!{|k,v| v == nil }
         @errors.merge!(@validation_errors)
       end
       @validation_errors
+    end
+
+    def allow_validation? options
+      (options[:if].nil? || check_guard(options[:if])) && (options[:unless].nil? || !check_guard(options[:unless]))
+    end
+
+    def check_guard guard
+      if guard.respond_to? :call
+        guard.call(instance)
+      elsif ! guard.blank?
+        instance.send(guard.to_s)
+      end
+    end
+
+    def validate_size options #:nodoc:
+      if file? && !options[:range].include?(size.to_i)
+        options[:message].gsub(/:min/, options[:min].to_s).gsub(/:max/, options[:max].to_s)
+      end
+    end
+
+    def validate_presence options #:nodoc:
+      options[:message] unless file?
+    end
+
+    def validate_content_type options #:nodoc:
+      valid_types = [options[:content_type]].flatten
+      unless original_filename.blank?
+        unless valid_types.blank?
+          content_type = instance_read(:content_type)
+          unless valid_types.any?{|t| content_type.nil? || t === content_type }
+            options[:message] || "is not one of the allowed file types."
+          end
+        end
+      end
     end
 
     def normalize_style_definition #:nodoc:

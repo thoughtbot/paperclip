@@ -44,7 +44,7 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.2.8"
+  VERSION = "2.2.9"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -188,7 +188,7 @@ module Paperclip
       include InstanceMethods
 
       write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
-      attachment_definitions[name] = {:validations => {}}.merge(options)
+      attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
       before_destroy :destroy_attached_files
@@ -227,11 +227,10 @@ module Paperclip
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
 
-      attachment_definitions[name][:validations][:size] = lambda do |attachment, instance|
-        if attachment.file? && !range.include?(attachment.size.to_i)
-          message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
-        end
-      end
+      attachment_definitions[name][:validations] << [:size, {:range   => range,
+                                                             :message => message,
+                                                             :if      => options[:if],
+                                                             :unless  => options[:unless]}]
     end
 
     # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
@@ -242,9 +241,9 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     def validates_attachment_presence name, options = {}
       message = options[:message] || "must be set."
-      attachment_definitions[name][:validations][:presence] = lambda do |attachment, instance|
-        message unless attachment.file?
-      end
+      attachment_definitions[name][:validations] << [:presence, {:message => message,
+                                                                 :if      => options[:if],
+                                                                 :unless  => options[:unless]}]
     end
     
     # Places ActiveRecord-style validations on the content type of the file
@@ -261,18 +260,9 @@ module Paperclip
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
     def validates_attachment_content_type name, options = {}
-      attachment_definitions[name][:validations][:content_type] = lambda do |attachment, instance|
-        valid_types = [options[:content_type]].flatten
-        
-        unless attachment.original_filename.blank?
-          unless valid_types.blank?
-            content_type = attachment.instance_read(:content_type)
-            unless valid_types.any?{|t| content_type.nil? || t === content_type }
-              options[:message] || "is not one of the allowed file types."
-            end
-          end
-        end
-      end
+      attachment_definitions[name][:validations] << [:content_type, {:content_type => options[:content_type],
+                                                                     :if           => options[:if],
+                                                                     :unless       => options[:unless]}]
     end
 
     # Returns the attachment definitions defined by each call to
