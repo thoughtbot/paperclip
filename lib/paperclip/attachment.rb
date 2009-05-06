@@ -198,26 +198,7 @@ module Paperclip
     # style as arguments. This hash can be added to with your own proc if
     # necessary.
     def self.interpolations
-      @interpolations ||= {
-        :rails_root   => lambda{|attachment,style| RAILS_ROOT },
-        :rails_env    => lambda{|attachment,style| RAILS_ENV },
-        :class        => lambda do |attachment,style|
-                           attachment.instance.class.name.underscore.pluralize
-                         end,
-        :basename     => lambda do |attachment,style|
-                           attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
-                         end,
-        :extension    => lambda do |attachment,style| 
-                           ((style = attachment.styles[style]) && style[:format]) ||
-                           File.extname(attachment.original_filename).gsub(/^\.+/, "")
-                         end,
-        :id           => lambda{|attachment,style| attachment.instance.id },
-        :id_partition => lambda do |attachment, style|
-                           ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
-                         end,
-        :attachment   => lambda{|attachment,style| attachment.name.to_s.downcase.pluralize },
-        :style        => lambda{|attachment,style| style || attachment.default_style },
-      }
+      Paperclip::Interpolations
     end
 
     # This method really shouldn't be called that often. It's expected use is
@@ -373,11 +354,10 @@ module Paperclip
     end
 
     def interpolate pattern, style = default_style #:nodoc:
-      interpolations = self.class.interpolations.sort{|a,b| a.first.to_s <=> b.first.to_s }
-      interpolations.reverse.inject( pattern.dup ) do |result, interpolation|
-        tag, blk = interpolation
+      interpolations = Paperclip::Interpolations.all
+      interpolations.reverse.inject( pattern.dup ) do |result, tag|
         result.gsub(/:#{tag}/) do |match|
-          blk.call( self, style )
+          Paperclip::Interpolations.send( tag, self, style )
         end
       end
     end

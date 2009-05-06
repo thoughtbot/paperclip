@@ -32,6 +32,7 @@ require 'paperclip/geometry'
 require 'paperclip/processor'
 require 'paperclip/thumbnail'
 require 'paperclip/storage'
+require 'paperclip/interpolations'
 require 'paperclip/attachment'
 if defined? RAILS_ROOT
   Dir.glob(File.join(File.expand_path(RAILS_ROOT), "lib", "paperclip_processors", "*.rb")).each do |processor|
