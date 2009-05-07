@@ -39,9 +39,9 @@ module Paperclip
     # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
     #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
     #   link in the +url+ entry for more information about S3 domains and buckets.
-    # * +url+: There are three options for the S3 url. You can choose to have the bucket's name
+    # * +url+: There are four options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
-    #   Lastly, you can specify a CNAME (which requires the CNAME to be specified as
+    #   You can also specify a CNAME (which requires the CNAME to be specified as
     #   :s3_alias_url. You can read more about CNAMEs and S3 at
     #   http://docs.amazonwebservices.com/AmazonS3/latest/index.html?VirtualHosting.html
     #   Normally, this won't matter in the slightest and you can leave the default (which is
@@ -50,7 +50,9 @@ module Paperclip
     #   NOTE: If you use a CNAME for use with CloudFront, you can NOT specify https as your
     #   :s3_protocol; This is *not supported* by S3/CloudFront. Finally, when using the host
     #   alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
-    #   by S3.
+    #   by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
+    #   asset_host settings. NOTE: To get the full url from a paperclip'd object, use the
+    #   image_path helper; this is what image_tag uses to generate the url for an img tag.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
@@ -78,6 +80,7 @@ module Paperclip
             @path          = @path.gsub(/:url/, @url)
             @url           = ":s3_path_url"
           end
+          @url            = ":asset_host" if @options[:url].to_s == ":asset_host"
           AWS::S3::Base.establish_connection!( @s3_options.merge(
             :access_key_id => @s3_credentials[:access_key_id],
             :secret_access_key => @s3_credentials[:secret_access_key]
@@ -92,6 +95,9 @@ module Paperclip
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
+        Paperclip.interpolates(:asset_host) do |attachment, style|
+          "#{attachment.path(style).gsub(%r{^/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
       def expiring_url(time = 3600, style_name = default_style)

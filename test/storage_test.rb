@@ -114,6 +114,24 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+
+  context "" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {}, 
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":asset_host"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a relative URL for Rails to calculate assets host" do
+      assert_match %r{^avatars/stringio.txt}, @dummy.avatar.url
+    end
+  end
+
   context "Generating a secure url with an expiration" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
