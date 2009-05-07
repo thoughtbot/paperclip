@@ -75,7 +75,7 @@ module Paperclip
     end
 
     def interpolates key, &block
-      Paperclip::Attachment.interpolations[key] = block
+      Paperclip::Interpolations[key] = block
     end
 
     # The run method takes a command to execute and a string of parameters
@@ -235,6 +235,9 @@ module Paperclip
 
     # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
     def validates_attachment_thumbnails name, options = {}
+      warn('[DEPRECATED] validates_attachment_thumbnail is deprecated. '
+           'This validation is on by default and will be removed from future versions. '
+           'If you wish to turn it off, supply :whiny => false in your definition.')
       attachment_definitions[name][:whiny_thumbnails] = true
     end
 

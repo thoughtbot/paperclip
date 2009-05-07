@@ -37,7 +37,8 @@ module Paperclip
       @validations       = options[:validations]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
-      @whiny             = options[:whiny_thumbnails]
+      @whiny             = options[:whiny_thumbnails] || options[:whiny]
+      @whiny             = true unless @whiny == false # default to true if nil
       @convert_options   = options[:convert_options] || {}
       @processors        = options[:processors] || [:thumbnail]
       @options           = options
@@ -198,6 +199,9 @@ module Paperclip
     # style as arguments. This hash can be added to with your own proc if
     # necessary.
     def self.interpolations
+      warn('[DEPRECATION] Paperclip::Attachment.interpolations is deprecated '
+           'and will be removed from future versions. '
+           'Use Paperclip.interpolates instead')
       Paperclip::Interpolations
     end
 

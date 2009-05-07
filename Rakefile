@@ -64,7 +64,6 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files  = FileList["README*"].to_a
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
-  s.add_runtime_dependency 'right_aws'
   s.add_development_dependency 'thoughtbot-shoulda'
   s.add_development_dependency 'mocha'
 end
