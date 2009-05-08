@@ -116,6 +116,18 @@ module Paperclip
       end
       processor
     end
+
+    def log message
+      logger.info("[paperclip] #{message}") if logging?
+    end
+
+    def logger
+      ActiveRecord::Base.logger
+    end
+
+    def logging?
+      options[:log]
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:

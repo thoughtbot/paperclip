@@ -39,7 +39,7 @@ module Paperclip
         @queued_for_write.each do |style, file|
           file.close
           FileUtils.mkdir_p(File.dirname(path(style)))
-          logger.info("[paperclip] saving #{path(style)}")
+          log("saving #{path(style)}")
           FileUtils.mv(file.path, path(style))
           FileUtils.chmod(0644, path(style))
         end
@@ -49,7 +49,7 @@ module Paperclip
       def flush_deletes #:nodoc:
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] deleting #{path}")
+            log("deleting #{path}")
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
@@ -62,7 +62,7 @@ module Paperclip
           rescue Errno::EEXIST, Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR
             # Stop trying to remove parent directories
           rescue SystemCallError => e
-            logger.info("[paperclip] There was an unexpected error while deleting directories: #{e.class}")
+            log("There was an unexpected error while deleting directories: #{e.class}")
             # Ignore it
           end
         end
@@ -194,7 +194,7 @@ module Paperclip
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
-            logger.info("[paperclip] saving #{path(style)}")
+            log("saving #{path(style)}")
             key = s3_bucket.key(path(style))
             key.data = file
             key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)}.merge(@s3_headers))
@@ -208,7 +208,7 @@ module Paperclip
       def flush_deletes #:nodoc:
         @queued_for_delete.each do |path|
           begin
-            logger.info("[paperclip] deleting #{path}")
+            log("deleting #{path}")
             if file = s3_bucket.key(path)
               file.delete
             end

@@ -61,11 +61,7 @@ module Paperclip
     # If the file that is assigned is not valid, the processing (i.e.
     # thumbnailing, etc) will NOT be run.
     def assign uploaded_file
-      %w(file_name).each do |field|
-        unless @instance.class.column_names.include?("#{name}_#{field}")
-          raise PaperclipError.new("#{@instance.class} model does not have required column '#{name}_#{field}'")
-        end
-      end
+      ensure_required_accessors!
 
       if uploaded_file.is_a?(Paperclip::Attachment)
         uploaded_file = uploaded_file.to_file(:original)
@@ -254,16 +250,16 @@ module Paperclip
 
     private
 
-    def logger #:nodoc:
-      instance.logger
+    def ensure_required_accessors!
+      %w(file_name).each do |field|
+        unless @instance.respond_to?("#{name}_#{field}") && @instance.respond_to?("#{name}_#{field}=")
+          raise PaperclipError.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
+        end
+      end
     end
 
     def log message #:nodoc:
-      logger.info("[paperclip] #{message}") if logging?
-    end
-
-    def logging? #:nodoc:
-      Paperclip.options[:log]
+      Paperclip.log(message)
     end
 
     def valid_assignment? file #:nodoc:
