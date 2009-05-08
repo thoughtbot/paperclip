@@ -72,7 +72,7 @@ def rebuild_class options = {}
 end
 
 def temporary_rails_env(new_env)
-  old_env = defined?(RAILS_ENV) ? RAILS_ENV : nil
+  old_env = Object.const_defined?("RAILS_ENV") ? RAILS_ENV : nil
   silence_warnings do
     Object.const_set("RAILS_ENV", new_env)
   end
