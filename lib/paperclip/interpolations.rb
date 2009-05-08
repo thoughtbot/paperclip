@@ -14,6 +14,14 @@ module Paperclip
       self.instance_methods(false).sort
     end
 
+    def self.interpolate pattern, *args
+      all.reverse.inject( pattern.dup ) do |result, tag|
+        result.gsub(/:#{tag}/) do |match|
+          send( tag, *args )
+        end
+      end
+    end
+
     def rails_root attachment, style
       RAILS_ROOT
     end

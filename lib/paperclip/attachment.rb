@@ -388,12 +388,7 @@ module Paperclip
     end
 
     def interpolate pattern, style = default_style #:nodoc:
-      interpolations = Paperclip::Interpolations.all
-      interpolations.reverse.inject( pattern.dup ) do |result, tag|
-        result.gsub(/:#{tag}/) do |match|
-          Paperclip::Interpolations.send( tag, self, style )
-        end
-      end
+      Paperclip::Interpolations.interpolate(pattern, self, style)
     end
 
     def queue_existing_for_delete #:nodoc:
