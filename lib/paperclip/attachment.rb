@@ -199,8 +199,8 @@ module Paperclip
     # style as arguments. This hash can be added to with your own proc if
     # necessary.
     def self.interpolations
-      warn('[DEPRECATION] Paperclip::Attachment.interpolations is deprecated '
-           'and will be removed from future versions. '
+      warn('[DEPRECATION] Paperclip::Attachment.interpolations is deprecated ' +
+           'and will be removed from future versions. ' +
            'Use Paperclip.interpolates instead')
       Paperclip::Interpolations
     end

@@ -128,6 +128,8 @@ module Paperclip
     #   separate parts of your file name.
     module S3
       def self.extended base
+        warn('[DEPRECATION] S3 support through RightAWS is deprecated. S3 support will ' + 
+             'be changed to AWS::S3 in a future version.')
         require 'right_aws'
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
