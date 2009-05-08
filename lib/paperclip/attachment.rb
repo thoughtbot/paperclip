@@ -7,7 +7,7 @@ module Paperclip
     def self.default_options
       @default_options ||= {
         :url           => "/system/:attachment/:id/:style/:basename.:extension",
-        :path          => ":rails_root/public/system/:attachment/:id/:style/:basename.:extension",
+        :path          => ":rails_root/public:url",
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
@@ -16,7 +16,7 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :styles, :default_style, :convert_options, :queued_for_write
+    attr_reader :name, :instance, :styles, :default_style, :convert_options, :queued_for_write, :options
 
     # Creates an Attachment object. +name+ is the name of the attachment,
     # +instance+ is the ActiveRecord object instance it's attached to, and

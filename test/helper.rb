@@ -81,3 +81,22 @@ def temporary_rails_env(new_env)
     Object.const_set("RAILS_ENV", old_env)
   end
 end
+
+class FakeModel
+  attr_accessor :avatar_file_name,
+                :avatar_file_size,
+                :avatar_last_updated,
+                :avatar_content_type,
+                :id
+
+  def errors
+    @errors ||= []
+  end
+
+  def run_callbacks
+  end
+end
+
+def attachment options
+  Paperclip::Attachment.new(:avatar, FakeModel.new, options)
+end

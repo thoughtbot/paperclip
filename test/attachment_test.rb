@@ -5,6 +5,14 @@ class Dummy
 end
 
 class AttachmentTest < Test::Unit::TestCase
+  should "return the path based on the url by default" do
+    @attachment = attachment :url => "/:class/:id/:basename"
+    @model = @attachment.instance
+    @model.id = 1234
+    @model.avatar_file_name = "fake.jpg"
+    assert_equal "#{RAILS_ROOT}/public/fake_models/1234/fake", @attachment.path
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model
@@ -456,6 +464,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment" do
     setup do
+      @old_defaults = Paperclip::Attachment.default_options.dup
       Paperclip::Attachment.default_options.merge!({
         :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       })
@@ -468,7 +477,10 @@ class AttachmentTest < Test::Unit::TestCase
                                  "5k.png"), 'rb')
     end
 
-    teardown { @file.close }
+    teardown do 
+      @file.close
+      Paperclip::Attachment.default_options.merge!(@old_defaults)
+    end
 
     should "raise if there are not the correct columns when you try to assign" do
       @other_attachment = Paperclip::Attachment.new(:not_here, @instance)
