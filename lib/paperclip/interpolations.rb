@@ -22,6 +22,15 @@ module Paperclip
       end
     end
 
+    def url attachment, style
+      raise InfiniteInterpolationError if attachment.options[:url].include?(":url")
+      attachment.url(style)
+    end
+
+    def timestamp attachment, style
+      attachment.instance_read(:updated_at).to_s
+    end
+
     def rails_root attachment, style
       RAILS_ROOT
     end

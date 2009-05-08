@@ -76,6 +76,26 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal :default_style, Paperclip::Interpolations.style(attachment, nil)
   end
 
+  should "reinterpolate :url" do
+    attachment = mock
+    attachment.expects(:options).returns({:url => ":id"})
+    attachment.expects(:url).with(:style).returns("1234")
+    assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
+  end
+
+  should "raise if infinite loop detcted reinterpolatin :url" do
+    attachment = mock
+    attachment.expects(:options).returns({:url => ":url"})
+    assert_raises(Paperclip::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
+  end
+
+  should "return the timestamp" do
+    now = Time.now
+    attachment = mock
+    attachment.expects(:instance_read).with(:updated_at).returns(now)
+    assert_equal now.to_s, Paperclip::Interpolations.timestamp(attachment, :style)
+  end
+
   should "call all expected interpolations with the given arguments" do
     Paperclip::Interpolations.expects(:id).with(:attachment, :style).returns(1234)
     Paperclip::Interpolations.expects(:attachment).with(:attachment, :style).returns("attachments")
