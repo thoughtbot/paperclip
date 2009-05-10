@@ -49,6 +49,15 @@ class GeometryTest < Test::Unit::TestCase
       assert_nil @geo.modifier
     end
 
+    should "treat x and X the same in geometries" do
+      @lower = Paperclip::Geometry.parse("123x456")
+      @upper = Paperclip::Geometry.parse("123X456")
+      assert_equal 123, @lower.width
+      assert_equal 123, @upper.width
+      assert_equal 456, @lower.height
+      assert_equal 456, @upper.height
+    end
+
     ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
       should "ensure the modifier #{mod.inspect} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
