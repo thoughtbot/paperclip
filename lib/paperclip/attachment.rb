@@ -189,11 +189,11 @@ module Paperclip
       time && time.to_i
     end
 
-    # A hash of procs that are run during the interpolation of a path or url.
-    # A variable of the format :name will be replaced with the return value of
-    # the proc named ":name". Each lambda takes the attachment and the current
-    # style as arguments. This hash can be added to with your own proc if
-    # necessary.
+    # Paths and URLs can have a number of variables interpolated into them
+    # to vary the storage location based on name, id, style, class, etc.
+    # This method is a deprecated access into supplying and retrieving these
+    # interpolations. Future access should use either Paperclip.interpolates
+    # or extend the Paperclip::Interpolations module directly.
     def self.interpolations
       warn('[DEPRECATION] Paperclip::Attachment.interpolations is deprecated ' +
            'and will be removed from future versions. ' +
@@ -250,7 +250,7 @@ module Paperclip
 
     private
 
-    def ensure_required_accessors!
+    def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|
         unless @instance.respond_to?("#{name}_#{field}") && @instance.respond_to?("#{name}_#{field}=")
           raise PaperclipError.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
@@ -279,11 +279,11 @@ module Paperclip
       @validation_errors
     end
 
-    def allow_validation? options
+    def allow_validation? options #:nodoc:
       (options[:if].nil? || check_guard(options[:if])) && (options[:unless].nil? || !check_guard(options[:unless]))
     end
 
-    def check_guard guard
+    def check_guard guard #:nodoc:
       if guard.respond_to? :call
         guard.call(instance)
       elsif ! guard.blank?
@@ -364,7 +364,7 @@ module Paperclip
       return if fire_events(:after)
     end
 
-    def fire_events(which)
+    def fire_events(which) #:nodoc:
       return true if callback(:"#{which}_post_process") == false
       return true if callback(:"#{which}_#{name}_post_process") == false
     end
@@ -373,7 +373,7 @@ module Paperclip
       instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
     end
 
-    def post_process_styles
+    def post_process_styles #:nodoc:
       @styles.each do |name, args|
         begin
           raise RuntimeError.new("Style #{name} has no processors defined.") if args[:processors].blank?

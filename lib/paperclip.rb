@@ -5,7 +5,7 @@
 # columns to your table.
 #
 # Author:: Jon Yurek
-# Copyright:: Copyright (c) 2008 thoughtbot, inc.
+# Copyright:: Copyright (c) 2008-2009 thoughtbot, inc.
 # License:: MIT License (http://www.opensource.org/licenses/mit-license.php)
 #
 # Paperclip defines an attachment as any file, though it makes special considerations
@@ -48,7 +48,7 @@ module Paperclip
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
-    # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
+    # * whiny: Will raise an error if Paperclip cannot process thumbnails of 
     #   an uploaded image. Defaults to true.
     # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
     #   log levels, etc. Defaults to true.
@@ -88,6 +88,10 @@ module Paperclip
     # If the command returns with a result code that is not one of the
     # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
+    #
+    # This method can log the command being run when 
+    # Paperclip.options[:log_command] is set to true (defaults to false). This
+    # will only log if logging in general is set to true as well.
     def run cmd, params = "", expected_outcodes = 0
       command = %Q<#{%Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")}>
       command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
@@ -119,15 +123,17 @@ module Paperclip
       processor
     end
 
+    # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
+    # by default. Set Paperclip.options[:log] to false to turn off.
     def log message
       logger.info("[paperclip] #{message}") if logging?
     end
 
-    def logger
+    def logger #:nodoc:
       ActiveRecord::Base.logger
     end
 
-    def logging?
+    def logging? #:nodoc:
       options[:log]
     end
   end
@@ -159,9 +165,9 @@ module Paperclip
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash *must* be included manually for 
     #   absolute paths. The default value is 
-    #   "/system/:attachment/:id/:style/:basename.:extension". See
+    #   "/system/:attachment/:id/:style/:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :url => "/:class/:attachment/:id/:style_:basename.:extension"
+    #     :url => "/:class/:attachment/:id/:style_:filename"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
     # * +default_url+: The URL that will be returned if there is no attachment assigned. 
     #   This field is interpolated just as the url is. The default value is 
@@ -179,9 +185,10 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
-    # * +whiny_thumbnails+: Will raise an error if Paperclip cannot post_process an uploaded file due
+    # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment. 
-    #   Defaults to true. 
+    #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
+    #   deprecated.
     # * +convert_options+: When creating thumbnails, use this free-form options
     #   field to pass in various convert command options.  Typical options are "-strip" to
     #   remove all Exif data from the image (save space for thumbnails and avatars) or
@@ -197,6 +204,9 @@ module Paperclip
     #                                  :all => "-strip",
     #                                  :negative => "-negate"
     #                                }
+    #   NOTE: While not deprecated yet, it is not recommended to specify options this way.
+    #   It is recommended that :convert_options option be included in the hash passed to each
+    #   :styles for compatability with future versions.
     # * +storage+: Chooses the storage backend where the files will be stored. The current
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
@@ -238,6 +248,9 @@ module Paperclip
     # * +less_than+: equivalent to :in => 0..options[:less_than]
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     # * +message+: error message to display, use :min and :max as replacements
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_size name, options = {}
       min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
@@ -259,6 +272,10 @@ module Paperclip
     end
 
     # Places ActiveRecord-style validations on the presence of a file.
+    # Options:
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || "must be set."
       attachment_definitions[name][:validations] << [:presence, {:message => message,
@@ -276,6 +293,9 @@ module Paperclip
     #   match.  Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid
     #   content type.
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     # NOTE: If you do not specify an [attachment]_content_type field on your
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
