@@ -83,10 +83,24 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
   end
 
-  should "raise if infinite loop detcted reinterpolatin :url" do
+  should "raise if infinite loop detcted reinterpolating :url" do
     attachment = mock
     attachment.expects(:options).returns({:url => ":url"})
     assert_raises(Paperclip::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
+  end
+
+  should "return the filename as basename.extension" do
+    attachment = mock
+    attachment.expects(:styles).returns({})
+    attachment.expects(:original_filename).returns("one.jpg").times(3)
+    assert_equal "one.jpg", Paperclip::Interpolations.filename(attachment, :style)
+  end
+
+  should "return the filename as basename.extension when format supplied" do
+    attachment = mock
+    attachment.expects(:styles).returns({:style => {:format => :png}})
+    attachment.expects(:original_filename).returns("one.jpg").times(2)
+    assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
 
   should "return the timestamp" do

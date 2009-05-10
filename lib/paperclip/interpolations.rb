@@ -22,6 +22,10 @@ module Paperclip
       end
     end
 
+    def filename attachment, style
+      "#{basename(attachment, style)}.#{extension(attachment, style)}"
+    end
+
     def url attachment, style
       raise InfiniteInterpolationError if attachment.options[:url].include?(":url")
       attachment.url(style)
