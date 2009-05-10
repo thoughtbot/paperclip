@@ -12,7 +12,8 @@ module Paperclip
         :default_url   => "/:attachment/:style/missing.png",
         :default_style => :original,
         :validations   => [],
-        :storage       => :filesystem
+        :storage       => :filesystem,
+        :whiny         => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
 
@@ -38,7 +39,6 @@ module Paperclip
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @whiny             = options[:whiny_thumbnails] || options[:whiny]
-      @whiny             = true unless @whiny == false # default to true if nil
       @convert_options   = options[:convert_options] || {}
       @processors        = options[:processors] || [:thumbnail]
       @options           = options

@@ -58,7 +58,7 @@ module Paperclip
     # * image_magick_path: Deprecated alias of command_path.
     def options
       @options ||= {
-        :whiny_thumbnails  => true,
+        :whiny             => true,
         :image_magick_path => nil,
         :command_path      => nil,
         :log               => true,
