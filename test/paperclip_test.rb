@@ -30,6 +30,14 @@ class PaperclipTest < Test::Unit::TestCase
       Paperclip.expects(:"`").with("convert one.jpg two.jpg 2>/dev/null")
       Paperclip.run("convert", "one.jpg two.jpg")
     end
+
+    should "log the command when :log_command is set" do
+      Paperclip.options[:log_command] = true
+      Paperclip.expects(:bit_bucket).returns("/dev/null")
+      Paperclip.expects(:log).with("this is the command 2>/dev/null")
+      Paperclip.expects(:"`").with("this is the command 2>/dev/null")
+      Paperclip.run("this","is the command")
+    end
   end
 
   should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
