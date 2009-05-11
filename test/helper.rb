@@ -91,7 +91,7 @@ class FakeModel
     @errors ||= []
   end
 
-  def run_callbacks
+  def run_callbacks name, *args
   end
 end
 

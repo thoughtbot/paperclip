@@ -108,7 +108,7 @@ module Paperclip
     # file is stored in the filesystem the path refers to the path of the file
     # on disk. If the file is stored in S3, the path is the "key" part of the
     # URL, and the :bucket option refers to the S3 bucket.
-    def path style = nil #:nodoc:
+    def path style = default_style
       original_filename.nil? ? nil : interpolate(@path, style)
     end
 
