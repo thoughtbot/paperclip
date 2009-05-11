@@ -5,13 +5,14 @@ module Paperclip
   # are not required to follow suit.
   #
   # Processors are required to be defined inside the Paperclip module and
-  # are also required to be a subclass of Paperclip::Processor. There are
-  # only two methods you must implement to properly be a subclass: 
-  # #initialize and #make. Initialize's arguments are the file that will
-  # be operated on (which is an instance of File), and a hash of options
-  # that were defined in has_attached_file's style hash.
+  # are also required to be a subclass of Paperclip::Processor. There is
+  # only one method you *must* implement to properly be a subclass: 
+  # #make, but #initialize may also be of use. Both methods accept 3
+  # arguments: the file that will be operated on (which is an instance of
+  # File), a hash of options that were defined in has_attached_file's
+  # style hash, and the Paperclip::Attachment itself.
   #
-  # All #make needs to do is return an instance of File (Tempfile is
+  # All #make needs to return is an instance of File (Tempfile is
   # acceptable) which contains the results of the processing.
   #
   # See Paperclip.run for more information about using command-line
