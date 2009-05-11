@@ -173,7 +173,7 @@ module Paperclip
 
       def parse_credentials creds
         creds = find_credentials(creds).stringify_keys
-        (creds[ENV['RAILS_ENV']] || creds).symbolize_keys
+        (creds[RAILS_ENV] || creds).symbolize_keys
       end
       
       def exists?(style = default_style)
