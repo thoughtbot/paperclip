@@ -43,7 +43,7 @@ module Paperclip
     # is used in the default :path to ease default specifications.
     def url attachment, style
       raise InfiniteInterpolationError if attachment.options[:url].include?(":url")
-      attachment.url(style)
+      attachment.url(style, false)
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
