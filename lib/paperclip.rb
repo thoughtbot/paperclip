@@ -301,6 +301,7 @@ module Paperclip
     # re-validation after the instance has been reloaded will always succeed.
     def validates_attachment_content_type name, options = {}
       attachment_definitions[name][:validations] << [:content_type, {:content_type => options[:content_type],
+                                                                     :message      => options[:message],
                                                                      :if           => options[:if],
                                                                      :unless       => options[:unless]}]
     end
