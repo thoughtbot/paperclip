@@ -54,8 +54,11 @@ exclude_file_globs = ["test/s3.yml",
                       "test/debug.log",
                       "test/paperclip.db",
                       "test/doc",
+                      "test/doc/*",
                       "test/pkg",
-                      "test/tmp"]
+                      "test/pkg/*",
+                      "test/tmp",
+                      "test/tmp/*"]
 spec = Gem::Specification.new do |s| 
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
