@@ -45,6 +45,17 @@ task :clean do |t|
   Dir.glob("paperclip-*.gem").each{|f| FileUtils.rm f }
 end
 
+include_file_globs = ["README*",
+                      "LICENSE",
+                      "Rakefile",
+                      "init.rb",
+                      "{generators,lib,tasks,test,shoulda_macros}/**/*"]
+exclude_file_globs = ["test/s3.yml",
+                      "test/debug.log",
+                      "test/paperclip.db",
+                      "test/doc",
+                      "test/pkg",
+                      "test/tmp"]
 spec = Gem::Specification.new do |s| 
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
@@ -53,11 +64,7 @@ spec = Gem::Specification.new do |s|
   s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "File attachments as attributes for ActiveRecord"
-  s.files             = FileList["README*",
-                                 "LICENSE",
-                                 "Rakefile",
-                                 "init.rb",
-                                 "{generators,lib,tasks,test,shoulda_macros}/**/*"].to_a
+  s.files             = FileList[include_file_globs].to_a - FileList[exclude_file_globs].to_a
   s.require_path      = "lib"
   s.test_files        = FileList["test/**/test_*.rb"].to_a
   s.rubyforge_project = "paperclip"
@@ -67,6 +74,13 @@ spec = Gem::Specification.new do |s|
   s.requirements << "ImageMagick"
   s.add_development_dependency 'thoughtbot-shoulda'
   s.add_development_dependency 'mocha'
+end
+
+desc "Print a list of the files to be put into the gem"
+task :manifest => :clean do
+  spec.files.each do |file|
+    puts file
+  end
 end
  
 desc "Generate a gemspec file for GitHub"
