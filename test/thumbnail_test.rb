@@ -178,6 +178,18 @@ class ThumbnailTest < Test::Unit::TestCase
         end
       end      
     end
+    
+    context "being thumbnailed with a blank geometry string" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file,
+                                          :geometry        => "",
+                                          :convert_options => "-gravity center -crop \"300x300+0-0\"")
+      end
+      
+      should "not get resized by default" do
+        assert_no_match(/-resize/, @thumb.transformation_command)
+      end
+    end
   end
 
   context "A multipage PDF" do
