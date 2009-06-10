@@ -168,7 +168,7 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the mailing list, or post a ticket in Lighthouse.
+1. Ask on the mailing list, or post a new GitHub Issue.
 2. Make sure there are tests! We will not accept any patch that is not tested.
-   It's a rare time when explicit tests aren't needed. If you have questions 
+   It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please ask the mailing list.
