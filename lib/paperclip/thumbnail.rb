@@ -2,7 +2,7 @@ module Paperclip
   # Handles thumbnailing images that are uploaded.
   class Thumbnail < Processor
 
-    attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options
+    attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options, :source_file_options
 
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
@@ -12,17 +12,18 @@ module Paperclip
     # set, the options will be appended to the convert command upon image conversion 
     def initialize file, options = {}, attachment = nil
       super
-      geometry          = options[:geometry]
-      @file             = file
-      @crop             = geometry[-1,1] == '#'
-      @target_geometry  = Geometry.parse geometry
-      @current_geometry = Geometry.from_file @file
-      @convert_options  = options[:convert_options]
-      @whiny            = options[:whiny].nil? ? true : options[:whiny]
-      @format           = options[:format]
+      geometry             = options[:geometry]
+      @file                = file
+      @crop                = geometry[-1,1] == '#'
+      @target_geometry     = Geometry.parse geometry
+      @current_geometry    = Geometry.from_file @file
+      @source_file_options = options[:source_file_options]
+      @convert_options     = options[:convert_options]
+      @whiny               = options[:whiny].nil? ? true : options[:whiny]
+      @format              = options[:format]
 
-      @current_format   = File.extname(@file.path)
-      @basename         = File.basename(@file.path, @current_format)
+      @current_format      = File.extname(@file.path)
+      @basename            = File.basename(@file.path, @current_format)
     end
 
     # Returns true if the +target_geometry+ is meant to crop.
@@ -43,6 +44,7 @@ module Paperclip
       dst.binmode
 
       command = <<-end_command
+        #{ source_file_options }
         "#{ File.expand_path(src.path) }[0]"
         #{ transformation_command }
         "#{ File.expand_path(dst.path) }"

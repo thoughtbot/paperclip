@@ -103,6 +103,44 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
     
+    context "being thumbnailed with source file options set" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file,
+                                          :geometry            => "100x50#",
+                                          :source_file_options => "-strip")
+      end
+
+      should "have source_file_options value set" do
+        assert_equal "-strip", @thumb.source_file_options
+      end
+
+      should "send the right command to convert when sent #make" do
+        Paperclip.expects(:"`").with do |arg|
+          arg.match %r{convert\s+-strip\s+"#{File.expand_path(@thumb.file.path)}\[0\]"\s+-resize\s+"x50"\s+-crop\s+"100x50\+114\+0"\s+\+repage\s+".*?"}
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /100x50/, `identify "#{dst.path}"`
+      end
+      
+      context "redefined to have bad source_file_options setting" do
+        setup do
+          @thumb = Paperclip::Thumbnail.new(@file,
+                                            :geometry => "100x50#",
+                                            :source_file_options => "-this-aint-no-option")
+        end
+
+        should "error when trying to create the thumbnail" do
+          assert_raises(Paperclip::PaperclipError) do
+            @thumb.make
+          end
+        end
+      end      
+    end
+
     context "being thumbnailed with convert options set" do
       setup do
         @thumb = Paperclip::Thumbnail.new(@file,
