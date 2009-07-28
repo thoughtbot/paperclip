@@ -307,6 +307,21 @@ class PaperclipTest < Test::Unit::TestCase
       
       should_validate validation, options, valid_file, invalid_file
     end
+    
+    context "with size validation and less_than 10240 option" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240)
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
+          @dummy.valid?
+        end
+        
+        should "have a file size min/max error message" do
+          assert_match /between 0 and 10240 bytes/, @dummy.errors.on(:avatar)
+        end
+      end
+    end
 
   end
 end

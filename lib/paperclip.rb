@@ -257,7 +257,9 @@ module Paperclip
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
 
-      attachment_definitions[name][:validations] << [:size, {:range   => range,
+      attachment_definitions[name][:validations] << [:size, {:min     => min,
+                                                             :max     => max,
+                                                             :range   => range,
                                                              :message => message,
                                                              :if      => options[:if],
                                                              :unless  => options[:unless]}]
