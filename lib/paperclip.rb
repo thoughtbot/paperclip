@@ -93,7 +93,7 @@ module Paperclip
     # Paperclip.options[:log_command] is set to true (defaults to false). This
     # will only log if logging in general is set to true as well.
     def run cmd, params = "", expected_outcodes = 0
-      command = %Q<#{%Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")}>
+      command = %Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")
       command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
       Paperclip.log(command) if Paperclip.options[:log_command]
       output = `#{command}`

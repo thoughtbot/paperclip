@@ -33,7 +33,6 @@ module Paperclip
       def to_file style = default_style
         @queued_for_write[style] || (File.new(path(style), 'rb') if exists?(style))
       end
-      alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
@@ -128,7 +127,7 @@ module Paperclip
     #   separate parts of your file name.
     module S3
       def self.extended base
-        require 'right_aws'
+        require 'aws/s3'
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
@@ -152,13 +151,10 @@ module Paperclip
       end
 
       def s3
-        @s3 ||= RightAws::S3.new(@s3_credentials[:access_key_id],
-                                 @s3_credentials[:secret_access_key],
-                                 @s3_options)
-      end
-
-      def s3_bucket
-        @s3_bucket ||= s3.bucket(@bucket, true, @s3_permissions)
+        AWS::S3::S3Object.establish_connection( @s3_options.merge(
+          :access_key_id => @s3_credentials[:access_key_id],
+          :secret_access_key => @s3_credentials[:secret_access_key]
+        ))
       end
 
       def bucket_name
@@ -175,7 +171,7 @@ module Paperclip
       end
       
       def exists?(style = default_style)
-        s3_bucket.key(path(style)) ? true : false
+        AWS::S3::S3Object.exists?(path(style), bucket_name)
       end
 
       def s3_protocol
@@ -185,18 +181,22 @@ module Paperclip
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style = default_style
-        @queued_for_write[style] || s3_bucket.key(path(style))
+        return @queued_for_write[style] if @queued_for_write[style]
+        file = Tempfile.new(path(style))
+        file.write(AWS::S3::S3Object.value(path(style), bucket_name))
+        file.rewind
+        return file
       end
-      alias_method :to_io, :to_file
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
-            key = s3_bucket.key(path(style))
-            key.data = file
-            key.put(nil, @s3_permissions, {'Content-type' => instance_read(:content_type)}.merge(@s3_headers))
-          rescue RightAws::AwsError => e
+            AWS::S3::S3Object.store(path(style),
+                                    file,
+                                    bucket_name,
+                                    {:content_type => instance_read(:content_type)}.merge(@s3_headers))
+          rescue AWS::S3::ResponseError => e
             raise
           end
         end
@@ -207,10 +207,8 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            if file = s3_bucket.key(path)
-              file.delete
-            end
-          rescue RightAws::AwsError
+            AWS::S3::S3Object.delete(path, bucket_name)
+          rescue AWS::S3::ResponseError
             # Ignore this.
           end
         end

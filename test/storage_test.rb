@@ -146,14 +146,7 @@ class StorageTest < Test::Unit::TestCase
 
       context "and saved" do
         setup do
-          @s3_mock     = stub
-          @bucket_mock = stub
-          RightAws::S3.expects(:new).with("12345", "54321", {}).returns(@s3_mock)
-          @s3_mock.expects(:bucket).with("testing", true, "public-read").returns(@bucket_mock)
-          @key_mock = stub
-          @bucket_mock.expects(:key).returns(@key_mock)
-          @key_mock.expects(:data=)
-          @key_mock.expects(:put).with(nil, 'public-read', 'Content-type' => 'image/png')
+          AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png')
           @dummy.save
         end
 
@@ -164,13 +157,8 @@ class StorageTest < Test::Unit::TestCase
       
       context "and remove" do
         setup do
-          @s3_mock     = stub
-          @bucket_mock = stub
-          RightAws::S3.expects(:new).with("12345", "54321", {}).returns(@s3_mock)
-          @s3_mock.expects(:bucket).with("testing", true, "public-read").returns(@bucket_mock)
-          @key_mock = stub
-          @bucket_mock.expects(:key).at_least(2).returns(@key_mock)
-          @key_mock.expects(:delete)
+          AWS::S3::S3Object.stubs(:exists?).returns(true)
+          AWS::S3::S3Object.stubs(:delete)
           @dummy.destroy_attached_files
         end
 
@@ -217,17 +205,11 @@ class StorageTest < Test::Unit::TestCase
 
       context "and saved" do
         setup do
-          @s3_mock     = stub
-          @bucket_mock = stub
-          RightAws::S3.expects(:new).with("12345", "54321", {}).returns(@s3_mock)
-          @s3_mock.expects(:bucket).with("testing", true, "public-read").returns(@bucket_mock)
-          @key_mock = stub
-          @bucket_mock.expects(:key).returns(@key_mock)
-          @key_mock.expects(:data=)
-          @key_mock.expects(:put).with(nil,
-                                       'public-read',
-                                       'Content-type' => 'image/png',
-                                       'Cache-Control' => 'max-age=31557600')
+          AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path,
+                                               anything,
+                                               'testing',
+                                               :content_type => 'image/png',
+                                               'Cache-Control' => 'max-age=31557600')
           @dummy.save
         end
 

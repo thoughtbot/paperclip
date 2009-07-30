@@ -1,12 +1,16 @@
 require 'test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
-  [:image_magick_path, :convert_path].each do |path|
-    context "Calling Paperclip.run with an #{path} specified" do
+  [:image_magick_path, :command_path].each do |path|
+    context "Calling Paperclip.run with #{path} specified" do
       setup do
         Paperclip.options[:image_magick_path] = nil
-        Paperclip.options[:convert_path]      = nil
+        Paperclip.options[:command_path]      = nil
         Paperclip.options[path]               = "/usr/bin"
+      end
+
+      should "return the expected path for path_for_command" do
+        assert_equal "/usr/bin/convert", Paperclip.path_for_command("convert")
       end
 
       should "execute the right command" do
@@ -21,7 +25,11 @@ class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run with no path specified" do
     setup do
       Paperclip.options[:image_magick_path] = nil
-      Paperclip.options[:convert_path]      = nil
+      Paperclip.options[:command_path]      = nil
+    end
+
+    should "return the expected path fro path_for_command" do
+      assert_equal "convert", Paperclip.path_for_command("convert")
     end
 
     should "execute the right command" do
@@ -30,38 +38,38 @@ class PaperclipTest < Test::Unit::TestCase
       Paperclip.expects(:"`").with("convert one.jpg two.jpg 2>/dev/null")
       Paperclip.run("convert", "one.jpg two.jpg")
     end
+  end
 
-    should "log the command when :log_command is set" do
-      Paperclip.options[:log_command] = true
-      Paperclip.expects(:bit_bucket).returns("/dev/null")
-      Paperclip.expects(:log).with("this is the command 2>/dev/null")
-      Paperclip.expects(:"`").with("this is the command 2>/dev/null")
-      Paperclip.run("this","is the command")
+  context "Calling Paperclip.run and logging" do
+    setup do
+      Paperclip.options[:image_magick_path] = nil
+      Paperclip.options[:command_path]      = nil
+      Paperclip.stubs(:bit_bucket).returns("/dev/null")
+      Paperclip.stubs(:log)
+      Paperclip.stubs(:"`").with("this is the command 2>/dev/null")
     end
-  end
 
-  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
-    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
-  end
+    should "log the command when :log_command is true" do
+      Paperclip.options[:log_command] = true
+      Paperclip.run("this","is the command")
+      assert_received(Paperclip, :log) do |p|
+        p.with("this is the command 2>/dev/null")
+      end
+      assert_received(Paperclip, :`) do |p|
+        p.with("this is the command 2>/dev/null")
+      end
+    end
 
-  should "raise when sent #processor and the name of a class that doesn't exist" do
-    assert_raises(NameError){ Paperclip.processor(:boogey_man) }
-  end
-
-  should "return a class when sent #processor and the name of a class under Paperclip" do
-    assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
-  end
-
-  should "call a proc sent to check_guard" do
-    @dummy = Dummy.new
-    @dummy.expects(:one).returns(:one)
-    assert_equal :one, @dummy.avatar.send(:check_guard, lambda{|x| x.one })
-  end
-
-  should "call a method name sent to check_guard" do
-    @dummy = Dummy.new
-    @dummy.expects(:one).returns(:one)
-    assert_equal :one, @dummy.avatar.send(:check_guard, :one)
+    should "not log the command when :log_command is false" do
+      Paperclip.options[:log_command] = false
+      Paperclip.run("this","is the command")
+      assert_received(Paperclip, :log) do |p|
+        p.with("this is the command 2>/dev/null").never
+      end
+      assert_received(Paperclip, :`) do |p|
+        p.with("this is the command 2>/dev/null")
+      end
+    end
   end
 
   context "Paperclip.bit_bucket" do
@@ -84,6 +92,18 @@ class PaperclipTest < Test::Unit::TestCase
         assert_equal "/dev/null", Paperclip.bit_bucket
       end
     end
+  end
+
+  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
+    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
+  end
+
+  should "raise when sent #processor and the name of a class that doesn't exist" do
+    assert_raises(NameError){ Paperclip.processor(:boogey_man) }
+  end
+
+  should "return a class when sent #processor and the name of a class under Paperclip" do
+    assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
   end
 
   context "An ActiveRecord model with an 'avatar' attachment" do
@@ -139,7 +159,8 @@ class PaperclipTest < Test::Unit::TestCase
       end
 
       should "be able to see the attachment definition from the subclass's class" do
-        assert_equal "tmp/:class/omg/:style.:extension", SubDummy.attachment_definitions[:avatar][:path]
+        assert_equal "tmp/:class/omg/:style.:extension",
+                     SubDummy.attachment_definitions[:avatar][:path]
       end
 
       teardown do
