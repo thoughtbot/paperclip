@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'test/helper'
 
 class Dummy
@@ -498,12 +499,10 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model
       @instance = Dummy.new
       @attachment = Paperclip::Attachment.new(:avatar, @instance)
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
     end
 
-    teardown do 
+    teardown do
       @file.close
       Paperclip::Attachment.default_options.merge!(@old_defaults)
     end
@@ -520,13 +519,13 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "/avatars/original/missing.png", @attachment.url
       assert_equal "/avatars/blah/missing.png", @attachment.url(:blah)
     end
-    
+
     should "return nil as path when no file assigned" do
       assert @attachment.to_file.nil?
       assert_equal nil, @attachment.path
       assert_equal nil, @attachment.path(:blah)
     end
-    
+
     context "with a file assigned in the database" do
       setup do
         @attachment.stubs(:instance_read).with(:file_name).returns("5k.png")
@@ -545,7 +544,7 @@ class AttachmentTest < Test::Unit::TestCase
       should "make sure the updated_at mtime is in the url if it is defined" do
         assert_match %r{#{Time.now.to_i}$}, @attachment.url(:blah)
       end
- 
+
       should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
         assert_no_match %r{#{Time.now.to_i}$}, @attachment.url(:blah, false)
       end
@@ -561,12 +560,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "return the proper path when filename has a single .'s" do
-        assert_equal "./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.png", @attachment.path
+        assert_equal File.expand_path("./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.png"), File.expand_path(@attachment.path)
       end
 
       should "return the proper path when filename has multiple .'s" do
-        @attachment.stubs(:instance_read).with(:file_name).returns("5k.old.png")      
-        assert_equal "./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.old.png", @attachment.path
+        @attachment.stubs(:instance_read).with(:file_name).returns("5k.old.png")
+        assert_equal File.expand_path("./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.old.png"), File.expand_path(@attachment.path)
       end
 
       context "when expecting three styles" do

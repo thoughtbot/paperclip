@@ -30,7 +30,7 @@ module Paperclip
         protected
 
         def responds?
-          methods = @subject.instance_methods
+          methods = @subject.instance_methods.map(&:to_s)
           methods.include?("#{@attachment_name}") &&
             methods.include?("#{@attachment_name}=") &&
             methods.include?("#{@attachment_name}?")
