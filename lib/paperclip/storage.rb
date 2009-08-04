@@ -133,11 +133,15 @@ module Paperclip
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
           @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
           @s3_options     = @options[:s3_options]     || {}
-          @s3_permissions = @options[:s3_permissions] || 'public-read'
-          @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == 'public-read' ? 'http' : 'https')
+          @s3_permissions = @options[:s3_permissions] || :public_read
+          @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == :public_read ? 'http' : 'https')
           @s3_headers     = @options[:s3_headers]     || {}
           @s3_host_alias  = @options[:s3_host_alias]
           @url            = ":s3_path_url" unless @url.to_s.match(/^:s3.*url$/)
+          AWS::S3::Base.establish_connection!( @s3_options.merge(
+            :access_key_id => @s3_credentials[:access_key_id],
+            :secret_access_key => @s3_credentials[:secret_access_key]
+          ))
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -148,13 +152,6 @@ module Paperclip
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
-      end
-
-      def s3
-        AWS::S3::S3Object.establish_connection( @s3_options.merge(
-          :access_key_id => @s3_credentials[:access_key_id],
-          :secret_access_key => @s3_credentials[:secret_access_key]
-        ))
       end
 
       def bucket_name
@@ -171,7 +168,11 @@ module Paperclip
       end
       
       def exists?(style = default_style)
-        AWS::S3::S3Object.exists?(path(style), bucket_name)
+        if original_filename
+          AWS::S3::S3Object.exists?(path(style), bucket_name)
+        else
+          false
+        end
       end
 
       def s3_protocol
@@ -195,7 +196,9 @@ module Paperclip
             AWS::S3::S3Object.store(path(style),
                                     file,
                                     bucket_name,
-                                    {:content_type => instance_read(:content_type)}.merge(@s3_headers))
+                                    {:content_type => instance_read(:content_type),
+                                     :access => @s3_permissions,
+                                    }.merge(@s3_headers))
           rescue AWS::S3::ResponseError => e
             raise
           end
