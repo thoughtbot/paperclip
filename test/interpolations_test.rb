@@ -7,7 +7,7 @@ class InterpolationsTest < Test::Unit::TestCase
     assert ! methods.include?(:[]=)
     assert ! methods.include?(:all)
     methods.each do |m|
-      assert Paperclip::Interpolations.respond_to? m
+      assert Paperclip::Interpolations.respond_to?(m)
     end
   end
 
