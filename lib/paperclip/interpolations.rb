@@ -63,7 +63,10 @@ module Paperclip
 
     # Returns the underscored, pluralized version of the class name.
     # e.g. "users" for the User class.
-    def class attachment, style
+    # NOTE: The arguments need to be optional, because some tools fetch
+    # all class names. Calling #class will return the expected class.
+    def class attachment = nil, style = nil
+      return super() if attachment.nil? && style.nil?
       attachment.instance.class.to_s.underscore.pluralize
     end
 

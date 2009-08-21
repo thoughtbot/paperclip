@@ -19,6 +19,10 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal RAILS_ENV, Paperclip::Interpolations.rails_env(:attachment, :style)
   end
 
+  should "return the class of the Interpolations module when called with no params" do
+    assert_equal Module, Paperclip::Interpolations.class
+  end
+
   should "return the class of the instance" do
     attachment = mock
     attachment.expects(:instance).returns(attachment)
