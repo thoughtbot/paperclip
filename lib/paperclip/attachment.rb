@@ -187,7 +187,7 @@ module Paperclip
     # lives in the <attachment>_updated_at attribute of the model.
     def updated_at
       time = instance_read(:updated_at)
-      time && time.to_i
+      time && time.to_f.to_i
     end
 
     # Paths and URLs can have a number of variables interpolated into them
