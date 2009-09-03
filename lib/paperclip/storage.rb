@@ -95,9 +95,9 @@ module Paperclip
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
     #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
-    #   The default for Paperclip is "public-read".
+    #   The default for Paperclip is :public_read.
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either 
-    #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are 'public-read' (the
+    #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
     #   default), and 'https' when your :s3_permissions are anything else.
     # * +s3_headers+: A hash of headers such as {'Expires' => 1.year.from_now.httpdate}
     # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
