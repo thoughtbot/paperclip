@@ -236,6 +236,29 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "with S3 credentials in a YAML file" do
+    setup do
+      ENV['S3_KEY']    = 'env_key'
+      ENV['S3_BUCKET'] = 'env_bucket'
+      ENV['S3_SECRET'] = 'env_secret'
+
+      rails_env('test')
+
+      rebuild_model :storage        => :s3,
+                    :s3_credentials => File.new(File.join(File.dirname(__FILE__), "fixtures/s3.yml"))
+
+      Dummy.delete_all
+
+      @dummy = Dummy.new
+    end
+
+    should "run it the file through ERB" do
+      assert_equal 'env_bucket', @dummy.avatar.bucket_name
+      assert_equal 'env_key', AWS::S3::Base.connection.options[:access_key_id]
+      assert_equal 'env_secret', AWS::S3::Base.connection.options[:secret_access_key]
+    end
+  end
+
   unless ENV["S3_TEST_BUCKET"].blank?
     context "Using S3 for real, an attachment with S3 storage" do
       setup do

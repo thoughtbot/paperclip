@@ -25,6 +25,7 @@
 #
 # See the +has_attached_file+ documentation for more details.
 
+require 'erb'
 require 'tempfile'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
