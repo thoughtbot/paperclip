@@ -8,12 +8,13 @@ module Paperclip
     def content_type
       type = (self.path.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
       case type
-      when %r"jpe?g"                 then "image/jpeg"
+      when %r"jp(e|g|eg)"            then "image/jpeg"
       when %r"tiff?"                 then "image/tiff"
       when %r"png", "gif", "bmp"     then "image/#{type}"
       when "txt"                     then "text/plain"
       when %r"html?"                 then "text/html"
-      when "csv", "xml", "css", "js" then "text/#{type}"
+      when "js"                      then "application/js"
+      when "csv", "xml", "css"       then "text/#{type}"
       else "application/x-#{type}"
       end
     end
