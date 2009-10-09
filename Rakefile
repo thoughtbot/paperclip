@@ -76,7 +76,11 @@ spec = Gem::Specification.new do |s|
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
   s.add_development_dependency 'thoughtbot-shoulda'
-  s.add_development_dependency 'mocha'
+  s.add_development_dependency 'jferris-mocha', '= 0.9.5.0.1241126838'
+  s.add_development_dependency 'aws-s3'
+  s.add_development_dependency 'sqlite3-ruby'
+  s.add_development_dependency 'activerecord'
+  s.add_development_dependency 'activesupport'
 end
 
 desc "Print a list of the files to be put into the gem"
