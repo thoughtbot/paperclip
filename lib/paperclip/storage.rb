@@ -159,6 +159,10 @@ module Paperclip
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
       end
+      
+      def expiring_url(time = 3600)
+        AWS::S3::S3Object.url_for(path, bucket_name, :expires_in => time )
+      end
 
       def bucket_name
         @bucket

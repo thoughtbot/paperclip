@@ -96,6 +96,33 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://something.something.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
+  
+  context "Generating a url with an expiration" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => { :bucket => "prod_bucket" },
+                      :development  => { :bucket => "dev_bucket" }
+                    },
+                    :s3_host_alias => "something.something.com",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":s3_alias_url"
+                    
+      rails_env("production")
+      
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+      
+      AWS::S3::S3Object.expects(:url_for).with("avatars/stringio.txt", "prod_bucket", { :expires_in => 3600 })
+      
+      @dummy.avatar.expiring_url
+    end
+    
+    should "should succeed" do
+      assert true
+    end
+  end
 
   context "Parsing S3 credentials with a bucket in them" do
     setup do
