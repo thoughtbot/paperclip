@@ -58,8 +58,15 @@ class IOStreamTest < Test::Unit::TestCase
         assert @tempfile = @file.to_tempfile
       end
 
-      should "convert it to a Tempfile" do
-        assert @tempfile.is_a?(Tempfile)
+      should "convert it to a Paperclip Tempfile" do
+        assert @tempfile.is_a?(Paperclip::Tempfile)
+      end
+
+      should "have the name be based on the original_filename" do
+        name = File.basename(@file.path)
+        extension = File.extname(name)
+        basename = File.basename(name, extension)
+        assert_match %r[^#{Regexp.quote(basename)}.*?#{Regexp.quote(extension)}], File.basename(@tempfile.path)
       end
 
       should "have the Tempfile contain the same data as the file" do

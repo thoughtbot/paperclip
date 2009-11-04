@@ -133,7 +133,7 @@ class AttachmentTest < Test::Unit::TestCase
                                :styles => { :default => ["100x100", :png] },
                                :default_style => :default
       @file = StringIO.new("...")
-      @file.expects(:original_filename).returns("file.jpg")
+      @file.stubs(:original_filename).returns("file.jpg")
     end
     should "return the right extension for the path" do
       @attachment.assign(@file)

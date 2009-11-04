@@ -4,7 +4,8 @@ module IOStream
 
   # Returns a Tempfile containing the contents of the readable object.
   def to_tempfile
-    tempfile = Tempfile.new("stream")
+    name = respond_to?(:original_filename) ? original_filename : (respond_to?(:path) ? path : "stream")
+    tempfile = Paperclip::Tempfile.new(File.basename(name))
     tempfile.binmode
     self.stream_to(tempfile)
   end

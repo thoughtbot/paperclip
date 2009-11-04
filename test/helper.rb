@@ -3,7 +3,7 @@ require 'test/unit'
 require 'shoulda'
 require 'tempfile'
 
-gem 'jferris-mocha', '0.9.5.0.1241126838'
+gem 'jferris-mocha'
 require 'mocha'
 
 gem 'sqlite3-ruby'
