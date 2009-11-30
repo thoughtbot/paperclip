@@ -30,16 +30,16 @@ module Paperclip
         protected
 
         def error_when_not_valid?
-          @attachment = @subject.new.send(@attachment_name)
-          @attachment.assign(nil)
-          not @attachment.errors[:presence].nil?
+          (subject = @subject.new).send(@attachment_name).assign(nil)
+          subject.valid?
+          not subject.errors.on(:"#{@attachment_name}_file_name").blank?
         end
 
         def no_error_when_valid?
           @file = StringIO.new(".")
-          @attachment = @subject.new.send(@attachment_name)
-          @attachment.assign(@file)
-          @attachment.errors[:presence].nil?
+          (subject = @subject.new).send(@attachment_name).assign(@file)
+          subject.valid?
+          subject.errors.on(:"#{@attachment_name}_file_name").blank?
         end
       end
     end

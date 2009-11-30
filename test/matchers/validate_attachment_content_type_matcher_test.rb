@@ -5,6 +5,7 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
     setup do
       reset_table("dummies") do |d|
         d.string :avatar_file_name
+        d.string :avatar_content_type
       end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar

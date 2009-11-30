@@ -3,7 +3,9 @@ require 'test/helper'
 class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
   context "validate_attachment_presence" do
     setup do
-      reset_table("dummies"){|d| d.string :avatar_file_name }
+      reset_table("dummies") do |d|
+        d.string :avatar_file_name
+      end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar
       @matcher     = self.class.validate_attachment_presence(:avatar)

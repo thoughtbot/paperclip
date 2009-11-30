@@ -212,18 +212,17 @@ class PaperclipTest < Test::Unit::TestCase
       setup do
         Dummy.send(:"validates_attachment_presence", :avatar, :if => lambda{|i| i.foo })
         @dummy = Dummy.new
+        @dummy.stubs(:avatar_file_name).returns(nil)
       end
 
       should "attempt validation if the guard returns true" do
         @dummy.expects(:foo).returns(true)
-        @dummy.avatar.expects(:validate_presence).returns(nil)
-        @dummy.valid?
+        assert ! @dummy.valid?
       end
 
       should "not attempt validation if the guard returns false" do
         @dummy.expects(:foo).returns(false)
-        @dummy.avatar.expects(:validate_presence).never
-        @dummy.valid?
+        assert @dummy.valid?
       end
     end
 
@@ -231,18 +230,17 @@ class PaperclipTest < Test::Unit::TestCase
       setup do
         Dummy.send(:"validates_attachment_presence", :avatar, :unless => lambda{|i| i.foo })
         @dummy = Dummy.new
+        @dummy.stubs(:avatar_file_name).returns(nil)
       end
 
       should "attempt validation if the guard returns true" do
         @dummy.expects(:foo).returns(false)
-        @dummy.avatar.expects(:validate_presence).returns(nil)
-        @dummy.valid?
+        assert ! @dummy.valid?
       end
 
       should "not attempt validation if the guard returns false" do
         @dummy.expects(:foo).returns(true)
-        @dummy.avatar.expects(:validate_presence).never
-        @dummy.valid?
+        assert @dummy.valid?
       end
     end
 
@@ -259,11 +257,11 @@ class PaperclipTest < Test::Unit::TestCase
           end
           if validation == :presence
             should "have an error on the attachment" do
-              assert @dummy.errors.on(:avatar)
+              assert @dummy.errors.on(:avatar_file_name)
             end
           else
             should "not have an error on the attachment" do
-              assert_nil @dummy.errors.on(:avatar)
+              assert_nil @dummy.errors.on(:avatar_file_name), @dummy.errors.full_messages.join(", ")
             end
           end
         end
@@ -273,10 +271,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "not have an error when assigned a valid file" do
-            assert ! @dummy.avatar.errors.key?(validation)
-          end
-          should "not have an error on the attachment" do
-            assert_nil @dummy.errors.on(:avatar)
+            assert_equal 0, @dummy.errors.length, @dummy.errors.full_messages.join(", ")
           end
         end
         context "and assigned an invalid file" do
@@ -285,17 +280,14 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "have an error when assigned a valid file" do
-            assert_not_nil @dummy.avatar.errors[validation]
-          end
-          should "have an error on the attachment" do
-            assert @dummy.errors.on(:avatar)
+            assert @dummy.errors.length > 0
           end
         end
       end
     end
 
     [[:presence,      {},                              "5k.png",   nil],
-     [:size,          {:in => 1..10240},               nil,        "12k.png"],
+     [:size,          {:in => 1..10240},               "5k.png",   "12k.png"],
      [:size,          {:less_than => 10240},           "5k.png",   "12k.png"],
      [:size,          {:greater_than => 8096},         "12k.png",  "5k.png"],
      [:content_type,  {:content_type => "image/png"},  "5k.png",   "text.txt"],
@@ -318,7 +310,7 @@ class PaperclipTest < Test::Unit::TestCase
         end
         
         should "have a file size min/max error message" do
-          assert_match /between 0 and 10240 bytes/, @dummy.errors.on(:avatar)
+          assert_match %r/between 0 and 10240 bytes/, @dummy.errors.on(:avatar_file_size)
         end
       end
     end
