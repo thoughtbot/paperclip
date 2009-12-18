@@ -12,6 +12,7 @@ module Paperclip
     # set, the options will be appended to the convert command upon image conversion 
     def initialize file, options = {}, attachment = nil
       super
+      
       geometry             = options[:geometry]
       @file                = file
       @crop                = geometry[-1,1] == '#'
@@ -24,6 +25,7 @@ module Paperclip
 
       @current_format      = File.extname(@file.path)
       @basename            = File.basename(@file.path, @current_format)
+      
     end
 
     # Returns true if the +target_geometry+ is meant to crop.

@@ -200,7 +200,8 @@ class ThumbnailTest < Test::Unit::TestCase
     teardown { @file.close }
 
     should "start with two pages with dimensions 612x792" do
-      cmd = %Q[identify -format "%wx%h" "#{@file.path}"] 
+      cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
+      p "pdf page size test: cmd is #{cmd}"
       assert_equal "612x792"*2, `#{cmd}`.chomp
     end
 
