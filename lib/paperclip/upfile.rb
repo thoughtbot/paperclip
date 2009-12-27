@@ -15,7 +15,8 @@ module Paperclip
       when %r"html?"                 then "text/html"
       when "js"                      then "application/js"
       when "csv", "xml", "css"       then "text/#{type}"
-      else "application/x-#{type}"
+      else
+        Paperclip.run("file", "--mime-type #{self.path}").split(':').last.strip rescue "application/x-#{type}"
       end
     end
 
