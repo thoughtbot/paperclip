@@ -14,7 +14,6 @@ module Paperclip
         :convert_options   => {},
         :default_url       => "/:attachment/:style/missing.png",
         :default_style     => :original,
-        :validations       => [],
         :storage           => :filesystem,
         :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
@@ -38,7 +37,6 @@ module Paperclip
       @styles            = options[:styles]
       @normalized_styles = nil
       @default_url       = options[:default_url]
-      @validations       = options[:validations]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @whiny             = options[:whiny_thumbnails] || options[:whiny]
@@ -48,7 +46,6 @@ module Paperclip
       @queued_for_delete = []
       @queued_for_write  = {}
       @errors            = {}
-      @validation_errors = nil
       @dirty             = false
 
       initialize_storage
@@ -69,13 +66,11 @@ module Paperclip
     end
 
     # What gets called when you call instance.attachment = File. It clears
-    # errors, assigns attributes, processes the file, and runs validations. It
+    # errors, assigns attributes, and processes the file. It
     # also queues up the previous file for deletion, to be flushed away on
     # #save of its host.  In addition to form uploads, you can also assign
     # another Paperclip attachment: 
     #   new_user.avatar = old_user.avatar
-    # If the file that is assigned is not valid, the processing (i.e.
-    # thumbnailing, etc) will NOT be run.
     def assign uploaded_file
       ensure_required_accessors!
 
@@ -99,13 +94,12 @@ module Paperclip
 
       @dirty = true
 
-      post_process if valid?
+      post_process
  
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size, @queued_for_write[:original].size.to_i)
     ensure
       uploaded_file.close if close_uploaded_file
-      validate
     end
 
     # Returns the public URL of the attachment, with a given style. Note that
@@ -133,12 +127,6 @@ module Paperclip
       url(style_name)
     end
 
-    # Returns true if there are no errors on this attachment.
-    def valid?
-      validate
-      errors.empty?
-    end
-
     # Returns an array containing the errors on this attachment.
     def errors
       @errors
@@ -152,15 +140,10 @@ module Paperclip
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save
-      if valid?
-        flush_deletes
-        flush_writes
-        @dirty = false
-        true
-      else
-        flush_errors
-        false
-      end
+      flush_deletes
+      flush_writes
+      @dirty = false
+      true
     end
 
     # Clears out the attachment. Has the same effect as previously assigning
@@ -169,7 +152,6 @@ module Paperclip
     def clear
       queue_existing_for_delete
       @errors            = {}
-      @validation_errors = nil
     end
 
     # Destroys the attachment. Has the same effect as previously assigning
@@ -280,53 +262,6 @@ module Paperclip
 
     def valid_assignment? file #:nodoc:
       file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
-    end
-
-    def validate #:nodoc:
-      unless @validation_errors
-        @validation_errors = @validations.inject({}) do |errors, validation|
-          name, options = validation
-          errors[name] = send(:"validate_#{name}", options) if allow_validation?(options)
-          errors
-        end
-        @validation_errors.reject!{|k,v| v == nil }
-        @errors.merge!(@validation_errors)
-      end
-      @validation_errors
-    end
-
-    def allow_validation? options #:nodoc:
-      (options[:if].nil? || check_guard(options[:if])) && (options[:unless].nil? || !check_guard(options[:unless]))
-    end
-
-    def check_guard guard #:nodoc:
-      if guard.respond_to? :call
-        guard.call(instance)
-      elsif ! guard.blank?
-        instance.send(guard.to_s)
-      end
-    end
-
-    def validate_size options #:nodoc:
-      if file? && !options[:range].include?(size.to_i)
-        options[:message].gsub(/:min/, options[:min].to_s).gsub(/:max/, options[:max].to_s)
-      end
-    end
-
-    def validate_presence options #:nodoc:
-      options[:message] unless file?
-    end
-
-    def validate_content_type options #:nodoc:
-      valid_types = [options[:content_type]].flatten
-      unless original_filename.blank?
-        unless valid_types.blank?
-          content_type = instance_read(:content_type)
-          unless valid_types.any?{|t| content_type.nil? || t === content_type }
-            options[:message] || "is not one of the allowed file types."
-          end
-        end
-      end
     end
 
     def initialize_storage #:nodoc:

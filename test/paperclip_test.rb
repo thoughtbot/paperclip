@@ -185,27 +185,6 @@ class PaperclipTest < Test::Unit::TestCase
       should "be valid" do
         assert @dummy.valid?
       end
-
-      context "then has a validation added that makes it invalid" do
-        setup do
-          assert @dummy.save
-          Dummy.class_eval do
-            validates_attachment_content_type :avatar, :content_type => ["text/plain"]
-          end
-          @dummy2 = Dummy.find(@dummy.id)
-        end
-
-        should "be invalid when reloaded" do
-          assert ! @dummy2.valid?, @dummy2.errors.inspect
-        end
-
-        should "be able to call #valid? twice without having duplicate errors" do
-          @dummy2.avatar.valid?
-          first_errors = @dummy2.avatar.errors
-          @dummy2.avatar.valid?
-          assert_equal first_errors, @dummy2.avatar.errors
-        end
-      end
     end
 
     context "a validation with an if guard clause" do

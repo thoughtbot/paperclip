@@ -240,7 +240,7 @@ module Paperclip
 
       validates_each(name) do |record, attr, value|
         attachment = record.attachment_for(name)
-        attachment.send(:flush_errors) unless attachment.valid?
+        attachment.send(:flush_errors)
       end
     end
 
