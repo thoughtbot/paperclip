@@ -4,7 +4,7 @@ require 'aws/s3'
 class StorageTest < Test::Unit::TestCase
   def rails_env(env)
     silence_warnings do
-      Object.const_set(:RAILS_ENV, env)
+      Object.const_set(:Rails, stub('Rails', :env => env))
     end
   end
 
@@ -17,12 +17,6 @@ class StorageTest < Test::Unit::TestCase
 
       @dummy = Dummy.new
       @avatar = @dummy.avatar
-
-      @current_env = RAILS_ENV
-    end
-
-    teardown do
-      rails_env(@current_env)
     end
 
     should "get the correct credentials when RAILS_ENV is production" do
@@ -96,7 +90,7 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://something.something.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
-  
+
   context "Generating a url with an expiration" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -133,10 +127,7 @@ class StorageTest < Test::Unit::TestCase
                       :development  => { :bucket => "dev_bucket" }
                     }
       @dummy = Dummy.new
-      @old_env = RAILS_ENV
     end
-
-    teardown{ rails_env(@old_env) }
 
     should "get the right bucket in production" do
       rails_env("production")

@@ -51,14 +51,14 @@ module Paperclip
       attachment.instance_read(:updated_at).to_s
     end
 
-    # Returns the RAILS_ROOT constant.
+    # Returns the Rails.root constant.
     def rails_root attachment, style_name
-      RAILS_ROOT
+      Rails.root
     end
 
-    # Returns the RAILS_ENV constant.
+    # Returns the Rails.env constant.
     def rails_env attachment, style_name
-      RAILS_ENV
+      Rails.env
     end
 
     # Returns the underscored, pluralized version of the class name.

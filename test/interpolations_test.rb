@@ -11,12 +11,12 @@ class InterpolationsTest < Test::Unit::TestCase
     end
   end
 
-  should "return the RAILS_ROOT" do
-    assert_equal RAILS_ROOT, Paperclip::Interpolations.rails_root(:attachment, :style)
+  should "return the Rails.root" do
+    assert_equal Rails.root, Paperclip::Interpolations.rails_root(:attachment, :style)
   end
 
-  should "return the RAILS_ENV" do
-    assert_equal RAILS_ENV, Paperclip::Interpolations.rails_env(:attachment, :style)
+  should "return the Rails.env" do
+    assert_equal Rails.env, Paperclip::Interpolations.rails_env(:attachment, :style)
   end
 
   should "return the class of the Interpolations module when called with no params" do

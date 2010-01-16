@@ -16,9 +16,22 @@ rescue LoadError
   puts "ruby-debug not loaded"
 end
 
-ROOT       = File.join(File.dirname(__FILE__), '..')
-RAILS_ROOT = ROOT
-RAILS_ENV  = "test"
+ROOT = File.join(File.dirname(__FILE__), '..')
+
+def silence_warnings
+  old_verbose, $VERBOSE = $VERBOSE, nil
+  yield
+ensure
+  $VERBOSE = old_verbose
+end
+
+class Test::Unit::TestCase
+  def setup
+    silence_warnings do
+      Object.const_set(:Rails, stub('Rails', :root => ROOT, :env => 'test'))
+    end
+  end
+end
 
 $LOAD_PATH << File.join(ROOT, 'lib')
 $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
@@ -67,17 +80,6 @@ def rebuild_class options = {}
   Dummy.class_eval do
     include Paperclip
     has_attached_file :avatar, options
-  end
-end
-
-def temporary_rails_env(new_env)
-  old_env = Object.const_defined?("RAILS_ENV") ? RAILS_ENV : nil
-  silence_warnings do
-    Object.const_set("RAILS_ENV", new_env)
-  end
-  yield
-  silence_warnings do
-    Object.const_set("RAILS_ENV", old_env)
   end
 end
 
