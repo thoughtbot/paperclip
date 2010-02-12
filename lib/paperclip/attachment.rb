@@ -21,7 +21,8 @@ module Paperclip
         :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
         :use_default_time_zone => true,
         :hash_digest           => "SHA1",
-        :hash_data             => ":class/:attachment/:id/:style/:updated_at"
+        :hash_data             => ":class/:attachment/:id/:style/:updated_at",
+        :preserve_files        => false
       }
     end
 
@@ -55,6 +56,7 @@ module Paperclip
       @hash_secret           = options[:hash_secret]
       @convert_options       = options[:convert_options]
       @processors            = options[:processors]
+      @preserve_files        = options[:preserve_files]
       @options               = options
       @post_processing       = true
       @queued_for_delete     = []
@@ -175,8 +177,10 @@ module Paperclip
     # nil to the attachment *and saving*. This is permanent. If you wish to
     # wipe out the existing attachment but not save, use #clear.
     def destroy
-      clear
-      save
+      unless @preserve_files
+        clear
+        save
+      end
     end
 
     # Returns the name of the file as originally assigned, and lives in the
@@ -366,7 +370,7 @@ module Paperclip
     end
 
     def queue_existing_for_delete #:nodoc:
-      return unless file?
+      return unless (file? && @preserve_files==false)
       @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact

@@ -998,4 +998,27 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
+  
+  context "an attachment with delete_file option set to false" do
+    setup do
+      rebuild_model :preserve_files => true
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @dummy.avatar = @file
+      @dummy.save!
+      @attachment = @dummy.avatar 
+      @path = @attachment.path      
+    end
+    
+    should "not delete the files from storage when attachment is destroyed" do      
+      @attachment.destroy
+      assert File.exists?(@path)
+    end
+    
+    should "not dleete the file when model is destroy" do
+      @dummy.destroy
+      assert File.exists?(@path)
+    end
+  end
+
 end
