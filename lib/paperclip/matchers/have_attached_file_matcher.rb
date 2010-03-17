@@ -12,6 +12,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
+          @subject = @subject.class unless Class === @subject
           responds? && has_column? && included?
         end
 

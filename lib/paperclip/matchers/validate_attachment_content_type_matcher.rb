@@ -22,6 +22,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
+          @subject = @subject.class unless Class === @subject
           @allowed_types && @rejected_types &&
           allowed_types_allowed? && rejected_types_rejected?
         end

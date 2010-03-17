@@ -28,6 +28,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
+          @subject = @subject.class unless Class === @subject
           lower_than_low? && higher_than_low? && lower_than_high? && higher_than_high?
         end
 

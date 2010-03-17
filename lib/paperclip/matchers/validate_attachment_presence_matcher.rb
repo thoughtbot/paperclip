@@ -12,6 +12,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
+          @subject = @subject.class unless Class === @subject
           error_when_not_valid? && no_error_when_valid?
         end
 

@@ -106,3 +106,23 @@ def silence_warnings
 ensure
   $VERBOSE = old_verbose
 end
+
+def should_accept_dummy_class
+  should "accept the class" do
+    assert_accepts @matcher, @dummy_class
+  end
+
+  should "accept an instance of that class" do
+    assert_accepts @matcher, @dummy_class.new
+  end
+end
+
+def should_reject_dummy_class
+  should "reject the class" do
+    assert_rejects @matcher, @dummy_class
+  end
+
+  should "reject an instance of that class" do
+    assert_rejects @matcher, @dummy_class.new
+  end
+end

@@ -11,13 +11,16 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
       @matcher     = self.class.validate_attachment_presence(:avatar)
     end
 
-    should "reject a class with no validation" do
-      assert_rejects @matcher, @dummy_class
+    context "given a class with no validation" do
+      should_reject_dummy_class
     end
 
-    should "accept a class with a validation" do
-      @dummy_class.validates_attachment_presence :avatar
-      assert_accepts @matcher, @dummy_class
+    context "given a class with a matching validation" do
+      setup do
+        @dummy_class.validates_attachment_presence :avatar
+      end
+
+      should_accept_dummy_class
     end
   end
 end
