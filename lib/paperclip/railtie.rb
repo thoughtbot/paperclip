@@ -7,6 +7,9 @@ module Paperclip
       config.after_initialize do
         Paperclip::Railtie.insert
       end
+      rake_tasks do
+        load "tasks/paperclip.rake"
+      end
     end
   end
 
@@ -17,4 +20,3 @@ module Paperclip
     end
   end
 end
-
