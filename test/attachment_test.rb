@@ -106,7 +106,7 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.stubs(:id).returns(@id)
       @file = StringIO.new(".")
       @dummy.avatar = @file
-      Rails = stub('Rails', :root => @rails_env)
+      Rails.stubs(:env).returns(@rails_env)
     end
 
     should "return the proper path" do

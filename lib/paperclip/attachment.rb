@@ -291,7 +291,7 @@ module Paperclip
     end
 
     def callback which #:nodoc:
-      instance.run_callbacks(which, @queued_for_write){|result, obj| result == false }
+      instance.run_callbacks(which, @queued_for_write)
     end
 
     def post_process_styles #:nodoc:

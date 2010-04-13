@@ -65,6 +65,7 @@ spec = Gem::Specification.new do |s|
   s.author            = "Jon Yurek"
   s.email             = "jyurek@thoughtbot.com"
   s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
+  s.description       = "Easy upload management for ActiveRecord"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "File attachments as attributes for ActiveRecord"
   s.files             = FileList[include_file_globs].to_a - FileList[exclude_file_globs].to_a

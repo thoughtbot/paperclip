@@ -66,7 +66,7 @@ class IOStreamTest < Test::Unit::TestCase
         name = File.basename(@file.path)
         extension = File.extname(name)
         basename = File.basename(name, extension)
-        assert_match %r[^#{Regexp.quote(basename)}.*?#{Regexp.quote(extension)}], File.basename(@tempfile.path)
+        assert_match %r[^stream.*?#{Regexp.quote(extension)}], File.basename(@tempfile.path)
       end
 
       should "have the Tempfile contain the same data as the file" do
