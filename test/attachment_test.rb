@@ -362,7 +362,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "Assigning an attachment with post_process hooks" do
     setup do
-      rebuild_model :styles => { :something => "100x100#" }
+      rebuild_class :styles => { :something => "100x100#" }
       Dummy.class_eval do
         before_avatar_post_process :do_before_avatar
         after_avatar_post_process :do_after_avatar
@@ -402,16 +402,16 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.expects(:do_before_avatar).never
       @dummy.expects(:do_after_avatar).never
       @dummy.expects(:do_before_all).with().returns(false)
-      @dummy.expects(:do_after_all).never
+      @dummy.expects(:do_after_all)
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
     end
 
     should "cancel the processing if a before_avatar_post_process returns false" do
       @dummy.expects(:do_before_avatar).with().returns(false)
-      @dummy.expects(:do_after_avatar).never
+      @dummy.expects(:do_after_avatar)
       @dummy.expects(:do_before_all).with().returns(true)
-      @dummy.expects(:do_after_all).never
+      @dummy.expects(:do_after_all)
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
     end

@@ -280,18 +280,11 @@ module Paperclip
 
     def post_process #:nodoc:
       return if @queued_for_write[:original].nil?
-      return if fire_events(:before)
-      post_process_styles
-      return if fire_events(:after)
-    end
-
-    def fire_events(which) #:nodoc:
-      return true if callback(:"#{which}_post_process") == false
-      return true if callback(:"#{which}_#{name}_post_process") == false
-    end
-
-    def callback which #:nodoc:
-      instance.run_callbacks(which, @queued_for_write)
+      instance.run_callbacks(:post_process) do
+        instance.run_callbacks(:"#{name}_post_process") do
+          post_process_styles
+        end
+      end
     end
 
     def post_process_styles #:nodoc:

@@ -46,7 +46,7 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.3.1.1"
+  VERSION = "2.3.2"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -111,9 +111,6 @@ module Paperclip
 
     def included base #:nodoc:
       base.extend ClassMethods
-      unless base.respond_to?(:define_callbacks)
-        base.send(:include, Paperclip::CallbackCompatability)
-      end
     end
 
     def processor name #:nodoc:
@@ -222,9 +219,8 @@ module Paperclip
       after_save :save_attached_files
       before_destroy :destroy_attached_files
 
-      define_callbacks :before_post_process, :after_post_process
-      define_callbacks :"before_#{name}_post_process", :"after_#{name}_post_process"
-     
+      define_paperclip_callbacks :post_process, :"#{name}_post_process"
+
       define_method name do |*args|
         a = attachment_for(name)
         (args.length > 0) ? a.to_s(args.first) : a
@@ -317,6 +313,22 @@ module Paperclip
     # has_attached_file.
     def attachment_definitions
       read_inheritable_attribute(:attachment_definitions)
+    end
+
+    private
+
+    def define_paperclip_callbacks(*callbacks)
+      define_callbacks *[callbacks, {:terminator => "result == false"}].flatten
+      callbacks.each do |callback|
+        eval <<-end_callbacks
+          def before_#{callback}(*args, &blk)
+            set_callback(:#{callback}, :before, *args, &blk)
+          end
+          def after_#{callback}(*args, &blk)
+            set_callback(:#{callback}, :after, *args, &blk)
+          end
+        end_callbacks
+      end
     end
   end
 
