@@ -421,15 +421,11 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model :styles => { :something => "100x100#" }
       @file  = StringIO.new(".")
-      @file.expects(:original_filename).returns("5k.png\n\n")
-      @file.expects(:content_type).returns("image/png\n\n")
+      @file.stubs(:original_filename).returns("5k.png\n\n")
+      @file.stubs(:content_type).returns("image/png\n\n")
       @file.stubs(:to_tempfile).returns(@file)
       @dummy = Dummy.new
       Paperclip::Thumbnail.expects(:make).returns(@file)
-      @dummy.expects(:run_callbacks).with(:before_avatar_post_process, {:original => @file})
-      @dummy.expects(:run_callbacks).with(:before_post_process, {:original => @file})
-      @dummy.expects(:run_callbacks).with(:after_avatar_post_process, {:original => @file, :something => @file})
-      @dummy.expects(:run_callbacks).with(:after_post_process, {:original => @file, :something => @file})
       @attachment = @dummy.avatar
       @dummy.avatar = @file
     end
