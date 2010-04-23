@@ -8,8 +8,9 @@ require 'mocha'
 
 gem 'sqlite3-ruby'
 
-require 'active_record'
-require 'active_support'
+require 'activerecord'
+require 'activesupport'
+require 'actionpack'
 begin
   require 'ruby-debug'
 rescue LoadError
@@ -94,8 +95,9 @@ class FakeModel
     @errors ||= []
   end
 
-  def run_callbacks name, *args
+  def run_paperclip_callbacks name, *args
   end
+
 end
 
 def attachment options

@@ -399,12 +399,17 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "cancel the processing if a before_post_process returns false" do
+      begin
+      $DEBUG = true
       @dummy.expects(:do_before_avatar).never
       @dummy.expects(:do_after_avatar).never
       @dummy.expects(:do_before_all).with().returns(false)
       @dummy.expects(:do_after_all)
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
+    ensure
+      $DEBUG = false
+    end
     end
 
     should "cancel the processing if a before_avatar_post_process returns false" do

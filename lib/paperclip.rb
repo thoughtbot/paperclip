@@ -36,6 +36,7 @@ require 'paperclip/storage'
 require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
+require 'paperclip/callback_compatability'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
@@ -111,6 +112,13 @@ module Paperclip
 
     def included base #:nodoc:
       base.extend ClassMethods
+      if base.respond_to?("set_callback")
+        base.send :include, Paperclip::CallbackCompatability::Rails3
+      elsif !base.respond_to?("define_callbacks")
+        base.send :include, Paperclip::CallbackCompatability::Rails20
+      else
+        base.send :include, Paperclip::CallbackCompatability::Rails21
+      end
     end
 
     def processor name #:nodoc:
@@ -313,22 +321,6 @@ module Paperclip
     # has_attached_file.
     def attachment_definitions
       read_inheritable_attribute(:attachment_definitions)
-    end
-
-    private
-
-    def define_paperclip_callbacks(*callbacks)
-      define_callbacks *[callbacks, {:terminator => "result == false"}].flatten
-      callbacks.each do |callback|
-        eval <<-end_callbacks
-          def before_#{callback}(*args, &blk)
-            set_callback(:#{callback}, :before, *args, &blk)
-          end
-          def after_#{callback}(*args, &blk)
-            set_callback(:#{callback}, :after, *args, &blk)
-          end
-        end_callbacks
-      end
     end
   end
 
