@@ -1,25 +1,5 @@
 module Paperclip
-  # This module is intended as a compatability shim for the differences in
-  # callbacks between Rails 2.0 and Rails 2.1.
   module CallbackCompatability
-    module Rails20
-      def self.included(base)
-        base.extend(Defining)
-        base.send(:include, Running)
-        puts "Including Rails 2.0 Compatability"
-      end
-
-      module Defining
-        def define_paperclip_callbacks(*args)
-        end
-      end
-
-      module Running
-        def run_paperclip_callbacks(callback, opts = nil, &blk)
-        end
-      end
-    end
-
     module Rails21
       def self.included(base)
         base.extend(Defining)

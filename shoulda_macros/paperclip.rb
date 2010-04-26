@@ -104,8 +104,10 @@ module Paperclip
   end
 end
 
-class ActionController::Integration::Session  #:nodoc:
-  include Paperclip::Shoulda
+if defined?(ActionController::Integration::Session)
+  class ActionController::Integration::Session  #:nodoc:
+    include Paperclip::Shoulda
+  end
 end
 
 class Factory

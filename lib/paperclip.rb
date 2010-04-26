@@ -312,7 +312,12 @@ module Paperclip
       types = [options.delete(:content_type)].flatten
       validates_each(:"#{name}_content_type", options) do |record, attr, value|
         unless types.any?{|t| t === value }
-          record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
+          if record.errors.method(:add).arity == -2
+            message = options[:message] || "is not one of #{types.join(", ")}"
+            record.errors.add(:"#{name}_content_type", message)
+          else
+            record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
+          end
         end
       end
     end

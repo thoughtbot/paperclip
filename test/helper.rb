@@ -1,20 +1,45 @@
 require 'rubygems'
-require 'test/unit'
-require 'shoulda'
 require 'tempfile'
+require 'test/unit'
+require 'bundler'
 
-gem 'jferris-mocha'
+require 'shoulda'
 require 'mocha'
 
-gem 'sqlite3-ruby'
+case ENV['RAILS_VERSION']
+when '2.1' then
+  puts "Using Rails 2.1.2"
+  gem 'activerecord',  '2.1.2'
+  gem 'activesupport', '2.1.2'
+  gem 'actionpack',    '2.1.2'
 
-require 'activerecord'
-require 'activesupport'
-require 'actionpack'
+  require 'activerecord'
+  require 'activesupport'
+  require 'actionpack'
+when '3.0' then
+  puts "Using Rails 3.0.0.beta3"
+  gem 'activerecord',  '3.0.0.beta3'
+  gem 'activesupport', '3.0.0.beta3'
+  gem 'actionpack',    '3.0.0.beta3'
+
+  require 'active_record'
+  require 'active_support'
+  require 'action_pack'
+else
+  puts "Using Rails 2.3.5"
+  gem 'activerecord',  '2.3.5'
+  gem 'activesupport', '2.3.5'
+  gem 'actionpack',    '2.3.5'
+
+  require 'active_record'
+  require 'active_support'
+  require 'action_pack'
+end
+
 begin
   require 'ruby-debug'
-rescue LoadError
-  puts "ruby-debug not loaded"
+rescue LoadError => e
+  puts "debugger disabled"
 end
 
 ROOT = File.join(File.dirname(__FILE__), '..')
