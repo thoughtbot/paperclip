@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'tempfile'
 require 'test/unit'
-require 'bundler'
 
 require 'shoulda'
 require 'mocha'
