@@ -40,48 +40,15 @@ task :clean do |t|
   FileUtils.rm_rf "doc"
   FileUtils.rm_rf "tmp"
   FileUtils.rm_rf "pkg"
+  FileUtils.rm_rf "public"
   FileUtils.rm "test/debug.log" rescue nil
   FileUtils.rm "test/paperclip.db" rescue nil
   Dir.glob("paperclip-*.gem").each{|f| FileUtils.rm f }
 end
 
-include_file_globs = ["README*",
-                      "LICENSE",
-                      "Rakefile",
-                      "init.rb",
-                      "{generators,lib,tasks,test,shoulda_macros}/**/*"]
-exclude_file_globs = ["test/s3.yml",
-                      "test/debug.log",
-                      "test/paperclip.db",
-                      "test/doc",
-                      "test/doc/*",
-                      "test/pkg",
-                      "test/pkg/*",
-                      "test/tmp",
-                      "test/tmp/*"]
-spec = Gem::Specification.new do |s| 
-  s.name              = "paperclip"
-  s.version           = Paperclip::VERSION
-  s.author            = "Jon Yurek"
-  s.email             = "jyurek@thoughtbot.com"
-  s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
-  s.description       = "Easy upload management for ActiveRecord"
-  s.platform          = Gem::Platform::RUBY
-  s.summary           = "File attachments as attributes for ActiveRecord"
-  s.files             = FileList[include_file_globs].to_a - FileList[exclude_file_globs].to_a
-  s.require_path      = "lib"
-  s.test_files        = FileList["test/**/test_*.rb"].to_a
-  s.rubyforge_project = "paperclip"
-  s.has_rdoc          = true
-  s.extra_rdoc_files  = FileList["README*"].to_a
-  s.rdoc_options << '--line-numbers' << '--inline-source'
-  s.requirements << "ImageMagick"
-  s.add_development_dependency 'shoulda'
-  s.add_development_dependency 'jferris-mocha', '>= 0.9.5.0.1241126838'
-  s.add_development_dependency 'aws-s3'
-  s.add_development_dependency 'sqlite3-ruby'
-  s.add_development_dependency 'activerecord'
-  s.add_development_dependency 'activesupport'
+desc 'Build the gemspec.'
+task :gemspec do |t|
+  exec 'gem build paperclip.gemspec'
 end
 
 desc "Print a list of the files to be put into the gem"
