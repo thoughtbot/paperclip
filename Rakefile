@@ -8,6 +8,11 @@ require 'paperclip'
 desc 'Default: run unit tests.'
 task :default => [:clean, :test]
 
+desc 'Test the paperclip plugin under all supported Rails versions.'
+task :all_versions do |t|
+  exec('rake RAILS_VERSION=2.1 && rake RAILS_VERSION=2.3 && rake RAILS_VERSION=3.0')
+end
+
 desc 'Test the paperclip plugin.'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib' << 'profile'

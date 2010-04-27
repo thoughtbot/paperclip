@@ -7,33 +7,25 @@ require 'mocha'
 
 case ENV['RAILS_VERSION']
 when '2.1' then
-  puts "Using Rails 2.1.2"
-  gem 'activerecord',  '2.1.2'
-  gem 'activesupport', '2.1.2'
-  gem 'actionpack',    '2.1.2'
-
-  require 'activerecord'
-  require 'activesupport'
-  require 'actionpack'
+  gem 'activerecord',  '~>2.1.0'
+  gem 'activesupport', '~>2.1.0'
+  gem 'actionpack',    '~>2.1.0'
 when '3.0' then
-  puts "Using Rails 3.0.0.beta3"
-  gem 'activerecord',  '3.0.0.beta3'
-  gem 'activesupport', '3.0.0.beta3'
-  gem 'actionpack',    '3.0.0.beta3'
-
-  require 'active_record'
-  require 'active_support'
-  require 'action_pack'
+  gem 'activerecord',  '~>3.0.0'
+  gem 'activesupport', '~>3.0.0'
+  gem 'actionpack',    '~>3.0.0'
 else
-  puts "Using Rails 2.3.5"
-  gem 'activerecord',  '2.3.5'
-  gem 'activesupport', '2.3.5'
-  gem 'actionpack',    '2.3.5'
-
-  require 'active_record'
-  require 'active_support'
-  require 'action_pack'
+  gem 'activerecord',  '~>2.3.0'
+  gem 'activesupport', '~>2.3.0'
+  gem 'actionpack',    '~>2.3.0'
 end
+
+require 'active_record'
+require 'active_record/version'
+require 'active_support'
+require 'action_pack'
+
+puts "Testing againt version #{ActiveRecord::VERSION::STRING}"
 
 begin
   require 'ruby-debug'
