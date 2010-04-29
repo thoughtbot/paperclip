@@ -9,7 +9,7 @@ desc 'Default: run unit tests.'
 task :default => [:clean, :test]
 
 desc 'Test the paperclip plugin under all supported Rails versions.'
-task :all_versions do |t|
+task :all do |t|
   exec('rake RAILS_VERSION=2.1 && rake RAILS_VERSION=2.3 && rake RAILS_VERSION=3.0')
 end
 
