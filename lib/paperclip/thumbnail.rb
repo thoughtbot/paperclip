@@ -23,6 +23,9 @@ module Paperclip
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
 
+      @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
+      @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
+
       @current_format      = File.extname(@file.path)
       @basename            = File.basename(@file.path, @current_format)
       
@@ -45,16 +48,17 @@ module Paperclip
       dst = Tempfile.new([@basename, @format].compact.join("."))
       dst.binmode
 
-      command = <<-end_command
-        #{ source_file_options }
-        "#{ File.expand_path(src.path) }[0]"
-        #{ transformation_command }
-        "#{ File.expand_path(dst.path) }"
-      end_command
-
       begin
-        success = Paperclip.run("convert", command.gsub(/\s+/, " "))
-      rescue PaperclipCommandLineError
+        options = [
+          source_file_options,
+          "#{ File.expand_path(src.path) }[0]",
+          transformation_command,
+          convert_options,
+          "#{ File.expand_path(dst.path) }"
+        ].flatten.compact
+
+        success = Paperclip.run("convert", *options)
+      rescue PaperclipCommandLineError => e
         raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
       end
 
@@ -65,10 +69,9 @@ module Paperclip
     # into the thumbnail.
     def transformation_command
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
-      trans = ""
-      trans << " -resize \"#{scale}\"" unless scale.nil? || scale.empty?
-      trans << " -crop \"#{crop}\" +repage" if crop
-      trans << " #{convert_options}" if convert_options?
+      trans = []
+      trans << "-resize" << scale unless scale.nil? || scale.empty?
+      trans << "-crop" << crop << "+repage" if crop
       trans
     end
   end

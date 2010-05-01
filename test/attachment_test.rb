@@ -460,10 +460,9 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.avatar = @not_file
     end
     
-    should "remove strange letters and replace with underscore (_)" do
-      assert_equal "sheep_say_b_.png", @dummy.avatar.original_filename
+    should "not remove strange letters" do
+      assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
     end
-    
   end
 
   context "An attachment" do

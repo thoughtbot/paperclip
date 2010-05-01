@@ -92,7 +92,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "send the right command to convert when sent #make" do
         Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert\s+"#{File.expand_path(@thumb.file.path)}\[0\]"\s+-resize\s+\"x50\"\s+-crop\s+\"100x50\+114\+0\"\s+\+repage\s+".*?"}
+          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '.*?'}
         end
         @thumb.make
       end
@@ -111,12 +111,12 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "have source_file_options value set" do
-        assert_equal "-strip", @thumb.source_file_options
+        assert_equal ["-strip"], @thumb.source_file_options
       end
 
       should "send the right command to convert when sent #make" do
         Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert\s+-strip\s+"#{File.expand_path(@thumb.file.path)}\[0\]"\s+-resize\s+"x50"\s+-crop\s+"100x50\+114\+0"\s+\+repage\s+".*?"}
+          arg.match %r{convert '-strip' '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '.*?'}
         end
         @thumb.make
       end
@@ -149,12 +149,12 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "have convert_options value set" do
-        assert_equal "-strip -depth 8", @thumb.convert_options
+        assert_equal %w"-strip -depth 8", @thumb.convert_options
       end
 
       should "send the right command to convert when sent #make" do
         Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert\s+"#{File.expand_path(@thumb.file.path)}\[0\]"\s+-resize\s+"x50"\s+-crop\s+"100x50\+114\+0"\s+\+repage\s+-strip\s+-depth\s+8\s+".*?"}
+          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '-strip' '-depth' '8' '.*?'}
         end
         @thumb.make
       end
@@ -187,7 +187,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
       
       should "not get resized by default" do
-        assert_no_match(/-resize/, @thumb.transformation_command)
+        assert !@thumb.transformation_command.include?("-resize")
       end
     end
   end

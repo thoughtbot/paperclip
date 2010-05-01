@@ -65,7 +65,7 @@ module Paperclip
         :image_magick_path => nil,
         :command_path      => nil,
         :log               => true,
-        :log_command       => false,
+        :log_command       => true,
         :swallow_stderr    => true
       }
     end
@@ -82,7 +82,7 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes a command to execute and a string of parameters
+    # The run method takes a command to execute and an array of parameters
     # that get passed to it. The command is prefixed with the :command_path
     # option from Paperclip.options. If you have many commands to run and
     # they are in different paths, the suggested course of action is to
@@ -91,19 +91,35 @@ module Paperclip
     # If the command returns with a result code that is not one of the
     # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
+    # These codes should be passed as a hash as the last argument, like so:
+    #
+    #   Paperclip.run("echo", "something", :expected_outcodes => [0,1,2,3])
     #
     # This method can log the command being run when 
     # Paperclip.options[:log_command] is set to true (defaults to false). This
     # will only log if logging in general is set to true as well.
-    def run cmd, params = "", expected_outcodes = 0
-      command = %Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")
+    def run cmd, *params
+      options           = params.last.is_a?(Hash) ? params.pop : {}
+      expected_outcodes = options[:expected_outcodes] || [0]
+      params            = quote_command_options(*params).join(" ")
+
+      command = %Q[#{path_for_command(cmd)} #{params}]
       command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
       Paperclip.log(command) if Paperclip.options[:log_command]
+
       output = `#{command}`
-      unless [expected_outcodes].flatten.include?($?.exitstatus)
-        raise PaperclipCommandLineError, "Error while running #{cmd}"
+      unless expected_outcodes.include?($?.exitstatus)
+        raise PaperclipCommandLineError,
+          "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
+          output
       end
       output
+    end
+
+    def quote_command_options(*options)
+      options.map do |option|
+        option.split("'").map{|m| "'#{m}'" }.join("\\'")
+      end
     end
 
     def bit_bucket #:nodoc:
@@ -149,6 +165,11 @@ module Paperclip
   end
 
   class PaperclipCommandLineError < StandardError #:nodoc:
+    attr_accessor :output
+    def initialize(msg = nil, output = nil)
+      super(msg)
+      @output = output
+    end
   end
 
   class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
@@ -197,7 +218,7 @@ module Paperclip
     #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
     #   deprecated.
     # * +convert_options+: When creating thumbnails, use this free-form options
-    #   field to pass in various convert command options.  Typical options are "-strip" to
+    #   array to pass in various convert command options.  Typical options are "-strip" to
     #   remove all Exif data from the image (save space for thumbnails and avatars) or
     #   "-depth 8" to specify the bit depth of the resulting conversion.  See ImageMagick
     #   convert documentation for more options: (http://www.imagemagick.org/script/convert.php)
@@ -214,6 +235,9 @@ module Paperclip
     #   NOTE: While not deprecated yet, it is not recommended to specify options this way.
     #   It is recommended that :convert_options option be included in the hash passed to each
     #   :styles for compatability with future versions.
+    #   NOTE: Strings supplied to :convert_options are split on space in order to undergo
+    #   shell quoting for safety. If your options require a space, please pre-split them
+    #   and pass an array to :convert_options instead.
     # * +storage+: Chooses the storage backend where the files will be stored. The current
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
