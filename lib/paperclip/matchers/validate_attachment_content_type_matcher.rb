@@ -57,7 +57,7 @@ module Paperclip
             file = StringIO.new(".")
             file.content_type = type
             (subject = @subject.new).attachment_for(@attachment_name).assign(file)
-            subject.valid? && subject.errors.on(:"#{@attachment_name}_content_type").blank?
+            subject.valid? && subject.errors[:"#{@attachment_name}_content_type"].blank?
           end
         end
 

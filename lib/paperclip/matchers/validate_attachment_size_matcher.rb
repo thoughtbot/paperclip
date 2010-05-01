@@ -69,7 +69,7 @@ module Paperclip
 
           (subject = @subject.new).send(@attachment_name).assign(file)
           subject.valid?
-          subject.errors.on(:"#{@attachment_name}_file_size").blank?
+          subject.errors[:"#{@attachment_name}_file_size"].blank?
         end
 
         def lower_than_low?
