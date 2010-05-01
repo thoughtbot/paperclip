@@ -235,11 +235,11 @@ class PaperclipTest < Test::Unit::TestCase
           end
           if validation == :presence
             should "have an error on the attachment" do
-              assert @dummy.errors.on(:avatar_file_name)
+              assert @dummy.errors[:avatar_file_name]
             end
           else
             should "not have an error on the attachment" do
-              assert_nil @dummy.errors.on(:avatar_file_name), @dummy.errors.full_messages.join(", ")
+              assert @dummy.errors[:avatar_file_name].blank?, @dummy.errors.full_messages.join(", ")
             end
           end
         end
@@ -288,7 +288,7 @@ class PaperclipTest < Test::Unit::TestCase
         end
         
         should "have a file size min/max error message" do
-          assert_match %r/between 0 and 10240 bytes/, @dummy.errors.on(:avatar_file_size)
+          assert @dummy.errors[:avatar_file_size].any?{|e| e.match %r/between 0 and 10240 bytes/ }
         end
       end
     end
