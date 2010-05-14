@@ -70,6 +70,12 @@ module Paperclip
       }
     end
 
+    def configure
+      ActiveRecord::Base.send(:include, Paperclip)
+      File.send(:include, Paperclip::Upfile)
+      yield(self) if block_given?
+    end
+
     def path_for_command command #:nodoc:
       if options[:image_magick_path]
         warn("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
@@ -357,10 +363,4 @@ module Paperclip
     end
   end
 
-end
-
-# Set it all up.
-if Object.const_defined?("ActiveRecord")
-  ActiveRecord::Base.send(:include, Paperclip)
-  File.send(:include, Paperclip::Upfile)
 end
