@@ -120,8 +120,6 @@ module Paperclip
       base.extend ClassMethods
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
-      elsif !base.respond_to?("define_callbacks")
-        base.send :include, Paperclip::CallbackCompatability::Rails20
       else
         base.send :include, Paperclip::CallbackCompatability::Rails21
       end
