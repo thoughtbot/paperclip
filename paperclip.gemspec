@@ -1,7 +1,7 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'paperclip'
 
-include_files = ["README*", "LICENSE", "Rakefile", "init.rb", "{generators,lib,tasks,test,shoulda_macros}/**/*"].map do |glob|
+include_files = ["README*", "LICENSE", "Rakefile", "init.rb", "{lib,tasks,test,rails,generators,shoulda_macros}/**/*"].map do |glob|
   Dir[glob]
 end.flatten
 exclude_files = ["test/s3.yml", "test/debug.log", "test/paperclip.db", "test/doc", "test/doc/*", "test/pkg", "test/pkg/*", "test/tmp", "test/tmp/*"].map do |glob|
