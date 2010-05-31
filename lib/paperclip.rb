@@ -370,7 +370,7 @@ module Paperclip
       styles = attachment_definitions[name][:styles]
       styles ||= {}
       styles.inject({ :original => original_style_column }) do |cols, (style_key, style_value)|
-        cols[style_key] = style_value[:column] unless style_value[:column].nil?
+        cols[style_key] = style_value[:column] if style_value.is_a? Hash
         cols[style_key] ||= "#{name}_#{style_key}_file"
         cols
       end

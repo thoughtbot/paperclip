@@ -55,6 +55,22 @@ class DatabaseStorageTest < Test::Unit::TestCase
     end    
   end
 
+  context "An attachment with database storage and array style options" do
+    setup do
+      rebuild_database_table_1_blob_column
+      rebuild_class :storage => :database, :styles => {:original => ["200x200", :jpg ]}
+    end
+
+    should "be extended by the database storage module" do
+      assert Dummy.new.avatar.is_a?(Paperclip::Storage::Database)
+    end
+
+    should "return the meta data columns from select_without_file_columns_for" do
+      assert_equal Dummy.select_without_file_columns_for(:avatar),
+                   { :select=>"id,other,avatar_file_name,avatar_content_type,avatar_file_size,avatar_updated_at" }
+    end
+  end
+
   context "An attachment with database storage, default options plus two styles" do
     setup do
       rebuild_database_table_3_default_blob_columns
