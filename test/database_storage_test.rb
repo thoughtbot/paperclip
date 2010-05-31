@@ -185,7 +185,7 @@ class DatabaseStorageTest < Test::Unit::TestCase
       should "save the actual file contents to the original style column" do
         assert_equal @dummy.avatar_file_data, @contents
         assert !(file = @dummy.avatar.to_file).nil?
-        assert_equal Tempfile, file.class
+        assert_equal Paperclip::Tempfile, file.class
         file.close
       end
 
