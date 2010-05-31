@@ -1,6 +1,16 @@
 module Paperclip
   module Shoulda
     module Matchers
+      # Ensures that the given instance or class validates the size of the
+      # given attachment as specified.
+      #
+      # Examples:
+      #   it { should validate_attachment_size(:avatar).
+      #                 less_than(2.megabytes) }
+      #   it { should validate_attachment_size(:icon).
+      #                 greater_than(1024) }
+      #   it { should validate_attachment_size(:icon).
+      #                 in(0..100) }
       def validate_attachment_size name
         ValidateAttachmentSizeMatcher.new(name)
       end
@@ -28,6 +38,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
+          @subject = @subject.class unless Class === @subject
           lower_than_low? && higher_than_low? && lower_than_high? && higher_than_high?
         end
 
@@ -54,9 +65,11 @@ module Paperclip
         def passes_validation_with_size(new_size)
           file = StringIO.new(".")
           override_method(file, :size){ new_size }
-          attachment = @subject.new.attachment_for(@attachment_name)
-          attachment.assign(file)
-          attachment.errors[:size].nil?
+          override_method(file, :to_tempfile){ file }
+
+          (subject = @subject.new).send(@attachment_name).assign(file)
+          subject.valid?
+          subject.errors[:"#{@attachment_name}_file_size"].blank?
         end
 
         def lower_than_low?

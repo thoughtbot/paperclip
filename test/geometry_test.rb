@@ -49,6 +49,15 @@ class GeometryTest < Test::Unit::TestCase
       assert_nil @geo.modifier
     end
 
+    should "treat x and X the same in geometries" do
+      @lower = Paperclip::Geometry.parse("123x456")
+      @upper = Paperclip::Geometry.parse("123X456")
+      assert_equal 123, @lower.width
+      assert_equal 123, @upper.width
+      assert_equal 456, @lower.height
+      assert_equal 456, @upper.height
+    end
+
     ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
       should "ensure the modifier #{mod.inspect} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
@@ -68,7 +77,7 @@ class GeometryTest < Test::Unit::TestCase
     should "make sure the modifier gets passed during transformation_to" do
       assert @src = Paperclip::Geometry.parse("123x456")
       assert @dst = Paperclip::Geometry.parse("123x456>")
-      assert_equal "123x456>", @src.transformation_to(@dst).to_s
+      assert_equal ["123x456>", nil], @src.transformation_to(@dst)
     end
 
     should "generate correct ImageMagick formatting string for W-formatted string" do

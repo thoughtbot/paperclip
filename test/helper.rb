@@ -1,23 +1,55 @@
 require 'rubygems'
+require 'tempfile'
 require 'test/unit'
-gem 'thoughtbot-shoulda', ">= 2.9.0"
+
 require 'shoulda'
 require 'mocha'
-require 'tempfile'
 
-gem 'sqlite3-ruby'
-
-require 'active_record'
-require 'active_support'
-require 'action_controller'
-begin
-  require 'ruby-debug'
-rescue LoadError
-  puts "ruby-debug not loaded"
+case ENV['RAILS_VERSION']
+when '2.1' then
+  gem 'activerecord',  '~>2.1.0'
+  gem 'activesupport', '~>2.1.0'
+  gem 'actionpack',    '~>2.1.0'
+when '3.0' then
+  gem 'activerecord',  '~>3.0.0'
+  gem 'activesupport', '~>3.0.0'
+  gem 'actionpack',    '~>3.0.0'
+else
+  gem 'activerecord',  '~>2.3.0'
+  gem 'activesupport', '~>2.3.0'
+  gem 'actionpack',    '~>2.3.0'
 end
 
-ROOT       = File.join(File.dirname(__FILE__), '..')
-RAILS_ROOT = ROOT
+require 'active_record'
+require 'active_record/version'
+require 'active_support'
+require 'action_controller'
+require 'action_pack'
+
+puts "Testing againt version #{ActiveRecord::VERSION::STRING}"
+
+begin
+  require 'ruby-debug'
+rescue LoadError => e
+  puts "debugger disabled"
+end
+
+ROOT = File.join(File.dirname(__FILE__), '..')
+
+def silence_warnings
+  old_verbose, $VERBOSE = $VERBOSE, nil
+  yield
+ensure
+  $VERBOSE = old_verbose
+end
+
+class Test::Unit::TestCase
+  def setup
+    silence_warnings do
+      Object.const_set(:Rails, stub('Rails', :root => ROOT, :env => 'test'))
+    end
+  end
+end
 
 $LOAD_PATH << File.join(ROOT, 'lib')
 $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
@@ -25,8 +57,6 @@ $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
 require File.join(ROOT, 'lib', 'paperclip.rb')
 
 require 'shoulda_macros/paperclip'
-
-ENV['RAILS_ENV'] ||= 'test'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures") 
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
@@ -42,7 +72,7 @@ def reset_class class_name
 end
 
 def reset_table table_name, &block
-  block ||= lambda{ true }
+  block ||= lambda { |table| true }
   ActiveRecord::Base.connection.create_table :dummies, {:force => true}, &block
 end
 
@@ -71,13 +101,49 @@ def rebuild_class options = {}
   end
 end
 
-def temporary_rails_env(new_env)
-  old_env = defined?(RAILS_ENV) ? RAILS_ENV : nil
-  silence_warnings do
-    Object.const_set("RAILS_ENV", new_env)
+class FakeModel
+  attr_accessor :avatar_file_name,
+                :avatar_file_size,
+                :avatar_last_updated,
+                :avatar_content_type,
+                :id
+
+  def errors
+    @errors ||= []
   end
+
+  def run_paperclip_callbacks name, *args
+  end
+
+end
+
+def attachment options
+  Paperclip::Attachment.new(:avatar, FakeModel.new, options)
+end
+
+def silence_warnings
+  old_verbose, $VERBOSE = $VERBOSE, nil
   yield
-  silence_warnings do
-    Object.const_set("RAILS_ENV", old_env)
+ensure
+  $VERBOSE = old_verbose
+end
+
+def should_accept_dummy_class
+  should "accept the class" do
+    assert_accepts @matcher, @dummy_class
+  end
+
+  should "accept an instance of that class" do
+    assert_accepts @matcher, @dummy_class.new
+  end
+end
+
+def should_reject_dummy_class
+  should "reject the class" do
+    assert_rejects @matcher, @dummy_class
+  end
+
+  should "reject an instance of that class" do
+    assert_rejects @matcher, @dummy_class.new
   end
 end

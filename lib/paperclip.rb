@@ -5,7 +5,7 @@
 # columns to your table.
 #
 # Author:: Jon Yurek
-# Copyright:: Copyright (c) 2008 thoughtbot, inc.
+# Copyright:: Copyright (c) 2008-2009 thoughtbot, inc.
 # License:: MIT License (http://www.opensource.org/licenses/mit-license.php)
 #
 # Paperclip defines an attachment as any file, though it makes special considerations
@@ -25,6 +25,7 @@
 #
 # See the +has_attached_file+ documentation for more details.
 
+require 'erb'
 require 'tempfile'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
@@ -32,9 +33,12 @@ require 'paperclip/geometry'
 require 'paperclip/processor'
 require 'paperclip/thumbnail'
 require 'paperclip/storage'
+require 'paperclip/interpolations'
+require 'paperclip/style'
 require 'paperclip/attachment'
-if defined? RAILS_ROOT
-  Dir.glob(File.join(File.expand_path(RAILS_ROOT), "lib", "paperclip_processors", "*.rb")).each do |processor|
+require 'paperclip/callback_compatability'
+if defined?(Rails.root) && Rails.root
+  Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
   end
 end
@@ -43,11 +47,11 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.2.8"
+  VERSION = "2.3.2"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
-    # * whiny_thumbnails: Will raise an error if Paperclip cannot process thumbnails of 
+    # * whiny: Will raise an error if Paperclip cannot process thumbnails of 
     #   an uploaded image. Defaults to true.
     # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
     #   log levels, etc. Defaults to true.
@@ -57,10 +61,11 @@ module Paperclip
     # * image_magick_path: Deprecated alias of command_path.
     def options
       @options ||= {
-        :whiny_thumbnails  => true,
+        :whiny             => true,
         :image_magick_path => nil,
         :command_path      => nil,
         :log               => true,
+        :log_command       => true,
         :swallow_stderr    => true
       }
     end
@@ -74,10 +79,10 @@ module Paperclip
     end
 
     def interpolates key, &block
-      Paperclip::Attachment.interpolations[key] = block
+      Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes a command to execute and a string of parameters
+    # The run method takes a command to execute and an array of parameters
     # that get passed to it. The command is prefixed with the :command_path
     # option from Paperclip.options. If you have many commands to run and
     # they are in different paths, the suggested course of action is to
@@ -86,14 +91,35 @@ module Paperclip
     # If the command returns with a result code that is not one of the
     # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
-    def run cmd, params = "", expected_outcodes = 0
-      command = %Q<#{%Q[#{path_for_command(cmd)} #{params}].gsub(/\s+/, " ")}>
+    # These codes should be passed as a hash as the last argument, like so:
+    #
+    #   Paperclip.run("echo", "something", :expected_outcodes => [0,1,2,3])
+    #
+    # This method can log the command being run when 
+    # Paperclip.options[:log_command] is set to true (defaults to false). This
+    # will only log if logging in general is set to true as well.
+    def run cmd, *params
+      options           = params.last.is_a?(Hash) ? params.pop : {}
+      expected_outcodes = options[:expected_outcodes] || [0]
+      params            = quote_command_options(*params).join(" ")
+
+      command = %Q[#{path_for_command(cmd)} #{params}]
       command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
+      Paperclip.log(command) if Paperclip.options[:log_command]
+
       output = `#{command}`
-      unless [expected_outcodes].flatten.include?($?.exitstatus)
-        raise PaperclipCommandLineError, "Error while running #{cmd}"
+      unless expected_outcodes.include?($?.exitstatus)
+        raise PaperclipCommandLineError,
+          "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
+          output
       end
       output
+    end
+
+    def quote_command_options(*options)
+      options.map do |option|
+        option.split("'").map{|m| "'#{m}'" }.join("\\'")
+      end
     end
 
     def bit_bucket #:nodoc:
@@ -102,8 +128,12 @@ module Paperclip
 
     def included base #:nodoc:
       base.extend ClassMethods
-      unless base.respond_to?(:define_callbacks)
-        base.send(:include, Paperclip::CallbackCompatability)
+      if base.respond_to?("set_callback")
+        base.send :include, Paperclip::CallbackCompatability::Rails3
+      elsif !base.respond_to?("define_callbacks")
+        base.send :include, Paperclip::CallbackCompatability::Rails20
+      else
+        base.send :include, Paperclip::CallbackCompatability::Rails21
       end
     end
 
@@ -115,15 +145,37 @@ module Paperclip
       end
       processor
     end
+
+    # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
+    # by default. Set Paperclip.options[:log] to false to turn off.
+    def log message
+      logger.info("[paperclip] #{message}") if logging?
+    end
+
+    def logger #:nodoc:
+      ActiveRecord::Base.logger
+    end
+
+    def logging? #:nodoc:
+      options[:log]
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:
   end
 
   class PaperclipCommandLineError < StandardError #:nodoc:
+    attr_accessor :output
+    def initialize(msg = nil, output = nil)
+      super(msg)
+      @output = output
+    end
   end
 
   class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
+  end
+  
+  class InfiniteInterpolationError < PaperclipError #:nodoc:
   end
 
   module ClassMethods
@@ -141,9 +193,9 @@ module Paperclip
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash *must* be included manually for 
     #   absolute paths. The default value is 
-    #   "/system/:attachment/:id/:style/:basename.:extension". See
+    #   "/system/:attachment/:id/:style/:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :url => "/:class/:attachment/:id/:style_:basename.:extension"
+    #     :url => "/:class/:attachment/:id/:style_:filename"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
     # * +default_url+: The URL that will be returned if there is no attachment assigned. 
     #   This field is interpolated just as the url is. The default value is 
@@ -161,11 +213,12 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
-    # * +whiny_thumbnails+: Will raise an error if Paperclip cannot post_process an uploaded file due
+    # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment. 
-    #   Defaults to true. 
+    #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
+    #   deprecated.
     # * +convert_options+: When creating thumbnails, use this free-form options
-    #   field to pass in various convert command options.  Typical options are "-strip" to
+    #   array to pass in various convert command options.  Typical options are "-strip" to
     #   remove all Exif data from the image (save space for thumbnails and avatars) or
     #   "-depth 8" to specify the bit depth of the resulting conversion.  See ImageMagick
     #   convert documentation for more options: (http://www.imagemagick.org/script/convert.php)
@@ -179,6 +232,12 @@ module Paperclip
     #                                  :all => "-strip",
     #                                  :negative => "-negate"
     #                                }
+    #   NOTE: While not deprecated yet, it is not recommended to specify options this way.
+    #   It is recommended that :convert_options option be included in the hash passed to each
+    #   :styles for compatability with future versions.
+    #   NOTE: Strings supplied to :convert_options are split on space in order to undergo
+    #   shell quoting for safety. If your options require a space, please pre-split them
+    #   and pass an array to :convert_options instead.
     # * +storage+: Chooses the storage backend where the files will be stored. The current
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
@@ -187,14 +246,13 @@ module Paperclip
       include InstanceMethods
 
       write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
-      attachment_definitions[name] = {:validations => {}}.merge(options)
+      attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
       before_destroy :destroy_attached_files
 
-      define_callbacks :before_post_process, :after_post_process
-      define_callbacks :"before_#{name}_post_process", :"after_#{name}_post_process"
-     
+      define_paperclip_callbacks :post_process, :"#{name}_post_process"
+
       define_method name do |*args|
         a = attachment_for(name)
         (args.length > 0) ? a.to_s(args.first) : a
@@ -210,7 +268,7 @@ module Paperclip
 
       validates_each(name) do |record, attr, value|
         attachment = record.attachment_for(name)
-        attachment.send(:flush_errors) unless attachment.valid?
+        attachment.send(:flush_errors)
       end
 
       setup_file_columns(name) if options[:storage] == :database
@@ -222,30 +280,42 @@ module Paperclip
     # * +less_than+: equivalent to :in => 0..options[:less_than]
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     # * +message+: error message to display, use :min and :max as replacements
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_size name, options = {}
       min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
+      message = message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
 
-      attachment_definitions[name][:validations][:size] = lambda do |attachment, instance|
-        if attachment.file? && !range.include?(attachment.size.to_i)
-          message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
-        end
-      end
+      validates_inclusion_of :"#{name}_file_size",
+                             :in      => range,
+                             :message => message,
+                             :if      => options[:if],
+                             :unless  => options[:unless]
     end
 
     # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
     def validates_attachment_thumbnails name, options = {}
+      warn('[DEPRECATION] validates_attachment_thumbnail is deprecated. ' +
+           'This validation is on by default and will be removed from future versions. ' +
+           'If you wish to turn it off, supply :whiny => false in your definition.')
       attachment_definitions[name][:whiny_thumbnails] = true
     end
 
     # Places ActiveRecord-style validations on the presence of a file.
+    # Options:
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || "must be set."
-      attachment_definitions[name][:validations][:presence] = lambda do |attachment, instance|
-        message unless attachment.file?
-      end
+      validates_presence_of :"#{name}_file_name", 
+                            :message => message,
+                            :if      => options[:if],
+                            :unless  => options[:unless]
     end
     
     # Places ActiveRecord-style validations on the content type of the file
@@ -258,19 +328,21 @@ module Paperclip
     #   match.  Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid
     #   content type.
+    # * +if+: A lambda or name of a method on the instance. Validation will only
+    #   be run is this lambda or method returns true.
+    # * +unless+: Same as +if+ but validates if lambda or method returns false.
     # NOTE: If you do not specify an [attachment]_content_type field on your
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
     def validates_attachment_content_type name, options = {}
-      attachment_definitions[name][:validations][:content_type] = lambda do |attachment, instance|
-        valid_types = [options[:content_type]].flatten
-        
-        unless attachment.original_filename.blank?
-          unless valid_types.blank?
-            content_type = attachment.instance_read(:content_type)
-            unless valid_types.any?{|t| content_type.nil? || t === content_type }
-              options[:message] || "is not one of the allowed file types."
-            end
+      types = [options.delete(:content_type)].flatten
+      validates_each(:"#{name}_content_type", options) do |record, attr, value|
+        unless types.any?{|t| t === value }
+          if record.errors.method(:add).arity == -2
+            message = options[:message] || "is not one of #{types.join(", ")}"
+            record.errors.add(:"#{name}_content_type", message)
+          else
+            record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
           end
         end
       end
@@ -326,14 +398,14 @@ module Paperclip
     end
 
     def save_attached_files
-      logger.info("[paperclip] Saving attachments.")
+      Paperclip.log("Saving attachments.")
       each_attachment do |name, attachment|
         attachment.send(:save)
       end
     end
 
     def destroy_attached_files
-      logger.info("[paperclip] Deleting attachments.")
+      Paperclip.log("Deleting attachments.")
       each_attachment do |name, attachment|
         attachment.send(:queue_existing_for_delete)
         attachment.send(:flush_deletes)

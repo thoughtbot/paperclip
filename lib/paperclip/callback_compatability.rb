@@ -1,33 +1,61 @@
 module Paperclip
-  # This module is intended as a compatability shim for the differences in
-  # callbacks between Rails 2.0 and Rails 2.1.
   module CallbackCompatability
-    def self.included(base)
-      base.extend(ClassMethods)
-      base.send(:include, InstanceMethods)
-    end
+    module Rails21
+      def self.included(base)
+        base.extend(Defining)
+        base.send(:include, Running)
+      end
 
-    module ClassMethods
-      # The implementation of this method is taken from the Rails 1.2.6 source,
-      # from rails/activerecord/lib/active_record/callbacks.rb, line 192.
-      def define_callbacks(*args)
-        args.each do |method|
-          self.class_eval <<-"end_eval"
-            def self.#{method}(*callbacks, &block)
-              callbacks << block if block_given?
-              write_inheritable_array(#{method.to_sym.inspect}, callbacks)
-            end
-          end_eval
+      module Defining
+        def define_paperclip_callbacks(*args)
+          args.each do |callback|
+            define_callbacks("before_#{callback}")
+            define_callbacks("after_#{callback}")
+          end
+        end
+      end
+
+      module Running
+        def run_paperclip_callbacks(callback, opts = nil, &blk)
+          # The overall structure of this isn't ideal since after callbacks run even if
+          # befores return false. But this is how rails 3's callbacks work, unfortunately.
+          if run_callbacks(:"before_#{callback}"){ |result, object| result == false } != false
+            blk.call
+          end
+          run_callbacks(:"after_#{callback}"){ |result, object| result == false }
         end
       end
     end
 
-    module InstanceMethods
-      # The callbacks in < 2.1 don't worry about the extra options or the
-      # block, so just run what we have available.
-      def run_callbacks(meth, opts = nil, &blk)
-        callback(meth)
+    module Rails3
+      def self.included(base)
+        base.extend(Defining)
+        base.send(:include, Running)
       end
+
+      module Defining
+        def define_paperclip_callbacks(*callbacks)
+          define_callbacks *[callbacks, {:terminator => "result == false"}].flatten
+          callbacks.each do |callback|
+            eval <<-end_callbacks
+              def before_#{callback}(*args, &blk)
+                set_callback(:#{callback}, :before, *args, &blk)
+              end
+              def after_#{callback}(*args, &blk)
+                set_callback(:#{callback}, :after, *args, &blk)
+              end
+            end_callbacks
+          end
+        end
+      end
+
+      module Running
+        def run_paperclip_callbacks(callback, opts = nil, &block)
+          run_callbacks(callback, opts, &block)
+        end
+      end
+
     end
+
   end
 end

@@ -79,8 +79,7 @@ validates_attachment_size.
 
 The files that are assigned as attachments are, by default, placed in the
 directory specified by the :path option to has_attached_file. By default, this
-location is
-":rails_root/public/system/:attachment/:id/:style/:basename.:extension". This
+location is ":rails_root/public/system/:attachment/:id/:style/:filename". This
 location was chosen because on standard Capistrano deployments, the
 public/system directory is symlinked to the app's shared directory, meaning it
 will survive between deployments. For example, using that :path, you may have a
@@ -89,7 +88,7 @@ file at
   /data/myapp/releases/20081229172410/public/system/avatars/13/small/my_pic.png
 
 NOTE: This is a change from previous versions of Paperclip, but is overall a
-safer choice for the defaul file store.
+safer choice for the default file store.
 
 You may also choose to store your files using Amazon's S3 service. You can find
 more information about S3 storage at the description for
@@ -104,9 +103,9 @@ variables.
 
 ==Post Processing
 
-Paperclip supports an extendible selection of post-processors. When you define
+Paperclip supports an extensible selection of post-processors. When you define
 a set of styles for an attachment, by default it is expected that those
-"styles" are actually "thumbnails". However, you can do more than just
+"styles" are actually "thumbnails". However, you can do much more than just
 thumbnail images. By defining a subclass of Paperclip::Processor, you can
 perform any processing you want on the files that are attached. Any file in
 your Rails app's lib/paperclip_processors directory is automatically loaded by
@@ -141,7 +140,10 @@ For example, assuming we had this definition:
 
 then both the :rotator processor and the :ocr processor would receive the 
 options "{ :quality => :better }". This parameter may not mean anything to one
-or more or the processors, and they are free to ignore it.
+or more or the processors, and they are expected to ignore it.
+
+NOTE: Because processors operate by turning the original attachment into the
+styles, no processors will be run if there are no styles defined.
 
 ==Events
 
@@ -157,8 +159,13 @@ will halt. Returning false in an after_ filter will not halt anything, but you
 can access the model and the attachment if necessary.
 
 NOTE: Post processing will not even *start* if the attachment is not valid
-according to the validations. Your callbacks (and processors) will only be
+according to the validations. Your callbacks and processors will *only* be
 called with valid attachments.
+
+==Testing
+
+Paperclip provides rspec-compatible matchers for testing attachments. See the
+documentation on Paperclip::Shoulda::Matchers for more information.
 
 ==Contributing
 
@@ -166,7 +173,7 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the mailing list, or post a ticket in Lighthouse.
+1. Ask on the mailing list, or post a new GitHub Issue.
 2. Make sure there are tests! We will not accept any patch that is not tested.
-   It's a rare time when explicit tests aren't needed. If you have questions 
+   It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please ask the mailing list.

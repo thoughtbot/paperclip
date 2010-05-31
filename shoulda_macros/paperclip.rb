@@ -1,4 +1,5 @@
 require 'paperclip/matchers'
+require 'action_controller'
 
 module Paperclip
   # =Paperclip Shoulda Macros
@@ -60,7 +61,57 @@ module Paperclip
         assert_accepts(matcher, klass)
       end
     end
+
+    # Stubs the HTTP PUT for an attachment using S3 storage.
+    #
+    # @example
+    #   stub_paperclip_s3('user', 'avatar', 'png')
+    def stub_paperclip_s3(model, attachment, extension)
+      definition = model.gsub(" ", "_").classify.constantize.
+                         attachment_definitions[attachment.to_sym]
+
+      path = "http://s3.amazonaws.com/:id/#{definition[:path]}"
+      path.gsub!(/:([^\/\.]+)/) do |match|
+        "([^\/\.]+)"
+      end
+
+      begin
+        FakeWeb.register_uri(:put, Regexp.new(path), :body => "OK")
+      rescue NameError
+        raise NameError, "the stub_paperclip_s3 shoulda macro requires the fakeweb gem."
+      end
+    end
+
+    # Stub S3 and return a file for attachment. Best with Factory Girl.
+    # Uses a strict directory convention:
+    #
+    #     features/support/paperclip
+    #
+    # This method is used by the Paperclip-provided Cucumber step:
+    #
+    #     When I attach a "demo_tape" "mp3" file to a "band" on S3
+    #
+    # @example
+    #   Factory.define :band_with_demo_tape, :parent => :band do |band|
+    #     band.demo_tape { band.paperclip_fixture("band", "demo_tape", "png") }
+    #   end
+    def paperclip_fixture(model, attachment, extension)
+      stub_paperclip_s3(model, attachment, extension)
+      base_path = File.join(File.dirname(__FILE__), "..", "..",
+                            "features", "support", "paperclip")
+      File.new(File.join(base_path, model, "#{attachment}.#{extension}"))
+    end
   end
+end
+
+if defined?(ActionController::Integration::Session)
+  class ActionController::Integration::Session  #:nodoc:
+    include Paperclip::Shoulda
+  end
+end
+
+class Factory
+  include Paperclip::Shoulda  #:nodoc:
 end
 
 class Test::Unit::TestCase #:nodoc:
