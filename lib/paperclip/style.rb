@@ -11,9 +11,10 @@ module Paperclip
     # Creates a Style object. +name+ is the name of the attachment,
     # +definition+ is the style definition from has_attached_file, which
     # can be string, array or hash
-    def initialize name, definition, attachment
+    def initialize name, style_definition, attachment
       @name = name
       @attachment = attachment
+      definition = style_definition.dup
       if definition.is_a? Hash
         @geometry = definition.delete(:geometry)
         @format = definition.delete(:format)

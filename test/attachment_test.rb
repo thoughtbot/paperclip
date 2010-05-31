@@ -340,7 +340,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment with styles but no processors defined" do
     setup do
-      rebuild_model :processors => [], :styles => {:something => 1}
+      rebuild_model :processors => [], :styles => {:something => '1'}
       @dummy = Dummy.new
       @file = StringIO.new("...")
     end
