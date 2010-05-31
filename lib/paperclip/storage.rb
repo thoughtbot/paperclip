@@ -323,7 +323,7 @@ module Paperclip
             @url = ":relative_root/:class/:attachment/:id?style=:style"
           end
         end
-        base.class.interpolations[:relative_root] = lambda do |attachment, style|
+        Paperclip.interpolates(:relative_root) do |attachment, style|
           begin
             if ActionController::AbstractRequest.respond_to?(:relative_url_root)
               relative_url_root = ActionController::AbstractRequest.relative_url_root
