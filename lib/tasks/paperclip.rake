@@ -41,7 +41,7 @@ namespace :paperclip do
       names = obtain_attachments(klass)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
-          if file = instance.send(name).to_file
+          if file = instance.send(name).to_file(:original)
             instance.send("#{name}_file_name=", instance.send("#{name}_file_name").strip)
             instance.send("#{name}_content_type=", file.content_type.strip)
             instance.send("#{name}_file_size=", file.size) if instance.respond_to?("#{name}_file_size")
