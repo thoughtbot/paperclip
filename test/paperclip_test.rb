@@ -62,6 +62,20 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Calling Paperclip.run when the command is not found" do
+    should "tell you the command isn't there" do
+      begin
+        assert_raises(Paperclip::CommandNotFoundError) do
+          `ruby -e 'exit 127'` # Stub $?.exitstatus to be 127, i.e. Command Not Found.
+          Paperclip.stubs(:"`").returns("")
+          Paperclip.run("command")
+        end
+      ensure
+        `ruby -e 'exit 0'` # Unstub $?.exitstatus
+      end
+    end
+  end
+
   should "prevent dangerous characters in the command via quoting" do
     Paperclip.options[:image_magick_path] = nil
     Paperclip.options[:command_path]      = nil

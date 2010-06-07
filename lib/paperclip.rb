@@ -113,6 +113,10 @@ module Paperclip
       Paperclip.log(command) if Paperclip.options[:log_command]
 
       output = `#{command}`
+
+      if $?.exitstatus == 127
+        raise CommandNotFoundError
+      end
       unless expected_outcodes.include?($?.exitstatus)
         raise PaperclipCommandLineError,
           "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
@@ -167,7 +171,7 @@ module Paperclip
   class PaperclipError < StandardError #:nodoc:
   end
 
-  class PaperclipCommandLineError < StandardError #:nodoc:
+  class PaperclipCommandLineError < PaperclipError #:nodoc:
     attr_accessor :output
     def initialize(msg = nil, output = nil)
       super(msg)
@@ -175,9 +179,12 @@ module Paperclip
     end
   end
 
+  class CommandNotFoundError < PaperclipError
+  end
+
   class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
   end
-  
+
   class InfiniteInterpolationError < PaperclipError #:nodoc:
   end
 
