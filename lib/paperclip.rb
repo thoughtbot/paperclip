@@ -112,16 +112,20 @@ module Paperclip
       command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
       Paperclip.log(command) if Paperclip.options[:log_command]
 
-      output = `#{command}`
+      begin
+        output = `#{command}`
 
-      if $?.exitstatus == 127
+        raise CommandNotFoundError if $?.exitstatus == 127
+
+        unless expected_outcodes.include?($?.exitstatus)
+          raise PaperclipCommandLineError,
+            "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
+            output
+        end
+      rescue Errno::ENOENT => e
         raise CommandNotFoundError
       end
-      unless expected_outcodes.include?($?.exitstatus)
-        raise PaperclipCommandLineError,
-          "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
-          output
-      end
+
       output
     end
 

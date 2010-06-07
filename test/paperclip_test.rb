@@ -63,7 +63,7 @@ class PaperclipTest < Test::Unit::TestCase
   end
 
   context "Calling Paperclip.run when the command is not found" do
-    should "tell you the command isn't there" do
+    should "tell you the command isn't there if the shell returns 127" do
       begin
         assert_raises(Paperclip::CommandNotFoundError) do
           `ruby -e 'exit 127'` # Stub $?.exitstatus to be 127, i.e. Command Not Found.
@@ -72,6 +72,12 @@ class PaperclipTest < Test::Unit::TestCase
         end
       ensure
         `ruby -e 'exit 0'` # Unstub $?.exitstatus
+      end
+    end
+    should "tell you the command isn't there if an ENOENT is raised" do
+      assert_raises(Paperclip::CommandNotFoundError) do
+        Paperclip.stubs(:"`").raises(Errno::ENOENT)
+        Paperclip.run("command")
       end
     end
   end
