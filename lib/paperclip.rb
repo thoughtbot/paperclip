@@ -37,6 +37,7 @@ require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/callback_compatability'
+require 'paperclip/railtie'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
@@ -47,7 +48,7 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.3.2"
+  VERSION = "2.3.2.beta1"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -68,6 +69,10 @@ module Paperclip
         :log_command       => true,
         :swallow_stderr    => true
       }
+    end
+
+    def configure
+      yield(self) if block_given?
     end
 
     def path_for_command command #:nodoc:
@@ -130,8 +135,6 @@ module Paperclip
       base.extend ClassMethods
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
-      elsif !base.respond_to?("define_callbacks")
-        base.send :include, Paperclip::CallbackCompatability::Rails20
       else
         base.send :include, Paperclip::CallbackCompatability::Rails21
       end
@@ -358,7 +361,7 @@ module Paperclip
       @_paperclip_attachments ||= {}
       @_paperclip_attachments[name] ||= Attachment.new(name, self, self.class.attachment_definitions[name])
     end
-    
+
     def each_attachment
       self.class.attachment_definitions.each do |name, definition|
         yield(name, attachment_for(name))
@@ -381,10 +384,4 @@ module Paperclip
     end
   end
 
-end
-
-# Set it all up.
-if Object.const_defined?("ActiveRecord")
-  ActiveRecord::Base.send(:include, Paperclip)
-  File.send(:include, Paperclip::Upfile)
 end
