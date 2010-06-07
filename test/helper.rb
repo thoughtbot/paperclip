@@ -25,7 +25,7 @@ require 'active_record/version'
 require 'active_support'
 require 'action_pack'
 
-puts "Testing againt version #{ActiveRecord::VERSION::STRING}"
+puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
 begin
   require 'ruby-debug'
