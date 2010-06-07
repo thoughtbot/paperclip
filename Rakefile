@@ -62,13 +62,13 @@ task :manifest => :clean do
     puts file
   end
 end
- 
+
 desc "Generate a gemspec file for GitHub"
 task :gemspec => :clean do
   File.open("#{spec.name}.gemspec", 'w') do |f|
     f.write spec.to_ruby
   end
-end 
+end
 
 desc "Build the gem into the current directory"
 task :gem => :gemspec do

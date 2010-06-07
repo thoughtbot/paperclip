@@ -96,7 +96,7 @@ class PaperclipTest < Test::Unit::TestCase
       setup do
         File.expects(:exists?).with("/dev/null").returns(false)
       end
-      
+
       should "return 'NUL'" do
         assert_equal "NUL", Paperclip.bit_bucket
       end
@@ -106,7 +106,7 @@ class PaperclipTest < Test::Unit::TestCase
       setup do
         File.expects(:exists?).with("/dev/null").returns(true)
       end
-      
+
       should "return '/dev/null'" do
         assert_equal "/dev/null", Paperclip.bit_bucket
       end
@@ -152,7 +152,7 @@ class PaperclipTest < Test::Unit::TestCase
       should "not assign the avatar on mass-set" do
         @dummy.attributes = { :other => "I'm set!",
                               :avatar => @file }
-        
+
         assert_equal "I'm set!", @dummy.other
         assert ! @dummy.avatar?
       end
@@ -160,7 +160,7 @@ class PaperclipTest < Test::Unit::TestCase
       should "still allow assigment on normal set" do
         @dummy.other  = "I'm set!"
         @dummy.avatar = @file
-        
+
         assert_equal "I'm set!", @dummy.other
         assert @dummy.avatar?
       end
@@ -294,10 +294,10 @@ class PaperclipTest < Test::Unit::TestCase
       validation, options, valid_file, invalid_file = args
       valid_file   &&= File.open(File.join(FIXTURES_DIR, valid_file), "rb")
       invalid_file &&= File.open(File.join(FIXTURES_DIR, invalid_file), "rb")
-      
+
       should_validate validation, options, valid_file, invalid_file
     end
-    
+
     context "with size validation and less_than 10240 option" do
       context "and assigned an invalid file" do
         setup do
@@ -306,7 +306,7 @@ class PaperclipTest < Test::Unit::TestCase
           @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
           @dummy.valid?
         end
-        
+
         should "have a file size min/max error message" do
           assert @dummy.errors[:avatar_file_size] =~ %r/between 0 and 10240 bytes/
         end

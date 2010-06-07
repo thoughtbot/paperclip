@@ -75,12 +75,12 @@ module Paperclip
       to_s
     end
 
-    # Returns the scaling and cropping geometries (in string-based ImageMagick format) 
-    # neccessary to transform this Geometry into the Geometry given. If crop is true, 
-    # then it is assumed the destination Geometry will be the exact final resolution. 
-    # In this case, the source Geometry is scaled so that an image containing the 
-    # destination Geometry would be completely filled by the source image, and any 
-    # overhanging image would be cropped. Useful for square thumbnail images. The cropping 
+    # Returns the scaling and cropping geometries (in string-based ImageMagick format)
+    # neccessary to transform this Geometry into the Geometry given. If crop is true,
+    # then it is assumed the destination Geometry will be the exact final resolution.
+    # In this case, the source Geometry is scaled so that an image containing the
+    # destination Geometry would be completely filled by the source image, and any
+    # overhanging image would be cropped. Useful for square thumbnail images. The cropping
     # is weighted at the center of the Geometry.
     def transformation_to dst, crop = false
       if crop

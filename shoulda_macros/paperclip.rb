@@ -46,7 +46,7 @@ module Paperclip
     end
 
     # Tests to ensure that you have file size validations turned on. You
-    # can pass the same options to this that you can to 
+    # can pass the same options to this that you can to
     # validate_attachment_file_size - :less_than, :greater_than, and :in.
     # :less_than checks that a file is less than a certain size, :greater_than
     # checks that a file is more than a certain size, and :in takes a Range or
