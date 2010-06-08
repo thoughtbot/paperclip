@@ -8,7 +8,7 @@ exclude_files = ["test/s3.yml", "test/debug.log", "test/paperclip.db", "test/doc
   Dir[glob]
 end.flatten
 
-spec = Gem::Specification.new do |s| 
+spec = Gem::Specification.new do |s|
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
   s.author            = "Jon Yurek"
@@ -32,4 +32,3 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'aws-s3'
   s.add_development_dependency 'sqlite3-ruby'
 end
-

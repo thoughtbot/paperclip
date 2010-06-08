@@ -138,7 +138,7 @@ For example, assuming we had this definition:
   has_attached_file :scan, :styles => { :text => { :quality => :better } },
                            :processors => [:rotator, :ocr]
 
-then both the :rotator processor and the :ocr processor would receive the 
+then both the :rotator processor and the :ocr processor would receive the
 options "{ :quality => :better }". This parameter may not mean anything to one
 or more or the processors, and they are expected to ignore it.
 

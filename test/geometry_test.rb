@@ -65,7 +65,7 @@ class GeometryTest < Test::Unit::TestCase
         assert_equal "123x456#{mod}", @geo.to_s
       end
     end
-    
+
     ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
       should "ensure the modifier #{mod.inspect} is preserved with no height" do
         assert @geo = Paperclip::Geometry.parse("123x#{mod}")

@@ -47,7 +47,7 @@ class ThumbnailTest < Test::Unit::TestCase
         end
 
         should "start with dimensions of 434x66" do
-          cmd = %Q[identify -format "%wx%h" "#{@file.path}"] 
+          cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
           assert_equal "434x66", `#{cmd}`.chomp
         end
 
@@ -61,7 +61,7 @@ class ThumbnailTest < Test::Unit::TestCase
           end
 
           should "be the size we expect it to be" do
-            cmd = %Q[identify -format "%wx%h" "#{@thumb_result.path}"] 
+            cmd = %Q[identify -format "%wx%h" "#{@thumb_result.path}"]
             assert_equal args[1], `#{cmd}`.chomp
           end
         end
@@ -85,7 +85,7 @@ class ThumbnailTest < Test::Unit::TestCase
       should "have whiny turned on by default" do
         assert @thumb.whiny
       end
-      
+
       should "have convert_options set to nil by default" do
         assert_equal nil, @thumb.convert_options
       end
@@ -102,7 +102,7 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_match /100x50/, `identify "#{dst.path}"`
       end
     end
-    
+
     context "being thumbnailed with source file options set" do
       setup do
         @thumb = Paperclip::Thumbnail.new(@file,
@@ -125,7 +125,7 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         assert_match /100x50/, `identify "#{dst.path}"`
       end
-      
+
       context "redefined to have bad source_file_options setting" do
         setup do
           @thumb = Paperclip::Thumbnail.new(@file,
@@ -138,7 +138,7 @@ class ThumbnailTest < Test::Unit::TestCase
             @thumb.make
           end
         end
-      end      
+      end
     end
 
     context "being thumbnailed with convert options set" do
@@ -163,7 +163,7 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         assert_match /100x50/, `identify "#{dst.path}"`
       end
-      
+
       context "redefined to have bad convert_options setting" do
         setup do
           @thumb = Paperclip::Thumbnail.new(@file,
@@ -176,16 +176,16 @@ class ThumbnailTest < Test::Unit::TestCase
             @thumb.make
           end
         end
-      end      
+      end
     end
-    
+
     context "being thumbnailed with a blank geometry string" do
       setup do
         @thumb = Paperclip::Thumbnail.new(@file,
                                           :geometry        => "",
                                           :convert_options => "-gravity center -crop \"300x300+0-0\"")
       end
-      
+
       should "not get resized by default" do
         assert !@thumb.transformation_command.include?("-resize")
       end

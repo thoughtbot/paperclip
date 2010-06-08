@@ -9,7 +9,7 @@ class IntegrationTest < Test::Unit::TestCase
         Dummy.create! :avatar => @file
       end
     end
-    
+
     should "not exceed the open file limit" do
        assert_nothing_raised do
          dummies = Dummy.find(:all)
@@ -157,7 +157,7 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "A model with no convert_options setting" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
@@ -168,7 +168,7 @@ class IntegrationTest < Test::Unit::TestCase
                     :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       @dummy     = Dummy.new
     end
-    
+
     should "have its definition return nil when asked about convert_options" do
       assert ! Dummy.attachment_definitions[:avatar][:convert_options]
     end
@@ -189,7 +189,7 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
@@ -281,7 +281,7 @@ class IntegrationTest < Test::Unit::TestCase
       Dummy.validates_attachment_presence :avatar
       @d2 = Dummy.find(@dummy.id)
       @d2.avatar = @file
-      assert   @d2.valid?, @d2.errors.full_messages.inspect 
+      assert   @d2.valid?, @d2.errors.full_messages.inspect
       @d2.avatar = @bad_file
       assert ! @d2.valid?
     end
@@ -294,7 +294,7 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy.reload
       assert_equal "5k.png", @dummy.avatar_file_name
     end
-    
+
     context "that is assigned its file from another Paperclip attachment" do
       setup do
         @dummy2 = Dummy.new
@@ -302,7 +302,7 @@ class IntegrationTest < Test::Unit::TestCase
         assert  @dummy2.avatar = @file2
         @dummy2.save
       end
-      
+
       should "work when assigned a file" do
         assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                          `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
@@ -312,7 +312,7 @@ class IntegrationTest < Test::Unit::TestCase
         assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                      `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
       end
-    end    
+    end
 
   end
 

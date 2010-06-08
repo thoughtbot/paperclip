@@ -9,7 +9,7 @@ class StyleTest < Test::Unit::TestCase
                                :styles => { :foo => {:geometry => "100x100#", :format => :png} }
       @style = @attachment.styles[:foo]
     end
-    
+
     should "be held as a Style object" do
       assert_kind_of Paperclip::Style, @style
     end
@@ -21,18 +21,18 @@ class StyleTest < Test::Unit::TestCase
     should "have the right geometry" do
       assert_equal "100x100#", @style.geometry
     end
-    
+
     should "be whiny if the attachment is" do
       @attachment.expects(:whiny).returns(true)
       assert @style.whiny?
     end
-    
+
     should "respond to hash notation" do
       assert_equal [:thumbnail], @style[:processors]
       assert_equal "100x100#", @style[:geometry]
     end
   end
-  
+
   context "A style rule with properties supplied as procs" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
@@ -45,13 +45,13 @@ class StyleTest < Test::Unit::TestCase
                                  }
                                }
     end
-  
+
     should "defer processing of procs until they are needed" do
       assert_kind_of Proc, @attachment.styles[:foo].instance_variable_get("@geometry")
       assert_kind_of Proc, @attachment.styles[:bar].instance_variable_get("@geometry")
       assert_kind_of Proc, @attachment.instance_variable_get("@processors")
     end
-  
+
     should "call procs when they are needed" do
       assert_equal "300x300#", @attachment.styles[:foo].geometry
       assert_equal "300x300#", @attachment.styles[:bar].geometry
@@ -63,7 +63,7 @@ class StyleTest < Test::Unit::TestCase
   context "An attachment with style rules in various forms" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => { 
+                               :styles => {
                                  :aslist => ["100x100", :png],
                                  :ashash => {:geometry => "100x100", :format => :png},
                                  :asstring => "100x100"
@@ -73,13 +73,13 @@ class StyleTest < Test::Unit::TestCase
       assert_kind_of Hash, @attachment.styles
       assert_equal 3, @attachment.styles.size
     end
-    
+
     should "have styles as Style objects" do
       [:aslist, :ashash, :aslist].each do |s|
         assert_kind_of Paperclip::Style, @attachment.styles[s]
       end
     end
-    
+
     should "have the right geometries" do
       [:aslist, :ashash, :aslist].each do |s|
         assert_equal @attachment.styles[s].geometry, "100x100"
@@ -107,32 +107,32 @@ class StyleTest < Test::Unit::TestCase
     before_should "not have called extra_options_for(:thumb/:large) on initialization" do
       @attachment.expects(:extra_options_for).never
     end
-    
+
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_options_for).with(:thumb)
       @attachment.styles[:thumb].convert_options
     end
   end
-  
+
   context "A style rule with its own :processors" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => { 
+                               :styles => {
                                  :foo => {
-                                   :geometry => "100x100#", 
+                                   :geometry => "100x100#",
                                    :format => :png,
                                    :processors => [:test]
-                                  } 
+                                  }
                                 },
                                :processors => [:thumbnail]
       @style = @attachment.styles[:foo]
     end
-    
+
     should "not get processors from the attachment" do
       @attachment.expects(:processors).never
       assert_not_equal [:thumbnail], @style.processors
     end
-  
+
     should "report its own processors" do
       assert_equal [:test], @style.processors
     end
