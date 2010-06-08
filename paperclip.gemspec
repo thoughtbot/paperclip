@@ -1,5 +1,5 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
-require 'paperclip'
+require 'paperclip/version'
 
 include_files = ["README*", "LICENSE", "Rakefile", "init.rb", "{lib,tasks,test,rails,generators,shoulda_macros}/**/*"].map do |glob|
   Dir[glob]

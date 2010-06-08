@@ -27,6 +27,7 @@
 
 require 'erb'
 require 'tempfile'
+require 'paperclip/version'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
 require 'paperclip/geometry'
@@ -47,8 +48,6 @@ end
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
-
-  VERSION = "2.3.2.beta2"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
