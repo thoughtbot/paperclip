@@ -308,7 +308,7 @@ class PaperclipTest < Test::Unit::TestCase
         end
 
         should "have a file size min/max error message" do
-          assert @dummy.errors[:avatar_file_size] =~ %r/between 0 and 10240 bytes/
+          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/between 0 and 10240 bytes/ }
         end
       end
     end
