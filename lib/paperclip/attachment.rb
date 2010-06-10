@@ -15,6 +15,7 @@ module Paperclip
         :default_url       => "/:attachment/:style/missing.png",
         :default_style     => :original,
         :storage           => :filesystem,
+        :include_updated_timestamp => true,
         :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
@@ -39,6 +40,7 @@ module Paperclip
       @default_url       = options[:default_url]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
+      @include_updated_timestamp = options[:include_updated_timestamp]
       @whiny             = options[:whiny_thumbnails] || options[:whiny]
       @convert_options   = options[:convert_options]
       @processors        = options[:processors]
@@ -90,6 +92,7 @@ module Paperclip
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
+      instance_write(:fingerprint,     uploaded_file.fingerprint)
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -98,6 +101,7 @@ module Paperclip
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size, @queued_for_write[:original].size.to_i)
+      instance_write(:fingerprint, @queued_for_write[:original].fingerprint)
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -109,7 +113,7 @@ module Paperclip
     # security, however, for performance reasons.  set
     # include_updated_timestamp to false if you want to stop the attachment
     # update time appended to the url
-    def url style_name = default_style, include_updated_timestamp = true
+    def url(style_name = default_style, include_updated_timestamp = @include_updated_timestamp)
       url = original_filename.nil? ? interpolate(@default_url, style_name) : interpolate(@url, style_name)
       include_updated_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
     end
@@ -172,6 +176,12 @@ module Paperclip
     # <attachment>_file_size attribute of the model.
     def size
       instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
+    end
+
+    # Returns the hash of the file as originally assigned, and lives in the
+    # <attachment>_fingerprint attribute of the model.
+    def fingerprint
+      instance_read(:fingerprint) || (@queued_for_write[:original] && @queued_for_write[:original].fingerprint)
     end
 
     # Returns the content_type of the file as originally assigned, and lives

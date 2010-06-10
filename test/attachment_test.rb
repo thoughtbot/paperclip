@@ -446,6 +446,8 @@ class AttachmentTest < Test::Unit::TestCase
       @not_file = mock
       @tempfile = mock
       @not_file.stubs(:nil?).returns(false)
+      @not_file.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
+      @tempfile.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
       @not_file.expects(:to_tempfile).returns(@tempfile)
@@ -752,6 +754,30 @@ class AttachmentTest < Test::Unit::TestCase
         @dummy.save
         @dummy = Dummy.find(@dummy.id)
         assert_equal @file.size, @dummy.avatar.size
+      end
+    end
+
+    context "and avatar_fingerprint column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_fingerprint, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_fingerprint" do
+        @dummy.avatar = @file
+        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_fingerprint" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
       end
     end
   end

@@ -32,17 +32,25 @@ module Paperclip
     def size
       File.size(self)
     end
+
+    # Returns the hash of the file.
+    def fingerprint
+      Digest::MD5.hexdigest(self.read)
+    end
   end
 end
 
 if defined? StringIO
   class StringIO
-    attr_accessor :original_filename, :content_type
+    attr_accessor :original_filename, :content_type, :fingerprint
     def original_filename
       @original_filename ||= "stringio.txt"
     end
     def content_type
       @content_type ||= "text/plain"
+    end
+    def fingerprint
+      @fingerprint ||= Digest::MD5.hexdigest(self.string)
     end
   end
 end
