@@ -245,6 +245,7 @@ class PaperclipTest < Test::Unit::TestCase
     def self.should_validate validation, options, valid_file, invalid_file
       context "with #{validation} validation and #{options.inspect} options" do
         setup do
+          rebuild_class
           Dummy.send(:"validates_attachment_#{validation}", :avatar, options)
           @dummy = Dummy.new
         end
@@ -259,7 +260,7 @@ class PaperclipTest < Test::Unit::TestCase
             end
           else
             should "not have an error on the attachment" do
-              assert @dummy.errors[:avatar_file_name].blank?, @dummy.errors.full_messages.join(", ")
+              assert @dummy.errors.blank?, @dummy.errors.full_messages.join(", ")
             end
           end
         end

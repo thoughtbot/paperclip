@@ -302,10 +302,11 @@ module Paperclip
       message = message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
 
       validates_inclusion_of :"#{name}_file_size",
-                             :in      => range,
-                             :message => message,
-                             :if      => options[:if],
-                             :unless  => options[:unless]
+                             :in        => range,
+                             :message   => message,
+                             :if        => options[:if],
+                             :unless    => options[:unless],
+                             :allow_nil => true
     end
 
     # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
@@ -324,9 +325,9 @@ module Paperclip
     def validates_attachment_presence name, options = {}
       message = options[:message] || "must be set."
       validates_presence_of :"#{name}_file_name",
-                            :message => message,
-                            :if      => options[:if],
-                            :unless  => options[:unless]
+                            :message   => message,
+                            :if        => options[:if],
+                            :unless    => options[:unless]
     end
 
     # Places ActiveRecord-style validations on the content type of the file
@@ -346,11 +347,12 @@ module Paperclip
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
     def validates_attachment_content_type name, options = {}
-      types = [options.delete(:content_type)].flatten
-      validates_each(:"#{name}_content_type", options) do |record, attr, value|
-        unless types.any?{|t| t === value }
+      validation_options = options.dup
+      allowed_types = [validation_options[:content_type]].flatten
+      validates_each(:"#{name}_content_type", validation_options) do |record, attr, value|
+        if !allowed_types.any?{|t| t === value } && value.present?
           if record.errors.method(:add).arity == -2
-            message = options[:message] || "is not one of #{types.join(", ")}"
+            message = options[:message] || "is not one of #{allowed_types.join(", ")}"
             record.errors.add(:"#{name}_content_type", message)
           else
             record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
