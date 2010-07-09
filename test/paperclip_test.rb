@@ -87,8 +87,8 @@ class PaperclipTest < Test::Unit::TestCase
     Paperclip.options[:command_path]      = nil
     Paperclip.options[:log_command]       = false
     Paperclip.options[:swallow_stderr]    = false
-    Paperclip.expects(:"`").with(%q[this 'is' 'jack'\''s' '`command`' 'line!'])
-    Paperclip.run("this", "is", "jack's", "`command`", "line!")
+    Paperclip.expects(:"`").with(%q[this is 'jack'\''s' '`command`' 'line!'])
+    Paperclip.run("this", "is :one :two :three", :one => "jack's", :two => "`command`", :three => "line!")
   end
 
   context "Paperclip.bit_bucket" do

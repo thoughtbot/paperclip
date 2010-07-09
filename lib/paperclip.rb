@@ -38,6 +38,7 @@ require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/callback_compatability'
+require 'paperclip/command_line'
 require 'paperclip/railtie'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
