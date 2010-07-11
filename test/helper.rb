@@ -27,6 +27,8 @@ require 'action_pack'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
+`ruby -e 'exit 0'` # Prime $? with a value.
+
 begin
   require 'ruby-debug'
 rescue LoadError => e

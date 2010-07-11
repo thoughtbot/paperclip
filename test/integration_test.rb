@@ -204,7 +204,7 @@ class IntegrationTest < Test::Unit::TestCase
       @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"), 'rb')
 
       assert @dummy.avatar = @file
-      assert @dummy.valid?
+      assert @dummy.valid?, @dummy.errors.full_messages.join(", ")
       assert @dummy.save
     end
 

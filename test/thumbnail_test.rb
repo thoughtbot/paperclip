@@ -91,8 +91,8 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '.*?'}
+        Paperclip::CommandLine.expects(:"`").with do |arg|
+          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' -resize 'x50' -crop '100x50\+114\+0' \+repage '.*?'}
         end
         @thumb.make
       end
@@ -115,8 +115,8 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert '-strip' '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '.*?'}
+        Paperclip::CommandLine.expects(:"`").with do |arg|
+          arg.match %r{convert -strip '#{File.expand_path(@thumb.file.path)}\[0\]' -resize 'x50' -crop '100x50\+114\+0' \+repage '.*?'}
         end
         @thumb.make
       end
@@ -153,8 +153,8 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:"`").with do |arg|
-          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' '-resize' 'x50' '-crop' '100x50\+114\+0' '\+repage' '-strip' '-depth' '8' '.*?'}
+        Paperclip::CommandLine.expects(:"`").with do |arg|
+          arg.match %r{convert '#{File.expand_path(@thumb.file.path)}\[0\]' -resize 'x50' -crop '100x50\+114\+0' \+repage -strip -depth 8 '.*?'}
         end
         @thumb.make
       end

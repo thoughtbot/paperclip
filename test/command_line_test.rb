@@ -62,7 +62,7 @@ class CommandLineTest < Test::Unit::TestCase
 
   should "run the #command it's given and return the output" do
     cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png")
-    cmd.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
+    cmd.class.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
     with_exitstatus_returning(0) do
       assert_equal :correct_value, cmd.run
     end
@@ -70,7 +70,7 @@ class CommandLineTest < Test::Unit::TestCase
 
   should "raise a PaperclipCommandLineError if the result code isn't expected" do
     cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png")
-    cmd.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
+    cmd.class.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
     with_exitstatus_returning(1) do
       assert_raises(Paperclip::PaperclipCommandLineError) do
         cmd.run
@@ -82,11 +82,18 @@ class CommandLineTest < Test::Unit::TestCase
     cmd = Paperclip::CommandLine.new("convert",
                                      "a.jpg b.png",
                                      :expected_outcodes => [0, 1])
-    cmd.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
+    cmd.class.stubs(:"`").with("convert a.jpg b.png").returns(:correct_value)
     with_exitstatus_returning(1) do
       assert_nothing_raised do
         cmd.run
       end
     end
+  end
+
+  should "log the command" do
+    cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png")
+    cmd.class.stubs(:'`')
+    Paperclip.expects(:log).with("convert a.jpg b.png")
+    cmd.run
   end
 end

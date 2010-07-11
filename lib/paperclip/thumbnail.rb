@@ -49,15 +49,16 @@ module Paperclip
       dst.binmode
 
       begin
-        options = [
-          source_file_options,
-          "#{ File.expand_path(src.path) }[0]",
-          transformation_command,
-          convert_options,
-          "#{ File.expand_path(dst.path) }"
-        ].flatten.compact
+        parameters = []
+        parameters << source_file_options
+        parameters << ":source"
+        parameters << transformation_command
+        parameters << convert_options
+        parameters << ":dest"
 
-        success = Paperclip.run("convert", *options)
+        parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
+
+        success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}[0]", :dest => File.expand_path(dst.path))
       rescue PaperclipCommandLineError => e
         raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
       end
@@ -70,8 +71,8 @@ module Paperclip
     def transformation_command
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
       trans = []
-      trans << "-resize" << scale unless scale.nil? || scale.empty?
-      trans << "-crop" << crop << "+repage" if crop
+      trans << "-resize" << "'#{scale}'" unless scale.nil? || scale.empty?
+      trans << "-crop" << "'#{crop}'" << "+repage" if crop
       trans
     end
   end

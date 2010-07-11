@@ -22,7 +22,15 @@ module Paperclip
     end
 
     def run
-      output = `#{command}`
+      Paperclip.log(command)
+      begin
+        output = self.class.send(:'`', command)
+      rescue Errno::ENOENT
+        raise Paperclip::CommandNotFoundError
+      end
+      if $?.exitstatus == 127
+        raise Paperclip::CommandNotFoundError
+      end
       unless @expected_outcodes.include?($?.exitstatus)
         raise Paperclip::PaperclipCommandLineError, "Command '#{command}' returned #{$?.exitstatus}. Expected #{@expected_outcodes.join(", ")}"
       end

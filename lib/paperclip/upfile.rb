@@ -17,7 +17,7 @@ module Paperclip
       when "csv", "xml", "css"       then "text/#{type}"
       else
         # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-        content_type = (Paperclip.run("file", "--mime-type", self.path).split(':').last.strip rescue "application/x-#{type}")
+        content_type = (Paperclip.run("file", "--mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
         content_type = "application/x-#{type}" if content_type.match(/\(.*?\)/)
         content_type
       end

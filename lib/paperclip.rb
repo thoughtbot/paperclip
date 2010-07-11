@@ -75,14 +75,6 @@ module Paperclip
       yield(self) if block_given?
     end
 
-    def path_for_command command #:nodoc:
-      if options[:image_magick_path]
-        warn("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
-      end
-      path = [options[:command_path] || options[:image_magick_path], command].compact
-      File.join(*path)
-    end
-
     def interpolates key, &block
       Paperclip::Interpolations[key] = block
     end
@@ -104,39 +96,11 @@ module Paperclip
     # Paperclip.options[:log_command] is set to true (defaults to false). This
     # will only log if logging in general is set to true as well.
     def run cmd, *params
-      options           = params.last.is_a?(Hash) ? params.pop : {}
-      expected_outcodes = options[:expected_outcodes] || [0]
-      params            = quote_command_options(*params).join(" ")
-
-      command = %Q[#{path_for_command(cmd)} #{params}]
-      command = "#{command} 2>#{bit_bucket}" if Paperclip.options[:swallow_stderr]
-      Paperclip.log(command) if Paperclip.options[:log_command]
-
-      begin
-        output = `#{command}`
-
-        raise CommandNotFoundError if $?.exitstatus == 127
-
-        unless expected_outcodes.include?($?.exitstatus)
-          raise PaperclipCommandLineError,
-            "Error while running #{cmd}. Expected return code to be #{expected_outcodes.join(", ")} but was #{$?.exitstatus}",
-            output
-        end
-      rescue Errno::ENOENT => e
-        raise CommandNotFoundError
+      if options[:image_magick_path]
+        Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-
-      output
-    end
-
-    def quote_command_options(*options)
-      options.map do |option|
-        option.split("'").map{|m| "'#{m}'" }.join("\\'")
-      end
-    end
-
-    def bit_bucket #:nodoc:
-      File.exists?("/dev/null") ? "/dev/null" : "NUL"
+      CommandLine.path = options[:command_path] || options[:image_magick_path]
+      CommandLine.new(cmd, *params).run
     end
 
     def included base #:nodoc:
