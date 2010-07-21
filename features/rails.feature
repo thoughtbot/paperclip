@@ -30,4 +30,4 @@ Feature: Running paperclip in a Rails app
     And I attach the file "test/fixtures/5k.png" to "user_avatar"
     And I press "Submit"
     Then I should see "Name: something"
-    And I save and open the page
+    And I should see an image with a path of "/system/avatars/1/original/5k.png"
