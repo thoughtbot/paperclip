@@ -31,3 +31,4 @@ Feature: Running paperclip in a Rails app
     And I press "Submit"
     Then I should see "Name: something"
     And I should see an image with a path of "/system/avatars/1/original/5k.png"
+    And the file at "/system/avatars/1/original/5k.png" is the same as "test/fixtures/5k.png"

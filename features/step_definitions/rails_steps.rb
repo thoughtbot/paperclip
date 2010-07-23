@@ -24,7 +24,7 @@ end
 When %r{the rails application is running} do
   Dir.chdir(CUC_RAILS_ROOT) do
     require "config/environment"
-    Capybara.app = ActionController::Dispatcher.new
+    require "capybara/rails"
   end
 end
 
