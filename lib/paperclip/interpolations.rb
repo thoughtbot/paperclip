@@ -42,7 +42,7 @@ module Paperclip
     # contains ":url" to prevent infinite recursion. This interpolation
     # is used in the default :path to ease default specifications.
     def url attachment, style_name
-      raise InfiniteInterpolationError if attachment.options[:url].include?(":url")
+      raise InfiniteInterpolationError if caller.any?{|b| b.index("#{__FILE__}:#{__LINE__ + 1}") }
       attachment.url(style_name, false)
     end
 
