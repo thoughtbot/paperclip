@@ -1,34 +1,34 @@
 Given "I have a rails application" do
   steps %{
     Given I generate a rails application
+    And this plugin is available
     And I have a "users" resource with "name:string"
     And I turn off class caching
-    And I run "script/generate paperclip user avatar"
     Given I save the following as "app/models/user.rb"
-    """
-    class User < ActiveRecord::Base
-    end
-    """
+      """
+      class User < ActiveRecord::Base
+      end
+      """
     And I save the following as "config/s3.yml"
-    """
-    access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
-    secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
-    bucket: paperclip
-    """
+      """
+      access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+      secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+      bucket: paperclip
+      """
     And I save the following as "app/views/users/new.html.erb"
-    """
-    <% form_for @user, :html => { :multipart => true } do |f| %>
-      <%= f.text_field :name %>
-      <%= f.file_field :avatar %>
-      <%= submit_tag "Submit" %>
-    <% end %>
-    """
+      """
+      <% form_for @user, :html => { :multipart => true } do |f| %>
+        <%= f.text_field :name %>
+        <%= f.file_field :avatar %>
+        <%= submit_tag "Submit" %>
+      <% end %>
+      """
     And I save the following as "app/views/users/show.html.erb"
-    """
-    <p>Name: <%= @user.name %></p>
-    <p>Avatar: <%= image_tag @user.avatar.url %></p>
-    """
-    And this plugin is available
+      """
+      <p>Name: <%= @user.name %></p>
+      <p>Avatar: <%= image_tag @user.avatar.url %></p>
+      """
+    And I run "script/generate paperclip user avatar"
     And the rails application is prepped and running
   }
 end
