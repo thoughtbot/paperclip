@@ -144,7 +144,8 @@ module Paperclip
           @s3_headers     = @options[:s3_headers]     || {}
           @s3_host_alias  = @options[:s3_host_alias]
           unless @url.to_s.match(/^:s3.*url$/)
-            @url          = ":s3_path_url"
+            @path          = @path.gsub(/:url/, @url)
+            @url           = ":s3_path_url"
           end
           AWS::S3::Base.establish_connection!( @s3_options.merge(
             :access_key_id => @s3_credentials[:access_key_id],
