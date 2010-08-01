@@ -1,5 +1,4 @@
 require 'paperclip/matchers'
-require 'action_controller'
 
 module Paperclip
   # =Paperclip Shoulda Macros
