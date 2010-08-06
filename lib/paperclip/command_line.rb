@@ -62,12 +62,19 @@ module Paperclip
 
     def shell_quote(string)
       return "" if string.nil? or string.blank?
-      string.split("'").map{|m| "'#{m}'" }.join("\\'")
+      if self.class.unix?
+        string.split("'").map{|m| "'#{m}'" }.join("\\'")
+      else
+        %{"#{string}"}
+      end
     end
 
     def bit_bucket
-      return "2>NUL" unless File.exist?("/dev/null")
-      "2>/dev/null"
+      self.class.unix? ? "2>/dev/null" : "2>NUL"
+    end
+
+    def self.unix?
+      File.exist?("/dev/null")
     end
   end
 end

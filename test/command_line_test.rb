@@ -3,6 +3,7 @@ require 'test/helper'
 class CommandLineTest < Test::Unit::TestCase
   def setup
     Paperclip::CommandLine.path = nil
+    File.stubs(:exist?).with("/dev/null").returns(true)
   end
 
   should "take a command and parameters and produce a shell command for bash" do
@@ -24,12 +25,30 @@ class CommandLineTest < Test::Unit::TestCase
     assert_equal "convert 'a.jpg' 'b.png'", cmd.command
   end
 
+  should "quote command line options differently if we're on windows" do
+    File.stubs(:exist?).with("/dev/null").returns(false)
+    cmd = Paperclip::CommandLine.new("convert",
+                                     ":one :{two}",
+                                     :one => "a.jpg",
+                                     :two => "b.png")
+    assert_equal 'convert "a.jpg" "b.png"', cmd.command
+  end
+
   should "be able to quote and interpolate dangerous variables" do
     cmd = Paperclip::CommandLine.new("convert",
                                      ":one :two",
                                      :one => "`rm -rf`.jpg",
                                      :two => "ha'ha.png")
     assert_equal "convert '`rm -rf`.jpg' 'ha'\\''ha.png'", cmd.command
+  end
+
+  should "be able to quote and interpolate dangerous variables even on windows" do
+    File.stubs(:exist?).with("/dev/null").returns(false)
+    cmd = Paperclip::CommandLine.new("convert",
+                                     ":one :two",
+                                     :one => "`rm -rf`.jpg",
+                                     :two => "ha'ha.png")
+    assert_equal %{convert "`rm -rf`.jpg" "ha'ha.png"}, cmd.command
   end
 
   should "add redirection to get rid of stderr in bash" do
@@ -95,5 +114,15 @@ class CommandLineTest < Test::Unit::TestCase
     cmd.class.stubs(:'`')
     Paperclip.expects(:log).with("convert a.jpg b.png")
     cmd.run
+  end
+
+  should "detect that the system is unix or windows based on presence of /dev/null" do
+    File.stubs(:exist?).returns(true)
+    assert Paperclip::CommandLine.unix?
+  end
+
+  should "detect that the system is not unix or windows based on absence of /dev/null" do
+    File.stubs(:exist?).returns(false)
+    assert ! Paperclip::CommandLine.unix?
   end
 end
