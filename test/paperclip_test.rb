@@ -11,19 +11,19 @@ class PaperclipTest < Test::Unit::TestCase
     should "execute the right command with :image_magick_path" do
       Paperclip.options[:image_magick_path] = "/usr/bin"
       Paperclip.expects(:log).with(includes('[DEPRECATION]'))
-      Paperclip.expects(:log).with("/usr/bin/convert 'one.jpg' 'two.jpg'")
-      Paperclip::CommandLine.expects(:"`").with("/usr/bin/convert 'one.jpg' 'two.jpg'")
+      Paperclip.expects(:log).with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
+      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
       Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
     end
 
     should "execute the right command with :command_path" do
       Paperclip.options[:command_path] = "/usr/bin"
-      Paperclip::CommandLine.expects(:"`").with("/usr/bin/convert 'one.jpg' 'two.jpg'")
+      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
       Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
     end
 
     should "execute the right command with no path" do
-      Paperclip::CommandLine.expects(:"`").with("convert 'one.jpg' 'two.jpg'")
+      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{convert ['"]one.jpg['"] ['"]two.jpg['"]}))
       Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
     end
 
