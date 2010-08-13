@@ -57,7 +57,7 @@ module Paperclip
       unless @normalized_styles
         @normalized_styles = {}
         (@styles.respond_to?(:call) ? @styles.call(self) : @styles).each do |name, args|
-          @normalized_styles[name] = Paperclip::Style.new(name, args, self)
+          @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
         end
       end
       @normalized_styles
