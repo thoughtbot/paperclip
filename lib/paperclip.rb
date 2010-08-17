@@ -34,7 +34,6 @@ require 'paperclip/iostream'
 require 'paperclip/geometry'
 require 'paperclip/processor'
 require 'paperclip/thumbnail'
-require 'paperclip/storage'
 require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
@@ -146,6 +145,9 @@ module Paperclip
       super(msg)
       @output = output
     end
+  end
+
+  class StorageMethodNotFound < PaperclipError
   end
 
   class CommandNotFoundError < PaperclipError

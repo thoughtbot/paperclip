@@ -658,7 +658,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "not be able to find the module" do
-        assert_raise(NameError){ Dummy.new.avatar }
+        assert_raise(Paperclip::StorageMethodNotFound){ Dummy.new.avatar }
       end
     end
   end
