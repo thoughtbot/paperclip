@@ -338,6 +338,26 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  should "include the filesystem module when loading the filesystem storage" do
+    rebuild_model :storage => :filesystem
+    @dummy = Dummy.new
+    assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
+  end
+
+  should "include the filesystem module even if capitalization is wrong" do
+    rebuild_model :storage => :FileSystem
+    @dummy = Dummy.new
+    assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
+  end
+
+  should "raise an error if you try to include a storage module that doesn't exist" do
+    rebuild_model :storage => :not_here
+    @dummy = Dummy.new
+    assert_raises(Paperclip::StorageMethodNotFound) do
+      @dummy.avatar
+    end
+  end
+
   context "An attachment with styles but no processors defined" do
     setup do
       rebuild_model :processors => [], :styles => {:something => '1'}

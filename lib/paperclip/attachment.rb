@@ -276,9 +276,9 @@ module Paperclip
     def initialize_storage #:nodoc:
       storage_name = @storage.to_s.capitalize
       begin
-        require "paperclip/storage/#{storage_name}"
+        require "paperclip/storage/#{@storage}"
       rescue MissingSourceFile
-        raise StorageMethodNotFound, "Cannot find #{storage_name}"
+        raise StorageMethodNotFound, "Cannot find the '#{@storage}' storage adapter."
       end
       @storage_module = Paperclip::Storage.const_get(storage_name)
       self.extend(@storage_module)
