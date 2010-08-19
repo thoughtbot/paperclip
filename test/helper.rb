@@ -61,10 +61,10 @@ ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FIL
 ActiveRecord::Base.establish_connection(config['test'])
 
 def reset_class class_name
-  ActiveRecord::Base.send(:include, Paperclip)
+  ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, class_name) rescue nil
   klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
-  klass.class_eval{ include Paperclip }
+  klass.class_eval{ include Paperclip::Glue }
   klass
 end
 
@@ -90,11 +90,11 @@ def rebuild_model options = {}
 end
 
 def rebuild_class options = {}
-  ActiveRecord::Base.send(:include, Paperclip)
+  ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, "Dummy") rescue nil
   Object.const_set("Dummy", Class.new(ActiveRecord::Base))
   Dummy.class_eval do
-    include Paperclip
+    include Paperclip::Glue
     has_attached_file :avatar, options
   end
 end

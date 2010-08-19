@@ -172,6 +172,12 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
+    should "not have Attachment in the ActiveRecord::Base namespace" do
+      assert_raises(NameError) do
+        ActiveRecord::Base::Attachment
+      end
+    end
+
     def self.should_validate validation, options, valid_file, invalid_file
       context "with #{validation} validation and #{options.inspect} options" do
         setup do
