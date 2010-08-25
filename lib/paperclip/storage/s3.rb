@@ -154,7 +154,7 @@ module Paperclip
             AWS::S3::S3Object.store(path(style),
                                     file,
                                     bucket_name,
-                                    {:content_type => instance_read(:content_type),
+                                    {:content_type => file.content_type.to_s.strip,
                                      :access => @s3_permissions,
                                     }.merge(@s3_headers))
           rescue AWS::S3::NoSuchBucket => e

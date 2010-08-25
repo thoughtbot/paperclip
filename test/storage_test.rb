@@ -78,6 +78,32 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
+
+  context "An attachment that uses S3 for storage and has styles that return different file types" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
+                    :storage => :s3,
+                    :bucket  => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    }
+
+      @dummy = Dummy.new
+      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+    end
+
+    should "return a url containing the correct original file mime type" do
+      assert_match /.+\/5k.png/, @dummy.avatar.url
+    end
+
+    should "return a url containing the correct processed file mime type" do
+      assert_match /.+\/5k.jpg/, @dummy.avatar.url(:large)
+    end
+  end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -94,6 +120,7 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://bucket.s3.amazonaws.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -113,7 +140,6 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://something.something.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
-
 
   context "" do
     setup do
@@ -378,7 +404,7 @@ class StorageTest < Test::Unit::TestCase
       @dummy = Dummy.new
     end
 
-    should "run it the file through ERB" do
+    should "run the file through ERB" do
       assert_equal 'env_bucket', @dummy.avatar.bucket_name
       assert_equal 'env_key', AWS::S3::Base.connection.options[:access_key_id]
       assert_equal 'env_secret', AWS::S3::Base.connection.options[:secret_access_key]
