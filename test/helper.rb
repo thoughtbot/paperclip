@@ -20,6 +20,8 @@ end
 require 'active_record'
 require 'active_record/version'
 require 'active_support'
+require 'action_controller'
+require 'action_pack'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
