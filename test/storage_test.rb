@@ -325,7 +325,7 @@ class StorageTest < Test::Unit::TestCase
         teardown { @file.close }
 
         should "still return a Tempfile when sent #to_file" do
-          assert_equal Tempfile, @dummy.avatar.to_file.class
+          assert_equal Paperclip::Tempfile, @dummy.avatar.to_file.class
         end
 
         context "and saved" do

@@ -42,7 +42,7 @@ module Paperclip
     # contains ":url" to prevent infinite recursion. This interpolation
     # is used in the default :path to ease default specifications.
     def url attachment, style_name
-      raise InfiniteInterpolationError if attachment.options[:url].include?(":url")
+      raise InfiniteInterpolationError if caller.any?{|b| b.index("#{__FILE__}:#{__LINE__ + 1}") }
       attachment.url(style_name, false)
     end
 
@@ -78,7 +78,7 @@ module Paperclip
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
     # If the style has a format defined, it will return the format instead
     # of the actual extension.
-    def extension attachment, style_name 
+    def extension attachment, style_name
       ((style = attachment.styles[style_name]) && style[:format]) ||
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
@@ -86,6 +86,11 @@ module Paperclip
     # Returns the id of the instance.
     def id attachment, style_name
       attachment.instance.id
+    end
+
+    # Returns the fingerprint of the instance.
+    def fingerprint attachment, style_name
+      attachment.fingerprint
     end
 
     # Returns the id of the instance in a split path form. e.g. returns

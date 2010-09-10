@@ -4,7 +4,7 @@ module Paperclip
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
-    
+
     def self.default_options
       @default_options ||= {
         :url               => "/system/:attachment/:id/:style/:filename",
@@ -15,6 +15,7 @@ module Paperclip
         :default_url       => "/:attachment/:style/missing.png",
         :default_style     => :original,
         :storage           => :filesystem,
+        :use_timestamp     => true,
         :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
@@ -39,6 +40,7 @@ module Paperclip
       @default_url       = options[:default_url]
       @default_style     = options[:default_style]
       @storage           = options[:storage]
+      @use_timestamp     = options[:use_timestamp]
       @whiny             = options[:whiny_thumbnails] || options[:whiny]
       @convert_options   = options[:convert_options]
       @processors        = options[:processors]
@@ -50,17 +52,17 @@ module Paperclip
 
       initialize_storage
     end
-    
+
     def styles
       unless @normalized_styles
         @normalized_styles = {}
         (@styles.respond_to?(:call) ? @styles.call(self) : @styles).each do |name, args|
-          @normalized_styles[name] = Paperclip::Style.new(name, args, self)
+          @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
         end
       end
       @normalized_styles
     end
-    
+
     def processors
       @processors.respond_to?(:call) ? @processors.call(instance) : @processors
     end
@@ -69,7 +71,7 @@ module Paperclip
     # errors, assigns attributes, and processes the file. It
     # also queues up the previous file for deletion, to be flushed away on
     # #save of its host.  In addition to form uploads, you can also assign
-    # another Paperclip attachment: 
+    # another Paperclip attachment:
     #   new_user.avatar = old_user.avatar
     def assign uploaded_file
       ensure_required_accessors!
@@ -90,14 +92,16 @@ module Paperclip
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
+      instance_write(:fingerprint,     uploaded_file.fingerprint)
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
 
       post_process
- 
+
       # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size, @queued_for_write[:original].size.to_i)
+      instance_write(:file_size,   @queued_for_write[:original].size.to_i)
+      instance_write(:fingerprint, @queued_for_write[:original].fingerprint)
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -106,12 +110,11 @@ module Paperclip
     # this does not necessarily need to point to a file that your web server
     # can access and can point to an action in your app, if you need fine
     # grained security.  This is not recommended if you don't need the
-    # security, however, for performance reasons.  set
-    # include_updated_timestamp to false if you want to stop the attachment
-    # update time appended to the url
-    def url style_name = default_style, include_updated_timestamp = true
+    # security, however, for performance reasons. Set use_timestamp to false
+    # if you want to stop the attachment update time appended to the url
+    def url(style_name = default_style, use_timestamp = @use_timestamp)
       url = original_filename.nil? ? interpolate(@default_url, style_name) : interpolate(@url, style_name)
-      include_updated_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
+      use_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -174,13 +177,19 @@ module Paperclip
       instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
     end
 
+    # Returns the hash of the file as originally assigned, and lives in the
+    # <attachment>_fingerprint attribute of the model.
+    def fingerprint
+      instance_read(:fingerprint) || (@queued_for_write[:original] && @queued_for_write[:original].fingerprint)
+    end
+
     # Returns the content_type of the file as originally assigned, and lives
     # in the <attachment>_content_type attribute of the model.
     def content_type
       instance_read(:content_type)
     end
-    
-    # Returns the last modified time of the file as originally assigned, and 
+
+    # Returns the last modified time of the file as originally assigned, and
     # lives in the <attachment>_updated_at attribute of the model.
     def updated_at
       time = instance_read(:updated_at)
@@ -207,7 +216,7 @@ module Paperclip
       new_original = Tempfile.new("paperclip-reprocess")
       new_original.binmode
       if old_original = to_file(:original)
-        new_original.write( old_original.read )
+        new_original.write( old_original.respond_to?(:get) ? old_original.get : old_original.read )
         new_original.rewind
 
         @queued_for_write = { :original => new_original }
@@ -220,7 +229,7 @@ module Paperclip
         true
       end
     end
-    
+
     # Returns true if a file has been assigned.
     def file?
       !original_filename.blank?
@@ -265,7 +274,14 @@ module Paperclip
     end
 
     def initialize_storage #:nodoc:
-      @storage_module = Paperclip::Storage.const_get(@storage.to_s.capitalize)
+      storage_class_name = @storage.to_s.capitalize
+      storage_file_name = @storage.to_s.downcase
+      begin
+        require "paperclip/storage/#{storage_file_name}"
+      rescue MissingSourceFile
+        raise StorageMethodNotFound, "Cannot load 'paperclip/storage/#{storage_file_name}'"
+      end
+      @storage_module = Paperclip::Storage.const_get(storage_class_name)
       self.extend(@storage_module)
     end
 
@@ -324,4 +340,3 @@ module Paperclip
 
   end
 end
-

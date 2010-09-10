@@ -42,7 +42,7 @@ module Paperclip
         end
 
         def negative_failure_message
-          "Content types #{@allowed_types.join(", ")} should be rejected" + 
+          "Content types #{@allowed_types.join(", ")} should be rejected" +
           " and #{@rejected_types.join(", ")} accepted by #{@attachment_name}"
         end
 
@@ -57,7 +57,8 @@ module Paperclip
             file = StringIO.new(".")
             file.content_type = type
             (subject = @subject.new).attachment_for(@attachment_name).assign(file)
-            subject.valid? && subject.errors[:"#{@attachment_name}_content_type"].blank?
+            subject.valid?
+            subject.errors[:"#{@attachment_name}_content_type"].blank?
           end
         end
 
@@ -72,4 +73,3 @@ module Paperclip
     end
   end
 end
-

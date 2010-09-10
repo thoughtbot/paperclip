@@ -15,6 +15,8 @@ useful defaults.
 See the documentation for +has_attached_file+ in Paperclip::ClassMethods for
 more detailed options.
 
+The complete RDoc[http://rdoc.info/projects/thoughtbot/paperclip] is online.
+
 ==Quick Start
 
 In your model:
@@ -138,7 +140,7 @@ For example, assuming we had this definition:
   has_attached_file :scan, :styles => { :text => { :quality => :better } },
                            :processors => [:rotator, :ocr]
 
-then both the :rotator processor and the :ocr processor would receive the 
+then both the :rotator processor and the :ocr processor would receive the
 options "{ :quality => :better }". This parameter may not mean anything to one
 or more or the processors, and they are expected to ignore it.
 
@@ -173,7 +175,8 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the mailing list, or post a new GitHub Issue.
+1. Ask on the mailing list[http://groups.google.com/group/paperclip-plugin], or 
+   post a new GitHub Issue[http://github.com/thoughtbot/paperclip/issues].
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please ask the mailing list.
