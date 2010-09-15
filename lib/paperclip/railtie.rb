@@ -20,6 +20,7 @@ module Paperclip
     def self.insert
       ActiveRecord::Base.send(:include, Paperclip::Glue)
       File.send(:include, Paperclip::Upfile)
+      ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, Paperclip::Schema)
       ActiveRecord::ConnectionAdapters::Table.send(:include, Paperclip::Schema)
       ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, Paperclip::Schema)
     end
