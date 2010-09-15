@@ -1,6 +1,5 @@
 
 require 'test/helper'
-require 'ostruct'
 
 class MockSchema
   include Paperclip::Schema
