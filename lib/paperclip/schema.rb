@@ -1,4 +1,10 @@
 module Paperclip
+  # Provides two helpers that can be used in migrations.
+  #
+  # In order to use this module, the target class should implement a
+  # +column+ method that takes the column name and type, both as symbols,
+  # as well as a +remove_column+ method that takes a table and column name,
+  # also both symbols.
   module Schema
     @@columns = {:file_name    => :string,
                  :content_type => :string,
