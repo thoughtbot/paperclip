@@ -23,6 +23,7 @@ module Paperclip
 
       Paperclip.options[:logger] = defined?(ActiveRecord) ? ActiveRecord::Base.logger : Rails.logger
 
+      ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, Paperclip::Schema)
       ActiveRecord::ConnectionAdapters::Table.send(:include, Paperclip::Schema)
       ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, Paperclip::Schema)
     end
