@@ -35,7 +35,7 @@ module Paperclip
 
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
-      "#{basename(attachment, style_name)}.#{extension(attachment, style_name)}"
+      (ext = extension(attachment, style_name)).blank? ? basename(attachment, style_name) : "#{basename(attachment, style_name)}.#{ext}"
     end
 
     # Returns the interpolated URL. Will raise an error if the url itself
