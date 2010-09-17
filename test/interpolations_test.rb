@@ -110,6 +110,13 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
 
+  should "return the filename as basename when extension is blank" do
+    attachment = mock
+    attachment.stubs(:styles).returns({})
+    attachment.stubs(:original_filename).returns("one")
+    assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
+  end
+
   should "return the timestamp" do
     now = Time.now
     attachment = mock
