@@ -17,7 +17,7 @@ end
 def for_all_attachments
   klass = obtain_class
   names = obtain_attachments
-  ids   = klass.connection.select_values(klass.send(:construct_finder_sql, :select => 'id'))
+  ids   = klass.connection.select_values(klass.respond_to?(:construct_finder_sql) ? klass.send(:construct_finder_sql, :select => klass.primary_key) : klass.scoped.select(klass.primary_key).to_sql)
 
   ids.each do |id|
     instance = klass.find(id)
