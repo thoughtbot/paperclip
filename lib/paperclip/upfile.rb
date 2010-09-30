@@ -35,7 +35,9 @@ module Paperclip
 
     # Returns the hash of the file.
     def fingerprint
-      Digest::MD5.hexdigest(self.read)
+      fingerprint = Digest::MD5.hexdigest(self.read)
+      self.rewind
+      return fingerprint
     end
   end
 end

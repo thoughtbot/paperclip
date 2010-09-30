@@ -33,4 +33,12 @@ class UpfileTest < Test::Unit::TestCase
     end
     assert_equal 'text/plain', file.content_type
   end
+  
+  should "return an idempotent fingerprint on a file" do
+    file = File.new(File.join(File.dirname(__FILE__), "..", "LICENSE"))
+    class << file
+      include Paperclip::Upfile
+    end
+    assert_equal file.fingerprint, file.fingerprint
+  end
 end
