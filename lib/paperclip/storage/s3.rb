@@ -133,6 +133,10 @@ module Paperclip
         return file
       end
 
+      def create_bucket
+        AWS::S3::Bucket.create(bucket_name)
+      end
+
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
@@ -143,6 +147,9 @@ module Paperclip
                                     {:content_type => instance_read(:content_type),
                                      :access => @s3_permissions,
                                     }.merge(@s3_headers))
+          rescue AWS::S3::NoSuchBucket => e
+            create_bucket
+            retry
           rescue AWS::S3::ResponseError => e
             raise
           end
