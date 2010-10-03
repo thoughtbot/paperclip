@@ -2,34 +2,6 @@ require 'test/helper'
 
 class ThumbnailTest < Test::Unit::TestCase
 
-  context "A Paperclip Tempfile" do
-    setup do
-      @tempfile = Paperclip::Tempfile.new("file.jpg")
-    end
-
-    should "have its path contain a real extension" do
-      assert_equal ".jpg", File.extname(@tempfile.path)
-    end
-
-    should "be a real Tempfile" do
-      assert @tempfile.is_a?(::Tempfile)
-    end
-  end
-
-  context "Another Paperclip Tempfile" do
-    setup do
-      @tempfile = Paperclip::Tempfile.new("file")
-    end
-
-    should "not have an extension if not given one" do
-      assert_equal "", File.extname(@tempfile.path)
-    end
-
-    should "still be a real Tempfile" do
-      assert @tempfile.is_a?(::Tempfile)
-    end
-  end
-
   context "An image" do
     setup do
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
@@ -68,7 +40,18 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
 
-    context "being thumbnailed at 100x50 with cropping" do
+    context "being thumbnailed with a format specified" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#", :format => 'jpg')
+      end
+
+      should "report it's correct format" do
+        assert_equal 'jpg', @thumb.format
+      end
+    end
+    
+
+    context "being thumbnailed at 100x50 with cropping and no format specified" do
       setup do
         @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
       end
@@ -78,8 +61,8 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_equal "434x66", @thumb.current_geometry.to_s
       end
 
-      should "report its correct format" do
-        assert_nil @thumb.format
+      should "determine it's format from the file" do
+        assert_equal 'png', @thumb.format
       end
 
       should "have whiny turned on by default" do

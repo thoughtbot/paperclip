@@ -21,7 +21,7 @@ module Paperclip
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
-      @format              = options[:format]
+      @format              = options[:format] || identify_format(@file.path)
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
@@ -45,16 +45,16 @@ module Paperclip
     # that contains the new image.
     def make
       src = @file
-      dst = Tempfile.new([@basename, @format].compact.join("."))
+      dst = Tempfile.new([@basename, ".#{@format}"])
       dst.binmode
 
       begin
         parameters = []
         parameters << source_file_options
-        parameters << ":source"
+        parameters << ":{source}"
         parameters << transformation_command
         parameters << convert_options
-        parameters << ":dest"
+        parameters << ":{dest}"
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
@@ -74,6 +74,25 @@ module Paperclip
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
       trans
+    end
+
+    def identify_format(file_path)
+      begin
+        parameters = []
+        parameters << '-format %m'
+        parameters << file_path
+        parameters = parameters.join(' ')
+        case format = Paperclip.run("identify", parameters).chomp 
+        when "JPEG"
+          "jpg"
+        when "TIFF"
+          "tif"
+        else
+          format.downcase
+        end
+      rescue PaperclipCommandLineError => e
+        raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
+      end
     end
   end
 end

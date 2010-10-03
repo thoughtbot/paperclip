@@ -6,6 +6,12 @@ class CommandLineTest < Test::Unit::TestCase
     File.stubs(:exist?).with("/dev/null").returns(true)
   end
 
+  should "allow colons in parameters" do
+    cmd = Paperclip::CommandLine.new("convert", "'a.jpg' -resize 175x220> -size 175x220 xc:black +swap -gravity center -composite 'b.jpg'")
+    assert_equal "convert 'a.jpg' -resize 175x220> -size 175x220 xc:black +swap -gravity center -composite 'b.jpg'", cmd.command 
+  end
+  
+
   should "take a command and parameters and produce a shell command for bash" do
     cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png")
     assert_equal "convert a.jpg b.png", cmd.command
@@ -19,7 +25,7 @@ class CommandLineTest < Test::Unit::TestCase
 
   should "be able to interpolate quoted variables into the parameters" do
     cmd = Paperclip::CommandLine.new("convert",
-                                     ":one :{two}",
+                                     ":{one} :{two}",
                                      :one => "a.jpg",
                                      :two => "b.png")
     assert_equal "convert 'a.jpg' 'b.png'", cmd.command
@@ -28,7 +34,7 @@ class CommandLineTest < Test::Unit::TestCase
   should "quote command line options differently if we're on windows" do
     File.stubs(:exist?).with("/dev/null").returns(false)
     cmd = Paperclip::CommandLine.new("convert",
-                                     ":one :{two}",
+                                     ":{one} :{two}",
                                      :one => "a.jpg",
                                      :two => "b.png")
     assert_equal 'convert "a.jpg" "b.png"', cmd.command
@@ -36,7 +42,7 @@ class CommandLineTest < Test::Unit::TestCase
 
   should "be able to quote and interpolate dangerous variables" do
     cmd = Paperclip::CommandLine.new("convert",
-                                     ":one :two",
+                                     ":{one} :{two}",
                                      :one => "`rm -rf`.jpg",
                                      :two => "ha'ha.png")
     assert_equal "convert '`rm -rf`.jpg' 'ha'\\''ha.png'", cmd.command
@@ -45,7 +51,7 @@ class CommandLineTest < Test::Unit::TestCase
   should "be able to quote and interpolate dangerous variables even on windows" do
     File.stubs(:exist?).with("/dev/null").returns(false)
     cmd = Paperclip::CommandLine.new("convert",
-                                     ":one :two",
+                                     ":{one} :{two}",
                                      :one => "`rm -rf`.jpg",
                                      :two => "ha'ha.png")
     assert_equal %{convert "`rm -rf`.jpg" "ha'ha.png"}, cmd.command
@@ -71,7 +77,7 @@ class CommandLineTest < Test::Unit::TestCase
 
   should "raise if trying to interpolate :swallow_stderr or :expected_outcodes" do
     cmd = Paperclip::CommandLine.new("convert",
-                                     ":swallow_stderr :expected_outcodes",
+                                     ":{swallow_stderr} :{expected_outcodes}",
                                      :swallow_stderr => false,
                                      :expected_outcodes => [0, 1])
     assert_raise(Paperclip::PaperclipCommandLineError) do

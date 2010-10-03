@@ -45,7 +45,7 @@ module Paperclip
 
     def interpolate(pattern, vars)
       # interpolates :variables and :{variables}
-      pattern.gsub(%r#:(?:\w+|\{\w+\})#) do |match|
+      pattern.gsub(%r#:(?:\{\w+\})#) do |match|
         key = match[1..-1]
         key = key[1..-2] if key[0,1] == '{'
         if invalid_variables.include?(key)

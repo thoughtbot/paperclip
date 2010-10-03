@@ -607,7 +607,7 @@ class AttachmentTest < Test::Unit::TestCase
                 io = @attachment.to_file(style)
                 # p "in commit to disk test, io is #{io.inspect} and @instance.id is #{@instance.id}"
                 assert File.exists?(io)
-                assert ! io.is_a?(::Tempfile)
+                assert ! io.is_a?(Tempfile)
                 io.close
               end
             end
