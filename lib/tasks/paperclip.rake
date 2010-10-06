@@ -1,7 +1,7 @@
 def obtain_class
   class_name = ENV['CLASS'] || ENV['class']
   raise "Must specify CLASS" unless class_name
-  @klass = Object.const_get(class_name)
+  @klass = eval(class_name)
 end
 
 def obtain_attachments
@@ -17,17 +17,17 @@ end
 def for_all_attachments
   klass = obtain_class
   names = obtain_attachments
-  ids   = klass.connection.select_values(klass.send(:construct_finder_sql, :select => 'id'))
 
-  ids.each do |id|
-    instance = klass.find(id)
-    names.each do |name|
-      result = if instance.send("#{ name }?")
-                 yield(instance, name)
-               else
-                 true
-               end
-      print result ? "." : "x"; $stdout.flush
+  klass.find_in_batches do |group|
+    group.each do |instance|
+      names.each do |name|
+        result = if instance.send("#{ name }?")
+                   yield(instance, name)
+                 else
+                   true
+                 end
+        print result ? "." : "x"; $stdout.flush
+      end
     end
   end
   puts " Done."
