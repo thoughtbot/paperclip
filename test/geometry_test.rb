@@ -120,6 +120,22 @@ class GeometryTest < Test::Unit::TestCase
       assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
+    should "not generate from a blank filename" do
+      file = ""
+      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+    end
+
+    should "not generate from a nil file" do
+      file = nil
+      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+    end
+
+    should "not generate from a file with no path" do
+      file = mock("file", :path => "")
+      file.stubs(:respond_to?).with("path").returns(true)
+      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+    end
+
     should "let us know when a command isn't found versus a processing error" do
       old_path = ENV['PATH']
       begin
