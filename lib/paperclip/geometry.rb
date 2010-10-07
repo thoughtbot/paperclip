@@ -15,9 +15,13 @@ module Paperclip
     # File or path.
     def self.from_file file
       file = file.path if file.respond_to? "path"
-      geometry = begin
-                   Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
-                 rescue PaperclipCommandLineError
+      geometry = if file && !file.empty?
+                   begin
+                     Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
+                   rescue PaperclipCommandLineError
+                     ""
+                   end
+                 else
                    ""
                  end
       parse(geometry) ||
