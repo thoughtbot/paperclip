@@ -50,7 +50,7 @@ module Paperclip
           prefix, suffix = basename, ''
         end
 
-        t = time.now.strftime("%y%m%d")
+        t = Time.now.strftime("%y%m%d")
         path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}-#{n}#{suffix}"
       end
     end
