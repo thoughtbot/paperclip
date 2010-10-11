@@ -275,13 +275,11 @@ module Paperclip
 
     def initialize_storage #:nodoc:
       storage_class_name = @storage.to_s.capitalize
-      storage_file_name = @storage.to_s.downcase
       begin
-        require "paperclip/storage/#{storage_file_name}"
-      rescue MissingSourceFile
-        raise StorageMethodNotFound, "Cannot load 'paperclip/storage/#{storage_file_name}'"
+        @storage_module = Paperclip::Storage.const_get(storage_class_name)
+      rescue NameError
+        raise StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
       end
-      @storage_module = Paperclip::Storage.const_get(storage_class_name)
       self.extend(@storage_module)
     end
 
