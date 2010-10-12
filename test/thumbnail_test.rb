@@ -8,7 +8,6 @@ class ThumbnailTest < Test::Unit::TestCase
     end
 
     should "have its path contain a real extension" do
-      p @tempfile.path
       assert_equal ".jpg", File.extname(@tempfile.path)
     end
 
