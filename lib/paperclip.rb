@@ -252,6 +252,7 @@ module Paperclip
 
       define_method "#{name}_urls" do
         attachment = attachment_for(name)
+        return({}) unless attachment.file?
         attachment.styles.keys.inject({}) {|hash, style| 
           hash.update(style.to_s => attachment.url(style))
         }
