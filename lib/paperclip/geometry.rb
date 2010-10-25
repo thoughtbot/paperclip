@@ -17,8 +17,7 @@ module Paperclip
       file = file.path if file.respond_to? "path"
       geometry = begin
                    Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
-                 rescue PaperclipCommandLineError => error
-                   Rails.logger.debug("I'm not sure why we died:" + error.msg)
+                 rescue PaperclipCommandLineError
                    ""
                  end
       parse(geometry) ||
