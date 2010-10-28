@@ -1,5 +1,13 @@
 require 'test/helper'
 
+module ActionController
+  class Base
+    def self.relative_url_root
+      '/base'
+    end
+  end
+end
+
 def rebuild_database_table_1_blob_column options = {}
   ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
     table.column :other, :string
@@ -184,7 +192,8 @@ class DatabaseStorageTest < Test::Unit::TestCase
                                    "fixtures",
                                    "5k.png"), 'rb')
         @contents = @file.read
-        ActionController::Base.stubs(:relative_url_root).returns("/base")
+        @file.rewind
+
         @dummy.avatar = @file
       end
 
@@ -199,7 +208,7 @@ class DatabaseStorageTest < Test::Unit::TestCase
       end
 
       should "save the actual file contents to the original style column" do
-        assert_equal @dummy.avatar_file_data, @contents
+        assert_equal @contents, @dummy.avatar_file_data
         assert !(file = @dummy.avatar.to_file).nil?
         assert_equal Paperclip::Tempfile, file.class
         file.close
@@ -211,9 +220,9 @@ class DatabaseStorageTest < Test::Unit::TestCase
       end
 
       should "return the proper default url" do
-        assert_match %r{^/base/dummies/avatars/#{@dummy.id}\?style=original}, @dummy.avatar.url
-        assert_match %r{^/base/dummies/avatars/#{@dummy.id}\?style=medium}, @dummy.avatar.url(:medium)
-        assert_match %r{^/base/dummies/avatars/#{@dummy.id}\?style=thumb}, @dummy.avatar.url(:thumb)
+        assert_match %r{^/dummies/avatars/#{@dummy.id}\?style=original}, @dummy.avatar.url
+        assert_match %r{^/dummies/avatars/#{@dummy.id}\?style=medium}, @dummy.avatar.url(:medium)
+        assert_match %r{^/dummies/avatars/#{@dummy.id}\?style=thumb}, @dummy.avatar.url(:thumb)
       end
 
       should "return the column name as path" do
@@ -240,6 +249,7 @@ class DatabaseStorageTest < Test::Unit::TestCase
       context "and saved and assigned to another attachment" do
         setup do
           @dummy.save
+
           @dummy2 = Dummy.new
           @dummy2.avatar = @dummy.avatar
         end
