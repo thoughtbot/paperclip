@@ -8,7 +8,7 @@ module Paperclip
       @binary            = binary.dup
       @params            = params.dup
       @options           = options.dup
-      @swallow_stderr    = @options.delete(:swallow_stderr)
+      @swallow_stderr    = @options.has_key?(:swallow_stderr) ? @options.delete(:swallow_stderr) : Paperclip.options[:swallow_stderr]
       @expected_outcodes = @options.delete(:expected_outcodes)
       @expected_outcodes ||= [0]
     end

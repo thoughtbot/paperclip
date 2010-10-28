@@ -4,6 +4,7 @@ module Paperclip
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
+    include IOStream
 
     def self.default_options
       @default_options ||= {
@@ -88,7 +89,7 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
-      @queued_for_write[:original]   = uploaded_file.to_tempfile
+      @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
@@ -275,13 +276,11 @@ module Paperclip
 
     def initialize_storage #:nodoc:
       storage_class_name = @storage.to_s.capitalize
-      storage_file_name = @storage.to_s.downcase
       begin
-        require "paperclip/storage/#{storage_file_name}"
-      rescue MissingSourceFile
-        raise StorageMethodNotFound, "Cannot load 'paperclip/storage/#{storage_file_name}'"
+        @storage_module = Paperclip::Storage.const_get(storage_class_name)
+      rescue NameError
+        raise StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
       end
-      @storage_module = Paperclip::Storage.const_get(storage_class_name)
       self.extend(@storage_module)
     end
 
