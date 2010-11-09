@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'test/helper'
+require './test/helper'
 
 class Dummy
   # This is a dummy class

@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class IOStreamTest < Test::Unit::TestCase
   include IOStream

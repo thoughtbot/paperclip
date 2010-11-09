@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class ProcessorTest < Test::Unit::TestCase
   should "instantiate and call #make when sent #make to the class" do

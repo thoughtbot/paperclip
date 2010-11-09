@@ -53,7 +53,7 @@ $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
 
 require File.join(ROOT, 'lib', 'paperclip.rb')
 
-require 'shoulda_macros/paperclip'
+require './shoulda_macros/paperclip'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
