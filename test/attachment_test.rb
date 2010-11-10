@@ -703,7 +703,7 @@ class AttachmentTest < Test::Unit::TestCase
       now = Time.now
       Time.stubs(:now).returns(now)
       @dummy.avatar = @file
-      assert now, @dummy.avatar.updated_at
+      assert_equal now.to_i, @dummy.avatar.updated_at.to_i
     end
 
     should "return nil when reloaded and sent #avatar_updated_at" do
