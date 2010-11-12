@@ -41,8 +41,9 @@ module Paperclip
     # Returns the interpolated URL. Will raise an error if the url itself
     # contains ":url" to prevent infinite recursion. This interpolation
     # is used in the default :path to ease default specifications.
+    RIGHT_HERE = "#{__FILE__.gsub(%r{^\./}, "")}:#{__LINE__ + 3}"
     def url attachment, style_name
-      raise InfiniteInterpolationError if caller.any?{|b| b.index("#{__FILE__}:#{__LINE__ + 1}") }
+      raise InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
       attachment.url(style_name, false)
     end
 
