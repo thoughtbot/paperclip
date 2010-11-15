@@ -14,6 +14,28 @@ class AttachmentTest < Test::Unit::TestCase
     assert_equal "#{Rails.root}/public/fake_models/1234/fake", @attachment.path
   end
 
+  should "return the url by interpolating the default_url option when no file assigned" do
+    @attachment = attachment :default_url => ":class/blegga.png"
+    @model = @attachment.instance
+    assert_nil @model.avatar_file_name
+    assert_equal "fake_models/blegga.png", @attachment.url
+  end
+
+  should "return the url by executing and interpolating the default_url Proc when no file assigned" do
+    @attachment = attachment :default_url => lambda { |a| ":class/blegga.png" }
+    @model = @attachment.instance
+    assert_nil @model.avatar_file_name
+    assert_equal "fake_models/blegga.png", @attachment.url
+  end
+
+  should "return the url by executing and interpolating the default_url Proc with attachment arg when no file assigned" do
+    @attachment = attachment :default_url => lambda { |a| a.instance.some_method_to_determine_default_url }
+    @model = @attachment.instance
+    @model.stubs(:some_method_to_determine_default_url).returns(":class/blegga.png")
+    assert_nil @model.avatar_file_name
+    assert_equal "fake_models/blegga.png", @attachment.url
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model
