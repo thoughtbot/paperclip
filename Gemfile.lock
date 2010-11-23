@@ -1,6 +1,9 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    appraisal (0.1)
+      bundler
+      rake
     aws-s3 (0.6.2)
       builder
       mime-types
@@ -25,6 +28,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  appraisal
   aws-s3
   mocha
   rake
