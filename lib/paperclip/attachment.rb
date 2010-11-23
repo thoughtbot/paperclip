@@ -93,7 +93,11 @@ module Paperclip
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     uploaded_file.tempfile.fingerprint)
+      if uploaded_file.is_a?(ActionDispatch::Http::UploadedFile)
+        instance_write(:fingerprint,   uploaded_file.tempfile.fingerprint)
+      else
+        instance_write(:fingerprint,   uploaded_file.fingerprint)
+      end
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
