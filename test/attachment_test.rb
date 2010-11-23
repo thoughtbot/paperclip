@@ -463,14 +463,11 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model
 
-      @not_file = mock
-      @tempfile = mock
+      @not_file = mock("not_file")
+      @tempfile = mock("tempfile")
       @not_file.stubs(:nil?).returns(false)
-      @not_file.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
-      @tempfile.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
-      @not_file.expects(:to_tempfile).returns(@tempfile)
       @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
 
@@ -479,6 +476,9 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
       @attachment.expects(:queue_existing_for_delete)
       @attachment.expects(:post_process)
+      @attachment.expects(:to_tempfile).returns(@tempfile)
+      @attachment.expects(:generate_fingerprint).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_fingerprint).with(@not_file).returns("12345")
       @dummy.avatar = @not_file
     end
 

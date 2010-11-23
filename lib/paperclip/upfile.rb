@@ -32,13 +32,6 @@ module Paperclip
     def size
       File.size(self)
     end
-
-    # Returns the hash of the file.
-    def fingerprint
-      data = self.read
-      self.rewind
-      Digest::MD5.hexdigest(data)
-    end
   end
 end
 

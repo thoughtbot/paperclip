@@ -93,7 +93,7 @@ module Paperclip
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     uploaded_file.fingerprint)
+      instance_write(:fingerprint,     generate_fingerprint(uploaded_file))
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -102,7 +102,7 @@ module Paperclip
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
-      instance_write(:fingerprint, @queued_for_write[:original].fingerprint)
+      instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -181,7 +181,7 @@ module Paperclip
     # Returns the hash of the file as originally assigned, and lives in the
     # <attachment>_fingerprint attribute of the model.
     def fingerprint
-      instance_read(:fingerprint) || (@queued_for_write[:original] && @queued_for_write[:original].fingerprint)
+      instance_read(:fingerprint) || (@queued_for_write[:original] && generate_fingerprint(@queued_for_write[:original]))
     end
 
     # Returns the content_type of the file as originally assigned, and lives
@@ -195,6 +195,12 @@ module Paperclip
     def updated_at
       time = instance_read(:updated_at)
       time && time.to_f.to_i
+    end
+
+    def generate_fingerprint(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::MD5.hexdigest(data)
     end
 
     # Paths and URLs can have a number of variables interpolated into them

@@ -33,21 +33,4 @@ class UpfileTest < Test::Unit::TestCase
     end
     assert_equal 'text/plain', file.content_type
   end
-
-  should "return a MD5 fingerprint of the file" do
-    file = StringIO.new("1234567890")
-    class << file
-      include Paperclip::Upfile
-    end
-    assert_equal "e807f1fcf82d132f9bb018ca6738a19f", file.fingerprint
-  end
-
-  should "still be readable after the file fingerprints itself" do
-    file = StringIO.new("1234567890")
-    class << file
-      include Paperclip::Upfile
-    end
-    file.fingerprint
-    assert_equal "1234567890", file.read
-  end
 end
