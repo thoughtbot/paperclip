@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class GeometryTest < Test::Unit::TestCase
   context "Paperclip::Geometry" do

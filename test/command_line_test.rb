@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class CommandLineTest < Test::Unit::TestCase
   def setup

@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do

@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 require 'aws/s3'
 
 class StorageTest < Test::Unit::TestCase
@@ -350,6 +350,11 @@ class StorageTest < Test::Unit::TestCase
 
           should "be on S3" do
             assert true
+          end
+
+          should "generate a tempfile with the right name" do
+            file = @dummy.avatar.to_file
+            assert_match /^original.*\.png$/, File.basename(file.path)
           end
         end
       end

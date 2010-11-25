@@ -28,6 +28,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency 'activerecord'
   s.add_dependency 'activesupport'
   s.add_development_dependency 'shoulda'
+  s.add_development_dependency 'appraisal'
   s.add_development_dependency 'mocha'
   s.add_development_dependency 'aws-s3'
   s.add_development_dependency 'sqlite3-ruby'

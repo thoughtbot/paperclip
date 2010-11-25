@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
   context "validate_attachment_content_type" do
