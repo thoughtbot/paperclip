@@ -40,7 +40,16 @@ module Paperclip
     private
 
     def full_path(binary)
-      [self.class.path, binary].compact.join("/")
+      path = self.class.path
+      if path.nil?
+        return binary
+      else
+        path.split(File::PATH_SEPARATOR).each do |dir|
+          full_path = [dir, binary].join(File::SEPARATOR)
+          return full_path if File.executable?(full_path)
+        end
+      end
+      raise Paperclip::CommandNotFoundError
     end
 
     def interpolate(pattern, vars)
