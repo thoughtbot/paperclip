@@ -94,6 +94,46 @@ module Paperclip
       attachment.fingerprint
     end
 
+    # Returns the MD5 hexdigest of the instance.
+    def file_md5_hexdigest attachment, style_name
+      attachment.file_md5_hexdigest
+    end
+
+    # Returns the RIPEMD-160 hexdigest of the instance.
+    def file_rmd160_hexdigest attachment, style_name
+      attachment.file_rmd160_hexdigest
+    end
+
+    # Returns the SHA1 hexdigest of the instance.
+    def file_sha1_hexdigest attachment, style_name
+      attachment.file_sha1_hexdigest
+    end
+
+    # Returns the SHA256 hexdigest of the instance.
+    def file_sha256_hexdigest attachment, style_name
+      attachment.file_sha256_hexdigest
+    end
+
+    # Returns the SHA384 hexdigest of the instance.
+    def file_sha384_hexdigest attachment, style_name
+      attachment.file_sha384_hexdigest
+    end
+
+    # Returns the SHA512 hexdigest of the instance.
+    def file_sha512_hexdigest attachment, style_name
+      attachment.file_sha512_hexdigest
+    end
+
+    # Returns the Tiger hexdigest of the instance.
+    def file_tiger_hexdigest attachment, style_name
+      attachment.file_tiger_hexdigest
+    end
+
+    # Returns the Whirlpool hexdigest of the instance.
+    def file_whirlpool_hexdigest attachment, style_name
+      attachment.file_whirlpool_hexdigest
+    end
+
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name

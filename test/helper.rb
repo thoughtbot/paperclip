@@ -73,6 +73,14 @@ def rebuild_model options = {}
     table.column :avatar_file_size, :integer
     table.column :avatar_updated_at, :datetime
     table.column :avatar_fingerprint, :string
+    table.column :avatar_file_md5_hexdigest, :string
+    table.column :avatar_file_rmd160_hexdigest, :string
+    table.column :avatar_file_sha1_hexdigest, :string
+    table.column :avatar_file_sha256_hexdigest, :string
+    table.column :avatar_file_sha384_hexdigest, :string
+    table.column :avatar_file_sha512_hexdigest, :string
+    table.column :avatar_file_tiger_hexdigest, :string
+    table.column :avatar_file_whirlpool_hexdigest, :string
   end
   rebuild_class options
 end
@@ -93,6 +101,14 @@ class FakeModel
                 :avatar_last_updated,
                 :avatar_content_type,
                 :avatar_fingerprint,
+                :avatar_file_md5_hexdigest,
+                :avatar_file_rmd160_hexdigest,
+                :avatar_file_sha1_hexdigest,
+                :avatar_file_sha256_hexdigest,
+                :avatar_file_sha384_hexdigest,
+                :avatar_file_sha512_hexdigest,
+                :avatar_file_tiger_hexdigest,
+                :avatar_file_whirlpool_hexdigest,
                 :id
 
   def errors

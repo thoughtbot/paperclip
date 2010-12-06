@@ -479,6 +479,22 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.expects(:to_tempfile).returns(@tempfile)
       @attachment.expects(:generate_fingerprint).with(@tempfile).returns("12345")
       @attachment.expects(:generate_fingerprint).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_md5_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_md5_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_rmd160_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_rmd160_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_sha1_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_sha1_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_sha256_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_sha256_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_sha384_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_sha384_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_sha512_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_sha512_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_tiger_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_tiger_hexdigest).with(@not_file).returns("12345")
+      @attachment.expects(:generate_file_whirlpool_hexdigest).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_file_whirlpool_hexdigest).with(@not_file).returns("12345")
       @dummy.avatar = @not_file
     end
 
@@ -800,5 +816,198 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
       end
     end
+
+    context "and avatar_file_md5_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_md5_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_md5_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_file_md5_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_md5_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_file_md5_hexdigest
+      end
+    end
+
+    context "and avatar_file_rmd160_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_rmd160_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_rmd160_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '666ef6d727823830197755d3146b3b8a829351d4', @dummy.avatar_file_rmd160_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_rmd160_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '666ef6d727823830197755d3146b3b8a829351d4', @dummy.avatar_file_rmd160_hexdigest
+      end
+    end
+
+    context "and avatar_file_sha1_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_sha1_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_sha1_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '2a979541612951c07a8a5f50228173eeb4e6ec25', @dummy.avatar_file_sha1_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_sha1_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '2a979541612951c07a8a5f50228173eeb4e6ec25', @dummy.avatar_file_sha1_hexdigest
+      end
+    end
+
+    context "and avatar_file_sha256_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_sha256_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_sha256_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '734016d801a497f5579cdd4ef2ae1d020088c1db754dc434482d76dd5486520a', @dummy.avatar_file_sha256_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_sha256_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '734016d801a497f5579cdd4ef2ae1d020088c1db754dc434482d76dd5486520a', @dummy.avatar_file_sha256_hexdigest
+      end
+    end
+
+    context "and avatar_file_sha384_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_sha384_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_sha384_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '3c1587073c197355141e71aaf76681fbd266457d13ed4ef09233222d77c569a67d02c0e5a2b4e2c91736332686483300', @dummy.avatar_file_sha384_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_sha384_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '3c1587073c197355141e71aaf76681fbd266457d13ed4ef09233222d77c569a67d02c0e5a2b4e2c91736332686483300', @dummy.avatar_file_sha384_hexdigest
+      end
+    end
+
+    context "and avatar_file_sha512_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_sha512_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_sha512_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '7c5c04113ad65f96275db43e5d482b23d2253a95d28f824a103da56e5b89f4af00a4532e6132c3bcac0b93bdcf488a19ceb535df1a6d22bae3aa35d59979d61c', @dummy.avatar_file_sha512_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_sha512_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '7c5c04113ad65f96275db43e5d482b23d2253a95d28f824a103da56e5b89f4af00a4532e6132c3bcac0b93bdcf488a19ceb535df1a6d22bae3aa35d59979d61c', @dummy.avatar_file_sha512_hexdigest
+      end
+    end
+
+    context "and avatar_file_tiger_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_tiger_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_tiger_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal 'b2b3ce091227a73f037bab6569888a74148e82a060c031db', @dummy.avatar_file_tiger_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_tiger_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal 'b2b3ce091227a73f037bab6569888a74148e82a060c031db', @dummy.avatar_file_tiger_hexdigest
+      end
+    end
+
+    context "and avatar_file_whirlpool_hexdigest column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_whirlpool_hexdigest, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #avatar_file_whirlpool_hexdigest" do
+        @dummy.avatar = @file
+        assert_equal '51736d72ea5980e7e82511dbfebe1c78809872d72145ae8d700a3c967f78c5cafdb827c67aa2eabb855156f792aa80bc94537100cd947f8fba84821df6b6be56', @dummy.avatar_file_whirlpool_hexdigest
+      end
+
+      should "return the right value when saved, reloaded, and sent #avatar_file_whirlpool_hexdigest" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal '51736d72ea5980e7e82511dbfebe1c78809872d72145ae8d700a3c967f78c5cafdb827c67aa2eabb855156f792aa80bc94537100cd947f8fba84821df6b6be56', @dummy.avatar_file_whirlpool_hexdigest
+      end
+    end
+
   end
 end

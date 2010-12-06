@@ -1,4 +1,7 @@
 # encoding: utf-8
+
+require "digest"
+
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
   # when the model saves, deletes when the model is destroyed, and processes
@@ -94,15 +97,31 @@ module Paperclip
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
       instance_write(:fingerprint,     generate_fingerprint(uploaded_file))
+      instance_write(:file_md5_hexdigest,	generate_file_md5_hexdigest(uploaded_file))
+      instance_write(:file_rmd160_hexdigest,	generate_file_rmd160_hexdigest(uploaded_file))
+      instance_write(:file_sha1_hexdigest,	generate_file_sha1_hexdigest(uploaded_file))
+      instance_write(:file_sha256_hexdigest,	generate_file_sha256_hexdigest(uploaded_file))
+      instance_write(:file_sha384_hexdigest,	generate_file_sha384_hexdigest(uploaded_file))
+      instance_write(:file_sha512_hexdigest,	generate_file_sha512_hexdigest(uploaded_file))
+      instance_write(:file_tiger_hexdigest,	generate_file_tiger_hexdigest(uploaded_file))
+      instance_write(:file_whirlpool_hexdigest,	generate_file_whirlpool_hexdigest(uploaded_file))
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
 
       post_process
 
-      # Reset the file size if the original file was reprocessed.
+      # Reset the file size and hexdigests if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
+      instance_write(:file_md5_hexdigest,	generate_file_md5_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_rmd160_hexdigest,	generate_file_rmd160_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_sha1_hexdigest,	generate_file_sha1_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_sha256_hexdigest,	generate_file_sha256_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_sha384_hexdigest,	generate_file_sha384_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_sha512_hexdigest,	generate_file_sha512_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_tiger_hexdigest,	generate_file_tiger_hexdigest(@queued_for_write[:original]))
+      instance_write(:file_whirlpool_hexdigest,	generate_file_whirlpool_hexdigest(@queued_for_write[:original]))
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -184,6 +203,54 @@ module Paperclip
       instance_read(:fingerprint) || (@queued_for_write[:original] && generate_fingerprint(@queued_for_write[:original]))
     end
 
+    # Returns the MD5 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_md5_hexdigest attribute of the model.
+    def file_md5_hexdigest
+      instance_read(:file_md5_hexdigest) || (@queued_for_write[:original] && generate_file_md5_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the RIPEMD-160 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_rmd160_hexdigest attribute of the model.
+    def file_rmd160_hexdigest
+      instance_read(:file_rmd160_hexdigest) || (@queued_for_write[:original] && generate_file_rmd160_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the SHA1 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_sha1_hexdigest attribute of the model.
+    def file_sha1_hexdigest
+      instance_read(:file_sha1_hexdigest) || (@queued_for_write[:original] && generate_file_sha1_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the SHA256 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_sha256_hexdigest attribute of the model.
+    def file_sha256_hexdigest
+      instance_read(:file_sha256_hexdigest) || (@queued_for_write[:original] && generate_file_sha256_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the SHA384 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_sha384_hexdigest attribute of the model.
+    def file_sha384_hexdigest
+      instance_read(:file_sha384_hexdigest) || (@queued_for_write[:original] && generate_file_sha384_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the SHA512 hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_sha512_hexdigest attribute of the model.
+    def file_sha512_hexdigest
+      instance_read(:file_sha512_hexdigest) || (@queued_for_write[:original] && generate_file_sha512_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the Tiger hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_tiger_hexdigest attribute of the model.
+    def file_tiger_hexdigest
+      instance_read(:file_tiger_hexdigest) || (@queued_for_write[:original] && generate_file_tiger_hexdigest(@queued_for_write[:original]))
+    end
+
+    # Returns the Whirlpool hexdigest of the file as originally assigned, and lives in the
+    # <attachment>_file_whirlpool_hexdigest attribute of the model.
+    def file_whirlpool_hexdigest
+      instance_read(:file_whirlpool_hexdigest) || (@queued_for_write[:original] && generate_file_whirlpool_hexdigest(@queued_for_write[:original]))
+    end
+
     # Returns the content_type of the file as originally assigned, and lives
     # in the <attachment>_content_type attribute of the model.
     def content_type
@@ -201,6 +268,54 @@ module Paperclip
       data = source.read
       source.rewind if source.respond_to?(:rewind)
       Digest::MD5.hexdigest(data)
+    end
+
+    def generate_file_md5_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::MD5.hexdigest(data)
+    end
+
+    def generate_file_rmd160_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::RMD160.hexdigest(data)
+    end
+
+    def generate_file_sha1_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::SHA1.hexdigest(data)
+    end
+
+    def generate_file_sha256_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::SHA256.hexdigest(data)
+    end
+
+    def generate_file_sha384_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::SHA384.hexdigest(data)
+    end
+
+    def generate_file_sha512_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::SHA512.hexdigest(data)
+    end
+
+    def generate_file_tiger_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::Tiger.hexdigest(data)
+    end
+
+    def generate_file_whirlpool_hexdigest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::Whirlpool.hexdigest(data)
     end
 
     # Paths and URLs can have a number of variables interpolated into them

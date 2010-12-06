@@ -4,6 +4,14 @@ class <%= migration_class_name %> < ActiveRecord::Migration
     add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_name, :string
     add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_content_type, :string
     add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_size, :integer
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_md5_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_rmd160_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha1_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha256_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha384_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha512_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_tiger_hexdigest,	:string
+    add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_whirlpool_hexdigest,	:string
     add_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_updated_at, :datetime
 <% end -%>
   end
@@ -13,6 +21,14 @@ class <%= migration_class_name %> < ActiveRecord::Migration
     remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_name
     remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_content_type
     remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_size
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_md5_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_rmd160_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha1_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha256_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha384_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_sha512_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_tiger_hexdigest
+    remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_file_whirlpool_hexdigest
     remove_column :<%= name.underscore.camelize.tableize %>, :<%= attachment %>_updated_at
 <% end -%>
   end

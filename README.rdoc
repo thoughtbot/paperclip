@@ -32,6 +32,8 @@ In your migrations:
       add_column :users, :avatar_file_name,    :string
       add_column :users, :avatar_content_type, :string
       add_column :users, :avatar_file_size,    :integer
+      add_column :users, :avatar_file_some_hexdigest,    :string
+      add_column :users, :avatar_file_another_hexdigest, :string
       add_column :users, :avatar_updated_at,   :datetime
     end
 
@@ -39,6 +41,8 @@ In your migrations:
       remove_column :users, :avatar_file_name
       remove_column :users, :avatar_content_type
       remove_column :users, :avatar_file_size
+      remove_column :users, :avatar_file_some_hexdigest
+      remove_column :users, :avatar_file_another_hexdigest
       remove_column :users, :avatar_updated_at
     end
   end
@@ -68,10 +72,12 @@ attachment with the has_attached_file method, and give it a name. Paperclip
 will wrap up up to four attributes (all prefixed with that attachment's name,
 so you can have multiple attachments per model if you wish) and give the a
 friendly front end. The attributes are <attachment>_file_name,
-<attachment>_file_size, <attachment>_content_type, and <attachment>_updated_at.
+<attachment>_file_size, some hexdigests (<attachment>_file_*_hexdigest),
+<attachment>_content_type, and <attachment>_updated_at.
 Only <attachment>_file_name is required for paperclip to operate. More
 information about the options to has_attached_file is available in the
 documentation of Paperclip::ClassMethods.
+Hexdigests can be MD5, RIPEMD-160, SHA1, SHA256, SHA384, SHA512, Tiger and Whirlpool.
 
 Attachments can be validated with Paperclip's validation methods,
 validates_attachment_presence, validates_attachment_content_type, and
