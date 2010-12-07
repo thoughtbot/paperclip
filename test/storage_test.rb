@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 require 'aws/s3'
 
 class StorageTest < Test::Unit::TestCase
