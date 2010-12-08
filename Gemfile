@@ -9,3 +9,4 @@ gem "appraisal"
 
 gem "digest-tiger"
 gem "digest-whirlpool"
+gem "file_wrapper"
