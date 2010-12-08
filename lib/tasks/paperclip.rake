@@ -49,13 +49,22 @@ namespace :paperclip do
       errors.each{|e| puts "#{e.first}: #{e.last.full_messages.inspect}" }
     end
 
-    desc "Regenerates content_type/size metadata for a given CLASS (and optional ATTACHMENT)."
+    desc "Regenerates content_type/size/fingerprint/hexdigests metadata for a given CLASS (and optional ATTACHMENT)."
     task :metadata => :environment do
       for_all_attachments do |instance, name|
         if file = instance.send(name).to_file
           instance.send("#{name}_file_name=", instance.send("#{name}_file_name").strip)
           instance.send("#{name}_content_type=", file.content_type.strip)
           instance.send("#{name}_file_size=", file.size) if instance.respond_to?("#{name}_file_size")
+          instance.send("#{name}_fingerprint=", file.fingerprint) if instance.respond_to?("#{name}_fingerprint")
+          instance.send("#{name}_file_md5_hexdigest=", file.md5_hexdigest) if instance.respond_to?("#{name}_file_md5_hexdigest")
+          instance.send("#{name}_file_rmd160_hexdigest=", file.rmd160_hexdigest) if instance.respond_to?("#{name}_file_rmd160_hexdigest")
+          instance.send("#{name}_file_sha1_hexdigest=", file.sha1_hexdigest) if instance.respond_to?("#{name}_file_sha1_hexdigest")
+          instance.send("#{name}_file_sha256_hexdigest=", file.sha256_hexdigest) if instance.respond_to?("#{name}_file_sha256_hexdigest")
+          instance.send("#{name}_file_sha384_hexdigest=", file.sha384_hexdigest) if instance.respond_to?("#{name}_file_sha384_hexdigest")
+          instance.send("#{name}_file_sha512_hexdigest=", file.sha512_hexdigest) if instance.respond_to?("#{name}_file_sha512_hexdigest")
+          instance.send("#{name}_file_tiger_hexdigest=", file.tiger_hexdigest) if instance.respond_to?("#{name}_file_tiger_hexdigest")
+          instance.send("#{name}_file_whirlpool_hexdigest=", file.whirlpool_hexdigest) if instance.respond_to?("#{name}_file_whirlpool_hexdigest")
           instance.save(false)
         else
           true
