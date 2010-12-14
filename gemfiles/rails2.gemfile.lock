@@ -11,6 +11,9 @@ GEM
     activeresource (2.3.10)
       activesupport (= 2.3.10)
     activesupport (2.3.10)
+    appraisal (0.1)
+      bundler
+      rake
     aws-s3 (0.6.2)
       builder
       mime-types
@@ -43,6 +46,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  appraisal
   aws-s3
   mocha
   rails (~> 2.3.0)

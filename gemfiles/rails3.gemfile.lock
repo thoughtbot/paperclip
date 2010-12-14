@@ -28,6 +28,9 @@ GEM
       activemodel (= 3.0.3)
       activesupport (= 3.0.3)
     activesupport (3.0.3)
+    appraisal (0.1)
+      bundler
+      rake
     arel (2.0.4)
     aws-s3 (0.6.2)
       builder
@@ -84,9 +87,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  appraisal
   aws-s3
   mocha
-  rails (~> 3.0.0)
+  rails (>= 3.0.3)
   rake
   ruby-debug
   shoulda

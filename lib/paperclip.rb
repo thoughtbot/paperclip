@@ -113,6 +113,12 @@ module Paperclip
       processor
     end
 
+    def each_instance_with_attachment(klass, name)
+      Object.const_get(klass).all.each do |instance|
+        yield(instance) if instance.send(:"#{name}?")
+      end
+    end
+
     # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
     # by default. Set Paperclip.options[:log] to false to turn off.
     def log message

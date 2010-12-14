@@ -43,6 +43,23 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Paperclip.each_instance_with_attachment" do
+    setup do
+      @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      d1 = Dummy.create(:avatar => @file)
+      d2 = Dummy.create
+      d3 = Dummy.create(:avatar => @file)
+      @expected = [d1, d3]
+    end
+    should "yield every instance of a model that has an attachment" do
+      actual = []
+      Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|
+        actual << instance
+      end
+      assert_same_elements @expected, actual
+    end
+  end
+
   should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
     assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
   end
