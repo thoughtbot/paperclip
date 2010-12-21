@@ -155,7 +155,8 @@ step. The callbacks are "before_post_process" and "after_post_process" (which
 are called before and after the processing of each attachment), and the
 attachment-specific "before_<attachment>_post_process" and
 "after_<attachment>_post_process". The callbacks are intended to be as close to
-normal ActiveRecord callbacks as possible, so if you return false (specifically, returning nil is not the same) in a before_ callback, the post processing step
+normal ActiveRecord callbacks as possible, so if you return false (specifically,
+returning nil is not the same) in a before_ callback, the post processing step
 will halt. Returning false in an after_ callback will not halt anything, but you
 can access the model and the attachment if necessary.
 
