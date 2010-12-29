@@ -17,6 +17,12 @@ more detailed options.
 
 The complete RDoc[http://rdoc.info/projects/thoughtbot/paperclip] is online.
 
+==Installation
+
+Include the gem in your Gemfile:
+
+  paperclip, "~> 2.3"
+
 ==Quick Start
 
 In your model:
