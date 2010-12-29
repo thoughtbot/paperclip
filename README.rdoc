@@ -21,7 +21,7 @@ The complete RDoc[http://rdoc.info/projects/thoughtbot/paperclip] is online.
 
 Include the gem in your Gemfile:
 
-  paperclip, "~> 2.3"
+  gem "paperclip", "~> 2.3"
 
 ==Quick Start
 
