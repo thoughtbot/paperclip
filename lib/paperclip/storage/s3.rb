@@ -103,7 +103,7 @@ module Paperclip
       end
 
       def s3_host_alias
-        @s3_host_alias
+        @s3_host_alias.is_a?(Proc) ? @s3_host_alias.call(self) : @s3_host_alias
       end
 
       def parse_credentials creds

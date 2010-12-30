@@ -360,4 +360,24 @@ class StorageTest < Test::Unit::TestCase
       end
     end
   end
+
+  context 'Using a proc to determine s3_host_alias' do
+    setup do
+     ENV['S3_KEY']    = 'pathname_key'
+     ENV['S3_BUCKET'] = 'pathname_bucket'
+     ENV['S3_SECRET'] = 'pathname_secret'
+    end
+
+    should 'be able to execute a proc' do
+      at = attachment(:storage => :s3, :s3_host_alias => Proc.new {'foo'}, :s3_credentials => File.new(File.join(File.dirname(__FILE__), "fixtures/s3.yml")))
+
+      assert_equal 'foo', at.s3_host_alias
+    end
+
+    should 'return a static string' do
+      at = attachment(:storage => :s3, :s3_host_alias => 'bar', :s3_credentials => File.new(File.join(File.dirname(__FILE__), "fixtures/s3.yml")))
+
+      assert_equal 'bar', at.s3_host_alias
+    end
+  end
 end
