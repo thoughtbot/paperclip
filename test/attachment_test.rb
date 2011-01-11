@@ -440,7 +440,7 @@ class AttachmentTest < Test::Unit::TestCase
   context "Assigning an attachment" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }
-      @file  = StringIO.new(".")
+      @file  = StringIO.new("Contents of a file.")
       @file.stubs(:original_filename).returns("5k.png\n\n")
       @file.stubs(:content_type).returns("image/png\n\n")
       @file.stubs(:to_tempfile).returns(@file)
@@ -448,6 +448,10 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Thumbnail.expects(:make).returns(@file)
       @attachment = @dummy.avatar
       @dummy.avatar = @file
+    end
+
+    should "retain the original contents of the file" do
+      assert_equal "Contents of a file.", @dummy.avatar.content(:original)
     end
 
     should "strip whitespace from original_filename field" do

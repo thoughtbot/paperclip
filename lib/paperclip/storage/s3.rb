@@ -133,9 +133,13 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
-        file.write(AWS::S3::S3Object.value(path(style), bucket_name))
+        file.write content(style)
         file.rewind
         return file
+      end
+
+      def content style = default_style
+        AWS::S3::S3Object.value(path(style), bucket_name)
       end
 
       def create_bucket
