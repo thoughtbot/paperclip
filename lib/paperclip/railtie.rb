@@ -17,7 +17,7 @@ module Paperclip
 
   class Railtie
     def self.insert
-      ActiveRecord::Base.send(:include, Paperclip)
+      ActiveRecord::Base.send(:include, Paperclip::Glue)
       File.send(:include, Paperclip::Upfile)
     end
   end
