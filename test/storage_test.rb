@@ -7,6 +7,29 @@ class StorageTest < Test::Unit::TestCase
       Object.const_set(:Rails, stub('Rails', :env => env))
     end
   end
+  
+  context "filesystem" do
+    setup do
+      rebuild_model :styles => { :thumbnail => "25x25#" }
+      @dummy = Dummy.create!
+
+      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+    end
+    
+    should "allow file assignment" do
+      assert @dummy.save
+    end
+    
+    should "store the original" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path)
+    end
+    
+    should "store the thumbnail" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path(:thumbnail))
+    end
+  end
 
   context "Parsing S3 credentials" do
     setup do
