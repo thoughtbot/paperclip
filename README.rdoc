@@ -15,13 +15,19 @@ useful defaults.
 See the documentation for +has_attached_file+ in Paperclip::ClassMethods for
 more detailed options.
 
-The complete RDoc[http://rdoc.info/projects/thoughtbot/paperclip] is online.
+The complete RDoc[http://rdoc.info/gems/paperclip] is online.
 
 ==Installation
 
 Include the gem in your Gemfile:
 
   gem "paperclip", "~> 2.3"
+
+==Installation
+
+As a plugin:
+
+  ruby script/plugin install git://github.com/thoughtbot/paperclip.git
 
 ==Quick Start
 

@@ -235,6 +235,9 @@ module Paperclip
       else
         true
       end
+    rescue Errno::EACCES => e
+      warn "#{e} - skipping file"
+      false
     end
 
     # Returns true if a file has been assigned.

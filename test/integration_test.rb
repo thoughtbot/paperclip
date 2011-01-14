@@ -34,6 +34,22 @@ class IntegrationTest < Test::Unit::TestCase
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
+    
+    context 'reprocessing with unreadable original' do
+      setup { File.chmod(0000, @dummy.avatar.path) }
+      
+      should "not raise an error" do
+        assert_nothing_raised do
+          @dummy.avatar.reprocess!
+        end
+      end
+      
+      should "return false" do
+        assert ! @dummy.avatar.reprocess!
+      end
+      
+      teardown { File.chmod(0644, @dummy.avatar.path) }
+    end
 
     context "redefining its attachment styles" do
       setup do
