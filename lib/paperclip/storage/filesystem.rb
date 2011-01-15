@@ -34,7 +34,9 @@ module Paperclip
       end
 
       def content style_name = default_style
-        to_file(style_name).read
+        source = to_file(style_name)
+        source.rewind if source.respond_to? :rewind
+        source.read
       end
 
       def flush_writes #:nodoc:

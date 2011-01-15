@@ -195,8 +195,8 @@ module Paperclip
     end
 
     def generate_fingerprint(source)
-      data = source.read
       source.rewind if source.respond_to?(:rewind)
+      data = source.read
       Digest::MD5.hexdigest(data)
     end
 
