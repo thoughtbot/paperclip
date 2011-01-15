@@ -92,15 +92,12 @@ module Paperclip
       @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       uploaded_file.original_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
-      instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     generate_fingerprint(uploaded_file))
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
 
       post_process
 
-      # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
     ensure
