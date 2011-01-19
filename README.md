@@ -16,7 +16,7 @@ useful defaults.
 See the documentation for `has_attached_file` in Paperclip::ClassMethods for
 more detailed options.
 
-The complete RDoc[http://rdoc.info/gems/paperclip] is online.
+The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
 
 Installation
 ------------
