@@ -27,6 +27,14 @@ module Paperclip
     #   policies that S3 provides (more information can be found here:
     #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
     #   The default for Paperclip is :public_read.
+    #
+    #   You can set permission on a per style bases by doing the following:
+    #     :s3_permissions => {
+    #       :original => :private
+    #     }
+    #   Or globaly:
+    #     :s3_permissions => :private
+    #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
     #   default), and 'https' when your :s3_permissions are anything else.
@@ -72,14 +80,17 @@ module Paperclip
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
           @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
           @s3_options     = @options[:s3_options]     || {}
-          @s3_permissions = @options[:s3_permissions] || :public_read
-          @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == :public_read ? 'http' : 'https')
+          @s3_permissions = set_permissions(@options[:s3_permissions])
+          @s3_protocol    = @options[:s3_protocol]    ||
+            Proc.new do |style|
+              (@s3_permissions[style.to_sym] || @s3_permissions[:default]) == :public_read ? 'http' : 'https'
+            end
           @s3_headers     = @options[:s3_headers]     || {}
           @s3_host_alias  = @options[:s3_host_alias]
           @s3_host_alias  = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
           unless @url.to_s.match(/^:s3.*url$/)
-            @path          = @path.gsub(/:url/, @url)
-            @url           = ":s3_path_url"
+            @path         = @path.gsub(/:url/, @url)
+            @url          = ":s3_path_url"
           end
           @url            = ":asset_host" if @options[:url].to_s == ":asset_host"
           AWS::S3::Base.establish_connection!( @s3_options.merge(
@@ -88,13 +99,13 @@ module Paperclip
           ))
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -102,11 +113,20 @@ module Paperclip
       end
 
       def expiring_url(time = 3600, style_name = default_style)
-        AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol == 'https'))
+        AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol(style_name) == 'https'))
       end
 
       def bucket_name
         @bucket
+      end
+
+      def set_permissions permissions
+        if permissions.is_a?(Hash)
+          permissions[:default] = permissions[:default] || :public_read
+        else
+          permissions = { :default => permissions || :public_read }
+        end
+        permissions
       end
 
       def s3_host_alias
@@ -126,8 +146,12 @@ module Paperclip
         end
       end
 
-      def s3_protocol
-        @s3_protocol
+      def s3_protocol(style)
+        if @s3_protocol.is_a?(Proc)
+          @s3_protocol.call(style)
+        else
+          @s3_protocol
+        end
       end
 
       # Returns representation of the data of the file assigned to the given
@@ -156,7 +180,7 @@ module Paperclip
                                     file,
                                     bucket_name,
                                     {:content_type => file.content_type.to_s.strip,
-                                     :access => @s3_permissions,
+                                     :access => (@s3_permissions[style] || @s3_permissions[:default]),
                                     }.merge(@s3_headers))
           rescue AWS::S3::NoSuchBucket => e
             create_bucket
