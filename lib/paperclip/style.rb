@@ -32,7 +32,7 @@ module Paperclip
     # by default we behave as before, though.
     # if a proc has been supplied, we call it here
     def processors
-      @processors || attachment.processors
+      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.processors)
     end
 
     # retrieves from the attachment the whiny setting
