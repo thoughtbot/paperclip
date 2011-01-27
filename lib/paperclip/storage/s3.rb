@@ -25,7 +25,7 @@ module Paperclip
     #   development versus production.
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
+    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
     #   The default for Paperclip is :public_read.
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
