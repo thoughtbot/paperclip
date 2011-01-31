@@ -168,10 +168,10 @@ Events
 
 Before and after the Post Processing step, Paperclip calls back to the model
 with a few callbacks, allowing the model to change or cancel the processing
-step. The callbacks are "before_post_process" and "after_post_process" (which
+step. The callbacks are `before_post_process` and `after_post_process` (which
 are called before and after the processing of each attachment), and the
-attachment-specific "before_<attachment>_post_process" and
-"after_<attachment>_post_process". The callbacks are intended to be as close to
+attachment-specific `before_<attachment>_post_process` and
+`after_<attachment>_post_process`. The callbacks are intended to be as close to
 normal ActiveRecord callbacks as possible, so if you return false (specifically
 - returning nil is not the same) in a before_ filter, the post processing step
 will halt. Returning false in an after_ filter will not halt anything, but you
