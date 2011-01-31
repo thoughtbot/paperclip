@@ -81,15 +81,15 @@ The basics of paperclip are quite simple: Declare that your model has an
 attachment with the has_attached_file method, and give it a name. Paperclip
 will wrap up up to four attributes (all prefixed with that attachment's name,
 so you can have multiple attachments per model if you wish) and give the a
-friendly front end. The attributes are `:attachment_file_name`,
-`:attachment_file_size`, `:attachment_content_type`, and `:attachment_updated_at`.
-Only `:attachment_file_name` is required for paperclip to operate. More
+friendly front end. The attributes are `<attachment>_file_name`,
+`<attachment>_file_size`, `<attachment>_content_type`, and `<attachment>_updated_at`.
+Only `<attachment>_file_name` is required for paperclip to operate. More
 information about the options to has_attached_file is available in the
 documentation of Paperclip::ClassMethods.
 
 Attachments can be validated with Paperclip's validation methods,
-`validates_attachment_presence`, `validates_attachment_content_type`, and
-`validates_attachment_size`.
+validates_attachment_presence, validates_attachment_content_type, and
+validates_attachment_size.
 
 Storage
 -------
@@ -170,8 +170,8 @@ Before and after the Post Processing step, Paperclip calls back to the model
 with a few callbacks, allowing the model to change or cancel the processing
 step. The callbacks are "before_post_process" and "after_post_process" (which
 are called before and after the processing of each attachment), and the
-attachment-specific "before_:attachment_post_process" and
-"after_:attachment_post_process". The callbacks are intended to be as close to
+attachment-specific "before_<attachment>_post_process" and
+"after_<attachment>_post_process". The callbacks are intended to be as close to
 normal ActiveRecord callbacks as possible, so if you return false (specifically
 - returning nil is not the same) in a before_ filter, the post processing step
 will halt. Returning false in an after_ filter will not halt anything, but you
