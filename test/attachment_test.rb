@@ -486,6 +486,46 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
     end
   end
+  
+  context "Attachment with uppercase extension and a default style" do
+    setup do
+      @old_defaults = Paperclip::Attachment.default_options.dup
+      Paperclip::Attachment.default_options.merge!({
+        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      })
+      FileUtils.rm_rf("tmp")
+      rebuild_model
+      @instance = Dummy.new
+      @instance.stubs(:id).returns 123
+
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "uppercase.PNG"), 'rb')
+      
+      styles = {:styles => { :large  => ["400x400", :jpg],
+                             :medium => ["100x100", :jpg],
+                             :small => ["32x32#", :jpg]},
+                :default_style => :small}
+      @attachment = Paperclip::Attachment.new(:avatar,
+                                              @instance,
+                                              styles)
+      now = Time.now
+      Time.stubs(:now).returns(now)
+      @attachment.assign(@file)
+      @attachment.save
+    end
+    
+    teardown do
+      @file.close
+      Paperclip::Attachment.default_options.merge!(@old_defaults)
+    end
+
+    should "should have matching to_s and url methods" do
+      file = @attachment.to_file
+      assert file
+      assert_match @attachment.to_s, @attachment.url
+      assert_match @attachment.to_s(:small), @attachment.url(:small)
+      file.close
+    end
+  end
 
   context "An attachment" do
     setup do
