@@ -276,6 +276,7 @@ module Paperclip
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
+      message = message.call if message.respond_to?(:call)
       message = message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
 
       validates_inclusion_of :"#{name}_file_size",
@@ -330,6 +331,7 @@ module Paperclip
         if !allowed_types.any?{|t| t === value } && !(value.nil? || value.blank?)
           if record.errors.method(:add).arity == -2
             message = options[:message] || "is not one of #{allowed_types.join(", ")}"
+            message = message.call if message.respond_to?(:call)
             record.errors.add(:"#{name}_content_type", message)
           else
             record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
