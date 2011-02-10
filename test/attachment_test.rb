@@ -96,6 +96,78 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
     end
   end
+  
+  context "An attachment with :timestamp interpolations" do
+    setup do
+      @file = StringIO.new("...")
+      @zone = 'UTC'
+      Time.stubs(:zone).returns(@zone)
+      @zone_default = 'Eastern Time (US & Canada)'
+      Time.stubs(:zone_default).returns(@zone_default)
+    end
+
+    context "using default time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => true
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the default zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone_default).to_s, @dummy.avatar.path
+      end
+    end
+    
+    context "using per-thread time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => false
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the per-thread zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone).to_s, @dummy.avatar.path
+      end
+    end
+  end
+  
+  context "An attachment with :hash interpolations" do
+    setup do
+      @file = StringIO.new("...")
+    end
+    
+    should "raise if no secret is provided" do
+      @attachment = attachment :path => ":hash"
+      @attachment.assign @file
+
+      assert_raise ArgumentError do
+        @attachment.path
+      end
+    end
+
+    context "when secret is set" do
+      setup do
+        @attachment = attachment :path => ":hash", :hash_secret => "w00t"
+        @attachment.stubs(:instance_read).with(:updated_at).returns(Time.at(1234567890))
+        @attachment.stubs(:instance_read).with(:file_name).returns("bla.txt")
+        @attachment.instance.id = 1234
+        @attachment.assign @file
+      end
+      
+      should "interpolate the hash data" do
+        @attachment.expects(:interpolate).with(@attachment.options[:hash_data]).returns("interpolated_stuff")
+        @attachment.hash
+      end
+      
+      should "result in the correct interpolation" do
+        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
+      end
+      
+      should "result in a correct hash" do
+        assert_equal "d22b617d1bf10016aa7d046d16427ae203f39fce", @attachment.path
+      end
+    end
+  end
 
   context "An attachment with a :rails_env interpolation" do
     setup do
