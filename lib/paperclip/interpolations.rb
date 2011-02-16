@@ -48,8 +48,18 @@ module Paperclip
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
+    # in the server default time zone unless :use_global_time_zone is set
+    # to false.  Note that a Rails.config.time_zone change will still 
+    # invalidate any path or URL that uses :timestamp.  For a
+    # time_zone-agnostic timestamp, use #updated_at.
     def timestamp attachment, style_name
-      attachment.instance_read(:updated_at).to_s
+      attachment.instance_read(:updated_at).in_time_zone(attachment.time_zone).to_s
+    end
+
+    # Returns an integer timestamp that is time zone-neutral, so that paths
+    # remain valid even if a server's time zone changes.
+    def updated_at attachment, style_name
+      attachment.updated_at
     end
 
     # Returns the Rails.root constant.
@@ -92,6 +102,12 @@ module Paperclip
     # Returns the fingerprint of the instance.
     def fingerprint attachment, style_name
       attachment.fingerprint
+    end
+
+    # Returns a the attachment hash.  See Paperclip::Attachment#hash for
+    # more details.
+    def hash attachment, style_name
+      attachment.hash
     end
 
     # Returns the id of the instance in a split path form. e.g. returns

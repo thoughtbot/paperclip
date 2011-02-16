@@ -8,16 +8,19 @@ module Paperclip
 
     def self.default_options
       @default_options ||= {
-        :url               => "/system/:attachment/:id/:style/:filename",
-        :path              => ":rails_root/public:url",
-        :styles            => {},
-        :processors        => [:thumbnail],
-        :convert_options   => {},
-        :default_url       => "/:attachment/:style/missing.png",
-        :default_style     => :original,
-        :storage           => :filesystem,
-        :use_timestamp     => true,
-        :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
+        :url                   => "/system/:attachment/:id/:style/:filename",
+        :path                  => ":rails_root/public:url",
+        :styles                => {},
+        :processors            => [:thumbnail],
+        :convert_options       => {},
+        :default_url           => "/:attachment/:style/missing.png",
+        :default_style         => :original,
+        :storage               => :filesystem,
+        :use_timestamp         => true,
+        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        :use_default_time_zone => true,
+        :hash_digest           => "SHA1",
+        :hash_data             => ":class/:attachment/:id/:style/:updated_at"
       }
     end
 
@@ -32,24 +35,28 @@ module Paperclip
 
       options = self.class.default_options.merge(options)
 
-      @url               = options[:url]
-      @url               = @url.call(self) if @url.is_a?(Proc)
-      @path              = options[:path]
-      @path              = @path.call(self) if @path.is_a?(Proc)
-      @styles            = options[:styles]
-      @normalized_styles = nil
-      @default_url       = options[:default_url]
-      @default_style     = options[:default_style]
-      @storage           = options[:storage]
-      @use_timestamp     = options[:use_timestamp]
-      @whiny             = options[:whiny_thumbnails] || options[:whiny]
-      @convert_options   = options[:convert_options]
-      @processors        = options[:processors]
-      @options           = options
-      @queued_for_delete = []
-      @queued_for_write  = {}
-      @errors            = {}
-      @dirty             = false
+      @url                   = options[:url]
+      @url                   = @url.call(self) if @url.is_a?(Proc)
+      @path                  = options[:path]
+      @path                  = @path.call(self) if @path.is_a?(Proc)
+      @styles                = options[:styles]
+      @normalized_styles     = nil
+      @default_url           = options[:default_url]
+      @default_style         = options[:default_style]
+      @storage               = options[:storage]
+      @use_timestamp         = options[:use_timestamp]
+      @whiny                 = options[:whiny_thumbnails] || options[:whiny]
+      @use_default_time_zone = options[:use_default_time_zone]
+      @hash_digest           = options[:hash_digest]
+      @hash_data             = options[:hash_data]
+      @hash_secret           = options[:hash_secret]
+      @convert_options       = options[:convert_options]
+      @processors            = options[:processors]
+      @options               = options
+      @queued_for_delete     = []
+      @queued_for_write      = {}
+      @errors                = {}
+      @dirty                 = false
 
       initialize_storage
     end
@@ -195,6 +202,21 @@ module Paperclip
     def updated_at
       time = instance_read(:updated_at)
       time && time.to_f.to_i
+    end
+
+    # The time zone to use for timestamp interpolation.  Using the default
+    # time zone ensures that results are consistent across all threads.
+    def time_zone
+      @use_default_time_zone ? Time.zone_default : Time.zone
+    end
+
+    # Returns a unique hash suitable for obfuscating the URL of an otherwise
+    # publicly viewable attachment.
+    def hash
+      raise ArgumentError, "Unable to generate hash without :hash_secret" unless @hash_secret
+      require 'openssl' unless defined?(OpenSSL)
+      data = interpolate(@hash_data)
+      OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get(@hash_digest).new, @hash_secret, data)
     end
 
     def generate_fingerprint(source)
