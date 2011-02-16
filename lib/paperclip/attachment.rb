@@ -134,7 +134,7 @@ module Paperclip
     end
 
     # Alias to +url+
-    def to_s style_name = nil
+    def to_s style_name = default_style
       url(style_name)
     end
 
