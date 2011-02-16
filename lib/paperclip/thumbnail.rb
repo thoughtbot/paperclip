@@ -51,10 +51,10 @@ module Paperclip
       begin
         parameters = []
         parameters << source_file_options
-        parameters << ":source"
+        parameters << ":{source}"
         parameters << transformation_command
         parameters << convert_options
-        parameters << ":dest"
+        parameters << ":{dest}"
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 

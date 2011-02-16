@@ -13,18 +13,18 @@ class PaperclipTest < Test::Unit::TestCase
       Paperclip.expects(:log).with(includes('[DEPRECATION]'))
       Paperclip.expects(:log).with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
       Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
+      Paperclip.run("convert", ":{one} :{two}", :one => "one.jpg", :two => "two.jpg")
     end
 
     should "execute the right command with :command_path" do
       Paperclip.options[:command_path] = "/usr/bin"
       Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
+      Paperclip.run("convert", ":{one} :{two}", :one => "one.jpg", :two => "two.jpg")
     end
 
     should "execute the right command with no path" do
       Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
+      Paperclip.run("convert", ":{one} :{two}", :one => "one.jpg", :two => "two.jpg")
     end
 
     should "tell you the command isn't there if the shell returns 127" do
