@@ -252,6 +252,21 @@ class PaperclipTest < Test::Unit::TestCase
       should_validate validation, options, valid_file, invalid_file
     end
 
+    context "with content_type validation and lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_content_type", :avatar, :content_type => %r{image/.*}, :message => lambda {'lambda content type message'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "text.txt"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a content type error message" do
+          assert [@dummy.errors[:avatar_content_type]].flatten.any?{|error| error =~ %r/lambda content type message/ }
+        end
+      end
+    end
+
     context "with size validation and less_than 10240 option" do
       context "and assigned an invalid file" do
         setup do
@@ -263,6 +278,21 @@ class PaperclipTest < Test::Unit::TestCase
 
         should "have a file size min/max error message" do
           assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/between 0 and 10240 bytes/ }
+        end
+      end
+    end
+
+    context "with size validation and less_than 10240 option with lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240, :message => lambda {'lambda between 0 and 10240 bytes'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a file size min/max error message" do
+          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/lambda between 0 and 10240 bytes/ }
         end
       end
     end
