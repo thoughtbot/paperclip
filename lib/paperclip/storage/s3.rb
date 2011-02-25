@@ -63,7 +63,7 @@ module Paperclip
         rescue LoadError => e
           e.message << " (You may need to install the aws-s3 gem)"
           raise e
-        end
+        end unless defined?(AWS::S3)
 
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
