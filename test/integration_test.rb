@@ -98,6 +98,49 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  context "Attachment with no generated thumbnails" do
+    setup do
+      @thumb_small_path = "./test/../public/system/avatars/1/thumb_small/5k.png"
+      @thumb_large_path = "./test/../public/system/avatars/1/thumb_large/5k.png"
+      File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
+      File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
+      rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+
+      @dummy.avatar.post_processing = false
+      @dummy.avatar = @file
+      assert @dummy.save
+      @dummy.avatar.post_processing = true
+    end
+
+    teardown { @file.close }
+
+    should "allow us to create all thumbnails in one go" do
+      assert !File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess!
+
+      assert File.exists?(@thumb_small_path)
+      assert File.exists?(@thumb_large_path)
+    end
+
+    should "allow us to selectively create each thumbnail" do
+      assert !File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess! :thumb_small
+      assert File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess! :thumb_large
+      assert File.exists?(@thumb_large_path)
+    end
+  end
+
   context "A model that modifies its original" do
     setup do
       rebuild_model :styles => { :original => "2x2#" }
