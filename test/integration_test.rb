@@ -69,6 +69,35 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  context "Attachment" do
+    setup do
+      @thumb_path = "./test/../public/system/avatars/1/thumb/5k.png"
+      File.delete(@thumb_path) if File.exists?(@thumb_path)
+      rebuild_model :styles => { :thumb => "50x50#" }
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+
+    end
+
+    teardown { @file.close }
+
+    should "not create the thumbnails upon saving when post-processing is disabled" do
+      @dummy.avatar.post_processing = false
+      @dummy.avatar = @file
+      assert @dummy.save
+      assert !File.exists?(@thumb_path)
+    end
+
+    should "create the thumbnails upon saving when post_processing is enabled" do
+      @dummy.avatar.post_processing = true
+      @dummy.avatar = @file
+      assert @dummy.save
+      assert File.exists?(@thumb_path)
+    end
+  end
+
   context "A model that modifies its original" do
     setup do
       rebuild_model :styles => { :original => "2x2#" }
