@@ -25,6 +25,7 @@ module Paperclip
     end
 
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options
+    attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,
     # +instance+ is the ActiveRecord object instance it's attached to, and
@@ -53,6 +54,7 @@ module Paperclip
       @convert_options       = options[:convert_options]
       @processors            = options[:processors]
       @options               = options
+      @post_processing       = true
       @queued_for_delete     = []
       @queued_for_write      = {}
       @errors                = {}
@@ -105,7 +107,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process
+      post_process if @post_processing
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
