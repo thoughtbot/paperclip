@@ -212,10 +212,10 @@ module Paperclip
 
     # Returns a unique hash suitable for obfuscating the URL of an otherwise
     # publicly viewable attachment.
-    def hash
+    def hash(style_name = default_style)
       raise ArgumentError, "Unable to generate hash without :hash_secret" unless @hash_secret
       require 'openssl' unless defined?(OpenSSL)
-      data = interpolate(@hash_data)
+      data = interpolate(@hash_data, style_name)
       OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get(@hash_digest).new, @hash_secret, data)
     end
 

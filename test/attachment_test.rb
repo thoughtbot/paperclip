@@ -96,7 +96,7 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
     end
   end
-  
+
   context "An attachment with :timestamp interpolations" do
     setup do
       @file = StringIO.new("...")
@@ -117,7 +117,7 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal @dummy.avatar_updated_at.in_time_zone(@zone_default).to_s, @dummy.avatar.path
       end
     end
-    
+
     context "using per-thread time zone" do
       setup do
         rebuild_model :path => ":timestamp", :use_default_time_zone => false
@@ -130,12 +130,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "An attachment with :hash interpolations" do
     setup do
       @file = StringIO.new("...")
     end
-    
+
     should "raise if no secret is provided" do
       @attachment = attachment :path => ":hash"
       @attachment.assign @file
@@ -153,18 +153,23 @@ class AttachmentTest < Test::Unit::TestCase
         @attachment.instance.id = 1234
         @attachment.assign @file
       end
-      
+
       should "interpolate the hash data" do
-        @attachment.expects(:interpolate).with(@attachment.options[:hash_data]).returns("interpolated_stuff")
+        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
         @attachment.hash
       end
-      
+
       should "result in the correct interpolation" do
         assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
       end
-      
+
       should "result in a correct hash" do
         assert_equal "d22b617d1bf10016aa7d046d16427ae203f39fce", @attachment.path
+      end
+
+      should "generate a hash digest with the correct style" do
+        OpenSSL::HMAC.expects(:hexdigest).with(anything, anything, "fake_models/avatars/1234/medium/1234567890")
+        @attachment.path("medium")
       end
     end
   end
@@ -558,7 +563,7 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
     end
   end
-  
+
   context "Attachment with uppercase extension and a default style" do
     setup do
       @old_defaults = Paperclip::Attachment.default_options.dup
@@ -571,7 +576,7 @@ class AttachmentTest < Test::Unit::TestCase
       @instance.stubs(:id).returns 123
 
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "uppercase.PNG"), 'rb')
-      
+
       styles = {:styles => { :large  => ["400x400", :jpg],
                              :medium => ["100x100", :jpg],
                              :small => ["32x32#", :jpg]},
@@ -584,7 +589,7 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.assign(@file)
       @attachment.save
     end
-    
+
     teardown do
       @file.close
       Paperclip::Attachment.default_options.merge!(@old_defaults)
