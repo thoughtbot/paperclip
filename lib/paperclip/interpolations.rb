@@ -49,7 +49,7 @@ module Paperclip
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
     # in the server default time zone unless :use_global_time_zone is set
-    # to false.  Note that a Rails.config.time_zone change will still 
+    # to false.  Note that a Rails.config.time_zone change will still
     # invalidate any path or URL that uses :timestamp.  For a
     # time_zone-agnostic timestamp, use #updated_at.
     def timestamp attachment, style_name
@@ -107,7 +107,7 @@ module Paperclip
     # Returns a the attachment hash.  See Paperclip::Attachment#hash for
     # more details.
     def hash attachment, style_name
-      attachment.hash
+      attachment.hash(style_name)
     end
 
     # Returns the id of the instance in a split path form. e.g. returns
