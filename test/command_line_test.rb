@@ -6,6 +6,11 @@ class CommandLineTest < Test::Unit::TestCase
     File.stubs(:exist?).with("/dev/null").returns(true)
   end
 
+  should "allow colons in parameters" do
+    cmd = Paperclip::CommandLine.new("convert", "'a.jpg' -resize 175x220> -size 175x220 xc:black +swap -gravity center -composite 'b.jpg'", :swallow_stderr => false)
+    assert_equal "convert 'a.jpg' -resize 175x220> -size 175x220 xc:black +swap -gravity center -composite 'b.jpg'", cmd.command 
+  end
+
   should "take a command and parameters and produce a shell command for bash" do
     cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png", :swallow_stderr => false)
     assert_equal "convert a.jpg b.png", cmd.command

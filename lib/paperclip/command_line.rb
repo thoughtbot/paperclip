@@ -52,12 +52,18 @@ module Paperclip
           raise PaperclipCommandLineError,
             "Interpolation of #{key} isn't allowed."
         end
-        shell_quote(vars[key.to_sym])
+        interpolation(vars, key) || match
       end
     end
 
     def invalid_variables
       %w(expected_outcodes swallow_stderr)
+    end
+
+    def interpolation(vars, key)
+      if vars.key?(key.to_sym)
+        shell_quote(vars[key.to_sym])
+      end
     end
 
     def shell_quote(string)
