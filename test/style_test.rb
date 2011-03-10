@@ -138,4 +138,26 @@ class StyleTest < Test::Unit::TestCase
     end
 
   end
+  
+  context "A style rule with :processors supplied as procs" do
+    setup do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {
+                                 :foo => {
+                                   :geometry => "100x100#",
+                                   :format => :png,
+                                   :processors => lambda{|a| [:test]}
+                                  }
+                                },
+                               :processors => [:thumbnail]
+    end
+
+    should "defer processing of procs until they are needed" do
+      assert_kind_of Proc, @attachment.styles[:foo].instance_variable_get("@processors")
+    end
+
+    should "call procs when they are needed" do
+      assert_equal [:test], @attachment.styles[:foo].processors
+    end
+  end
 end
