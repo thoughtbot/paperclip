@@ -24,6 +24,16 @@ module Paperclip
     #   URL will be constructed from the frontend parameters and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and / can still be used as a separator (although
     #   files cannot be requested via a hierarchy).
+    # The files stored in MongoDB can be served in a Rails application with a route like:
+    #   match '/grid/uploads/:id/:style.:extension', :via => :get, :controller => 'attachments', :action => 'show'
+    # And a controller action similar to:
+    #   def show
+    #     @attachment = Attachment.find(params[:id])
+    #     send_file @attachment.data.to_file(params[:style]).path, :type => @attachment.data_content_type, :disposition => 'inline'
+    #   end
+    # Which would serve an attachment with
+    #   :mongo_frontend_path => 'grid', path => 'uploads/:id/:style.:extension', :url => ':mongo_relative_url'
+    # 
     module Mongo
       def self.extended base
         begin
