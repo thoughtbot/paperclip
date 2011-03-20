@@ -33,7 +33,10 @@ module Paperclip
     #   end
     # Which would serve an attachment with
     #   :mongo_frontend_path => 'grid', path => 'uploads/:id/:style.:extension', :url => ':mongo_relative_url'
-    # 
+    # Data could also be sent without caching to a temporary file via the to_binary method (and send_data in Rails).
+    # This storage module is for some pretty specific use cases and probably shouldn't be used to serve a lot of images
+    # loading in a page, since that requires a read from the DB (or at least from the application server) with each call,
+    # unless you cache the reads to a directory served directly by your web server.
     module Mongo
       def self.extended base
         begin
@@ -116,7 +119,7 @@ module Paperclip
         return @queued_for_write[style].read if @queued_for_write[style]
         @mongo_grid.get(path(style)).read
       end
-      
+  
       # Returns the File associated with this attachment.
       def to_file style = default_style
         return @queued_for_write[style] if @queued_for_write[style]
