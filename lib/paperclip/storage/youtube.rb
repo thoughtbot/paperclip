@@ -220,8 +220,8 @@ module Paperclip
       
       def youtube_upload(data, video_file)
         opts = { :mime_type => MIME::Types.type_for(video_file).join(),
-                  :title => self.instance.respond_to?(:title) && !self.instance.title.blank? ? self.instance.title.blank? :  video_file,
-                  :description => self.instance.respond_to?(:description) && !self.instance.description.blank? ? self.instance.description.blank? :  video_file,
+                  :title => self.instance.respond_to?(:title) && !self.instance.title.blank? ? self.instance.title :  video_file,
+                  :description => self.instance.respond_to?(:description) && !self.instance.description.blank? ? self.instance.description :  video_file,
                   :category => 'People',
                   :keywords => [],
                   :filename => video_file}
