@@ -23,6 +23,8 @@ In development mode, you might add this line to `config/environments/development
 
 Installation
 ------------
+as a gem:
+  gem 'paperclip-youtube', :require => 'paperclip'
 
 as a plugin:
 
@@ -86,6 +88,6 @@ And you can return the video url, to use in the object tag:
 Credits
 -------
 
-The credits of the Youtube integration 
+The credits of the Youtube integration for Dr-Click : 
 ![Dr-Click](https://secure.gravatar.com/avatar/56d23c8d7784cbc3804f03f9465d99c0?s=140&d=https://d3nwyuy0nl342s.cloudfront.net%2Fimages%2Fgravatars%2Fgravatar-140.png)
 

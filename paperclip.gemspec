@@ -9,22 +9,24 @@ exclude_files = ["**/*.rbc", "test/s3.yml", "test/debug.log", "test/paperclip.db
 end.flatten
 
 spec = Gem::Specification.new do |s|
-  s.name              = "paperclip"
+  s.name              = "paperclip-youtube"
   s.version           = Paperclip::VERSION
-  s.author            = "Jon Yurek"
-  s.email             = "jyurek@thoughtbot.com"
-  s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
-  s.description       = "Easy upload management for ActiveRecord"
+  s.author            = "Dr-Click"
+  s.email             = "ragab.mostafa@gmail.com"
+  s.homepage          = "https://github.com/dr-click"
+  s.description       = "Easy upload management for ActiveRecord with youtube api integration"
   s.platform          = Gem::Platform::RUBY
-  s.summary           = "File attachments as attributes for ActiveRecord"
+  s.summary           = "File attachments as attributes for ActiveRecord with youtube api integration"
   s.files             = include_files - exclude_files
   s.require_path      = "lib"
   s.test_files        = Dir["test/**/test_*.rb"]
-  s.rubyforge_project = "paperclip"
+  s.rubyforge_project = "paperclip-youtube"
   s.has_rdoc          = true
   s.extra_rdoc_files  = Dir["README*"]
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
+  s.requirements << "mime-types"
+  s.requirements << "builder"
   s.add_dependency 'activerecord'
   s.add_dependency 'activesupport'
   s.add_development_dependency 'shoulda'
