@@ -8,7 +8,7 @@ module Paperclip
         rescue LoadError => e
           e.message << " (You may need to install the fog gem)"
           raise e
-        end
+        end unless defined?(Fog)
 
         base.instance_eval do
           @fog_directory    = @options[:fog_directory]
@@ -19,7 +19,7 @@ module Paperclip
           @url = ':fog_public_url'
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
             attachment.public_url(style)
-          end
+          end unless Paperclip::Interpolations.respond_to? :fog_public_url
         end
       end
 
