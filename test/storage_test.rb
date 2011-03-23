@@ -141,6 +141,28 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "generating a url with a proc as the host alias" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => { :bucket => "prod_bucket" },
+                    :s3_host_alias => Proc.new { |image| "cdn#{image.size.to_i % 4}.example.com" },
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":s3_alias_url"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on the host_alias" do
+      assert_match %r{^http://cdn0.example.com/avatars/stringio.txt}, @dummy.avatar.url
+    end
+
+    should "still return the bucket name" do
+      assert_equal "prod_bucket", @dummy.avatar.bucket_name
+    end
+
+  end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
