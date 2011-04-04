@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'test/helper'
+require './test/helper'
 
 class Dummy
   # This is a dummy class
@@ -94,6 +94,83 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "make sure that they are interpolated correctly" do
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
+    end
+  end
+
+  context "An attachment with :timestamp interpolations" do
+    setup do
+      @file = StringIO.new("...")
+      @zone = 'UTC'
+      Time.stubs(:zone).returns(@zone)
+      @zone_default = 'Eastern Time (US & Canada)'
+      Time.stubs(:zone_default).returns(@zone_default)
+    end
+
+    context "using default time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => true
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the default zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone_default).to_s, @dummy.avatar.path
+      end
+    end
+
+    context "using per-thread time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => false
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the per-thread zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone).to_s, @dummy.avatar.path
+      end
+    end
+  end
+
+  context "An attachment with :hash interpolations" do
+    setup do
+      @file = StringIO.new("...")
+    end
+
+    should "raise if no secret is provided" do
+      @attachment = attachment :path => ":hash"
+      @attachment.assign @file
+
+      assert_raise ArgumentError do
+        @attachment.path
+      end
+    end
+
+    context "when secret is set" do
+      setup do
+        @attachment = attachment :path => ":hash", :hash_secret => "w00t"
+        @attachment.stubs(:instance_read).with(:updated_at).returns(Time.at(1234567890))
+        @attachment.stubs(:instance_read).with(:file_name).returns("bla.txt")
+        @attachment.instance.id = 1234
+        @attachment.assign @file
+      end
+
+      should "interpolate the hash data" do
+        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
+        @attachment.hash
+      end
+
+      should "result in the correct interpolation" do
+        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
+      end
+
+      should "result in a correct hash" do
+        assert_equal "d22b617d1bf10016aa7d046d16427ae203f39fce", @attachment.path
+      end
+
+      should "generate a hash digest with the correct style" do
+        OpenSSL::HMAC.expects(:hexdigest).with(anything, anything, "fake_models/avatars/1234/medium/1234567890")
+        @attachment.path("medium")
+      end
     end
   end
 
@@ -463,14 +540,11 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model
 
-      @not_file = mock
-      @tempfile = mock
+      @not_file = mock("not_file")
+      @tempfile = mock("tempfile")
       @not_file.stubs(:nil?).returns(false)
-      @not_file.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
-      @tempfile.stubs(:fingerprint).returns('bd94545193321376b70136f8b223abf8')
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
-      @not_file.expects(:to_tempfile).returns(@tempfile)
       @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
 
@@ -479,11 +553,54 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
       @attachment.expects(:queue_existing_for_delete)
       @attachment.expects(:post_process)
+      @attachment.expects(:to_tempfile).returns(@tempfile)
+      @attachment.expects(:generate_fingerprint).with(@tempfile).returns("12345")
+      @attachment.expects(:generate_fingerprint).with(@not_file).returns("12345")
       @dummy.avatar = @not_file
     end
 
     should "not remove strange letters" do
       assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
+    end
+  end
+
+  context "Attachment with uppercase extension and a default style" do
+    setup do
+      @old_defaults = Paperclip::Attachment.default_options.dup
+      Paperclip::Attachment.default_options.merge!({
+        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      })
+      FileUtils.rm_rf("tmp")
+      rebuild_model
+      @instance = Dummy.new
+      @instance.stubs(:id).returns 123
+
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "uppercase.PNG"), 'rb')
+
+      styles = {:styles => { :large  => ["400x400", :jpg],
+                             :medium => ["100x100", :jpg],
+                             :small => ["32x32#", :jpg]},
+                :default_style => :small}
+      @attachment = Paperclip::Attachment.new(:avatar,
+                                              @instance,
+                                              styles)
+      now = Time.now
+      Time.stubs(:now).returns(now)
+      @attachment.assign(@file)
+      @attachment.save
+    end
+
+    teardown do
+      @file.close
+      Paperclip::Attachment.default_options.merge!(@old_defaults)
+    end
+
+    should "should have matching to_s and url methods" do
+      file = @attachment.to_file
+      assert file
+      assert_match @attachment.to_s, @attachment.url
+      assert_match @attachment.to_s(:small), @attachment.url(:small)
+      file.close
     end
   end
 
@@ -606,7 +723,7 @@ class AttachmentTest < Test::Unit::TestCase
               [:large, :medium, :small].each do |style|
                 io = @attachment.to_file(style)
                 # p "in commit to disk test, io is #{io.inspect} and @instance.id is #{@instance.id}"
-                assert File.exists?(io)
+                assert File.exists?(io.path)
                 assert ! io.is_a?(::Tempfile)
                 io.close
               end
@@ -703,7 +820,7 @@ class AttachmentTest < Test::Unit::TestCase
       now = Time.now
       Time.stubs(:now).returns(now)
       @dummy.avatar = @file
-      assert now, @dummy.avatar.updated_at
+      assert_equal now.to_i, @dummy.avatar.updated_at.to_i
     end
 
     should "return nil when reloaded and sent #avatar_updated_at" do

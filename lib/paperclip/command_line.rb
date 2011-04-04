@@ -8,7 +8,7 @@ module Paperclip
       @binary            = binary.dup
       @params            = params.dup
       @options           = options.dup
-      @swallow_stderr    = @options.delete(:swallow_stderr)
+      @swallow_stderr    = @options.has_key?(:swallow_stderr) ? @options.delete(:swallow_stderr) : Paperclip.options[:swallow_stderr]
       @expected_outcodes = @options.delete(:expected_outcodes)
       @expected_outcodes ||= [0]
     end
@@ -52,12 +52,18 @@ module Paperclip
           raise PaperclipCommandLineError,
             "Interpolation of #{key} isn't allowed."
         end
-        shell_quote(vars[key.to_sym])
+        interpolation(vars, key) || match
       end
     end
 
     def invalid_variables
       %w(expected_outcodes swallow_stderr)
+    end
+
+    def interpolation(vars, key)
+      if vars.key?(key.to_sym)
+        shell_quote(vars[key.to_sym])
+      end
     end
 
     def shell_quote(string)

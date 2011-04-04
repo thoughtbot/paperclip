@@ -63,7 +63,7 @@ module Paperclip
         rescue LoadError => e
           e.message << " (You may need to install the aws-s3 gem)"
           raise e
-        end
+        end unless defined?(AWS::S3)
 
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
@@ -85,13 +85,13 @@ module Paperclip
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
           "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_domain_url
       end
 
       def expiring_url(time = 3600, style_name = default_style )
@@ -127,10 +127,18 @@ module Paperclip
       # style, in the format most representative of the current storage.
       def to_file style = default_style
         return @queued_for_write[style] if @queued_for_write[style]
-        file = Tempfile.new(path(style))
+        filename = path(style)
+        extname  = File.extname(filename)
+        basename = File.basename(filename, extname)
+        file = Tempfile.new([basename, extname])
+        file.binmode
         file.write(AWS::S3::S3Object.value(path(style), bucket_name))
         file.rewind
         return file
+      end
+
+      def create_bucket
+        AWS::S3::Bucket.create(bucket_name)
       end
 
       def flush_writes #:nodoc:
@@ -143,6 +151,9 @@ module Paperclip
                                     {:content_type => instance_read(:content_type),
                                      :access => @s3_permissions,
                                     }.merge(@s3_headers))
+          rescue AWS::S3::NoSuchBucket => e
+            create_bucket
+            retry
           rescue AWS::S3::ResponseError => e
             raise
           end

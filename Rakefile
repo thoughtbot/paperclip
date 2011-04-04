@@ -1,3 +1,7 @@
+require 'rubygems'
+require 'appraisal'
+require 'bundler/setup'
+
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
@@ -6,11 +10,11 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'paperclip'
 
 desc 'Default: run unit tests.'
-task :default => [:clean, :test]
+task :default => [:clean, :all]
 
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
-  exec('rake RAILS_VERSION=2.1 && rake RAILS_VERSION=2.3 && rake RAILS_VERSION=3.0')
+  exec('rake appraisal test')
 end
 
 desc 'Test the paperclip plugin.'

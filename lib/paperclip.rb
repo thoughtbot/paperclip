@@ -37,6 +37,7 @@ require 'paperclip/thumbnail'
 require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
+require 'paperclip/storage'
 require 'paperclip/callback_compatability'
 require 'paperclip/command_line'
 require 'paperclip/railtie'
@@ -110,6 +111,12 @@ module Paperclip
         raise PaperclipError.new("Processor #{name} was not found")
       end
       processor
+    end
+
+    def each_instance_with_attachment(klass, name)
+      Object.const_get(klass).all.each do |instance|
+        yield(instance) if instance.send(:"#{name}?")
+      end
     end
 
     # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
@@ -269,6 +276,7 @@ module Paperclip
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
+      message = message.call if message.respond_to?(:call)
       message = message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
 
       validates_inclusion_of :"#{name}_file_size",
@@ -323,6 +331,7 @@ module Paperclip
         if !allowed_types.any?{|t| t === value } && !(value.nil? || value.blank?)
           if record.errors.method(:add).arity == -2
             message = options[:message] || "is not one of #{allowed_types.join(", ")}"
+            message = message.call if message.respond_to?(:call)
             record.errors.add(:"#{name}_content_type", message)
           else
             record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)

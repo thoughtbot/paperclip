@@ -1,10 +1,33 @@
-require 'test/helper'
+require './test/helper'
 require 'aws/s3'
 
 class StorageTest < Test::Unit::TestCase
   def rails_env(env)
     silence_warnings do
       Object.const_set(:Rails, stub('Rails', :env => env))
+    end
+  end
+  
+  context "filesystem" do
+    setup do
+      rebuild_model :styles => { :thumbnail => "25x25#" }
+      @dummy = Dummy.create!
+
+      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+    end
+    
+    should "allow file assignment" do
+      assert @dummy.save
+    end
+    
+    should "store the original" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path)
+    end
+    
+    should "store the thumbnail" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path(:thumbnail))
     end
   end
 
@@ -189,6 +212,21 @@ class StorageTest < Test::Unit::TestCase
         end
       end
 
+      context "and saved without a bucket" do
+        setup do
+          class AWS::S3::NoSuchBucket < AWS::S3::ResponseError
+            # Force the class to be created as a proper subclass of ResponseError thanks to AWS::S3's autocreation of exceptions
+          end
+          AWS::S3::Bucket.expects(:create).with("testing")
+          AWS::S3::S3Object.stubs(:store).raises(AWS::S3::NoSuchBucket.new(:message, :response)).then.returns(true)
+          @dummy.save
+        end
+
+        should "succeed" do
+          assert true
+        end
+      end
+
       context "and remove" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
@@ -339,6 +377,11 @@ class StorageTest < Test::Unit::TestCase
 
           should "be on S3" do
             assert true
+          end
+
+          should "generate a tempfile with the right name" do
+            file = @dummy.avatar.to_file
+            assert_match /^original.*\.png$/, File.basename(file.path)
           end
         end
       end

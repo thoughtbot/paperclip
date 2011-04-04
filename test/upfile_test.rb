@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class UpfileTest < Test::Unit::TestCase
   { %w(jpg jpe jpeg) => 'image/jpeg',

@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do
@@ -34,6 +34,22 @@ class IntegrationTest < Test::Unit::TestCase
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
+    
+    context 'reprocessing with unreadable original' do
+      setup { File.chmod(0000, @dummy.avatar.path) }
+      
+      should "not raise an error" do
+        assert_nothing_raised do
+          @dummy.avatar.reprocess!
+        end
+      end
+      
+      should "return false" do
+        assert ! @dummy.avatar.reprocess!
+      end
+      
+      teardown { File.chmod(0644, @dummy.avatar.path) }
+    end
 
     context "redefining its attachment styles" do
       setup do
@@ -50,6 +66,78 @@ class IntegrationTest < Test::Unit::TestCase
         assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
         assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`
       end
+    end
+  end
+
+  context "Attachment" do
+    setup do
+      @thumb_path = "./test/../public/system/avatars/1/thumb/5k.png"
+      File.delete(@thumb_path) if File.exists?(@thumb_path)
+      rebuild_model :styles => { :thumb => "50x50#" }
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+
+    end
+
+    teardown { @file.close }
+
+    should "not create the thumbnails upon saving when post-processing is disabled" do
+      @dummy.avatar.post_processing = false
+      @dummy.avatar = @file
+      assert @dummy.save
+      assert !File.exists?(@thumb_path)
+    end
+
+    should "create the thumbnails upon saving when post_processing is enabled" do
+      @dummy.avatar.post_processing = true
+      @dummy.avatar = @file
+      assert @dummy.save
+      assert File.exists?(@thumb_path)
+    end
+  end
+
+  context "Attachment with no generated thumbnails" do
+    setup do
+      @thumb_small_path = "./test/../public/system/avatars/1/thumb_small/5k.png"
+      @thumb_large_path = "./test/../public/system/avatars/1/thumb_large/5k.png"
+      File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
+      File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
+      rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                 "5k.png"), 'rb')
+
+      @dummy.avatar.post_processing = false
+      @dummy.avatar = @file
+      assert @dummy.save
+      @dummy.avatar.post_processing = true
+    end
+
+    teardown { @file.close }
+
+    should "allow us to create all thumbnails in one go" do
+      assert !File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess!
+
+      assert File.exists?(@thumb_small_path)
+      assert File.exists?(@thumb_large_path)
+    end
+
+    should "allow us to selectively create each thumbnail" do
+      assert !File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess! :thumb_small
+      assert File.exists?(@thumb_small_path)
+      assert !File.exists?(@thumb_large_path)
+
+      @dummy.avatar.reprocess! :thumb_large
+      assert File.exists?(@thumb_large_path)
     end
   end
 
