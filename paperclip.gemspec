@@ -25,8 +25,8 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files  = Dir["README*"]
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
-  s.add_dependency 'activerecord', '~>2.3.0'
-  s.add_dependency 'activesupport', '~>2.3.2'
+  s.add_dependency 'activerecord', '>=2.3.0'
+  s.add_dependency 'activesupport', '>=2.3.2'
   s.add_development_dependency 'shoulda'
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'mocha'
