@@ -104,6 +104,7 @@ PLATFORMS
 DEPENDENCIES
   appraisal
   aws-s3
+  bundler
   fog
   mocha
   rails (~> 3.0.0)

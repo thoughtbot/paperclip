@@ -45,6 +45,7 @@ PLATFORMS
 DEPENDENCIES
   appraisal
   aws-s3
+  bundler
   fog
   mocha
   rake
