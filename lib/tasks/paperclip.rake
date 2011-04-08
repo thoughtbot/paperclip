@@ -4,14 +4,8 @@ def obtain_class
   class_name
 end
 
-def obtain_class_from_class_name(class_name)
-  class_name.split('::').inject(Object) do |klass, partial_class_name|
-    klass.const_get(partial_class_name)
-  end
-end
-
 def obtain_attachments(klass)
-  klass = obtain_class_from_class_name(klass.to_s)
+  klass = Paperclip.obtain_class_from_class_name(klass.to_s)
   name = ENV['ATTACHMENT'] || ENV['attachment']
   raise "Class #{klass.name} has no attachments specified" unless klass.respond_to?(:attachment_definitions)
   if !name.blank? && klass.attachment_definitions.keys.include?(name)
