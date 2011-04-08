@@ -18,6 +18,13 @@ more detailed options.
 
 The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
 
+Changes in this repo
+------------
+
+Allowed to refresh images of classes with namespaces. For example:
+
+    rake paperclip:refresh CLASS='User::Asset'
+
 Requirements
 ------------
 
