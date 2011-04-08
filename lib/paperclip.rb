@@ -114,7 +114,7 @@ module Paperclip
     end
 
     def each_instance_with_attachment(klass, name)
-      Object.const_get(klass).all.each do |instance|
+      obtain_class_from_class_name(klass).all.each do |instance|
         yield(instance) if instance.send(:"#{name}?")
       end
     end
@@ -131,6 +131,12 @@ module Paperclip
 
     def logging? #:nodoc:
       options[:log]
+    end
+    
+    def obtain_class_from_class_name(class_name)
+      class_name.split('::').inject(Object) do |klass, partial_class_name|
+        klass.const_get(partial_class_name)
+      end
     end
   end
 
