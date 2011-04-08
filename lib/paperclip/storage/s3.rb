@@ -94,8 +94,8 @@ module Paperclip
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
       end
 
-      def expiring_url(time = 3600)
-        AWS::S3::S3Object.url_for(path, bucket_name, :expires_in => time, :use_ssl => (s3_protocol == 'https'))
+      def expiring_url(time = 3600, style_name = default_style)
+        AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol == 'https'))
       end
 
       def bucket_name
