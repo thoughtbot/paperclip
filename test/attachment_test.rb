@@ -287,6 +287,24 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
     end
   end
+  
+  context "An attachment with conditional :styles that is a proc" do
+    setup do
+      rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
+
+      @dummy = Dummy.new(:other => 'a')
+    end
+
+    should "have the correct styles for the assigned instance values" do
+      assert_equal "50x50#", @dummy.avatar.styles[:thumb][:geometry]
+      assert_nil @dummy.avatar.styles[:large]
+
+      @dummy.other = 'b'
+      
+      assert_equal "400x400", @dummy.avatar.styles[:large][:geometry]
+      assert_nil @dummy.avatar.styles[:thumb]
+    end
+  end
 
   context "An attachment with :url that is a proc" do
     setup do
