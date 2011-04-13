@@ -21,7 +21,6 @@ spec = Gem::Specification.new do |s|
   s.require_path      = "lib"
   s.test_files        = Dir["test/**/test_*.rb"]
   s.rubyforge_project = "paperclip"
-  s.has_rdoc          = true
   s.extra_rdoc_files  = Dir["README*"]
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
