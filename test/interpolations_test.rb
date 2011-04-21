@@ -129,7 +129,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return hash" do
     attachment = mock
     fake_hash = "a_wicked_secure_hash"
-    attachment.expects(:hash).returns(fake_hash)
+    attachment.expects(:secret_hash).returns(fake_hash)
     assert_equal fake_hash, Paperclip::Interpolations.hash(attachment, :style)
   end
 
