@@ -40,7 +40,7 @@ module Paperclip
     private
 
     def full_path(binary)
-      [self.class.path, binary].compact.join("/")
+      '"' + [self.class.path, binary].compact.join("/") + '"'
     end
 
     def interpolate(pattern, vars)
