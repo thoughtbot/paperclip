@@ -72,11 +72,6 @@ class PaperclipTest < Test::Unit::TestCase
     assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
   end
 
-  should "get a class from a namespaced class name" do
-    class ::One; class Two; end; end
-    assert_equal ::One::Two, Paperclip.class_for("One::Two")
-  end
-
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
