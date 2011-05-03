@@ -16,6 +16,9 @@ class FogTest < Test::Unit::TestCase
       }
 
       @connection = Fog::Storage.new(@credentials)
+      @connection.directories.create(
+        :key => @fog_directory
+      )
 
       @options = {
         :fog_directory    => @fog_directory,
@@ -49,16 +52,17 @@ class FogTest < Test::Unit::TestCase
       end
 
       context "without a bucket" do
-        should "succeed" do
+        setup do
+          @connection.directories.get(@fog_directory).destroy
+        end
+
+        should "create the bucket" do
           assert @dummy.save
+          assert @connection.directories.get(@fog_directory)
         end
       end
 
       context "with a bucket" do
-        setup do
-          @connection.directories.create(:key => @fog_directory)
-        end
-
         should "succeed" do
           assert @dummy.save
         end

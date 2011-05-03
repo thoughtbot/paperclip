@@ -35,11 +35,19 @@ module Paperclip
       def flush_writes
         for style, file in @queued_for_write do
           log("saving #{path(style)}")
-          directory.files.create(@fog_file.merge(
-            :body   => file,
-            :key    => path(style),
-            :public => @fog_public
-          ))
+          retried = false
+          begin
+            directory.files.create(@fog_file.merge(
+              :body   => file,
+              :key    => path(style),
+              :public => @fog_public
+            ))
+          rescue Excon::Errors::NotFound
+            raise if retried
+            retried = true
+            directory.save
+            retry
+          end
         end
         @queued_for_write = {}
       end
@@ -85,12 +93,7 @@ module Paperclip
       end
 
       def directory
-        @directory ||= begin
-          connection.directories.get(@fog_directory) || connection.directories.create(
-            :key => @fog_directory,
-            :public => @fog_public
-          )
-        end
+        @directory ||= connection.directories.new(:key => @fog_directory)
       end
 
     end
