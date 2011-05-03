@@ -17,14 +17,17 @@ class FogTest < Test::Unit::TestCase
 
       @connection = Fog::Storage.new(@credentials)
 
-      rebuild_model(
+      @options = {
         :fog_directory    => @fog_directory,
         :fog_credentials  => @credentials,
         :fog_host         => nil,
         :fog_public       => true,
+        :fog_file         => {:cache_control => 1234},
         :path             => ":attachment/:basename.:extension",
         :storage          => :fog
-      )
+      }
+
+      rebuild_model(@options)
     end
 
     should "be extended by the Fog module" do
@@ -63,14 +66,7 @@ class FogTest < Test::Unit::TestCase
 
       context "without a fog_host" do
         setup do
-          rebuild_model(
-            :fog_directory    => @fog_directory,
-            :fog_credentials  => @credentials,
-            :fog_host         => nil,
-            :fog_public       => true,
-            :path             => ":attachment/:basename.:extension",
-            :storage          => :fog
-          )
+          rebuild_model(@options.merge(:fog_host => nil))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new('.')
           @dummy.save
@@ -83,14 +79,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with a fog_host" do
         setup do
-          rebuild_model(
-            :fog_directory    => @fog_directory,
-            :fog_credentials  => @credentials,
-            :fog_host         => 'http://example.com',
-            :fog_public       => true,
-            :path             => ":attachment/:basename.:extension",
-            :storage          => :fog
-          )
+          rebuild_model(@options.merge(:fog_host => 'http://example.com'))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new('.')
           @dummy.save
