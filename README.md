@@ -207,7 +207,8 @@ Testing
 -------
 
 Paperclip provides rspec-compatible matchers for testing attachments. See the
-documentation on Paperclip::Shoulda::Matchers for more information.
+documentation on [Paperclip::Shoulda::Matchers](http://rubydoc.info/gems/paperclip/Paperclip/Shoulda/Matchers)
+for more information.
 
 Contributing
 ------------
