@@ -41,11 +41,6 @@ require 'paperclip/storage'
 require 'paperclip/callback_compatability'
 require 'paperclip/railtie'
 require 'cocaine'
-if defined?(Rails.root) && Rails.root
-  Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
-    require processor
-  end
-end
 
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
@@ -106,11 +101,18 @@ module Paperclip
 
     def processor name #:nodoc:
       name = name.to_s.camelize
+      load_processor(name) unless Paperclip.const_defined?(name)
       processor = Paperclip.const_get(name)
       unless processor.ancestors.include?(Paperclip::Processor)
         raise PaperclipError.new("Processor #{name} was not found")
       end
       processor
+    end
+
+    def load_processor(name)
+      if defined?(Rails.root) && Rails.root
+        require File.expand_path(Rails.root.join("lib", "paperclip_processors", "#{name.underscore}.rb"))
+      end
     end
 
     def each_instance_with_attachment(klass, name)
