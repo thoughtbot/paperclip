@@ -2,44 +2,9 @@ require './test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
-    setup do
-      Paperclip.options[:image_magick_path] = nil
-      Paperclip.options[:command_path]      = nil
-      Paperclip::CommandLine.stubs(:'`')
-    end
-
-    should "execute the right command with :image_magick_path" do
-      Paperclip.options[:image_magick_path] = "/usr/bin"
-      Paperclip.expects(:log).with(includes('[DEPRECATION]'))
-      Paperclip.expects(:log).with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "execute the right command with :command_path" do
-      Paperclip.options[:command_path] = "/usr/bin"
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "execute the right command with no path" do
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "tell you the command isn't there if the shell returns 127" do
-      with_exitstatus_returning(127) do
-        assert_raises(Paperclip::CommandNotFoundError) do
-          Paperclip.run("command")
-        end
-      end
-    end
-
-    should "tell you the command isn't there if an ENOENT is raised" do
-      assert_raises(Paperclip::CommandNotFoundError) do
-        Paperclip::CommandLine.stubs(:"`").raises(Errno::ENOENT)
-        Paperclip.run("command")
-      end
+    should "run the command with Cocaine" do
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
+      Paperclip.run("convert", "stuff")
     end
   end
 

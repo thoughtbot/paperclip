@@ -39,8 +39,8 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatability'
-require 'paperclip/command_line'
 require 'paperclip/railtie'
+require 'cocaine'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
@@ -87,7 +87,7 @@ module Paperclip
     # symlink them so they are all in the same directory.
     #
     # If the command returns with a result code that is not one of the
-    # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
+    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
     # These codes should be passed as a hash as the last argument, like so:
     #
@@ -100,8 +100,8 @@ module Paperclip
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-      CommandLine.path = options[:command_path] || options[:image_magick_path]
-      CommandLine.new(cmd, *params).run
+      Cocaine::CommandLine.path = options[:command_path] || options[:image_magick_path]
+      Cocaine::CommandLine.new(cmd, *params).run
     end
 
     def processor name #:nodoc:
@@ -141,14 +141,6 @@ module Paperclip
   end
 
   class PaperclipError < StandardError #:nodoc:
-  end
-
-  class PaperclipCommandLineError < PaperclipError #:nodoc:
-    attr_accessor :output
-    def initialize(msg = nil, output = nil)
-      super(msg)
-      @output = output
-    end
   end
 
   class StorageMethodNotFound < PaperclipError

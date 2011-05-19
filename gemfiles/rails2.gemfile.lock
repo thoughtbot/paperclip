@@ -19,6 +19,7 @@ GEM
       mime-types
       xml-simple
     builder (3.0.0)
+    cocaine (0.0.2)
     columnize (0.3.2)
     excon (0.5.7)
     fog (0.7.1)
@@ -64,6 +65,7 @@ DEPENDENCIES
   appraisal
   aws-s3
   bundler
+  cocaine
   fog
   mocha
   rails (~> 2.3.0)
