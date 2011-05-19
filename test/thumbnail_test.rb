@@ -91,7 +91,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |arg|
+        Paperclip.expects(:run).with do |*arg|
           arg[0] == 'convert' &&
           arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
@@ -117,7 +117,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |arg|
+        Paperclip.expects(:run).with do |*arg|
           arg[0] == 'convert' &&
           arg[1] == '-strip :source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
@@ -157,7 +157,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |arg|
+        Paperclip.expects(:run).with do |*arg|
           arg[0] == 'convert' &&
           arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
           arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
