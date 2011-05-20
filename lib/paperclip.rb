@@ -341,7 +341,7 @@ module Paperclip
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions
-      read_inheritable_attribute(:attachment_definitions)
+      inheritable_attributes[:attachment_definitions]
     end
   end
 
