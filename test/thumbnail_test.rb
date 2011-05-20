@@ -73,6 +73,18 @@ class ThumbnailTest < Test::Unit::TestCase
         @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
       end
 
+      should "let us know when a command isn't found versus a processing error" do
+        old_path = ENV['PATH']
+        begin
+          ENV['PATH'] = ''
+          assert_raises(Paperclip::CommandNotFoundError) do
+            @thumb.make
+          end
+        ensure
+          ENV['PATH'] = old_path
+        end
+      end
+
       should "report its correct current and target geometries" do
         assert_equal "100x50#", @thumb.target_geometry.to_s
         assert_equal "434x66", @thumb.current_geometry.to_s
@@ -180,6 +192,18 @@ class ThumbnailTest < Test::Unit::TestCase
         should "error when trying to create the thumbnail" do
           assert_raises(Paperclip::PaperclipError) do
             @thumb.make
+          end
+        end
+
+        should "let us know when a command isn't found versus a processing error" do
+          old_path = ENV['PATH']
+          begin
+            ENV['PATH'] = ''
+            assert_raises(Paperclip::CommandNotFoundError) do
+              @thumb.make
+            end
+          ensure
+            ENV['PATH'] = old_path
           end
         end
       end
