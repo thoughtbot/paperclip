@@ -132,7 +132,7 @@ module Paperclip
     def logging? #:nodoc:
       options[:log]
     end
-    
+
     def class_for(class_name)
       class_name.split('::').inject(Object) do |klass, partial_class_name|
         klass.const_get(partial_class_name)
@@ -158,6 +158,7 @@ module Paperclip
   module Glue
     def self.included base #:nodoc:
       base.extend ClassMethods
+      base.class_attribute :attachment_definitions
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
       else
@@ -233,7 +234,14 @@ module Paperclip
     def has_attached_file name, options = {}
       include InstanceMethods
 
-      write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
+      if attachment_definitions.nil?
+        if respond_to?(:class_attribute)
+          self.attachment_definitions = {}
+        else
+          write_inheritable_attribute(:attachment_definitions, {})
+        end
+      end
+
       attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
@@ -341,7 +349,11 @@ module Paperclip
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions
-      inheritable_attributes[:attachment_definitions]
+      if respond_to?(:class_attribute)
+        self.attachment_definitions
+      else
+        read_inheritable_attribute(:attachment_definitions)
+      end
     end
   end
 
