@@ -193,7 +193,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "not have an error when assigned a valid file" do
-            assert_equal 0, @dummy.errors.length, @dummy.errors.full_messages.join(", ")
+            assert_equal 0, @dummy.errors.size, @dummy.errors.full_messages.join(", ")
           end
         end
         context "and assigned an invalid file" do
@@ -202,7 +202,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "have an error when assigned a valid file" do
-            assert @dummy.errors.length > 0
+            assert @dummy.errors.size > 0
           end
         end
       end
