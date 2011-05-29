@@ -42,6 +42,14 @@ class PaperclipTest < Test::Unit::TestCase
     assert_equal ::One::Two, Paperclip.class_for("One::Two")
   end
 
+  should "raise when class doesn't exist in specified namespace" do
+    class ::Three; end
+    class ::Four; end
+    assert_raise NameError do
+      Paperclip.class_for("Three::Four")
+    end
+  end
+
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
