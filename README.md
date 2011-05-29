@@ -43,13 +43,23 @@ In development mode, you might add this line to `config/environments/development
 Installation
 ------------
 
+Paperclip is distributed as a gem, which is how it should be used in your app. It's
+technically still installable as a plugin, but that's discouraged, as Rails plays
+well with gems.
+
 Include the gem in your Gemfile:
 
     gem "paperclip", "~> 2.3"
 
-Or as a plugin:
+Or, if you don't use Bundler (though you probably should, even in Rails 2), with config.gem
 
-  ruby script/plugin install git://github.com/thoughtbot/paperclip.git
+    # In config/environment.rb
+    ...
+    Rails::Initializer.run do |config|
+      ...
+      config.gem "paperclip", :version => "~> 2.3"
+      ...
+    end
 
 Quick Start
 -----------

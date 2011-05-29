@@ -17,8 +17,10 @@ module Paperclip
       file = file.path if file.respond_to? "path"
       geometry = begin
                    Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
-                 rescue PaperclipCommandLineError
+                 rescue Cocaine::ExitStatusError
                    ""
+                 rescue Cocaine::CommandNotFoundError => e
+                   raise Paperclip::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
                  end
       parse(geometry) ||
         raise(NotIdentifiedByImageMagickError.new("#{file} is not recognized by the 'identify' command."))

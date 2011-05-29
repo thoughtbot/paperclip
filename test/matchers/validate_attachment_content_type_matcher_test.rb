@@ -34,13 +34,13 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
 
       should_accept_dummy_class
     end
-    
+
     context "given a class with other validations but matching types" do
       setup do
         @dummy_class.validates_presence_of :title
         @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
       end
-      
+
       should_accept_dummy_class
     end
   end

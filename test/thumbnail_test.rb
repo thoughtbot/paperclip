@@ -73,6 +73,18 @@ class ThumbnailTest < Test::Unit::TestCase
         @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
       end
 
+      should "let us know when a command isn't found versus a processing error" do
+        old_path = ENV['PATH']
+        begin
+          ENV['PATH'] = ''
+          assert_raises(Paperclip::CommandNotFoundError) do
+            @thumb.make
+          end
+        ensure
+          ENV['PATH'] = old_path
+        end
+      end
+
       should "report its correct current and target geometries" do
         assert_equal "100x50#", @thumb.target_geometry.to_s
         assert_equal "434x66", @thumb.current_geometry.to_s
@@ -91,8 +103,10 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip::CommandLine.expects(:"`").with do |arg|
-          arg.match %r{convert ["']#{File.expand_path(@thumb.file.path)}\[0\]["'] -resize ["']x50["'] -crop ["']100x50\+114\+0["'] \+repage ["'].*?["']}
+        Paperclip.expects(:run).with do |*arg|
+          arg[0] == 'convert' &&
+          arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -115,8 +129,10 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip::CommandLine.expects(:"`").with do |arg|
-          arg.match %r{convert -strip ["']#{File.expand_path(@thumb.file.path)}\[0\]["'] -resize ["']x50["'] -crop ["']100x50\+114\+0["'] \+repage ["'].*?["']}
+        Paperclip.expects(:run).with do |*arg|
+          arg[0] == 'convert' &&
+          arg[1] == '-strip :source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -153,8 +169,10 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip::CommandLine.expects(:"`").with do |arg|
-          arg.match %r{convert ["']#{File.expand_path(@thumb.file.path)}\[0\]["'] -resize ["']x50["'] -crop ["']100x50\+114\+0["'] \+repage -strip -depth 8 ["'].*?["']}
+        Paperclip.expects(:run).with do |*arg|
+          arg[0] == 'convert' &&
+          arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
+          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -174,6 +192,18 @@ class ThumbnailTest < Test::Unit::TestCase
         should "error when trying to create the thumbnail" do
           assert_raises(Paperclip::PaperclipError) do
             @thumb.make
+          end
+        end
+
+        should "let us know when a command isn't found versus a processing error" do
+          old_path = ENV['PATH']
+          begin
+            ENV['PATH'] = ''
+            assert_raises(Paperclip::CommandNotFoundError) do
+              @thumb.make
+            end
+          ensure
+            ENV['PATH'] = old_path
           end
         end
       end

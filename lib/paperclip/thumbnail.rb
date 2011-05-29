@@ -59,8 +59,10 @@ module Paperclip
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
         success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}[0]", :dest => File.expand_path(dst.path))
-      rescue PaperclipCommandLineError => e
+      rescue Cocaine::ExitStatusError => e
         raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
+      rescue Cocaine::CommandNotFoundError => e
+        raise Paperclip::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
 
       dst

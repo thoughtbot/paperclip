@@ -39,8 +39,8 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatability'
-require 'paperclip/command_line'
 require 'paperclip/railtie'
+require 'cocaine'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
@@ -87,7 +87,7 @@ module Paperclip
     # symlink them so they are all in the same directory.
     #
     # If the command returns with a result code that is not one of the
-    # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
+    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
     # These codes should be passed as a hash as the last argument, like so:
     #
@@ -100,8 +100,8 @@ module Paperclip
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-      CommandLine.path = options[:command_path] || options[:image_magick_path]
-      CommandLine.new(cmd, *params).run
+      Cocaine::CommandLine.path = options[:command_path] || options[:image_magick_path]
+      Cocaine::CommandLine.new(cmd, *params).run
     end
 
     def processor name #:nodoc:
@@ -132,21 +132,13 @@ module Paperclip
     def logging? #:nodoc:
       options[:log]
     end
-    
+
     def class_for(class_name)
       class_name.constantize
     end
   end
 
   class PaperclipError < StandardError #:nodoc:
-  end
-
-  class PaperclipCommandLineError < PaperclipError #:nodoc:
-    attr_accessor :output
-    def initialize(msg = nil, output = nil)
-      super(msg)
-      @output = output
-    end
   end
 
   class StorageMethodNotFound < PaperclipError
@@ -164,6 +156,7 @@ module Paperclip
   module Glue
     def self.included base #:nodoc:
       base.extend ClassMethods
+      base.class_attribute :attachment_definitions
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
       else
@@ -239,7 +232,14 @@ module Paperclip
     def has_attached_file name, options = {}
       include InstanceMethods
 
-      write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
+      if attachment_definitions.nil?
+        if respond_to?(:class_attribute)
+          self.attachment_definitions = {}
+        else
+          write_inheritable_attribute(:attachment_definitions, {})
+        end
+      end
+
       attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
@@ -347,7 +347,11 @@ module Paperclip
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions
-      read_inheritable_attribute(:attachment_definitions)
+      if respond_to?(:class_attribute)
+        self.attachment_definitions
+      else
+        read_inheritable_attribute(:attachment_definitions)
+      end
     end
   end
 
