@@ -7,6 +7,29 @@ class StorageTest < Test::Unit::TestCase
       Object.const_set(:Rails, stub('Rails', :env => env))
     end
   end
+  
+  context "filesystem" do
+    setup do
+      rebuild_model :styles => { :thumbnail => "25x25#" }
+      @dummy = Dummy.create!
+
+      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+    end
+    
+    should "allow file assignment" do
+      assert @dummy.save
+    end
+    
+    should "store the original" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path)
+    end
+    
+    should "store the thumbnail" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path(:thumbnail))
+    end
+  end
 
   context "Parsing S3 credentials" do
     setup do
@@ -91,6 +114,34 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "Generating a secure url with an expiration" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => { :bucket => "prod_bucket" },
+                      :development  => { :bucket => "dev_bucket" }
+                    },
+                    :s3_host_alias => "something.something.com",
+                    :s3_permissions => "private",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":s3_alias_url"
+
+      rails_env("production")
+
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+
+      AWS::S3::S3Object.expects(:url_for).with("avatars/stringio.txt", "prod_bucket", { :expires_in => 3600, :use_ssl => true })
+
+      @dummy.avatar.expiring_url
+    end
+
+    should "should succeed" do
+      assert true
+    end
+  end
+
   context "Generating a url with an expiration" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -100,7 +151,7 @@ class StorageTest < Test::Unit::TestCase
                       :development  => { :bucket => "dev_bucket" }
                     },
                     :s3_host_alias => "something.something.com",
-                    :path => ":attachment/:basename.:extension",
+                    :path => ":attachment/:style/:basename.:extension",
                     :url => ":s3_alias_url"
 
       rails_env("production")
@@ -108,9 +159,11 @@ class StorageTest < Test::Unit::TestCase
       @dummy = Dummy.new
       @dummy.avatar = StringIO.new(".")
 
-      AWS::S3::S3Object.expects(:url_for).with("avatars/stringio.txt", "prod_bucket", { :expires_in => 3600 })
-
+      AWS::S3::S3Object.expects(:url_for).with("avatars/original/stringio.txt", "prod_bucket", { :expires_in => 3600, :use_ssl => false })
       @dummy.avatar.expiring_url
+
+      AWS::S3::S3Object.expects(:url_for).with("avatars/thumb/stringio.txt", "prod_bucket", { :expires_in => 1800, :use_ssl => false })
+      @dummy.avatar.expiring_url(1800, :thumb)
     end
 
     should "should succeed" do

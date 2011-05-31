@@ -30,8 +30,9 @@ module Paperclip
     # (which method (in the attachment) will call any supplied procs)
     # There is an important change of interface here: a style rule can set its own processors
     # by default we behave as before, though.
+    # if a proc has been supplied, we call it here
     def processors
-      @processors || attachment.processors
+      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.processors)
     end
 
     # retrieves from the attachment the whiny setting

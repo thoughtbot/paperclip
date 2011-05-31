@@ -25,7 +25,7 @@ module Paperclip
     #   development versus production.
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
+    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
     #   The default for Paperclip is :public_read.
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
@@ -63,7 +63,7 @@ module Paperclip
         rescue LoadError => e
           e.message << " (You may need to install the aws-s3 gem)"
           raise e
-        end
+        end unless defined?(AWS::S3)
 
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
@@ -85,17 +85,17 @@ module Paperclip
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
           "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+        end unless Paperclip::Interpolations.respond_to? :s3_domain_url
       end
 
-      def expiring_url(time = 3600)
-        AWS::S3::S3Object.url_for(path, bucket_name, :expires_in => time )
+      def expiring_url(time = 3600, style_name = default_style)
+        AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol == 'https'))
       end
 
       def bucket_name

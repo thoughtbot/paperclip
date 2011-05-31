@@ -39,8 +39,8 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatability'
-require 'paperclip/command_line'
 require 'paperclip/railtie'
+require 'cocaine'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
@@ -87,7 +87,7 @@ module Paperclip
     # symlink them so they are all in the same directory.
     #
     # If the command returns with a result code that is not one of the
-    # expected_outcodes, a PaperclipCommandLineError will be raised. Generally
+    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
     # a code of 0 is expected, but a list of codes may be passed if necessary.
     # These codes should be passed as a hash as the last argument, like so:
     #
@@ -100,8 +100,8 @@ module Paperclip
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-      CommandLine.path = options[:command_path] || options[:image_magick_path]
-      CommandLine.new(cmd, *params).run
+      Cocaine::CommandLine.path = options[:command_path] || options[:image_magick_path]
+      Cocaine::CommandLine.new(cmd, *params).run
     end
 
     def processor name #:nodoc:
@@ -111,6 +111,12 @@ module Paperclip
         raise PaperclipError.new("Processor #{name} was not found")
       end
       processor
+    end
+
+    def each_instance_with_attachment(klass, name)
+      class_for(klass).all.each do |instance|
+        yield(instance) if instance.send(:"#{name}?")
+      end
     end
 
     # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
@@ -126,17 +132,15 @@ module Paperclip
     def logging? #:nodoc:
       options[:log]
     end
+
+    def class_for(class_name)
+      class_name.split('::').inject(Object) do |klass, partial_class_name|
+        klass.const_get(partial_class_name)
+      end
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:
-  end
-
-  class PaperclipCommandLineError < PaperclipError #:nodoc:
-    attr_accessor :output
-    def initialize(msg = nil, output = nil)
-      super(msg)
-      @output = output
-    end
   end
 
   class StorageMethodNotFound < PaperclipError
@@ -154,6 +158,7 @@ module Paperclip
   module Glue
     def self.included base #:nodoc:
       base.extend ClassMethods
+      base.class_attribute :attachment_definitions
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
       else
@@ -229,7 +234,14 @@ module Paperclip
     def has_attached_file name, options = {}
       include InstanceMethods
 
-      write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
+      if attachment_definitions.nil?
+        if respond_to?(:class_attribute)
+          self.attachment_definitions = {}
+        else
+          write_inheritable_attribute(:attachment_definitions, {})
+        end
+      end
+
       attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
@@ -270,6 +282,7 @@ module Paperclip
       max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
       range   = (min..max)
       message = options[:message] || "file size must be between :min and :max bytes."
+      message = message.call if message.respond_to?(:call)
       message = message.gsub(/:min/, min.to_s).gsub(/:max/, max.to_s)
 
       validates_inclusion_of :"#{name}_file_size",
@@ -324,6 +337,7 @@ module Paperclip
         if !allowed_types.any?{|t| t === value } && !(value.nil? || value.blank?)
           if record.errors.method(:add).arity == -2
             message = options[:message] || "is not one of #{allowed_types.join(", ")}"
+            message = message.call if message.respond_to?(:call)
             record.errors.add(:"#{name}_content_type", message)
           else
             record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
@@ -335,7 +349,11 @@ module Paperclip
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions
-      read_inheritable_attribute(:attachment_definitions)
+      if respond_to?(:class_attribute)
+        self.attachment_definitions
+      else
+        read_inheritable_attribute(:attachment_definitions)
+      end
     end
   end
 

@@ -97,6 +97,83 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :timestamp interpolations" do
+    setup do
+      @file = StringIO.new("...")
+      @zone = 'UTC'
+      Time.stubs(:zone).returns(@zone)
+      @zone_default = 'Eastern Time (US & Canada)'
+      Time.stubs(:zone_default).returns(@zone_default)
+    end
+
+    context "using default time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => true
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the default zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone_default).to_s, @dummy.avatar.path
+      end
+    end
+
+    context "using per-thread time zone" do
+      setup do
+        rebuild_model :path => ":timestamp", :use_default_time_zone => false
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "return a time in the per-thread zone" do
+        assert_equal @dummy.avatar_updated_at.in_time_zone(@zone).to_s, @dummy.avatar.path
+      end
+    end
+  end
+
+  context "An attachment with :hash interpolations" do
+    setup do
+      @file = StringIO.new("...")
+    end
+
+    should "raise if no secret is provided" do
+      @attachment = attachment :path => ":hash"
+      @attachment.assign @file
+
+      assert_raise ArgumentError do
+        @attachment.path
+      end
+    end
+
+    context "when secret is set" do
+      setup do
+        @attachment = attachment :path => ":hash", :hash_secret => "w00t"
+        @attachment.stubs(:instance_read).with(:updated_at).returns(Time.at(1234567890))
+        @attachment.stubs(:instance_read).with(:file_name).returns("bla.txt")
+        @attachment.instance.id = 1234
+        @attachment.assign @file
+      end
+
+      should "interpolate the hash data" do
+        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
+        @attachment.hash
+      end
+
+      should "result in the correct interpolation" do
+        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
+      end
+
+      should "result in a correct hash" do
+        assert_equal "d22b617d1bf10016aa7d046d16427ae203f39fce", @attachment.path
+      end
+
+      should "generate a hash digest with the correct style" do
+        OpenSSL::HMAC.expects(:hexdigest).with(anything, anything, "fake_models/avatars/1234/medium/1234567890")
+        @attachment.path("medium")
+      end
+    end
+  end
+
   context "An attachment with a :rails_env interpolation" do
     setup do
       @rails_env = "blah"
@@ -208,6 +285,24 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "have the correct geometry" do
       assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
+    end
+  end
+  
+  context "An attachment with conditional :styles that is a proc" do
+    setup do
+      rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
+
+      @dummy = Dummy.new(:other => 'a')
+    end
+
+    should "have the correct styles for the assigned instance values" do
+      assert_equal "50x50#", @dummy.avatar.styles[:thumb][:geometry]
+      assert_nil @dummy.avatar.styles[:large]
+
+      @dummy.other = 'b'
+      
+      assert_equal "400x400", @dummy.avatar.styles[:large][:geometry]
+      assert_nil @dummy.avatar.styles[:thumb]
     end
   end
 
@@ -484,6 +579,46 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "not remove strange letters" do
       assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
+    end
+  end
+
+  context "Attachment with uppercase extension and a default style" do
+    setup do
+      @old_defaults = Paperclip::Attachment.default_options.dup
+      Paperclip::Attachment.default_options.merge!({
+        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      })
+      FileUtils.rm_rf("tmp")
+      rebuild_model
+      @instance = Dummy.new
+      @instance.stubs(:id).returns 123
+
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "uppercase.PNG"), 'rb')
+
+      styles = {:styles => { :large  => ["400x400", :jpg],
+                             :medium => ["100x100", :jpg],
+                             :small => ["32x32#", :jpg]},
+                :default_style => :small}
+      @attachment = Paperclip::Attachment.new(:avatar,
+                                              @instance,
+                                              styles)
+      now = Time.now
+      Time.stubs(:now).returns(now)
+      @attachment.assign(@file)
+      @attachment.save
+    end
+
+    teardown do
+      @file.close
+      Paperclip::Attachment.default_options.merge!(@old_defaults)
+    end
+
+    should "should have matching to_s and url methods" do
+      file = @attachment.to_file
+      assert file
+      assert_match @attachment.to_s, @attachment.url
+      assert_match @attachment.to_s(:small), @attachment.url(:small)
+      file.close
     end
   end
 
