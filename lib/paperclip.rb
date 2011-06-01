@@ -126,7 +126,7 @@ module Paperclip
     end
 
     def logger #:nodoc:
-      ActiveRecord::Base.logger
+      defined?(ActiveRecord::Base) ? ActiveRecord::Base.logger : Rails.logger
     end
 
     def logging? #:nodoc:
