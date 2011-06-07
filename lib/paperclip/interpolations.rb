@@ -113,7 +113,7 @@ module Paperclip
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name
-      ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
+      ("%09d" % (attachment.instance.id || 0)).scan(/\d{3}/).join("/")
     end
 
     # Returns the pluralized form of the attachment name. e.g.
