@@ -37,7 +37,8 @@ module Paperclip
           directory.files.create(
             :body   => file,
             :key    => path(style),
-            :public => @fog_public
+            :public => @fog_public,
+            :content_type => file.content_type
           )
         end
         @queued_for_write = {}
