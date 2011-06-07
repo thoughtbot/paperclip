@@ -15,6 +15,7 @@ module Paperclip
           @fog_credentials  = @options[:fog_credentials]
           @fog_host         = @options[:fog_host]
           @fog_public       = @options[:fog_public]
+          @fog_file         = @options[:fog_file] || {}
 
           @url = ':fog_public_url'
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
@@ -34,12 +35,19 @@ module Paperclip
       def flush_writes
         for style, file in @queued_for_write do
           log("saving #{path(style)}")
-          directory.files.create(
-            :body   => file,
-            :key    => path(style),
-            :public => @fog_public,
-            :content_type => file.content_type
-          )
+          retried = false
+          begin
+            directory.files.create(@fog_file.merge(
+              :body   => file,
+              :key    => path(style),
+              :public => @fog_public
+            ))
+          rescue Excon::Errors::NotFound
+            raise if retried
+            retried = true
+            directory.save
+            retry
+          end
         end
         @queued_for_write = {}
       end
@@ -85,12 +93,7 @@ module Paperclip
       end
 
       def directory
-        @directory ||= begin
-          connection.directories.get(@fog_directory) || connection.directories.create(
-            :key => @fog_directory,
-            :public => @fog_public
-          )
-        end
+        @directory ||= connection.directories.new(:key => @fog_directory)
       end
 
     end
