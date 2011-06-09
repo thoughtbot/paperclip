@@ -71,7 +71,8 @@ module Paperclip
 
       def public_url(style = default_style)
         if @fog_host
-          "#{@fog_host}/#{path(style)}"
+          host = (@fog_host =~ /%d/) ? @fog_host % (path(style).hash % 4) : @fog_host
+          "#{host}/#{path(style)}"
         else
           directory.files.new(:key => path(style)).public_url
         end
