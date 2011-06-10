@@ -262,6 +262,14 @@ module Paperclip
         attachment_for(name).file?
       end
 
+      define_method "#{name}_urls" do
+        attachment = attachment_for(name)
+        return({}) unless attachment.file?
+        attachment.styles.keys.inject({}) {|hash, style| 
+          hash.update(style.to_s => attachment.url(style))
+        }
+      end
+
       validates_each(name) do |record, attr, value|
         attachment = record.attachment_for(name)
         attachment.send(:flush_errors)
