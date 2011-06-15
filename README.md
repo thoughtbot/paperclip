@@ -195,6 +195,9 @@ or more or the processors, and they are expected to ignore it.
 _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
+If you're interested in caching your thumbnail's width, height and size in the 
+database, take a look at the [paperclip-meta](https://github.com/y8/paperclip-meta) gem.
+
 Events
 ------
 
