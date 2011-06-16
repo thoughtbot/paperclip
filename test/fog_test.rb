@@ -101,6 +101,26 @@ class FogTest < Test::Unit::TestCase
         end
       end
 
+      context "with a fog_host that includes a wildcard placeholder" do
+        setup do
+          rebuild_model(
+            :fog_directory    => @fog_directory,
+            :fog_credentials  => @credentials,
+            :fog_host         => 'http://img%d.example.com',
+            :fog_public       => true,
+            :path             => ":attachment/:basename.:extension",
+            :storage          => :fog
+          )
+          @dummy = Dummy.new
+          @dummy.avatar = StringIO.new('.')
+          @dummy.save
+        end
+
+        should "provide a public url" do
+          assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/stringio\.txt\?\d*$/
+        end
+      end
+
     end
 
   end
