@@ -11,6 +11,7 @@ module Paperclip
       when %r"jp(e|g|eg)"            then "image/jpeg"
       when %r"tiff?"                 then "image/tiff"
       when %r"png", "gif", "bmp"     then "image/#{type}"
+      when %r"svg"                   then "image/svg+xml"
       when "txt"                     then "text/plain"
       when %r"html?"                 then "text/html"
       when "js"                      then "application/js"
