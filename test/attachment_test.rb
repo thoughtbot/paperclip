@@ -156,7 +156,7 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "interpolate the hash data" do
         @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
-        @attachment.hash
+        @attachment.secret_hash
       end
 
       should "result in the correct interpolation" do
