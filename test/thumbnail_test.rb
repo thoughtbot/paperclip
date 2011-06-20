@@ -254,4 +254,53 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
   end
+
+  context "An animated gif" do
+    setup do
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "animated.gif"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    should "start with 12 frames with size 100x100" do
+      cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
+      assert_equal "100x100"*12, `#{cmd}`.chomp
+    end
+
+    context "with static output" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :jpg)
+      end
+
+      should "create the single frame thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50", `#{cmd}`.chomp
+      end
+    end
+
+    context "with animated output format" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :gif)
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+    end
+
+    context "with omitted output format" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+    end
+  end
 end
