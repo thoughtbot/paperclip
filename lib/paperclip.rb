@@ -136,9 +136,7 @@ module Paperclip
     end
 
     def class_for(class_name)
-      class_name.split('::').inject(Object) do |klass, partial_class_name|
-        klass.const_get(partial_class_name)
-      end
+      class_name.constantize
     end
   end
 
