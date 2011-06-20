@@ -14,6 +14,14 @@ class AttachmentTest < Test::Unit::TestCase
     assert_equal "#{Rails.root}/public/fake_models/1234/fake", @attachment.path
   end
 
+  should "escape the url" do
+    @attachment = attachment :url => '/:class/:id/:basename'
+    @model = @attachment.instance
+    @model.id = 1234
+    @model.avatar_file_name = "fake #1.jpg"
+    assert_equal '/fake_models/1234/fake%20%231', @attachment.url
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model

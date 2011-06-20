@@ -124,7 +124,8 @@ module Paperclip
     # if you want to stop the attachment update time appended to the url
     def url(style_name = default_style, use_timestamp = @use_timestamp)
       url = original_filename.nil? ? interpolate(@default_url, style_name) : interpolate(@url, style_name)
-      use_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
+      escaped = URI.escape url
+      use_timestamp && updated_at ? [escaped, updated_at].compact.join(escaped.include?("?") ? "&" : "?") : escaped
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
