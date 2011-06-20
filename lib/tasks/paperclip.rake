@@ -20,14 +20,15 @@ namespace :paperclip do
   task :refresh => ["paperclip:refresh:metadata", "paperclip:refresh:thumbnails"]
 
   namespace :refresh do
-    desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT)."
+    desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT and STYLES splitted by comma)."
     task :thumbnails => :environment do
       errors = []
       klass = obtain_class
       names = obtain_attachments(klass)
+      styles = (ENV['STYLES'] || ENV['styles'] || '').split(',').map(&:to_sym)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
-          result = instance.send(name).reprocess!
+          instance.send(name).reprocess!(*styles)
           errors << [instance.id, instance.errors] unless instance.errors.blank?
         end
       end
