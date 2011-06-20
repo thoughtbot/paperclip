@@ -136,8 +136,27 @@ module Paperclip
     end
 
     def class_for(class_name)
-      class_name.split('::').inject(Object) do |klass, partial_class_name|
-        klass.const_get(partial_class_name)
+      # Ruby 1.9 introduces an inherit argument for Module#const_get and
+      # #const_defined? and changes their default behavior.
+      # https://github.com/rails/rails/blob/v3.0.9/activesupport/lib/active_support/inflector/methods.rb#L89
+      if Module.method(:const_get).arity == 1
+        class_name.split('::').inject(Object) do |klass, partial_class_name|
+          klass.const_get(partial_class_name)
+        end
+      else
+        class_name.split('::').inject(Object) do |klass, partial_class_name|
+          klass.const_get(partial_class_name, false)
+        end
+      end
+    rescue ArgumentError => e
+      # Sadly, we need to capture ArguementError here because Rails 2.3.x
+      # Active Support dependency's management will try to the constant inherited
+      # from Object, and fail misably with "Object is not missing constant X" error
+      # https://github.com/rails/rails/blob/v2.3.12/activesupport/lib/active_support/dependencies.rb#L124
+      if e.message =~ /is not missing constant/
+        raise NameError, "uninitialized constant #{class_name}"
+      else
+        raise e
       end
     end
   end
