@@ -67,6 +67,7 @@ end
 
 def rebuild_model options = {}
   ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+    table.column :title, :string
     table.column :other, :string
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
@@ -85,6 +86,7 @@ def rebuild_class options = {}
     include Paperclip::Glue
     has_attached_file :avatar, options
   end
+  Dummy.reset_column_information
 end
 
 class FakeModel

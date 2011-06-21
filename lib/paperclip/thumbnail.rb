@@ -4,6 +4,9 @@ module Paperclip
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options, :source_file_options
 
+    # List of formats that we need to preserve animation
+    ANIMATED_FORMATS = %w(gif)
+
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
     # which is a "WxH"-style string. +format+ will be inferred from the +file+
@@ -58,9 +61,11 @@ module Paperclip
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
-        success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}[0]", :dest => File.expand_path(dst.path))
-      rescue PaperclipCommandLineError => e
+        success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
+      rescue Cocaine::ExitStatusError => e
         raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
+      rescue Cocaine::CommandNotFoundError => e
+        raise Paperclip::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
 
       dst
@@ -74,6 +79,13 @@ module Paperclip
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
       trans
+    end
+
+    protected
+
+    # Return true if the format is animated
+    def animated?
+      ANIMATED_FORMATS.include?(@current_format[1..-1]) && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)
     end
   end
 end

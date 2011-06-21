@@ -6,6 +6,7 @@ class UpfileTest < Test::Unit::TestCase
     %w(png)          => 'image/png',
     %w(gif)          => 'image/gif',
     %w(bmp)          => 'image/bmp',
+    %w(svg)          => 'image/svg+xml',
     %w(txt)          => 'text/plain',
     %w(htm html)     => 'text/html',
     %w(csv)          => 'text/csv',
