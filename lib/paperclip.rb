@@ -287,6 +287,8 @@ module Paperclip
         attachment = record.attachment_for(name)
         attachment.send(:flush_errors)
       end
+
+      setup_file_columns(name) if options[:storage] == :database
     end
 
     # Places ActiveRecord-style validations on the size of the file assigned. The
@@ -375,6 +377,36 @@ module Paperclip
       else
         read_inheritable_attribute(:attachment_definitions)
       end
+    end
+    
+    # Setup and validate file column names for database storage
+    def setup_file_columns name
+      (attachment_definitions[name][:file_columns] = file_columns(name)).each do | style, column |
+        raise PaperclipError.new("#{name} is not an allowed column name; please choose another column name.") if column == name.to_s
+        raise PaperclipError.new("#{self} model does not have required column '#{column}'") unless column_names.include? column
+      end
+    end
+    
+    # Retrieve file column names from options, or use default (name_file or name_style_file)
+    def file_columns name
+      original_style_column = attachment_definitions[name][:column]
+      original_style_column ||= "#{name}_file"
+
+      styles = attachment_definitions[name][:styles]
+      styles ||= {}
+      styles.inject({ :original => original_style_column }) do |cols, (style_key, style_value)|
+        cols[style_key] = style_value[:column] if style_value.is_a? Hash
+        cols[style_key] ||= "#{name}_#{style_key}_file"
+        cols
+      end
+    end
+
+    # ActiveRecord scope that can be used to avoid loading blob columns
+    def select_without_file_columns_for name
+      unless attachment_definitions[name][:storage] == :database
+        raise PaperclipError.new("select_without_file_columns_for is only defined when :storage => :database is specified")
+      end
+      { :select => column_names.reject { |n| attachment_definitions[name][:file_columns].has_value?(n) }.join(',') }
     end
   end
 

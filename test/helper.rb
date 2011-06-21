@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'fileutils'
 require 'tempfile'
 require 'test/unit'
 

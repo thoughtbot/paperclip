@@ -18,7 +18,12 @@ module Paperclip
       when "csv", "xml", "css"       then "text/#{type}"
       else
         # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-        content_type = (Paperclip.run("file", "-b --mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
+        if RUBY_PLATFORM =~ /darwin/
+          # Standard MAC OSX file uses --mime, not --mime-type, ans adds the character set after a ';'
+          content_type = (Paperclip.run("file", "-b --mime :file", :file => self.path).split(';').first.strip rescue "application/x-#{type}")
+        else
+          content_type = (Paperclip.run("file", "-b --mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
+        end
         content_type = "application/x-#{type}" if content_type.match(/\(.*?\)/)
         content_type
       end

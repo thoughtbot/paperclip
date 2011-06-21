@@ -19,6 +19,7 @@ module Paperclip
     def self.insert
       ActiveRecord::Base.send(:include, Paperclip::Glue)
       File.send(:include, Paperclip::Upfile)
+      ActionController::Base.send(:include, Paperclip::Storage::Database::ControllerClassMethods)
     end
   end
 end
