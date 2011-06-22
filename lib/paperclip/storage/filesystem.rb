@@ -33,6 +33,12 @@ module Paperclip
         @queued_for_write[style_name] || (File.new(path(style_name), 'rb') if exists?(style_name))
       end
 
+      def content style_name = default_style
+        source = to_file(style_name)
+        source.rewind if source.respond_to? :rewind
+        source.read
+      end
+
       def flush_writes #:nodoc:
         @queued_for_write.each do |style_name, file|
           file.close

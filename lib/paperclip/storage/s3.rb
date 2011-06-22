@@ -115,7 +115,8 @@ module Paperclip
 
       def parse_credentials creds
         creds = find_credentials(creds).stringify_keys
-        (creds[Rails.env] || creds).symbolize_keys
+        env = Object.const_defined?(:Rails) ? Rails.env : nil
+        (creds[env] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)
@@ -139,9 +140,13 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
-        file.write(AWS::S3::S3Object.value(path(style), bucket_name))
+        file.write content(style)
         file.rewind
         return file
+      end
+
+      def content style = default_style
+        AWS::S3::S3Object.value(path(style), bucket_name)
       end
 
       def create_bucket

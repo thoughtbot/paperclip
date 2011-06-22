@@ -475,6 +475,10 @@ class StorageTest < Test::Unit::TestCase
             file = @dummy.avatar.to_file
             assert_match /^original.*\.png$/, File.basename(file.path)
           end
+
+          should "have the same contents as the original file" do
+            assert_equal @file.read, @dummy.avatar.content(:original)
+          end
         end
       end
     end
