@@ -11,6 +11,7 @@ module Paperclip
         :url                   => "/system/:attachment/:id/:style/:filename",
         :path                  => ":rails_root/public:url",
         :styles                => {},
+        :only_process          => [],
         :processors            => [:thumbnail],
         :convert_options       => {},
         :default_url           => "/:attachment/:style/missing.png",
@@ -41,6 +42,7 @@ module Paperclip
       @path                  = options[:path]
       @path                  = @path.call(self) if @path.is_a?(Proc)
       @styles                = options[:styles]
+      @only_process          = options[:only_process]
       @normalized_styles     = nil
       @default_url           = options[:default_url]
       @default_style         = options[:default_style]
@@ -107,8 +109,8 @@ module Paperclip
 
       @dirty = true
 
-      post_process if @post_processing
-
+      post_process(*@only_process) if @post_processing
+      
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
