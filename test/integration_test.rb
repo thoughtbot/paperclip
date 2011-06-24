@@ -399,6 +399,7 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy.save
         assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                      `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
+        assert_equal @dummy.avatar_file_name, @dummy2.avatar_file_name
       end
     end
 
