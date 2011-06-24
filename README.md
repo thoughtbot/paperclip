@@ -105,7 +105,7 @@ Usage
 The basics of paperclip are quite simple: Declare that your model has an
 attachment with the has_attached_file method, and give it a name. Paperclip
 will wrap up up to four attributes (all prefixed with that attachment's name,
-so you can have multiple attachments per model if you wish) and give the a
+so you can have multiple attachments per model if you wish) and give them a
 friendly front end. The attributes are `<attachment>_file_name`,
 `<attachment>_file_size`, `<attachment>_content_type`, and `<attachment>_updated_at`.
 Only `<attachment>_file_name` is required for paperclip to operate. More
