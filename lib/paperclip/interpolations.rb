@@ -6,13 +6,13 @@ module Paperclip
   module Interpolations
     extend self
 
-    # Hash assignment of interpolations. Included only for compatability,
+    # Hash assignment of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[]= name, block
       define_method(name, &block)
     end
 
-    # Hash access of interpolations. Included only for compatability,
+    # Hash access of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[] name
       method(name)

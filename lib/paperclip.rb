@@ -38,7 +38,7 @@ require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
-require 'paperclip/callback_compatability'
+require 'paperclip/callback_compatibility'
 require 'paperclip/railtie'
 require 'cocaine'
 
@@ -244,7 +244,7 @@ module Paperclip
     #                                }
     #   NOTE: While not deprecated yet, it is not recommended to specify options this way.
     #   It is recommended that :convert_options option be included in the hash passed to each
-    #   :styles for compatability with future versions.
+    #   :styles for compatibility with future versions.
     #   NOTE: Strings supplied to :convert_options are split on space in order to undergo
     #   shell quoting for safety. If your options require a space, please pre-split them
     #   and pass an array to :convert_options instead.
