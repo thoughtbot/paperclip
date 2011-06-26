@@ -126,5 +126,11 @@ module Paperclip
     def style attachment, style_name
       style_name || attachment.default_style
     end
+
+    def container_id attachment, style_name
+      reflection = attachment.instance.class.reflect_on_all_associations(:belongs_to).first
+      raise PaperclipError.new("#{attachment.instance.class} does not belong to any entity, but :container_id is in the path") if reflection.nil?
+      attachment.instance.__send__ reflection.primary_key_name
+    end
   end
 end
