@@ -140,6 +140,17 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal fake_hash, Paperclip::Interpolations.hash(attachment, :style)
   end
 
+  should "return container_id" do
+    rebuild_class
+    Dummy.class_eval do
+      attr_accessor :category_id
+      belongs_to :category
+    end
+    
+    attachment = stub :instance => Dummy.new(:category_id => 999)
+    assert_equal 999, Paperclip::Interpolations.container_id(attachment, :style)
+  end
+
   should "call all expected interpolations with the given arguments" do
     Paperclip::Interpolations.expects(:id).with(:attachment, :style).returns(1234)
     Paperclip::Interpolations.expects(:attachment).with(:attachment, :style).returns("attachments")

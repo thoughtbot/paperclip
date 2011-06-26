@@ -153,6 +153,80 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :container_id interpolation" do
+    setup do
+      rebuild_model :path => ":container_id"
+    end
+    
+    context "when model belongs to exactly one entity" do
+      setup do
+        reset_class "Category"
+        
+        modify_table("dummies") { |t| t.integer :category_id }
+        Dummy.belongs_to :category
+        
+        @dummy = Dummy.new :category_id => 999
+        @dummy.avatar.assign StringIO.new("...")
+      end
+
+      should "return an id of the container" do
+        assert_equal "999", @dummy.avatar.path
+      end
+    end
+    
+    context "when model does not belong to any entity" do
+      setup do
+        @dummy = Dummy.new
+        @dummy.avatar.assign StringIO.new("...")
+      end
+      
+      should "raise a error" do
+        assert_raise Paperclip::PaperclipError do
+          @dummy.avatar.path
+        end
+      end
+    end
+
+    context "when association has options" do
+      setup do
+        reset_class "Category"
+        
+        modify_table("dummies") { |t| t.integer :category_id }
+        Dummy.belongs_to :kind, :class_name => "Category", :foreign_key => "category_id"
+        
+        @dummy = Dummy.new :category_id => 999
+        @dummy.avatar.assign StringIO.new("...")
+      end
+
+      should "still rely on value in the database" do
+        assert_equal "999", @dummy.avatar.path
+      end
+    end
+
+    context "when model has more than one association" do
+      setup do
+        reset_class "Category"
+        
+        modify_table("dummies") do |t|
+          t.integer :category_id
+          t.integer :football_team_id
+        end
+
+        Dummy.has_many :toys
+        Dummy.has_one :health_certificate
+        Dummy.belongs_to :category
+        Dummy.belongs_to :football_team
+        
+        @dummy = Dummy.new :category_id => 999
+        @dummy.avatar.assign StringIO.new("...")
+      end
+        
+      should "pick the first belongs_to associations" do
+        assert_equal "999", @dummy.avatar.path
+      end
+    end
+  end
+
   context "An attachment with :hash interpolations" do
     setup do
       @file = StringIO.new("...")
