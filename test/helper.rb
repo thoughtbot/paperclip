@@ -58,11 +58,11 @@ end
 
 def reset_table table_name, &block
   block ||= lambda { |table| true }
-  ActiveRecord::Base.connection.create_table :dummies, {:force => true}, &block
+  ActiveRecord::Base.connection.create_table table_name, {:force => true}, &block
 end
 
 def modify_table table_name, &block
-  ActiveRecord::Base.connection.change_table :dummies, &block
+  ActiveRecord::Base.connection.change_table table_name, &block
 end
 
 def rebuild_model options = {}
@@ -79,11 +79,9 @@ def rebuild_model options = {}
 end
 
 def rebuild_class options = {}
-  ActiveRecord::Base.send(:include, Paperclip::Glue)
-  Object.send(:remove_const, "Dummy") rescue nil
-  Object.const_set("Dummy", Class.new(ActiveRecord::Base))
+  reset_class "Dummy"
+  
   Dummy.class_eval do
-    include Paperclip::Glue
     has_attached_file :avatar, options
   end
   Dummy.reset_column_information
