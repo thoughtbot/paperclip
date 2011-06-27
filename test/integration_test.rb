@@ -34,20 +34,20 @@ class IntegrationTest < Test::Unit::TestCase
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
-    
+
     context 'reprocessing with unreadable original' do
       setup { File.chmod(0000, @dummy.avatar.path) }
-      
+
       should "not raise an error" do
         assert_nothing_raised do
           @dummy.avatar.reprocess!
         end
       end
-      
+
       should "return false" do
         assert ! @dummy.avatar.reprocess!
       end
-      
+
       teardown { File.chmod(0644, @dummy.avatar.path) }
     end
 
@@ -465,6 +465,18 @@ class IntegrationTest < Test::Unit::TestCase
         assert @dummy.save
 
         @files_on_s3 = s3_files_for @dummy.avatar
+      end
+
+      context 'assigning itself to a new model' do
+        setup do
+          @d2 = Dummy.new
+          @d2.avatar = @dummy.avatar
+          @d2.save
+        end
+
+        should "have the same name as the old file" do
+          assert_equal @d2.avatar.original_filename, @dummy.avatar.original_filename
+        end
       end
 
       should "have the same contents as the original" do
