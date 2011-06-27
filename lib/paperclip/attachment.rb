@@ -225,9 +225,8 @@ module Paperclip
     end
 
     def generate_fingerprint(source)
-      data = source.read
-      source.rewind if source.respond_to?(:rewind)
-      Digest::MD5.hexdigest(data)
+      return if source.path.blank?
+      Digest::MD5.file(source.path).to_s
     end
 
     # Paths and URLs can have a number of variables interpolated into them
