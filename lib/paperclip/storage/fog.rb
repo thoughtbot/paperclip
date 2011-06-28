@@ -63,7 +63,11 @@ module Paperclip
         if permissions.is_a?(Hash)
           permissions[:default] = permissions[:default] || true
         else
-          permissions = { :default => permissions || true }
+          if permissions.nil?
+            permissions = { :default => true }
+          else
+            permissions = { :default => permissions }
+          end
         end
         permissions
       end
@@ -82,7 +86,7 @@ module Paperclip
           directory.files.create(
             :body   => file,
             :key    => path(style),
-            :public => (@fog_public[style] || @fog_public[:default])
+            :public => ((@fog_public[style].nil?)? @fog_public[style] : @fog_public[:default])
           )
         end
         @queued_for_write = {}
