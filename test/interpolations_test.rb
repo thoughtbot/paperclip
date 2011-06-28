@@ -50,6 +50,13 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "png", Paperclip::Interpolations.extension(attachment, :style)
   end
 
+  should "return the #to_param of the attachment" do
+    attachment = mock
+    attachment.expects(:to_param).returns("23-awesome")
+    attachment.expects(:instance).returns(attachment)
+    assert_equal "23-awesome", Paperclip::Interpolations.param(attachment, :style)
+  end
+
   should "return the id of the attachment" do
     attachment = mock
     attachment.expects(:id).returns(23)
