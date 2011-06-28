@@ -24,6 +24,14 @@ module Paperclip
     #   unique, like filenames, and despite the fact that S3 (strictly
     #   speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
+    #
+    #   You can set permission on a per style bases by doing the following:
+    #     :fog_permissions => {
+    #       :original => :private
+    #     }
+    #   Or globaly:
+    #     :fog_permissions => :private
+    #
     # * +fog_public+: (optional, defaults to true) Should the uploaded
     #   files be public or not? (true/false)
     # * +fog_host+: (optional) The fully-qualified domain name (FQDN)
@@ -44,6 +52,7 @@ module Paperclip
           @fog_directory    = @options[:fog_directory]
           @fog_credentials  = @options[:fog_credentials]
           @fog_host         = @options[:fog_host]
+          @fog_permissions  = set_permissions(@options[:fog_permissions])
           @fog_public       = @options[:fog_public]
 
           @url = ':fog_public_url'
@@ -51,6 +60,15 @@ module Paperclip
             attachment.public_url(style)
           end unless Paperclip::Interpolations.respond_to? :fog_public_url
         end
+      end
+
+      def set_permissions permissions
+        if permissions.is_a?(Hash)
+          permissions[:default] = permissions[:default] || :public_read
+        else
+          permissions = { :default => permissions || :public_read }
+        end
+        permissions
       end
 
       def exists?(style = default_style)
@@ -67,7 +85,7 @@ module Paperclip
           directory.files.create(
             :body   => file,
             :key    => path(style),
-            :public => @fog_public
+            :public => (@fog_permissions[style] || @fog_permissions[:default])
           )
         end
         @queued_for_write = {}
