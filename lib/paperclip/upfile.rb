@@ -6,7 +6,7 @@ module Paperclip
 
     # Infer the MIME-type of the file from the extension.
     def content_type
-      type = (self.path.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
+      type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
       case type
       when %r"jp(e|g|eg)"            then "image/jpeg"
       when %r"tiff?"                 then "image/tiff"
