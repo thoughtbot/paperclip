@@ -5,7 +5,7 @@
 # columns to your table.
 #
 # Author:: Jon Yurek
-# Copyright:: Copyright (c) 2008-2009 thoughtbot, inc.
+# Copyright:: Copyright (c) 2008-2011 thoughtbot, inc.
 # License:: MIT License (http://www.opensource.org/licenses/mit-license.php)
 #
 # Paperclip defines an attachment as any file, though it makes special considerations
