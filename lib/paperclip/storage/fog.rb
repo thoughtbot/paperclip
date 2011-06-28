@@ -24,16 +24,14 @@ module Paperclip
     #   unique, like filenames, and despite the fact that S3 (strictly
     #   speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
-    #
+    # * +fog_public+: (optional, defaults to true)
     #   You can set permission on a per style bases by doing the following:
-    #     :fog_permissions => {
-    #       :original => :private
+    #     :fog_public => {
+    #       :original => false
     #     }
     #   Or globaly:
-    #     :fog_permissions => :private
+    #     :fog_public => false
     #
-    # * +fog_public+: (optional, defaults to true) Should the uploaded
-    #   files be public or not? (true/false)
     # * +fog_host+: (optional) The fully-qualified domain name (FQDN)
     #   that is the alias to the S3 domain of your bucket, e.g.
     #   'http://images.example.com'. This can also be used in
@@ -52,8 +50,7 @@ module Paperclip
           @fog_directory    = @options[:fog_directory]
           @fog_credentials  = @options[:fog_credentials]
           @fog_host         = @options[:fog_host]
-          @fog_permissions  = set_permissions(@options[:fog_permissions])
-          @fog_public       = @options[:fog_public]
+          @fog_public       = set_publicity(@options[:fog_public])
 
           @url = ':fog_public_url'
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
@@ -62,11 +59,11 @@ module Paperclip
         end
       end
 
-      def set_permissions permissions
+      def set_publicity permissions
         if permissions.is_a?(Hash)
-          permissions[:default] = permissions[:default] || :public_read
+          permissions[:default] = permissions[:default] || true
         else
-          permissions = { :default => permissions || :public_read }
+          permissions = { :default => permissions || true }
         end
         permissions
       end
@@ -85,7 +82,7 @@ module Paperclip
           directory.files.create(
             :body   => file,
             :key    => path(style),
-            :public => (@fog_permissions[style] || @fog_permissions[:default])
+            :public => (@fog_public[style] || @fog_public[:default])
           )
         end
         @queued_for_write = {}
