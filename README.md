@@ -209,6 +209,13 @@ _NOTE: Post processing will not even *start* if the attachment is not valid
 according to the validations. Your callbacks and processors will *only* be
 called with valid attachments._
 
+URI Obfuscation
+---------------
+
+Paperclip has an interpolation called `:hash` for obfuscating filenames of publicly-available files. For more on this feature read author's own explanation.
+
+[https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
+
 Testing
 -------
 
