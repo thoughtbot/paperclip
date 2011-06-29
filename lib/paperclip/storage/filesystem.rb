@@ -44,7 +44,7 @@ module Paperclip
             FileUtils.cp(file.path, path(style_name))
             FileUtils.rm(file.path)
           end
-          FileUtils.chmod(0644, path(style_name))
+          FileUtils.chmod(0666&~File.umask, path(style_name))
         end
         @queued_for_write = {}
       end

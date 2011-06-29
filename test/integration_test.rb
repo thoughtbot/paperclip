@@ -383,6 +383,24 @@ class IntegrationTest < Test::Unit::TestCase
       assert_equal "5k.png", @dummy.avatar_file_name
     end
 
+    [000,002,022].each do |umask|
+      context "when the umask is #{umask}" do
+        setup do
+          @umask = File.umask umask
+        end
+
+        teardown do
+          File.umask @umask
+        end
+
+        should "respect the current umask" do
+          @dummy.avatar = @file
+          @dummy.save
+          assert_equal 0666&~umask, 0666&File.stat(@dummy.avatar.path).mode
+        end
+      end
+    end
+
     context "that is assigned its file from another Paperclip attachment" do
       setup do
         @dummy2 = Dummy.new
