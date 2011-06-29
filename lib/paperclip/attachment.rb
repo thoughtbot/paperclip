@@ -35,7 +35,7 @@ module Paperclip
       @name              = name
       @instance          = instance
 
-      options = self.class.default_options.merge(options)
+      options = self.class.default_options.deep_merge(options)
 
       @url                   = options[:url]
       @url                   = @url.call(self) if @url.is_a?(Proc)
