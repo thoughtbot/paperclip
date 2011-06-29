@@ -11,3 +11,4 @@ gem "fog"
 gem "bundler"
 gem "cocaine"
 gem "mime-types"
+gem "rdoc", :require => false
