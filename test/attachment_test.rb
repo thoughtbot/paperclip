@@ -98,6 +98,19 @@ class AttachmentTest < Test::Unit::TestCase
           end
         end
       end
+
+      context "with nested hash default" do
+        setup do
+          @nested_hash = {:thumb => {:first => "second" }}
+          Paperclip::Attachment.default_options[:styles] = @nested_hash
+          @dummy = Dummy.new
+          @attachment = @dummy.avatar
+        end
+
+        should "correctly clone the nested hash" do
+          assert_equal(@nested_hash, @attachment.instance_variable_get(:@styles))
+        end
+      end
     end
   end
 
