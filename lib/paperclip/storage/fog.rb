@@ -86,7 +86,7 @@ module Paperclip
           directory.files.create(
             :body   => file,
             :key    => path(style),
-            :public => ((@fog_public[style].nil?)? @fog_public[style] : @fog_public[:default])
+            :public => ((@fog_public[style].nil?)? @fog_public[:default] : @fog_public[style] )
           )
         end
         @queued_for_write = {}
