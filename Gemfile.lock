@@ -69,6 +69,7 @@ DEPENDENCIES
   bundler
   cocaine
   fog
+  mime-types
   mocha
   rake
   shoulda

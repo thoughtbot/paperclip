@@ -8,6 +8,7 @@ require 'mocha'
 require 'active_record'
 require 'active_record/version'
 require 'active_support'
+require 'mime/types'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 

@@ -6,22 +6,26 @@ module Paperclip
 
     # Infer the MIME-type of the file from the extension.
     def content_type
-      type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
-      case type
-      when %r"jp(e|g|eg)"            then "image/jpeg"
-      when %r"tiff?"                 then "image/tiff"
-      when %r"png", "gif", "bmp"     then "image/#{type}"
-      when %r"svg"                   then "image/svg+xml"
-      when "txt"                     then "text/plain"
-      when %r"html?"                 then "text/html"
-      when "js"                      then "application/js"
-      when "csv", "xml", "css"       then "text/#{type}"
+      types = MIME::Types.type_for(self.original_filename)
+      if types.length == 0
+        type_from_file_command
+      elsif types.length == 1
+        types.first.content_type
       else
-        # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-        content_type = (Paperclip.run("file", "-b --mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
-        content_type = "application/x-#{type}" if content_type.match(/\(.*?\)/)
-        content_type
+        iterate_over_array_to_find_best_option(types)
       end
+    end
+
+    def iterate_over_array_to_find_best_option(types)
+      types.reject {|type| type.content_type.match(/\/x-/) }.first
+    end
+
+    def type_from_file_command
+    #  On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
+      type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
+      mime_type = (Paperclip.run("file", "-b --mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
+      mime_type = "application/x-#{type}" if mime_type.match(/\(.*?\)/)
+      mime_type
     end
 
     # Returns the file's normal name.

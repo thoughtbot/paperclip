@@ -10,9 +10,9 @@ class UpfileTest < Test::Unit::TestCase
     %w(txt)          => 'text/plain',
     %w(htm html)     => 'text/html',
     %w(csv)          => 'text/csv',
-    %w(xml)          => 'text/xml',
+    %w(xml)          => 'application/xml',
     %w(css)          => 'text/css',
-    %w(js)           => 'application/js',
+    %w(js)           => 'application/javascript',
     %w(foo)          => 'application/x-foo'
   }.each do |extensions, content_type|
     extensions.each do |extension|
