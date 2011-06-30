@@ -67,7 +67,7 @@ module Paperclip
 
     def styles
       if @styles.respond_to?(:call) || !@normalized_styles
-        @normalized_styles = {}
+        @normalized_styles = ActiveSupport::OrderedHash.new
         (@styles.respond_to?(:call) ? @styles.call(self) : @styles).each do |name, args|
           @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
         end
@@ -275,7 +275,7 @@ module Paperclip
     def file?
       !original_filename.blank?
     end
-    
+
     alias :present? :file?
 
     # Writes the attachment-specific attribute on the instance. For example,

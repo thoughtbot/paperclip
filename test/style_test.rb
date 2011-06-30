@@ -62,12 +62,12 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with style rules in various forms" do
     setup do
+      styles = ActiveSupport::OrderedHash.new
+      styles[:aslist] = ["100x100", :png]
+      styles[:ashash] = {:geometry => "100x100", :format => :png}
+      styles[:asstring] = "100x100"
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => {
-                                 :aslist => ["100x100", :png],
-                                 :ashash => {:geometry => "100x100", :format => :png},
-                                 :asstring => "100x100"
-                                }
+                               :styles => styles
     end
     should "have the right number of styles" do
       assert_kind_of Hash, @attachment.styles
@@ -92,6 +92,9 @@ class StyleTest < Test::Unit::TestCase
       assert_nil @attachment.styles[:asstring].format
     end
 
+    should "retain order" do
+      assert_equal [:aslist, :ashash, :asstring], @attachment.styles.keys
+    end
   end
 
   context "An attachment with :convert_options" do
@@ -138,7 +141,7 @@ class StyleTest < Test::Unit::TestCase
     end
 
   end
-  
+
   context "A style rule with :processors supplied as procs" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
