@@ -58,6 +58,7 @@ class IntegrationTest < Test::Unit::TestCase
           has_attached_file :avatar, :styles => { :thumb => "150x25#", :dynamic => lambda { |a| '50x50#' } }
         end
         @d2 = Dummy.find(@dummy.id)
+        @original_timestamp = @d2.avatar_updated_at
         @d2.avatar.reprocess!
         @d2.save
       end
@@ -65,6 +66,10 @@ class IntegrationTest < Test::Unit::TestCase
       should "create its thumbnails properly" do
         assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
         assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`
+      end
+
+      should "change the timestamp" do
+        assert_not_equal @original_timestamp, @d2.avatar_updated_at
       end
     end
   end
