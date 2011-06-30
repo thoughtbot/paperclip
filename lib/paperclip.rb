@@ -351,6 +351,10 @@ module Paperclip
     # NOTE: If you do not specify an [attachment]_content_type field on your
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
+    #
+    # WARNING: There's also some known issue with the content type sent by
+    # Internet Explorer might not be the same as other browsers. You can look at
+    # https://github.com/thoughtbot/paperclip/issues/68 for more information.
     def validates_attachment_content_type name, options = {}
       validation_options = options.dup
       allowed_types = [validation_options[:content_type]].flatten
@@ -401,7 +405,7 @@ module Paperclip
       Paperclip.log("Deleting attachments.")
       each_attachment do |name, attachment|
         attachment.send(:queue_existing_for_delete)
-        attachment.send(:flush_deletes)                  
+        attachment.send(:flush_deletes)
       end
     end
   end
