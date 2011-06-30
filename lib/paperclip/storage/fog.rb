@@ -137,7 +137,7 @@ module Paperclip
         @directory ||= begin
           connection.directories.get(@fog_directory) || connection.directories.create(
             :key => @fog_directory,
-            :public => @fog_public
+            :public => @fog_public[:default]
           )
         end
       end
