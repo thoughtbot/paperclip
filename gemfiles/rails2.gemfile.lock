@@ -46,6 +46,7 @@ GEM
       activesupport (= 2.3.10)
       rake (>= 0.8.3)
     rake (0.8.7)
+    rdoc (3.8)
     ruby-hmac (0.4.0)
     shoulda (2.11.3)
     sqlite3-ruby (1.3.2)
@@ -60,8 +61,10 @@ DEPENDENCIES
   bundler
   cocaine
   fog
+  mime-types
   mocha
   rails (~> 2.3.0)
   rake
+  rdoc
   shoulda
   sqlite3-ruby (~> 1.3.0)
