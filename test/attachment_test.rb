@@ -713,6 +713,15 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal nil, @attachment.path(:blah)
     end
 
+    context "with a file assigned but not saved yet" do
+      should "clear out any attached files" do
+        @attachment.assign(@file)
+        assert !@attachment.queued_for_write.blank?
+        @attachment.clear
+        assert @attachment.queued_for_write.blank?
+      end
+    end
+
     context "with a file assigned in the database" do
       setup do
         @attachment.stubs(:instance_read).with(:file_name).returns("5k.png")
