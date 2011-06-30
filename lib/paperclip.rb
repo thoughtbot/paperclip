@@ -266,7 +266,8 @@ module Paperclip
       attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
-      before_destroy :destroy_attached_files
+      before_destroy :prepare_for_destroy
+      after_destroy :destroy_attached_files
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
 
@@ -400,10 +401,16 @@ module Paperclip
     def destroy_attached_files
       Paperclip.log("Deleting attachments.")
       each_attachment do |name, attachment|
-        attachment.send(:queue_existing_for_delete)
         attachment.send(:flush_deletes)
       end
-    end
+	end
+
+	def prepare_for_destroy
+	  Paperclip.log("Scheduling attachments for deletion.")
+      each_attachment do |name, attachment|
+        attachment.send(:queue_existing_for_delete)
+      end
+	end
   end
 
 end
