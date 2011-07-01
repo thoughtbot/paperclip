@@ -351,6 +351,8 @@ module Paperclip
     # NOTE: If you do not specify an [attachment]_content_type field on your
     # model, content_type validation will work _ONLY upon assignment_ and
     # re-validation after the instance has been reloaded will always succeed.
+    # You'll still need to have a virtual attribute (created by +attr_accessor+)
+    # name +[attachment]_content_type+ to be able to use this validator.
     def validates_attachment_content_type name, options = {}
       validation_options = options.dup
       allowed_types = [validation_options[:content_type]].flatten
