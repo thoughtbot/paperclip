@@ -51,6 +51,7 @@ module Paperclip
           @fog_credentials  = @options[:fog_credentials]
           @fog_host         = @options[:fog_host]
           @fog_public       = set_publicity(@options[:fog_public])
+	  @fog_content_type = @options[:fog_content_type]
 
           @url = ':fog_public_url'
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
@@ -87,7 +88,7 @@ module Paperclip
             :body   => file,
             :key    => path(style),
             :public => ((@fog_public[style].nil?)? @fog_public[:default] : @fog_public[style] ),
-	    :content_type => file.content_type
+	    :content_type => @fog_content_type || file.content_type
           )
         end
         @queued_for_write = {}
