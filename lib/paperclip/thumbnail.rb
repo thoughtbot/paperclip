@@ -76,6 +76,7 @@ module Paperclip
     def transformation_command
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
       trans = []
+      trans << "-coalesce" if animated?
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
       trans

@@ -289,6 +289,10 @@ class ThumbnailTest < Test::Unit::TestCase
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50"*12, `#{cmd}`.chomp
       end
+
+      should "use the -coalesce option" do
+	assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
     end
 
     context "with omitted output format" do
@@ -300,6 +304,10 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+	assert_equal @thumb.transformation_command.first, "-coalesce"
       end
     end
   end
