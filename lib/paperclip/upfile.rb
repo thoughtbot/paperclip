@@ -1,3 +1,5 @@
+require 'mime/types'
+
 module Paperclip
   # The Upfile module is a convenience module for adding uploaded-file-type methods
   # to the +File+ class. Useful for testing.
