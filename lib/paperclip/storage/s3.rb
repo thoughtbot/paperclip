@@ -125,7 +125,6 @@ module Paperclip
       def s3_host_name 
         case @region 
         when "tokyo"
-          AWS::S3::DEFAULT_HOST.replace "s3-ap-northeast-1.amazonaws.com"
           "s3-ap-northeast-1.amazonaws.com"
         else 
           "s3.amazonaws.com" 
