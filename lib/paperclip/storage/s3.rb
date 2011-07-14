@@ -66,6 +66,7 @@ module Paperclip
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
+    # * +region+: If you are using your bucket in Tokyo region, "tokyo" write.
     module S3
       def self.extended base
         begin
@@ -77,6 +78,7 @@ module Paperclip
 
         base.instance_eval do
           @s3_credentials = parse_credentials(@options[:s3_credentials])
+          @region         = @options[:region]         || @s3_credentials[:region]
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
           @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
           @s3_options     = @options[:s3_options]     || {}
@@ -102,10 +104,10 @@ module Paperclip
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -118,6 +120,16 @@ module Paperclip
 
       def bucket_name
         @bucket
+      end
+
+      def s3_host_name 
+        case @region 
+        when "tokyo"
+          AWS::S3::DEFAULT_HOST.replace "s3-ap-northeast-1.amazonaws.com"
+          "s3-ap-northeast-1.amazonaws.com"
+        else 
+          "s3.amazonaws.com" 
+        end
       end
 
       def set_permissions permissions
