@@ -76,8 +76,8 @@ module Paperclip
         end unless defined?(AWS::S3)
 
         base.instance_eval do
-          @s3_host        = @options[:s3_host] 
           @s3_credentials = parse_credentials(@options[:s3_credentials])
+          @region         = @options[:region]         || @s3_credentials[:region]
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
           @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
           @s3_options     = @options[:s3_options]     || {}
@@ -122,7 +122,13 @@ module Paperclip
       end
 
       def s3_host_name 
-        @s3_host || "s3.amazonaws.com"
+        case @region 
+        when "tokyo"
+          AWS::S3::DEFAULT_HOST.replace "s3-ap-northeast-1.amazonaws.com"
+          "s3-ap-northeast-1.amazonaws.com"
+        else 
+          "s3.amazonaws.com" 
+        end
       end
 
       def set_permissions permissions
