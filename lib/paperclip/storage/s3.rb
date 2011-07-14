@@ -66,6 +66,7 @@ module Paperclip
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
+    # * +region+: If you are using your bucket in Tokyo region, "tokyo" write.
     module S3
       def self.extended base
         begin
