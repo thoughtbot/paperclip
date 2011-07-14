@@ -76,6 +76,7 @@ module Paperclip
         end unless defined?(AWS::S3)
 
         base.instance_eval do
+          @s3_host        = @options[:s3_host] || "s3.amazonaws.com"
           @s3_credentials = parse_credentials(@options[:s3_credentials])
           @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
           @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
@@ -102,10 +103,10 @@ module Paperclip
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.s3_host}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
