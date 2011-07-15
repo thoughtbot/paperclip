@@ -79,6 +79,23 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "S3 Tokyo Region" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :region => "tokyo"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on an S3@tokyo path" do
+      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+    end
+  end
+
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -257,6 +274,28 @@ class StorageTest < Test::Unit::TestCase
     should "get the right bucket in development" do
       rails_env("development")
       assert_equal "dev_bucket", @dummy.avatar.bucket_name
+    end
+  end
+
+  context "Parsing S3 credentials with a region in them" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => { :region => "us" },
+                      :development  => { :region => "tokyo" }
+                    }
+      @dummy = Dummy.new
+    end
+
+    should "get the right s3_host_name in production" do
+      rails_env("production")
+      assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
+    end
+
+    should "get the right s3_host_name in development" do
+      rails_env("development")
+      assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
     end
   end
 
