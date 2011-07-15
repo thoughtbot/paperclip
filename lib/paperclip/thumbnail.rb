@@ -2,7 +2,8 @@ module Paperclip
   # Handles thumbnailing images that are uploaded.
   class Thumbnail < Processor
 
-    attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options, :source_file_options
+    attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
+                  :source_file_options, :animated
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
@@ -25,6 +26,7 @@ module Paperclip
       @convert_options     = options[:convert_options]
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
+      @animated            = options[:animated].nil? ? true : options[:animated]
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
@@ -86,7 +88,7 @@ module Paperclip
 
     # Return true if the format is animated
     def animated?
-      ANIMATED_FORMATS.include?(@current_format[1..-1]) && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)
+      @animated && ANIMATED_FORMATS.include?(@current_format[1..-1]) && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)
     end
   end
 end

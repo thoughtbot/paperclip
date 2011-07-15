@@ -72,7 +72,7 @@ module Paperclip
     # Supports getting and setting style properties with hash notation to ensure backwards-compatibility
     # eg. @attachment.styles[:large][:geometry]@ will still work
     def [](key)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated].include?(key)
         send(key)
       elsif defined? @other_args[key]
         @other_args[key]
@@ -80,7 +80,7 @@ module Paperclip
     end
 
     def []=(key, value)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated].include?(key)
         send("#{key}=".intern, value)
       else
         @other_args[key] = value

@@ -310,5 +310,23 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_equal @thumb.transformation_command.first, "-coalesce"
       end
     end
+
+    context "with animated option set to false" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :animated => false)
+      end
+
+      should "output the gif format" do
+        dst = @thumb.make
+        cmd = %Q[identify "#{dst.path}"]
+        assert_match /GIF/, `#{cmd}`.chomp
+      end
+
+      should "create the single frame thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50", `#{cmd}`.chomp
+      end
+    end
   end
 end
