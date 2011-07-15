@@ -291,7 +291,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "use the -coalesce option" do
-	assert_equal @thumb.transformation_command.first, "-coalesce"
+        assert_equal @thumb.transformation_command.first, "-coalesce"
       end
     end
 
@@ -307,7 +307,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "use the -coalesce option" do
-	assert_equal @thumb.transformation_command.first, "-coalesce"
+        assert_equal @thumb.transformation_command.first, "-coalesce"
       end
     end
   end
