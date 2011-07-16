@@ -6,8 +6,10 @@ module Paperclip
         
         # Cache the current_url before Fog changes it
         current_url = base.instance_eval{@url}
-        
         base.extend Fog
+        base.instance_eval do
+          @url = current_url if on_filesystem?
+        end
         
         # Set the processing property to true whenever we update the file.
         # It's important to add it to the eigenclass, not the actual Attachment class,
@@ -19,10 +21,6 @@ module Paperclip
             instance_write(:processing, true) if @dirty
             file
           end
-        end
-
-        base.instance_eval do
-          @url = current_url if on_filesystem?
         end
       end
         
@@ -45,6 +43,14 @@ module Paperclip
         on_filesystem?? filesystem_exists?(style) : fog_exists?()
       end
       
+      def flush_deletes
+        on_filesystem?? filesystem_flush_deletes : fog_flush_deletes
+      end
+      
+      def to_file(style = default_style)
+        on_filesystem?? filesystem_to_file(style): fog_to_file(style)
+      end
+      
       def upload
         @queued_for_write = {default_style => path(default_style)}
         styles.each{|style| @queued_for_write[style] = path(style)}
@@ -53,14 +59,6 @@ module Paperclip
         instance.save!
         @on_filesystem = false
         @url = ':fog_public_url'
-      end
-      
-      def flush_deletes
-        on_filesystem?? filesystem_flush_deletes : fog_flush_deletes
-      end
-      
-      def to_file
-        on_filesystem?? filesystem_to_file : fog_to_file
       end
       
       private
