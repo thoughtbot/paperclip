@@ -4,6 +4,10 @@ module Paperclip
       
       def self.extended base
         base.extend Fog
+        
+        # Set the processing property to true whenever we update the file.
+        # It's important to add it to the eigenclass, not the actual Attachment class,
+        # else there will be conflicts if using multiple storage methods in one application.
         class << base
           alias_method :original_assign, :assign
           define_method :assign do |uploaded_file|
@@ -13,10 +17,10 @@ module Paperclip
           end
         end
 
-        @url = ':delayed_fog_public_url'
-        Paperclip.interpolates(:delayed_fog_public_url) do |attachment, style|
-          attachment.url(style)
-        end unless Paperclip::Interpolations.respond_to? :delayed_fog_public_url
+        @url = ':delayed_fog_url'
+        Paperclip.interpolates(:delayed_fog_url) do |attachment, style|
+          attachment.delayed_fog_url(style)
+        end unless Paperclip::Interpolations.respond_to? :delayed_fog_url
       end
         
       # Include both Fog and Filesystem, renaming the methods as we go
@@ -35,16 +39,12 @@ module Paperclip
       alias_method :filesystem_flush_deletes, :flush_deletes
       alias_method :filesystem_to_file, :to_file
       
-      def on_filesystem?
-        instance_read(:processing)
-      end
-      
       def exists?(style = default_style)
         on_filesystem?? filesystem_exists?(style) : fog_exists?()
       end
       
-      def url(style = default_style)
-        on_filesystem?? super(style) : fog_public_url(style)
+      def delayed_fog_url(style = default_style)
+        on_filesystem?? interpolate(nil, style) : fog_public_url(style)
       end
       
       def upload
@@ -61,6 +61,12 @@ module Paperclip
       
       def to_file
         on_filesystem?? filesystem_to_file : fog_to_file
+      end
+      
+      private
+      
+      def on_filesystem?
+        instance_read(:processing)
       end
     end
   end
