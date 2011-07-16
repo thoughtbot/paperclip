@@ -52,6 +52,11 @@ class DelayedFogTest < Test::Unit::TestCase
         @dummy.save
         assert File.exists?(@dummy.avatar.path(:thumbnail))
       end
+      
+      should "return the correct path" do
+        @dummy.save
+        assert @dummy.avatar.url =~ /^\/system\/avatars\/1\/original\/5k.png\?\d*$/
+      end
     end
   
     context "fog" do
@@ -120,6 +125,9 @@ class DelayedFogTest < Test::Unit::TestCase
             @dummy = Dummy.new
             @dummy.avatar = StringIO.new('.')
             @dummy.save
+          
+            # Upload the files so normal fog functionality can be tested
+            @dummy.avatar.upload
           end
 
           should "provide a public url" do
@@ -140,6 +148,9 @@ class DelayedFogTest < Test::Unit::TestCase
             @dummy = Dummy.new
             @dummy.avatar = StringIO.new('.')
             @dummy.save
+          
+            # Upload the files so normal fog functionality can be tested
+            @dummy.avatar.upload
           end
 
           should "provide a public url" do

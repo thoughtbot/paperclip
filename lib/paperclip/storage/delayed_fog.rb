@@ -3,6 +3,10 @@ module Paperclip
     module DelayedFog
       
       def self.extended base
+        
+        # Cache the current_url before Fog changes it
+        current_url = base.instance_eval{@url}
+        
         base.extend Fog
         
         # Set the processing property to true whenever we update the file.
@@ -17,10 +21,9 @@ module Paperclip
           end
         end
 
-        @url = ':delayed_fog_url'
-        Paperclip.interpolates(:delayed_fog_url) do |attachment, style|
-          attachment.delayed_fog_url(style)
-        end unless Paperclip::Interpolations.respond_to? :delayed_fog_url
+        base.instance_eval do
+          @url = current_url if on_filesystem?
+        end
       end
         
       # Include both Fog and Filesystem, renaming the methods as we go
@@ -30,7 +33,6 @@ module Paperclip
       alias_method :fog_flush_writes, :flush_writes
       alias_method :fog_flush_deletes, :flush_deletes
       alias_method :fog_to_file, :to_file
-      alias_method :fog_public_url, :public_url
         
       include Filesystem
       alias_method :filesystem_exists?, :exists?
@@ -43,16 +45,14 @@ module Paperclip
         on_filesystem?? filesystem_exists?(style) : fog_exists?()
       end
       
-      def delayed_fog_url(style = default_style)
-        on_filesystem?? interpolate(nil, style) : fog_public_url(style)
-      end
-      
       def upload
         @queued_for_write = {default_style => path(default_style)}
         styles.each{|style| @queued_for_write[style] = path(style)}
         fog_flush_writes
         instance_write(:processing, false)
         instance.save!
+        @on_filesystem = false
+        @url = ':fog_public_url'
       end
       
       def flush_deletes
@@ -65,8 +65,10 @@ module Paperclip
       
       private
       
+      # Anything other than true should return false
       def on_filesystem?
-        instance_read(:processing)
+        return @on_filesystem unless @on_filesystem === nil
+        !( instance_read(:processing) === false )
       end
     end
   end
