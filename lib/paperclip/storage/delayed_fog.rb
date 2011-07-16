@@ -4,10 +4,19 @@ module Paperclip
       
       def self.extended base
         base.extend Fog
-        
-        #  alias_method :original_assign, :assign
-        #  alias_method :assign, :delayed_fog_assign
-        #end
+        class << base
+          alias_method :original_assign, :assign
+          define_method :assign do |uploaded_file|
+            file = original_assign(uploaded_file)
+            instance_write(:processing, true) if @dirty
+            file
+          end
+        end
+
+        @url = ':delayed_fog_public_url'
+        Paperclip.interpolates(:delayed_fog_public_url) do |attachment, style|
+          attachment.url(style)
+        end unless Paperclip::Interpolations.respond_to? :delayed_fog_public_url
       end
         
       # Include both Fog and Filesystem, renaming the methods as we go
@@ -34,8 +43,8 @@ module Paperclip
         on_filesystem?? filesystem_exists?(style) : fog_exists?()
       end
       
-      def public_url(style = default_style)
-        on_filesystem?? url(style) : fog_public_url(style)
+      def url(style = default_style)
+        on_filesystem?? super(style) : fog_public_url(style)
       end
       
       def upload
@@ -53,12 +62,6 @@ module Paperclip
       def to_file
         on_filesystem?? filesystem_to_file : fog_to_file
       end
-    
-#      def assign(uploaded_file)
-#        file = super.assign(uploaded_file)
-#        instance_write(:processing, true) if @dirty
-#        file
-#      end
     end
   end
 end
