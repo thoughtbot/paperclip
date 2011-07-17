@@ -6,6 +6,12 @@ class PaperclipTest < Test::Unit::TestCase
       Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
       Paperclip.run("convert", "stuff")
     end
+
+    should "log the command when [:log_command] is set" do
+      Paperclip.options[:log_command] = true
+      Paperclip.expects(:log).with("echo 1 2 3")
+      Paperclip.run("echo", "1 2 3")
+    end
   end
 
   context "Paperclip.each_instance_with_attachment" do
