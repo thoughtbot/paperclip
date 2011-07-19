@@ -60,11 +60,11 @@ module Paperclip
     # initialization and any procs are called here, just before post-processing.
     def processor_options
       args = {}
-      @other_args.each do |k,v|
-        args[k] = v.respond_to?(:call) ? v.call(attachment) : v
-      end
       [:processors, :geometry, :format, :whiny, :convert_options].each do |k|
         (arg = send(k)) && args[k] = arg
+      end
+      @other_args.each do |k,v|
+        args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end
       args
     end
@@ -72,7 +72,7 @@ module Paperclip
     # Supports getting and setting style properties with hash notation to ensure backwards-compatibility
     # eg. @attachment.styles[:large][:geometry]@ will still work
     def [](key)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
         send(key)
       elsif defined? @other_args[key]
         @other_args[key]
@@ -80,7 +80,7 @@ module Paperclip
     end
 
     def []=(key, value)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
         send("#{key}=".intern, value)
       else
         @other_args[key] = value
