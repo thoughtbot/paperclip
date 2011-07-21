@@ -2,16 +2,16 @@
 
 source "http://rubygems.org"
 
-gem "rails", "~>3.0.0"
-gem "rake"
-gem "sqlite3-ruby", "~>1.3.0"
-gem "cocaine"
 gem "shoulda"
-gem "mime-types"
 gem "mocha"
-gem "bundler"
-gem "fog"
+gem "rake"
 gem "aws-s3", :require=>"aws/s3"
+gem "sqlite3-ruby", "~>1.3.0"
 gem "appraisal"
+gem "fog"
+gem "bundler"
+gem "cocaine"
+gem "mime-types"
 gem "rdoc", :require=>false
+gem "rails", "~>3.0.0"
 
