@@ -496,6 +496,19 @@ class AttachmentTest < Test::Unit::TestCase
     rebuild_model :storage => :FileSystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
+    
+    rebuild_model :storage => :Filesystem
+    @dummy = Dummy.new
+    assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
+  end
+  
+  should "convert underscored storage name to camelcase" do
+    rebuild_model :storage => :not_here
+    @dummy = Dummy.new
+    exception = assert_raises(Paperclip::StorageMethodNotFound) do |e|
+      @dummy.avatar
+    end
+    assert exception.message.include?("NotHere")
   end
 
   should "raise an error if you try to include a storage module that doesn't exist" do

@@ -323,7 +323,7 @@ module Paperclip
     end
 
     def initialize_storage #:nodoc:
-      storage_class_name = @storage.to_s.camelize
+      storage_class_name = @storage.to_s.downcase.camelize
       begin
         @storage_module = Paperclip::Storage.const_get(storage_class_name)
       rescue NameError
