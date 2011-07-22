@@ -45,6 +45,7 @@ GEM
       xml-simple
     bcat (0.6.1)
       rack (~> 1.0)
+    bouncy-castle-java (1.5.0146.1)
     builder (2.1.2)
     childprocess (0.2.0)
       ffi (~> 1.0.6)
@@ -60,6 +61,7 @@ GEM
       abstract (>= 1.0.0)
     excon (0.6.5)
     ffi (1.0.9)
+    ffi (1.0.9-java)
     fog (0.9.0)
       builder
       excon (~> 0.6.1)
@@ -73,8 +75,13 @@ GEM
     formatador (0.2.0)
     gherkin (2.4.5)
       json (>= 1.4.6)
+    gherkin (2.4.5-java)
+      json (>= 1.4.6)
     i18n (0.5.0)
+    jruby-openssl (0.7.4)
+      bouncy-castle-java
     json (1.5.3)
+    json (1.5.3-java)
     mail (2.2.19)
       activesupport (>= 2.3.6)
       i18n (>= 0.4.0)
@@ -86,6 +93,7 @@ GEM
       net-ssh (>= 1.99.1)
     net-ssh (2.1.4)
     nokogiri (1.5.0)
+    nokogiri (1.5.0-java)
     polyglot (0.3.1)
     rack (1.2.3)
     rack-mount (0.6.14)
@@ -130,6 +138,7 @@ GEM
     xml-simple (1.1.0)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
@@ -138,6 +147,7 @@ DEPENDENCIES
   bundler
   cocaine
   fog
+  jruby-openssl
   mime-types
   mocha
   rails (~> 3.0.9)
