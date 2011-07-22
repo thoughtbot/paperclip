@@ -239,6 +239,8 @@ guidelines:
    It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please ask the mailing list.
 
+Please see CONTRIBUTING.md for details.
+
 Credits
 -------
 
