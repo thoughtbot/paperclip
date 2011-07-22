@@ -36,9 +36,9 @@ GEM
       nokogiri (>= 1.4.4)
       ruby-hmac
     formatador (0.1.4)
-    gherkin (2.4.0)
+    gherkin (2.4.5)
       json (>= 1.4.6)
-    json (1.5.1)
+    json (1.5.3)
     mime-types (1.16)
     mocha (0.9.12)
     net-ssh (2.1.4)

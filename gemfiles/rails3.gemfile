@@ -13,5 +13,5 @@ gem "bundler"
 gem "cocaine"
 gem "mime-types"
 gem "rdoc", :require=>false
-gem "rails", "~>3.0.0"
+gem "rails", "~> 3.0.9"
 
