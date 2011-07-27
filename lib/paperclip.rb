@@ -179,7 +179,9 @@ module Paperclip
   module Glue
     def self.included base #:nodoc:
       base.extend ClassMethods
-      base.class_attribute :attachment_definitions
+      if base.respond_to?("class_attribute")
+        base.class_attribute :attachment_definitions
+      end
       if base.respond_to?("set_callback")
         base.send :include, Paperclip::CallbackCompatability::Rails3
       else
