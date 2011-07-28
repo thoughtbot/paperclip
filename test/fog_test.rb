@@ -24,7 +24,6 @@ class FogTest < Test::Unit::TestCase
         :fog_directory    => @fog_directory,
         :fog_credentials  => @credentials,
         :fog_host         => nil,
-        :fog_public       => true,
         :fog_file         => {:cache_control => 1234},
         :path             => ":attachment/:basename.:extension",
         :storage          => :fog
@@ -100,7 +99,6 @@ class FogTest < Test::Unit::TestCase
             :fog_directory    => @fog_directory,
             :fog_credentials  => @credentials,
             :fog_host         => 'http://img%d.example.com',
-            :fog_public       => true,
             :path             => ":attachment/:basename.:extension",
             :storage          => :fog
           )
