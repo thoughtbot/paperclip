@@ -1,5 +1,4 @@
-Paperclip
-=========
+# Paperclip [![Build Status](http://travis-ci.org/thoughtbot/paperclip.png)](http://travis-ci.org/thoughtbot/paperclip)
 
 Paperclip is intended as an easy file attachment library for ActiveRecord. The
 intent behind it was to keep setup as easy as possible and to treat files as
