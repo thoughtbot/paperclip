@@ -328,7 +328,7 @@ module Paperclip
     #   be run is this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
-      message = options[:message] || "must be set"
+      message = options[:message] || :empty
       validates_presence_of :"#{name}_file_name",
                             :message   => message,
                             :if        => options[:if],
