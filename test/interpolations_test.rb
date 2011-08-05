@@ -50,6 +50,30 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "png", Paperclip::Interpolations.extension(attachment, :style)
   end
 
+  should "return the extension of the file based on the content type" do
+    attachment = mock
+    attachment.expects(:content_type).returns('image/jpeg')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('random')
+    assert_equal "jpeg", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the original extension of the file if it matches a content type extension" do
+    attachment = mock
+    attachment.expects(:content_type).returns('image/jpeg')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('jpe')
+    assert_equal "jpe", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the latter half of the content type of the extension if no match found" do
+    attachment = mock
+    attachment.expects(:content_type).at_least_once().returns('not/found')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('random')
+    assert_equal "found", interpolations.content_type_extension(attachment, :style)
+  end
+
   should "return the #to_param of the attachment" do
     attachment = mock
     attachment.expects(:to_param).returns("23-awesome")

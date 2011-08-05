@@ -94,6 +94,31 @@ module Paperclip
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
 
+    # Returns an extension based on the content type. e.g. "jpeg" for "image/jpeg".
+    # Each mime type generally has multiple extensions associated with it, so
+    # if the extension from teh original filename is one of these extensions,
+    # that extension is used, otherwise, the first in the list is used.
+    def content_type_extension attachment, style_name
+      mime_type = MIME::Types[attachment.content_type]
+      extensions_for_mime_type = unless mime_type.empty?
+        mime_type.first.extensions
+      else
+        []
+      end
+
+      original_extension = extension(attachment, style_name)
+      if extensions_for_mime_type.include? original_extension
+        original_extension
+      elsif !extensions_for_mime_type.empty?
+        extensions_for_mime_type.first
+      else
+        # It's possible, though unlikely, that the mime type is not in the
+        # database, so just use the part after the '/' in the mime type as the
+        # extension.
+        %r{/([^/]*)$}.match(attachment.content_type)[1]
+      end
+    end
+
     # Returns the id of the instance.
     def id attachment, style_name
       attachment.instance.id
