@@ -44,7 +44,7 @@ module Paperclip
           @fog_directory    = @options[:fog_directory]
           @fog_credentials  = @options[:fog_credentials]
           @fog_host         = @options[:fog_host]
-          @fog_public       = @options[:fog_public] || true
+          @fog_public       = @options.key?(:fog_public) ? @options[:fog_public] : true
           @fog_file         = @options[:fog_file] || {}
 
           @url = ':fog_public_url'
