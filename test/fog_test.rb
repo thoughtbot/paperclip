@@ -111,6 +111,19 @@ class FogTest < Test::Unit::TestCase
           assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/stringio\.txt\?\d*$/
         end
       end
+      
+      context "with fog_public set to false" do
+        setup do
+          rebuild_model(@options.merge(:fog_public => false))
+          @dummy = Dummy.new
+          @dummy.avatar = StringIO.new('.')
+          @dummy.save
+        end
+        
+        should 'set the @fog_public instance variable to false' do
+          assert_equal false, @dummy.avatar.instance_variable_get('@fog_public')
+        end
+      end
 
     end
 
