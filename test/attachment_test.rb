@@ -759,6 +759,17 @@ class AttachmentTest < Test::Unit::TestCase
         assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
       end
 
+      context "with special chars on the name" do
+        setup do
+          @attachment.stubs(:instance_read).with(:file_name).returns("%20.png")
+        end
+
+        should "escape special chars in order to not break the image url" do
+          assert_nil @attachment.to_file
+          assert_match %r{^/system/avatars/#{@instance.id}/blah/%2520\.png}, @attachment.url(:blah)
+        end
+      end
+
       context "with the updated_at field removed" do
         setup do
           @attachment.stubs(:instance_read).with(:updated_at).returns(nil)
