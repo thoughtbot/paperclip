@@ -108,7 +108,7 @@ In your show view:
 
 To detach a file, simple set the attribute to `nil`:
 
-    @user.image = nil
+    @user.avatar = nil
     @user.save
 
 Usage
