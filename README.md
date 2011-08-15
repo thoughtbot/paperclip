@@ -106,7 +106,7 @@ In your show view:
     <%= image_tag @user.avatar.url(:medium) %>
     <%= image_tag @user.avatar.url(:thumb) %>
 
-To detach a file, simple sett the attribute to `nil`:
+To detach a file, simple set the attribute to `nil`:
 
     @user.image = nil
     @user.save
