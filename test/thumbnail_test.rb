@@ -102,6 +102,10 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_equal nil, @thumb.convert_options
       end
 
+      should "have source_file_options set to nil by default" do
+        assert_equal nil, @thumb.source_file_options
+      end
+
       should "send the right command to convert when sent #make" do
         Paperclip.expects(:run).with do |*arg|
           arg[0] == 'convert' &&

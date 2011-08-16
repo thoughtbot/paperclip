@@ -263,6 +263,29 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :source_file_options" do
+    setup do
+      rebuild_model :styles => {
+                      :thumb => "100x100",
+                      :large => "400x400"
+                    },
+                    :source_file_options => {
+                      :all => "-density 400",
+                      :thumb => "-depth 8"
+                    }
+      @dummy = Dummy.new
+      @dummy.avatar
+    end
+
+    should "report the correct options when sent #extra_source_file_options_for(:thumb)" do
+      assert_equal "-depth 8 -density 400", @dummy.avatar.send(:extra_source_file_options_for, :thumb), @dummy.avatar.source_file_options.inspect
+    end
+
+    should "report the correct options when sent #extra_source_file_options_for(:large)" do
+      assert_equal "-density 400", @dummy.avatar.send(:extra_source_file_options_for, :large)
+    end
+  end
+
   context "An attachment with :only_process" do
     setup do
       rebuild_model :styles => {
@@ -476,7 +499,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       before_should "call #make with the right parameters passed as second argument" do
-        expected_params = @style_params[:once].merge({:processors => [:thumbnail, :test], :whiny => true, :convert_options => ""})
+        expected_params = @style_params[:once].merge({
+          :processors => [:thumbnail, :test],
+          :whiny => true,
+          :convert_options => "",
+          :source_file_options => ""
+        })
         Paperclip::Thumbnail.expects(:make).with(anything, expected_params, anything).returns(@file)
       end
 
