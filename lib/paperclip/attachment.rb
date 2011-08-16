@@ -14,6 +14,7 @@ module Paperclip
         :only_process          => [],
         :processors            => [:thumbnail],
         :convert_options       => {},
+        :source_file_options   => {},
         :default_url           => "/:attachment/:style/missing.png",
         :default_style         => :original,
         :storage               => :filesystem,
@@ -26,7 +27,7 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options
+    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options, :source_file_options
     attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,
@@ -55,6 +56,7 @@ module Paperclip
       @hash_data             = options[:hash_data]
       @hash_secret           = options[:hash_secret]
       @convert_options       = options[:convert_options]
+      @source_file_options   = options[:source_file_options]
       @processors            = options[:processors]
       @preserve_files        = options[:preserve_files]
       @options               = options
@@ -336,6 +338,15 @@ module Paperclip
       all_options   = convert_options[:all]
       all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
       style_options = convert_options[style]
+      style_options = style_options.call(instance) if style_options.respond_to?(:call)
+
+      [ style_options, all_options ].compact.join(" ")
+    end
+
+    def extra_source_file_options_for(style) #:nodoc:
+      all_options   = source_file_options[:all]
+      all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
+      style_options = source_file_options[style]
       style_options = style_options.call(instance) if style_options.respond_to?(:call)
 
       [ style_options, all_options ].compact.join(" ")
