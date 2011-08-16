@@ -88,18 +88,11 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal 23, Paperclip::Interpolations.id(attachment, :style)
   end
 
-  should "return the partitioned id of the attachment when the id is an integer" do
+  should "return the partitioned id of the attachment" do
     attachment = mock
     attachment.expects(:id).returns(23)
     attachment.expects(:instance).returns(attachment)
     assert_equal "000/000/023", Paperclip::Interpolations.id_partition(attachment, :style)
-  end
-
-  should "return the partitioned id of the attachment when the id is a string" do
-    attachment = mock
-    attachment.expects(:id).returns("32fnj23oio2f")
-    attachment.expects(:instance).returns(attachment)
-    assert_equal "32f/nj2/3oi", Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
   should "return the name of the attachment" do
