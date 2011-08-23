@@ -49,7 +49,7 @@ GEM
     builder (2.1.2)
     childprocess (0.2.0)
       ffi (~> 1.0.6)
-    cocaine (0.1.0)
+    cocaine (0.2.0)
     cucumber (1.0.2)
       builder (>= 2.1.2)
       diff-lcs (>= 1.1.2)
@@ -150,7 +150,7 @@ DEPENDENCIES
   appraisal
   aws-s3
   bundler
-  cocaine
+  cocaine (~> 0.2)
   fog
   jruby-openssl
   mime-types

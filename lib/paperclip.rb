@@ -40,6 +40,7 @@ require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatibility'
 require 'paperclip/railtie'
+require 'logger'
 require 'cocaine'
 
 # The base module that gets included in ActiveRecord::Base. See the
@@ -128,7 +129,11 @@ module Paperclip
     end
 
     def logger #:nodoc:
-      defined?(ActiveRecord::Base) ? ActiveRecord::Base.logger : Rails.logger
+      @logger ||= options[:logger] || Logger.new(STDOUT)
+    end
+
+    def logger=(logger)
+      @logger = logger
     end
 
     def logging? #:nodoc:

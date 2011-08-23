@@ -4,7 +4,7 @@ gem "activerecord", :require => "active_record"
 gem "appraisal"
 gem "aws-s3", :require => "aws/s3"
 gem "bundler"
-gem "cocaine"
+gem "cocaine", "~>0.2"
 gem "fog"
 gem "jruby-openssl", :platform => :jruby
 gem "mime-types"
