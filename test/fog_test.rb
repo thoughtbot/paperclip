@@ -21,8 +21,8 @@ class FogTest < Test::Unit::TestCase
       end
       should "be able to interpolate the path without blowing up" do
         puts @dummy.avatar.instance_variable_get("@path")
-        assert_equal File.join(File.dirname(File.expand_path(__FILE__)),
-                     "../public/avatars/5k.png"), @dummy.avatar.path
+        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
+                     @dummy.avatar.path
       end
     end
 
