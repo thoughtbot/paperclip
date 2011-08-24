@@ -225,7 +225,7 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
 
-    context "passing a custom geometry parser" do
+    context "passing a custom file geometry parser" do
       should "produce the appropriate transformation_command" do
         GeoParser = Class.new do
           def self.from_file(file)
@@ -236,7 +236,7 @@ class ThumbnailTest < Test::Unit::TestCase
           end
         end
 
-        thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :file_geometry_parser => GeoParser)
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :file_geometry_parser => GeoParser)
 
         transformation_command = thumb.transformation_command
 
@@ -248,6 +248,27 @@ class ThumbnailTest < Test::Unit::TestCase
           %{expected #{transformation_command.inspect} to include '-resize'}
         assert transformation_command.include?('"SCALE"'),
           %{expected #{transformation_command.inspect} to include '"SCALE"'}
+      end
+    end
+
+    context "passing a custom geometry string parser" do
+      should "produce the appropriate transformation_command" do
+        GeoParser = Class.new do
+          def self.parse(s)
+            new
+          end
+
+          def to_s
+            "151x167"
+          end
+        end
+
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :string_geometry_parser => GeoParser)
+
+        transformation_command = thumb.transformation_command
+
+        assert transformation_command.include?('"151x167"'),
+          %{expected #{transformation_command.inspect} to include '151x167'}
       end
     end
   end
