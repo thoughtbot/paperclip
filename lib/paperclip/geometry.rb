@@ -15,10 +15,13 @@ module Paperclip
     # File or path.
     def self.from_file file
       file = file.path if file.respond_to? "path"
+      raise(Paperclip::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file.blank?
       geometry = begin
-                   Paperclip.run("identify", %Q[-format "%wx%h" "#{file}"[0]])
-                 rescue PaperclipCommandLineError
+                   Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
+                 rescue Cocaine::ExitStatusError
                    ""
+                 rescue Cocaine::CommandNotFoundError => e
+                   raise Paperclip::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
                  end
       parse(geometry) ||
         raise(NotIdentifiedByImageMagickError.new("#{file} is not recognized by the 'identify' command."))
@@ -75,12 +78,12 @@ module Paperclip
       to_s
     end
 
-    # Returns the scaling and cropping geometries (in string-based ImageMagick format) 
-    # neccessary to transform this Geometry into the Geometry given. If crop is true, 
-    # then it is assumed the destination Geometry will be the exact final resolution. 
-    # In this case, the source Geometry is scaled so that an image containing the 
-    # destination Geometry would be completely filled by the source image, and any 
-    # overhanging image would be cropped. Useful for square thumbnail images. The cropping 
+    # Returns the scaling and cropping geometries (in string-based ImageMagick format)
+    # neccessary to transform this Geometry into the Geometry given. If crop is true,
+    # then it is assumed the destination Geometry will be the exact final resolution.
+    # In this case, the source Geometry is scaled so that an image containing the
+    # destination Geometry would be completely filled by the source image, and any
+    # overhanging image would be cropped. Useful for square thumbnail images. The cropping
     # is weighted at the center of the Geometry.
     def transformation_to dst, crop = false
       if crop

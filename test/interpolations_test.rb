@@ -1,4 +1,4 @@
-require 'test/helper'
+require './test/helper'
 
 class InterpolationsTest < Test::Unit::TestCase
   should "return all methods but the infrastructure when sent #all" do
@@ -11,12 +11,12 @@ class InterpolationsTest < Test::Unit::TestCase
     end
   end
 
-  should "return the RAILS_ROOT" do
-    assert_equal RAILS_ROOT, Paperclip::Interpolations.rails_root(:attachment, :style)
+  should "return the Rails.root" do
+    assert_equal Rails.root, Paperclip::Interpolations.rails_root(:attachment, :style)
   end
 
-  should "return the RAILS_ENV" do
-    assert_equal RAILS_ENV, Paperclip::Interpolations.rails_env(:attachment, :style)
+  should "return the Rails.env" do
+    assert_equal Rails.env, Paperclip::Interpolations.rails_env(:attachment, :style)
   end
 
   should "return the class of the Interpolations module when called with no params" do
@@ -50,6 +50,37 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "png", Paperclip::Interpolations.extension(attachment, :style)
   end
 
+  should "return the extension of the file based on the content type" do
+    attachment = mock
+    attachment.expects(:content_type).returns('image/jpeg')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('random')
+    assert_equal "jpeg", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the original extension of the file if it matches a content type extension" do
+    attachment = mock
+    attachment.expects(:content_type).returns('image/jpeg')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('jpe')
+    assert_equal "jpe", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the latter half of the content type of the extension if no match found" do
+    attachment = mock
+    attachment.expects(:content_type).at_least_once().returns('not/found')
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('random')
+    assert_equal "found", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the #to_param of the attachment" do
+    attachment = mock
+    attachment.expects(:to_param).returns("23-awesome")
+    attachment.expects(:instance).returns(attachment)
+    assert_equal "23-awesome", Paperclip::Interpolations.param(attachment, :style)
+  end
+
   should "return the id of the attachment" do
     attachment = mock
     attachment.expects(:id).returns(23)
@@ -57,11 +88,18 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal 23, Paperclip::Interpolations.id(attachment, :style)
   end
 
-  should "return the partitioned id of the attachment" do
+  should "return the partitioned id of the attachment when the id is an integer" do
     attachment = mock
     attachment.expects(:id).returns(23)
     attachment.expects(:instance).returns(attachment)
     assert_equal "000/000/023", Paperclip::Interpolations.id_partition(attachment, :style)
+  end
+
+  should "return the partitioned id of the attachment when the id is a string" do
+    attachment = mock
+    attachment.expects(:id).returns("32fnj23oio2f")
+    attachment.expects(:instance).returns(attachment)
+    assert_equal "32f/nj2/3oi", Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
   should "return the name of the attachment" do
@@ -82,14 +120,17 @@ class InterpolationsTest < Test::Unit::TestCase
 
   should "reinterpolate :url" do
     attachment = mock
-    attachment.expects(:options).returns({:url => ":id"})
     attachment.expects(:url).with(:style, false).returns("1234")
     assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
   end
 
   should "raise if infinite loop detcted reinterpolating :url" do
-    attachment = mock
-    attachment.expects(:options).returns({:url => ":url"})
+    attachment = Object.new
+    class << attachment
+      def url(*args)
+        Paperclip::Interpolations.url(self, :style)
+      end
+    end
     assert_raises(Paperclip::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
   end
 
@@ -107,11 +148,34 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
 
+  should "return the filename as basename when extension is blank" do
+    attachment = mock
+    attachment.stubs(:styles).returns({})
+    attachment.stubs(:original_filename).returns("one")
+    assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
+  end
+
   should "return the timestamp" do
     now = Time.now
+    zone = 'UTC'
     attachment = mock
     attachment.expects(:instance_read).with(:updated_at).returns(now)
-    assert_equal now.to_s, Paperclip::Interpolations.timestamp(attachment, :style)
+    attachment.expects(:time_zone).returns(zone)
+    assert_equal now.in_time_zone(zone).to_s, Paperclip::Interpolations.timestamp(attachment, :style)
+  end
+
+  should "return updated_at" do
+    attachment = mock
+    seconds_since_epoch = 1234567890
+    attachment.expects(:updated_at).returns(seconds_since_epoch)
+    assert_equal seconds_since_epoch, Paperclip::Interpolations.updated_at(attachment, :style)
+  end
+
+  should "return hash" do
+    attachment = mock
+    fake_hash = "a_wicked_secure_hash"
+    attachment.expects(:hash).returns(fake_hash)
+    assert_equal fake_hash, Paperclip::Interpolations.hash(attachment, :style)
   end
 
   should "call all expected interpolations with the given arguments" do

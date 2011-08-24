@@ -1,9 +1,10 @@
-require 'test/helper'
+require './test/helper'
 
 class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
   context "validate_attachment_content_type" do
     setup do
       reset_table("dummies") do |d|
+        d.string :title
         d.string :avatar_file_name
         d.string :avatar_content_type
       end
@@ -14,18 +15,73 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
                        rejecting(%w(audio/mp3 application/octet-stream))
     end
 
-    should "reject a class with no validation" do
-      assert_rejects @matcher, @dummy_class
+    context "given a class with no validation" do
+      should_reject_dummy_class
     end
 
-    should "reject a class with a validation that doesn't match" do
-      @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
-      assert_rejects @matcher, @dummy_class
+    context "given a class with a validation that doesn't match" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+      end
+
+      should_reject_dummy_class
     end
 
-    should "accept a class with a validation" do
-      @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
-      assert_accepts @matcher, @dummy_class
+    context "given a class with a matching validation" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+      end
+
+      should_accept_dummy_class
+    end
+
+    context "given a class with other validations but matching types" do
+      setup do
+        @dummy_class.validates_presence_of :title
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+      end
+
+      should_accept_dummy_class
+    end
+
+    context "given a class that matches and a matcher that only specifies 'allowing'" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        @matcher     = self.class.validate_attachment_content_type(:avatar).
+          allowing(%w(image/png image/jpeg))
+      end
+
+      should_accept_dummy_class
+    end
+
+    context "given a class that does not match and a matcher that only specifies 'allowing'" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+        @matcher     = self.class.validate_attachment_content_type(:avatar).
+          allowing(%w(image/png image/jpeg))
+      end
+
+      should_reject_dummy_class
+    end
+
+    context "given a class that matches and a matcher that only specifies 'rejecting'" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        @matcher     = self.class.validate_attachment_content_type(:avatar).
+          rejecting(%w(audio/mp3 application/octet-stream))
+      end
+
+      should_accept_dummy_class
+    end
+
+    context "given a class that does not match and a matcher that only specifies 'rejecting'" do
+      setup do
+        @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+        @matcher     = self.class.validate_attachment_content_type(:avatar).
+          rejecting(%w(audio/mp3 application/octet-stream))
+      end
+
+      should_reject_dummy_class
     end
   end
 end
