@@ -5,6 +5,40 @@ Fog.mock!
 
 class FogTest < Test::Unit::TestCase
   context "" do
+    
+    context "with credentials provided in a path string" do
+      setup do
+        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                      :storage => :fog,
+                      :url => '/:attachment/:filename',
+                      :fog_directory => "paperclip",
+                      :fog_credentials => File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml')
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+      end
+
+      should "have the proper information loading credentials from a file" do
+        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+      end
+    end
+    
+    context "with credentials provided in a File object" do
+      setup do
+        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                      :storage => :fog,
+                      :url => '/:attachment/:filename',
+                      :fog_directory => "paperclip",
+                      :fog_credentials => File.open(File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml'))
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+      end
+
+      should "have the proper information loading credentials from a file" do
+        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+      end
+    end
+    
+    
     context "with default values for path and url" do
       setup do
         rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
@@ -25,7 +59,7 @@ class FogTest < Test::Unit::TestCase
                      @dummy.avatar.path
       end
     end
-
+          
     setup do
       @fog_directory = 'papercliptests'
 

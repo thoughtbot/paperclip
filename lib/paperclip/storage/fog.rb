@@ -42,7 +42,7 @@ module Paperclip
 
         base.instance_eval do
           @fog_directory    = @options[:fog_directory]
-          @fog_credentials  = @options[:fog_credentials]
+          @fog_credentials  = parse_credentials(@options[:fog_credentials])
           @fog_host         = @options[:fog_host]
           @fog_public       = @options.key?(:fog_public) ? @options[:fog_public] : true
           @fog_file         = @options[:fog_file] || {}
@@ -119,9 +119,28 @@ module Paperclip
           directory.files.new(:key => path(style)).public_url
         end
       end
+      
+      def parse_credentials creds
+        creds = find_credentials(creds).stringify_keys
+        env = Object.const_defined?(:Rails) ? Rails.env : nil
+        (creds[env] || creds).symbolize_keys
+      end
 
       private
-
+      
+      def find_credentials creds
+        case creds
+        when File
+          YAML::load(ERB.new(File.read(creds.path)).result)
+        when String, Pathname
+          YAML::load(ERB.new(File.read(creds)).result)
+        when Hash
+          creds
+        else
+          raise ArgumentError, "Credentials are not a path, file, or hash."
+        end
+      end
+      
       def connection
         @connection ||= ::Fog::Storage.new(@fog_credentials)
       end
@@ -129,8 +148,6 @@ module Paperclip
       def directory
         @directory ||= connection.directories.new(:key => @fog_directory)
       end
-
     end
-
   end
 end
