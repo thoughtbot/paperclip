@@ -231,6 +231,20 @@ Paperclip has an interpolation called `:hash` for obfuscating filenames of publi
 
 [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
 
+MD5 Checksum / Fingerprint
+-------
+A MD5 checksum of the original file assigned will be placed in the model if it has an attribute named fingerprint.  Following the user model migration example above, the migration would look like the following.
+
+    class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
+      def self.up
+        add_column :users, :avatar_fingerprint, :string
+      end
+
+      def self.down
+        remove_column :users, :avatar_fingerprint
+      end
+    end
+
 Testing
 -------
 
