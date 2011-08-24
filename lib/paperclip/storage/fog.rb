@@ -47,7 +47,10 @@ module Paperclip
           @fog_public       = @options.key?(:fog_public) ? @options[:fog_public] : true
           @fog_file         = @options[:fog_file] || {}
 
-          @url = ':fog_public_url'
+          unless @url.to_s.match(/^:fog.*url$/)
+            @path  = @path.gsub(/:url/, @url)
+            @url   = ':fog_public_url'
+          end
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
             attachment.public_url(style)
           end unless Paperclip::Interpolations.respond_to? :fog_public_url

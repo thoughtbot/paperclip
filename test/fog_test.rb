@@ -5,6 +5,26 @@ Fog.mock!
 
 class FogTest < Test::Unit::TestCase
   context "" do
+    context "with default values for path and url" do
+      setup do
+        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                      :storage => :fog,
+                      :url => '/:attachment/:filename',
+                      :fog_directory => "paperclip",
+                      :fog_credentials => {
+                        :provider => 'AWS',
+                        :aws_access_key_id => 'AWS_ID',
+                        :aws_secret_access_key => 'AWS_SECRET'
+                      }
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+      end
+      should "be able to interpolate the path without blowing up" do
+        puts @dummy.avatar.instance_variable_get("@path")
+        assert_equal File.join(File.dirname(File.expand_path(__FILE__)),
+                     "../public/avatars/5k.png"), @dummy.avatar.path
+      end
+    end
 
     setup do
       @fog_directory = 'papercliptests'
