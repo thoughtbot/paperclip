@@ -14,14 +14,24 @@ module Paperclip
     # unless specified. Thumbnail creation will raise no errors unless
     # +whiny+ is true (which it is, by default. If +convert_options+ is
     # set, the options will be appended to the convert command upon image conversion
-    def initialize file, options = {}, attachment = nil
+    #
+    # Options include:
+    #
+    #   +geometry+ - the desired width and height of the thumbnail
+    #   +file_geometry_parser+ - an object with a method named +from_file+ that takes an image file and produces its geometry. Defaults to Paperclip::Geometry
+    #   +source_file_options+ - flags passed to the +convert+ command that influence how the source file is read
+    #   +convert_options+ - flags passed to the +convert+ command that influence how the image is processed
+    #   +whiny+ - whether to raise an error when processing fails. Defaults to true.
+    #   +format+ - the desired filename extension
+    #   +animated+ - whether to merge all the layers in the image. Defaults to true.
+    def initialize(file, options = {}, attachment = nil)
       super
 
       geometry             = options[:geometry]
       @file                = file
       @crop                = geometry[-1,1] == '#'
-      @target_geometry     = Geometry.parse geometry
-      @current_geometry    = Geometry.from_file @file
+      @target_geometry     = Geometry.parse(geometry)
+      @current_geometry    = (options[:file_geometry_parser] || Geometry).from_file(@file)
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
       @whiny               = options[:whiny].nil? ? true : options[:whiny]

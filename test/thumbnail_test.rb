@@ -224,6 +224,32 @@ class ThumbnailTest < Test::Unit::TestCase
         assert !@thumb.transformation_command.include?("-resize")
       end
     end
+
+    context "passing a custom geometry parser" do
+      should "produce the appropriate transformation_command" do
+        GeoParser = Class.new do
+          def self.from_file(file)
+            new
+          end
+          def transformation_to(target, should_crop)
+            ["SCALE", "CROP"]
+          end
+        end
+
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :file_geometry_parser => GeoParser)
+
+        transformation_command = thumb.transformation_command
+
+        assert transformation_command.include?('-crop'),
+          %{expected #{transformation_command.inspect} to include '-crop'}
+        assert transformation_command.include?('"CROP"'),
+          %{expected #{transformation_command.inspect} to include '"CROP"'}
+        assert transformation_command.include?('-resize'),
+          %{expected #{transformation_command.inspect} to include '-resize'}
+        assert transformation_command.include?('"SCALE"'),
+          %{expected #{transformation_command.inspect} to include '"SCALE"'}
+      end
+    end
   end
 
   context "A multipage PDF" do
