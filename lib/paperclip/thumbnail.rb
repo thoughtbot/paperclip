@@ -17,7 +17,7 @@ module Paperclip
     #
     # Options include:
     #
-    #   +geometry+ - the desired width and height of the thumbnail
+    #   +geometry+ - the desired width and height of the thumbnail (required)
     #   +file_geometry_parser+ - an object with a method named +from_file+ that takes an image file and produces its geometry and a +transformation_to+. Defaults to Paperclip::Geometry
     #   +string_geometry_parser+ - an object with a method named +parse+ that takes a string and produces an object with +width+, +height+, and +to_s+ accessors. Defaults to Paperclip::Geometry
     #   +source_file_options+ - flags passed to the +convert+ command that influence how the source file is read

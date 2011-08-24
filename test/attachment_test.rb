@@ -1039,7 +1039,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "an attachment with delete_file option set to false" do
     setup do
       rebuild_model :preserve_files => true
@@ -1047,19 +1047,33 @@ class AttachmentTest < Test::Unit::TestCase
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
       @dummy.avatar = @file
       @dummy.save!
-      @attachment = @dummy.avatar 
-      @path = @attachment.path      
+      @attachment = @dummy.avatar
+      @path = @attachment.path
     end
-    
-    should "not delete the files from storage when attachment is destroyed" do      
+
+    should "not delete the files from storage when attachment is destroyed" do
       @attachment.destroy
       assert File.exists?(@path)
     end
-    
-    should "not dleete the file when model is destroy" do
+
+    should "not delete the file when model is destroy" do
       @dummy.destroy
       assert File.exists?(@path)
     end
   end
 
+  context "setting an interpolation class" do
+    should "produce the URL with the given interpolations" do
+      Interpolator = Class.new do
+        def self.interpolate(pattern, attachment, style_name)
+          "hello"
+        end
+      end
+
+      instance = Dummy.new
+      attachment = Paperclip::Attachment.new(:avatar, instance, :interpolator => Interpolator)
+
+      assert_equal "hello", attachment.url
+    end
+  end
 end

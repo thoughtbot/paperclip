@@ -27,12 +27,33 @@ module Paperclip
       }
     end
 
-    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options, :source_file_options
+    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options, :source_file_options, :interpolator
     attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,
     # +instance+ is the ActiveRecord object instance it's attached to, and
     # +options+ is the same as the hash passed to +has_attached_file+.
+    #
+    # Options include:
+    #
+    #  +url+ - a relative URL of the attachment. This is interpolated using +interpolator+
+    #  +path+ - where on the filesystem to store the attachment. This is interpolated using +interpolator+
+    #  +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
+    #  +only_process+ - style args to be run through the post-processor. This defaults to the empty list
+    #  +default_url+ - a URL for the missing image
+    #  +default_style+ - the style to use when don't specify an argument to e.g. #url, #path
+    #  +storage+ - the storage mechanism. Defaults to :filesystem
+    #  +use_timestamp+ - whether to append an anti-caching timestamp to image URLs. Defaults to true
+    #  +whiny+, +whiny_thumbnails+ - whether to raise when thumbnailing fails
+    #  +use_default_time_zone+ - related to +use_timestamp+. Defaults to true
+    #  +hash_digest+ - a string representing a class that will be used to hash URLs for obfuscation
+    #  +hash_data+ - the relative URL for the hash data. This is interpolated using +interpolator+
+    #  +hash_secret+ - a secret passed to the +hash_digest+
+    #  +convert_options+ - flags passed to the +convert+ command for processing
+    #  +source_file_options+ - flags passed to the +convert+ command that controls how the file is read
+    #  +processors+ - classes that transform the attachment. Defaults to [:thumbnail]
+    #  +preserve_files+ - whether to keep files on the filesystem when deleting to clearing the attachment. Defaults to false
+    #  +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
     def initialize name, instance, options = {}
       @name              = name
       @instance          = instance
@@ -65,6 +86,7 @@ module Paperclip
       @queued_for_write      = {}
       @errors                = {}
       @dirty                 = false
+      @interpolator          = (options[:interpolator] || Paperclip::Interpolations)
 
       initialize_storage
     end
@@ -138,7 +160,7 @@ module Paperclip
     # file is stored in the filesystem the path refers to the path of the file
     # on disk. If the file is stored in S3, the path is the "key" part of the
     # URL, and the :bucket option refers to the S3 bucket.
-    def path style_name = default_style
+    def path(style_name = default_style)
       original_filename.nil? ? nil : interpolate(@path, style_name)
     end
 
@@ -377,8 +399,8 @@ module Paperclip
       end
     end
 
-    def interpolate pattern, style_name = default_style #:nodoc:
-      Paperclip::Interpolations.interpolate(pattern, self, style_name)
+    def interpolate(pattern, style_name = default_style) #:nodoc:
+      interpolator.interpolate(pattern, self, style_name)
     end
 
     def queue_existing_for_delete #:nodoc:
