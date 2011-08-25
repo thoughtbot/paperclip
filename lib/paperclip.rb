@@ -39,6 +39,7 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatibility'
+require 'paperclip/missing_attachment_styles'
 require 'paperclip/railtie'
 require 'logger'
 require 'cocaine'
@@ -269,6 +270,7 @@ module Paperclip
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
+      Paperclip.classes_with_attachments << self
 
       after_save :save_attached_files
       before_destroy :destroy_attached_files
