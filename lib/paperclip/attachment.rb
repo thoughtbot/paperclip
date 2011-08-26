@@ -424,7 +424,7 @@ module Paperclip
     def after_flush_writes
       @queued_for_write.each do |style, file|
         file.close unless file.closed?
-        file.unlink if file.respond_to?(:unlink) && File.exist?(file.path)
+        file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
       end
     end
 
