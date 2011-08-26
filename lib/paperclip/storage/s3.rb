@@ -196,6 +196,9 @@ module Paperclip
             raise
           end
         end
+
+        after_flush_writes # allows attachment to clean up temp files
+
         @queued_for_write = {}
       end
 

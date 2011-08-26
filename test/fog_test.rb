@@ -24,6 +24,14 @@ class FogTest < Test::Unit::TestCase
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
+
+      should "clean up file objects" do
+        File.stubs(:exist?).returns(true)
+        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+        
+        @dummy.save!
+      end
     end
 
     setup do
