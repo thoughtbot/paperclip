@@ -1076,4 +1076,32 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "hello", attachment.url
     end
   end
+  
+  context "An attached file" do
+    setup do
+      rebuild_model
+      @dummy = Dummy.new
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @dummy.avatar = @file
+      @dummy.save!
+      @attachment = @dummy.avatar 
+      @path = @attachment.path      
+    end
+
+    should "not be deleted when the model fails to destroy" do
+      @dummy.stubs(:destroy).raises(Exception)
+
+      assert_raise Exception do
+        @dummy.destroy
+      end
+
+      assert File.exists?(@path)
+    end
+
+    should "be deleted when the model is destroyed" do
+      @dummy.destroy
+      assert ! File.exists?(@path)
+    end
+  end
+  
 end
