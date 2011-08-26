@@ -102,6 +102,14 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "32f/nj2/3oi", Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
+  should "return the fake partitioned id of the attachment when the id is nil for new record" do
+    attachment = mock
+    attachment.expects(:id).returns(nil)
+    attachment.expects(:instance).returns(attachment)
+    assert_equal "000/000/000", Paperclip::Interpolations.id_partition(attachment, :style)
+  end
+
+
   should "return the name of the attachment" do
     attachment = mock
     attachment.expects(:name).returns("file")
