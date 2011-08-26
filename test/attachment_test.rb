@@ -1076,7 +1076,7 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "hello", attachment.url
     end
   end
-  
+
   context "An attached file" do
     setup do
       rebuild_model
@@ -1084,8 +1084,8 @@ class AttachmentTest < Test::Unit::TestCase
       @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
       @dummy.avatar = @file
       @dummy.save!
-      @attachment = @dummy.avatar 
-      @path = @attachment.path      
+      @attachment = @dummy.avatar
+      @path = @attachment.path
     end
 
     should "not be deleted when the model fails to destroy" do
@@ -1103,5 +1103,5 @@ class AttachmentTest < Test::Unit::TestCase
       assert ! File.exists?(@path)
     end
   end
-  
+
 end
