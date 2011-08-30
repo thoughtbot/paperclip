@@ -92,7 +92,7 @@ module Paperclip
     # This method can log the command being run when
     # Paperclip.options[:log_command] is set to true (defaults to false). This
     # will only log if logging in general is set to true as well.
-    def run cmd, *params
+    def run(cmd, *params)
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
@@ -100,17 +100,39 @@ module Paperclip
       Cocaine::CommandLine.new(cmd, *params).run
     end
 
-    def processor name #:nodoc:
-      name = name.to_s.camelize
-      load_processor(name) unless Paperclip.const_defined?(name)
-      processor = Paperclip.const_get(name)
-      processor
+    def processor(name) #:nodoc:
+      @known_processors ||= {}
+      if @known_processors[name.to_s]
+        @known_processors[name.to_s]
+      else
+        name = name.to_s.camelize
+        load_processor(name) unless Paperclip.const_defined?(name)
+        processor = Paperclip.const_get(name)
+        @known_processors[name.to_s] = processor
+      end
     end
 
     def load_processor(name)
       if defined?(Rails.root) && Rails.root
         require File.expand_path(Rails.root.join("lib", "paperclip_processors", "#{name.underscore}.rb"))
       end
+    end
+
+    def clear_processors!
+      @known_processors.try(:clear)
+    end
+
+    # You can add your own processor via the Paperclip configuration. Normally
+    # Paperclip will load all processors from the
+    # Rails.root/lib/paperclip_processors directory, but here you can add any
+    # existing class using this mechanism.
+    #
+    #   Paperclip.configure do |c|
+    #     c.register_processor :watermarker, WatermarkingProcessor.new
+    #   end
+    def register_processor(name, processor)
+      @known_processors ||= {}
+      @known_processors[name.to_s] = processor
     end
 
     def each_instance_with_attachment(klass, name)

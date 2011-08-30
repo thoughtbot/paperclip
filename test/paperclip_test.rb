@@ -272,4 +272,26 @@ class PaperclipTest < Test::Unit::TestCase
     end
 
   end
+
+  context "configuring a custom processor" do
+    setup do
+      @freedom_processor = Class.new do
+        def make(file, options = {}, attachment = nil)
+          file
+        end
+      end.new
+
+      Paperclip.configure do |config|
+        config.register_processor(:freedom, @freedom_processor)
+      end
+    end
+
+    should "be able to find the custom processor" do
+      assert_equal @freedom_processor, Paperclip.processor(:freedom)
+    end
+
+    teardown do
+      Paperclip.clear_processors!
+    end
+  end
 end
