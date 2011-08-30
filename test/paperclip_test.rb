@@ -25,10 +25,6 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
-  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
-    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
-  end
-
   should "raise when sent #processor and the name of a class that doesn't exist" do
     assert_raises(NameError){ Paperclip.processor(:boogey_man) }
   end

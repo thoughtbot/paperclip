@@ -104,9 +104,6 @@ module Paperclip
       name = name.to_s.camelize
       load_processor(name) unless Paperclip.const_defined?(name)
       processor = Paperclip.const_get(name)
-      unless processor.ancestors.include?(Paperclip::Processor)
-        raise PaperclipError.new("Processor #{name} was not found")
-      end
       processor
     end
 

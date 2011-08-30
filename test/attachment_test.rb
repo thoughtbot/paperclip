@@ -447,6 +447,10 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment with :processors that is a proc" do
     setup do
+      class Paperclip::Test < Paperclip::Processor; end
+      @file = StringIO.new("...")
+      Paperclip::Test.stubs(:make).returns(@file)
+
       rebuild_model :styles => { :normal => '' }, :processors => lambda { |a| [ :test ] }
       @attachment = Dummy.new.avatar
     end
