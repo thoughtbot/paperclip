@@ -29,6 +29,14 @@ class StorageTest < Test::Unit::TestCase
       @dummy.save
       assert File.exists?(@dummy.avatar.path(:thumbnail))
     end
+
+    should "clean up file objects" do
+      File.stubs(:exist?).returns(true)
+      Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+      Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+
+      @dummy.save!
+    end
   end
 
   context "Parsing S3 credentials" do
@@ -347,6 +355,15 @@ class StorageTest < Test::Unit::TestCase
         should "succeed" do
           assert true
         end
+      end
+
+      should "delete tempfiles" do
+        AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png', :access => :public_read)
+        File.stubs(:exist?).returns(true)
+        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+        
+        @dummy.save!
       end
 
       context "and saved without a bucket" do
