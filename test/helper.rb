@@ -20,7 +20,7 @@ rescue LoadError => e
   puts "debugger disabled"
 end
 
-ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
 def silence_warnings
   old_verbose, $VERBOSE = $VERBOSE, nil

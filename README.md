@@ -305,6 +305,56 @@ processors, where a defined `watermark` processor is invoked after the
       attr_accessor :watermark
     end
 
+Deploy
+------
+
+Paperclip is aware of new attachment styles you have added in previous deploy. The only thing you should do after each deployment is to call
+`rake paperclip:refresh:missing_styles`.  It will store current attachment styles in `RAILS_ROOT/public/system/paperclip_attachments.yml`
+by default. You can change it by:
+
+    Paperclip.registered_attachments_styles_path = '/tmp/config/paperclip_attachments.yml'
+
+Here is an example for Capistrano:
+
+    namespace :deploy do
+      desc "build missing paperclip styles"
+      task :build_missing_paperclip_styles, :roles => :app do
+        run "cd #{release_path}; RAILS_ENV=production bundle exec rake paperclip:refresh:missing_styles"
+      end
+    end
+    
+    after("deploy:update_code", "deploy:build_missing_paperclip_styles")
+
+Now you don't have to remember to refresh thumbnails in production everytime you add new style.
+Unfortunately it does not work with dynamic styles - it just ignores them.
+
+If you already have working app and don't want `rake paperclip:refresh:missing_styles` to refresh old pictures, you need to tell
+Paperclip about existing styles. Simply create paperclip_attachments.yml file by hand. For example:
+
+    class User < ActiveRecord::Base
+      has_attached_file :avatar, :styles => {:thumb => 'x100', :croppable => '600x600>', :big => '1000x1000>'}
+    end
+  
+    class Book < ActiveRecord::Base
+      has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
+      has_attached_file :sample, :styles => {:thumb => 'x100'}
+    end
+
+Then in `RAILS_ROOT/public/system/paperclip_attachments.yml`:
+
+    --- 
+    :User: 
+      :avatar: 
+      - :thumb
+      - :croppable
+      - :big
+    :Book: 
+      :cover: 
+      - :small
+      - :large
+      :sample: 
+      - :thumb
+
 Testing
 -------
 
