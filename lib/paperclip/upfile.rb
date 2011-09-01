@@ -25,7 +25,7 @@ module Paperclip
     def type_from_file_command
     #  On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
       type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
-      mime_type = (Paperclip.run("file", "-b --mime-type :file", :file => self.path).split(':').last.strip rescue "application/x-#{type}")
+      mime_type = (Paperclip.run("file", "-b --mime :file", :file => self.path).split(':').last.split(';').first.strip rescue "application/x-#{type}")
       mime_type = "application/x-#{type}" if mime_type.match(/\(.*?\)/)
       mime_type
     end
