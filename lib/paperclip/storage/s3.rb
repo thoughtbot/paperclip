@@ -153,7 +153,7 @@ module Paperclip
         end
       end
 
-      def s3_protocol(style)
+      def s3_protocol(style = default_style)
         if @s3_protocol.is_a?(Proc)
           @s3_protocol.call(style)
         else
