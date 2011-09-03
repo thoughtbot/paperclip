@@ -122,8 +122,8 @@ module Paperclip
         @bucket
       end
 
-      def s3_host_name 
-        @s3_host_name || "s3.amazonaws.com" 
+      def s3_host_name
+        @s3_host_name || "s3.amazonaws.com"
       end
 
       def set_permissions permissions
