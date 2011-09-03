@@ -49,7 +49,7 @@ well with gems.
 
 Include the gem in your Gemfile:
 
-    gem "paperclip", "~> 2.3"
+    gem "paperclip", "~> 2.4"
 
 Or, if you don't use Bundler (though you probably should, even in Rails 2), with config.gem
 
@@ -57,7 +57,7 @@ Or, if you don't use Bundler (though you probably should, even in Rails 2), with
     ...
     Rails::Initializer.run do |config|
       ...
-      config.gem "paperclip", :version => "~> 2.3"
+      config.gem "paperclip", :version => "~> 2.4"
       ...
     end
 
