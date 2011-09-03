@@ -34,4 +34,20 @@ class UpfileTest < Test::Unit::TestCase
     end
     assert_equal 'text/plain', file.content_type
   end
+
+  { '5k.png'       => 'image/png',
+    'animated.gif' => 'image/gif',
+    'text.txt'     => 'text/plain',
+    'twopage.pdf'  => 'application/pdf'
+  }.each do |filename, content_type|
+    should "return a content type of #{content_type} from a file command for file #{filename}" do
+      file = File.new(File.join(File.dirname(__FILE__), "fixtures", filename))
+      class << file
+        include Paperclip::Upfile
+      end
+
+      assert_equal content_type, file.type_from_file_command
+    end
+  end
+
 end
