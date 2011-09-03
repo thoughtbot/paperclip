@@ -142,7 +142,7 @@ module Paperclip
       end
     end
 
-    # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
+    # Log a paperclip-specific line. This will logs to STDOUT
     # by default. Set Paperclip.options[:log] to false to turn off.
     def log message
       logger.info("[paperclip] #{message}") if logging?
