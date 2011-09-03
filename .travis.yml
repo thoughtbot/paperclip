@@ -3,7 +3,7 @@ rvm:
   - 1.9.2
   - ree
   - rbx-2.0
-  
+
 script: "bundle exec rake clean test"
 gemfile:
   - gemfiles/rails2.gemfile
