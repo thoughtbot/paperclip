@@ -1060,7 +1060,7 @@ class AttachmentTest < Test::Unit::TestCase
       assert File.exists?(@path)
     end
 
-    should "not delete the file when model is destroy" do
+    should "not delete the file when model is destroyed" do
       @dummy.destroy
       assert File.exists?(@path)
     end
