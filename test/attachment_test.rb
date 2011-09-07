@@ -36,6 +36,13 @@ class AttachmentTest < Test::Unit::TestCase
     assert_equal "fake_models/blegga.png", @attachment.url
   end
 
+  should "return the url by executing and interpolating the default_url when assigned with symbol as method in attachment model" do
+    @attachment = attachment :default_url => :some_method_to_determine_default_url
+    @model = @attachment.instance
+    @model.stubs(:some_method_to_determine_default_url).returns(":class/female_:style_blegga.png")
+    assert_equal "fake_models/female_foostyle_blegga.png", @attachment.url(:foostyle)
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model
