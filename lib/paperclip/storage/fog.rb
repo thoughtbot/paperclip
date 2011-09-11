@@ -119,7 +119,16 @@ module Paperclip
           host = (@fog_host =~ /%d/) ? @fog_host % (path(style).hash % 4) : @fog_host
           "#{host}/#{path(style)}"
         else
-          directory.files.new(:key => path(style)).public_url
+          if @fog_credentials[:provider] == 'AWS'
+            if @fog_directory.to_s =~ /^(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}$))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]$/
+              "https://#{@fog_directory}.s3.amazonaws.com/#{path(style)}"
+            else
+              # directory is not a valid subdomain, so use path style for access
+              "https://s3.amazonaws.com/#{@fog_directory}/#{path(style)}"
+            end
+          else
+            directory.files.new(:key => path(style)).public_url
+          end
         end
       end
 
