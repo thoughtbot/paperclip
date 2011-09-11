@@ -51,6 +51,8 @@ module Paperclip
         end
       end
 
+      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /^(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}$))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]$/
+
       def exists?(style = default_style)
         if original_filename
           !!directory.files.head(path(style))
@@ -126,7 +128,16 @@ module Paperclip
           host = (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
           "#{host}/#{path(style)}"
         else
-          directory.files.new(:key => path(style)).public_url
+          if fog_credentials[:provider] == 'AWS'
+            if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
+              "https://#{@options[:fog_directory]}.s3.amazonaws.com/#{path(style)}"
+            else
+              # directory is not a valid subdomain, so use path style for access
+              "https://s3.amazonaws.com/#{@options[:fog_directory]}/#{path(style)}"
+            end
+          else
+            directory.files.new(:key => path(style)).public_url
+          end
         end
       end
 
