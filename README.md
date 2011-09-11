@@ -61,6 +61,7 @@ Or, if you don't use Bundler (though you probably should, even in Rails 2), with
       ...
     end
 For Non-Rails usage:
+
     class ModleName < ActiveRecord::Base
         include Paperclip::Glue
         ...
