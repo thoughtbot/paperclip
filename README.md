@@ -60,6 +60,11 @@ Or, if you don't use Bundler (though you probably should, even in Rails 2), with
       config.gem "paperclip", :version => "~> 2.4"
       ...
     end
+For Non-Rails usage:
+    class ModleName < ActiveRecord::Base
+        include Paperclip::Glue
+        ...
+    end
 
 Quick Start
 -----------
