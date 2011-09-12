@@ -53,7 +53,6 @@ class FogTest < Test::Unit::TestCase
         @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
       end
       should "be able to interpolate the path without blowing up" do
-        puts @dummy.avatar.instance_variable_get("@path")
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
@@ -136,7 +135,7 @@ class FogTest < Test::Unit::TestCase
           @dummy.save
         end
 
-        should "provide a public url" do
+        should "not provide a public url" do
           assert !@dummy.avatar.url.nil?
         end
       end
@@ -183,6 +182,16 @@ class FogTest < Test::Unit::TestCase
 
         should 'set the @fog_public instance variable to false' do
           assert_equal false, @dummy.avatar.instance_variable_get('@fog_public')
+        end
+      end
+      
+      context "with an invalid bucket name for a subdomain" do
+        invalid_subdomains = %w(this_is_invalid in iamareallylongbucketnameiamareallylongbucketnameiamareallylongbu invalid- inval..id inval-.id inval.-id -invalid 192.168.10.2)
+        
+        should "not match the bucket-subdomain restrictions" do
+          invalid_subdomains.each do |name|
+            assert_no_match Paperclip::Storage::Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX, name
+          end
         end
       end
 
