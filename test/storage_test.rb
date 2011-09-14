@@ -41,9 +41,11 @@ class StorageTest < Test::Unit::TestCase
 
   context "Parsing S3 credentials" do
     setup do
+      @proxy_settings = {:host => "127.0.0.1", :port => 8888, :user => "foo", :password => "bar"}
       AWS::S3::Base.stubs(:establish_connection!)
       rebuild_model :storage => :s3,
                     :bucket => "testing",
+                    :http_proxy => @proxy_settings,
                     :s3_credentials => {:not => :important}
 
       @dummy = Dummy.new
@@ -68,6 +70,16 @@ class StorageTest < Test::Unit::TestCase
       rails_env("not really an env")
       assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
     end
+    
+    should "support HTTP proxy settings" do
+      rails_env("development")
+      assert_equal(true, @avatar.using_http_proxy?)
+      assert_equal(@proxy_settings[:host], @avatar.http_proxy_host)
+      assert_equal(@proxy_settings[:port], @avatar.http_proxy_port)
+      assert_equal(@proxy_settings[:user], @avatar.http_proxy_user)
+      assert_equal(@proxy_settings[:password], @avatar.http_proxy_password)
+    end
+    
   end
 
   context "" do
