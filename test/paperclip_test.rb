@@ -25,10 +25,6 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
-  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
-    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
-  end
-
   should "raise when sent #processor and the name of a class that doesn't exist" do
     assert_raises(NameError){ Paperclip.processor(:boogey_man) }
   end
@@ -275,5 +271,27 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
+  end
+
+  context "configuring a custom processor" do
+    setup do
+      @freedom_processor = Class.new do
+        def make(file, options = {}, attachment = nil)
+          file
+        end
+      end.new
+
+      Paperclip.configure do |config|
+        config.register_processor(:freedom, @freedom_processor)
+      end
+    end
+
+    should "be able to find the custom processor" do
+      assert_equal @freedom_processor, Paperclip.processor(:freedom)
+    end
+
+    teardown do
+      Paperclip.clear_processors!
+    end
   end
 end

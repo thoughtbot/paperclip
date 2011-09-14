@@ -39,6 +39,7 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatibility'
+require 'paperclip/missing_attachment_styles'
 require 'paperclip/railtie'
 require 'logger'
 require 'cocaine'
@@ -92,7 +93,7 @@ module Paperclip
     # This method can log the command being run when
     # Paperclip.options[:log_command] is set to true (defaults to false). This
     # will only log if logging in general is set to true as well.
-    def run cmd, *params
+    def run(cmd, *params)
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
@@ -100,14 +101,16 @@ module Paperclip
       Cocaine::CommandLine.new(cmd, *params).run
     end
 
-    def processor name #:nodoc:
-      name = name.to_s.camelize
-      load_processor(name) unless Paperclip.const_defined?(name)
-      processor = Paperclip.const_get(name)
-      unless processor.ancestors.include?(Paperclip::Processor)
-        raise PaperclipError.new("Processor #{name} was not found")
+    def processor(name) #:nodoc:
+      @known_processors ||= {}
+      if @known_processors[name.to_s]
+        @known_processors[name.to_s]
+      else
+        name = name.to_s.camelize
+        load_processor(name) unless Paperclip.const_defined?(name)
+        processor = Paperclip.const_get(name)
+        @known_processors[name.to_s] = processor
       end
-      processor
     end
 
     def load_processor(name)
@@ -116,13 +119,30 @@ module Paperclip
       end
     end
 
+    def clear_processors!
+      @known_processors.try(:clear)
+    end
+
+    # You can add your own processor via the Paperclip configuration. Normally
+    # Paperclip will load all processors from the
+    # Rails.root/lib/paperclip_processors directory, but here you can add any
+    # existing class using this mechanism.
+    #
+    #   Paperclip.configure do |c|
+    #     c.register_processor :watermarker, WatermarkingProcessor.new
+    #   end
+    def register_processor(name, processor)
+      @known_processors ||= {}
+      @known_processors[name.to_s] = processor
+    end
+
     def each_instance_with_attachment(klass, name)
       class_for(klass).all.each do |instance|
         yield(instance) if instance.send(:"#{name}?")
       end
     end
 
-    # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
+    # Log a paperclip-specific line. This will logs to STDOUT
     # by default. Set Paperclip.options[:log] to false to turn off.
     def log message
       logger.info("[paperclip] #{message}") if logging?
@@ -269,9 +289,11 @@ module Paperclip
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
+      Paperclip.classes_with_attachments << self
 
       after_save :save_attached_files
-      before_destroy :destroy_attached_files
+      before_destroy :prepare_for_destroy
+      after_destroy :destroy_attached_files
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
 
@@ -407,10 +429,17 @@ module Paperclip
     def destroy_attached_files
       Paperclip.log("Deleting attachments.")
       each_attachment do |name, attachment|
-        attachment.send(:queue_existing_for_delete)
         attachment.send(:flush_deletes)
       end
     end
+
+    def prepare_for_destroy
+      Paperclip.log("Scheduling attachments for deletion.")
+      each_attachment do |name, attachment|
+        attachment.send(:queue_existing_for_delete)
+      end
+    end
+
   end
 
 end
