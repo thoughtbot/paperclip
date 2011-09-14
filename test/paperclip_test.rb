@@ -6,6 +6,11 @@ class PaperclipTest < Test::Unit::TestCase
       Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
       Paperclip.run("convert", "stuff")
     end
+    should "save Cocaine::CommandLine.path that set before" do
+      Cocaine::CommandLine.path = "/opt/my_app/bin"
+      Paperclip.run("convert", "stuff")
+      assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
+    end
   end
 
   context "Paperclip.each_instance_with_attachment" do
