@@ -291,6 +291,7 @@ module Paperclip
         post_process(*style_args)
 
         old_original.close if old_original.respond_to?(:close)
+        old_original.unlink if old_original.respond_to?(:unlink)
 
         save
       else
