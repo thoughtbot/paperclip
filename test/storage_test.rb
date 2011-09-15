@@ -8,6 +8,37 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "filesystem" do
+    setup do
+      rebuild_model :styles => { :thumbnail => "25x25#" }
+      @dummy = Dummy.create!
+
+      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
+    end
+
+    should "allow file assignment" do
+      assert @dummy.save
+    end
+
+    should "store the original" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path)
+    end
+
+    should "store the thumbnail" do
+      @dummy.save
+      assert File.exists?(@dummy.avatar.path(:thumbnail))
+    end
+
+    should "clean up file objects" do
+      File.stubs(:exist?).returns(true)
+      Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+      Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+
+      @dummy.save!
+    end
+  end
+
   context "Parsing S3 credentials" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -55,6 +86,49 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
+
+  context "s3_host_name" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_host_name => "s3-ap-northeast-1.amazonaws.com"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on an :s3_host_name path" do
+      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+    end
+  end
+
+  context "An attachment that uses S3 for storage and has styles that return different file types" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
+                    :storage => :s3,
+                    :bucket  => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    }
+
+      @dummy = Dummy.new
+      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+    end
+
+    should "return a url containing the correct original file mime type" do
+      assert_match /.+\/5k.png/, @dummy.avatar.url
+    end
+
+    should "return a url containing the correct processed file mime type" do
+      assert_match /.+\/5k.jpg/, @dummy.avatar.url(:large)
+    end
+  end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -71,6 +145,7 @@ class StorageTest < Test::Unit::TestCase
       assert_match %r{^http://bucket.s3.amazonaws.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -91,7 +166,46 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
-  context "Generating a url with an expiration" do
+  context "generating a url with a proc as the host alias" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => { :bucket => "prod_bucket" },
+                    :s3_host_alias => Proc.new { |image| "cdn#{image.size.to_i % 4}.example.com" },
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":s3_alias_url"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on the host_alias" do
+      assert_match %r{^http://cdn0.example.com/avatars/stringio.txt}, @dummy.avatar.url
+    end
+
+    should "still return the bucket name" do
+      assert_equal "prod_bucket", @dummy.avatar.bucket_name
+    end
+
+  end
+
+  context "" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":asset_host"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a relative URL for Rails to calculate assets host" do
+      assert_match %r{^avatars/stringio.txt}, @dummy.avatar.url
+    end
+  end
+
+  context "Generating a secure url with an expiration" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
       rebuild_model :storage => :s3,
@@ -100,6 +214,7 @@ class StorageTest < Test::Unit::TestCase
                       :development  => { :bucket => "dev_bucket" }
                     },
                     :s3_host_alias => "something.something.com",
+                    :s3_permissions => "private",
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_alias_url"
 
@@ -108,9 +223,39 @@ class StorageTest < Test::Unit::TestCase
       @dummy = Dummy.new
       @dummy.avatar = StringIO.new(".")
 
-      AWS::S3::S3Object.expects(:url_for).with("avatars/stringio.txt", "prod_bucket", { :expires_in => 3600 })
+      AWS::S3::S3Object.expects(:url_for).with("avatars/stringio.txt", "prod_bucket", { :expires_in => 3600, :use_ssl => true })
 
       @dummy.avatar.expiring_url
+    end
+
+    should "should succeed" do
+      assert true
+    end
+  end
+
+  context "Generating a url with an expiration" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => { :bucket => "prod_bucket" },
+                      :development  => { :bucket => "dev_bucket" }
+                    },
+                    :s3_permissions => :private,
+                    :s3_host_alias => "something.something.com",
+                    :path => ":attachment/:style/:basename.:extension",
+                    :url => ":s3_alias_url"
+
+      rails_env("production")
+
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+
+      AWS::S3::S3Object.expects(:url_for).with("avatars/original/stringio.txt", "prod_bucket", { :expires_in => 3600, :use_ssl => true })
+      @dummy.avatar.expiring_url
+
+      AWS::S3::S3Object.expects(:url_for).with("avatars/thumb/stringio.txt", "prod_bucket", { :expires_in => 1800, :use_ssl => true })
+      @dummy.avatar.expiring_url(1800, :thumb)
     end
 
     should "should succeed" do
@@ -137,6 +282,33 @@ class StorageTest < Test::Unit::TestCase
     should "get the right bucket in development" do
       rails_env("development")
       assert_equal "dev_bucket", @dummy.avatar.bucket_name
+    end
+  end
+
+  context "Parsing S3 credentials with a s3_host_name in them" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {
+                      :production   => {:s3_host_name => "s3-world-end.amazonaws.com"},
+                      :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }
+                    }
+      @dummy = Dummy.new
+    end
+
+    should "get the right s3_host_name in production" do
+      rails_env("production")
+      assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
+    end
+
+    should "get the right s3_host_name in development" do
+      rails_env("development")
+      assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
+    end
+
+    should "get the right s3_host_name if the key does not exist" do
+      rails_env("test")
+      assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
     end
   end
 
@@ -183,6 +355,15 @@ class StorageTest < Test::Unit::TestCase
         should "succeed" do
           assert true
         end
+      end
+
+      should "delete tempfiles" do
+        AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png', :access => :public_read)
+        File.stubs(:exist?).returns(true)
+        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+        
+        @dummy.save!
       end
 
       context "and saved without a bucket" do
@@ -307,10 +488,136 @@ class StorageTest < Test::Unit::TestCase
       @dummy = Dummy.new
     end
 
-    should "run it the file through ERB" do
+    should "run the file through ERB" do
       assert_equal 'env_bucket', @dummy.avatar.bucket_name
       assert_equal 'env_key', AWS::S3::Base.connection.options[:access_key_id]
       assert_equal 'env_secret', AWS::S3::Base.connection.options[:secret_access_key]
+    end
+  end
+  
+  context "S3 Permissions" do
+    context "defaults to public-read" do
+      setup do
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      }
+      end
+
+      context "when assigned" do
+        setup do
+          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        teardown { @file.close }
+
+        context "and saved" do
+          setup do
+            AWS::S3::Base.stubs(:establish_connection!)
+            AWS::S3::S3Object.expects(:store).with(@dummy.avatar.path,
+                                                 anything,
+                                                 'testing',
+                                                 :content_type => 'image/png',
+                                                 :access => :public_read)
+            @dummy.save
+          end
+
+          should "succeed" do
+            assert true
+          end
+        end
+      end
+    end
+
+    context "string permissions set" do
+      setup do
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      },
+                      :s3_permissions => 'private'
+      end
+    
+      context "when assigned" do
+        setup do
+          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+    
+        teardown { @file.close }
+    
+        context "and saved" do
+          setup do
+            AWS::S3::Base.stubs(:establish_connection!)
+            AWS::S3::S3Object.expects(:store).with(@dummy.avatar.path,
+                                                   anything,
+                                                   'testing',
+                                                   :content_type => 'image/png',
+                                                   :access => 'private')
+            @dummy.save
+          end
+    
+          should "succeed" do
+            assert true
+          end
+        end
+      end
+    end
+    
+    context "hash permissions set" do
+      setup do
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :styles => {
+                         :thumb => "80x80>"
+                      },
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      },
+                      :s3_permissions => {
+                        :original => 'private',
+                        :thumb => 'public-read'
+                      }
+      end
+    
+      context "when assigned" do
+        setup do
+          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+    
+        teardown { @file.close }
+    
+        context "and saved" do
+          setup do
+            AWS::S3::Base.stubs(:establish_connection!)
+            [:thumb, :original].each do |style|
+              AWS::S3::S3Object.expects(:store).with("avatars/#{style}/5k.png",
+                                                    anything,
+                                                    'testing',
+                                                    :content_type => 'image/png',
+                                                    :access => style == :thumb ? 'public-read' : 'private')
+            end
+            @dummy.save
+          end
+    
+          should "succeed" do
+            assert true
+          end
+        end
+      end
     end
   end
 

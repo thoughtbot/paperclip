@@ -2,44 +2,9 @@ require './test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
-    setup do
-      Paperclip.options[:image_magick_path] = nil
-      Paperclip.options[:command_path]      = nil
-      Paperclip::CommandLine.stubs(:'`')
-    end
-
-    should "execute the right command with :image_magick_path" do
-      Paperclip.options[:image_magick_path] = "/usr/bin"
-      Paperclip.expects(:log).with(includes('[DEPRECATION]'))
-      Paperclip.expects(:log).with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "execute the right command with :command_path" do
-      Paperclip.options[:command_path] = "/usr/bin"
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "execute the right command with no path" do
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "tell you the command isn't there if the shell returns 127" do
-      with_exitstatus_returning(127) do
-        assert_raises(Paperclip::CommandNotFoundError) do
-          Paperclip.run("command")
-        end
-      end
-    end
-
-    should "tell you the command isn't there if an ENOENT is raised" do
-      assert_raises(Paperclip::CommandNotFoundError) do
-        Paperclip::CommandLine.stubs(:"`").raises(Errno::ENOENT)
-        Paperclip.run("command")
-      end
+    should "run the command with Cocaine" do
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
+      Paperclip.run("convert", "stuff")
     end
   end
 
@@ -60,16 +25,25 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
-  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
-    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
-  end
-
   should "raise when sent #processor and the name of a class that doesn't exist" do
     assert_raises(NameError){ Paperclip.processor(:boogey_man) }
   end
 
   should "return a class when sent #processor and the name of a class under Paperclip" do
     assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
+  end
+
+  should "get a class from a namespaced class name" do
+    class ::One; class Two; end; end
+    assert_equal ::One::Two, Paperclip.class_for("One::Two")
+  end
+
+  should "raise when class doesn't exist in specified namespace" do
+    class ::Three; end
+    class ::Four; end
+    assert_raise NameError do
+      Paperclip.class_for("Three::Four")
+    end
   end
 
   context "An ActiveRecord model with an 'avatar' attachment" do
@@ -223,7 +197,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "not have an error when assigned a valid file" do
-            assert_equal 0, @dummy.errors.length, @dummy.errors.full_messages.join(", ")
+            assert_equal 0, @dummy.errors.size, @dummy.errors.full_messages.join(", ")
           end
         end
         context "and assigned an invalid file" do
@@ -232,7 +206,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.valid?
           end
           should "have an error when assigned a valid file" do
-            assert @dummy.errors.length > 0
+            assert @dummy.errors.size > 0
           end
         end
       end
@@ -252,6 +226,21 @@ class PaperclipTest < Test::Unit::TestCase
       should_validate validation, options, valid_file, invalid_file
     end
 
+    context "with content_type validation and lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_content_type", :avatar, :content_type => %r{image/.*}, :message => lambda {'lambda content type message'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "text.txt"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a content type error message" do
+          assert [@dummy.errors[:avatar_content_type]].flatten.any?{|error| error =~ %r/lambda content type message/ }
+        end
+      end
+    end
+
     context "with size validation and less_than 10240 option" do
       context "and assigned an invalid file" do
         setup do
@@ -267,5 +256,42 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
+    context "with size validation and less_than 10240 option with lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240, :message => lambda {'lambda between 0 and 10240 bytes'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a file size min/max error message" do
+          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/lambda between 0 and 10240 bytes/ }
+        end
+      end
+    end
+
+  end
+
+  context "configuring a custom processor" do
+    setup do
+      @freedom_processor = Class.new do
+        def make(file, options = {}, attachment = nil)
+          file
+        end
+      end.new
+
+      Paperclip.configure do |config|
+        config.register_processor(:freedom, @freedom_processor)
+      end
+    end
+
+    should "be able to find the custom processor" do
+      assert_equal @freedom_processor, Paperclip.processor(:freedom)
+    end
+
+    teardown do
+      Paperclip.clear_processors!
+    end
   end
 end

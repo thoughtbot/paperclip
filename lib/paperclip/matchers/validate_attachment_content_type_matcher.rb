@@ -17,6 +17,8 @@ module Paperclip
       class ValidateAttachmentContentTypeMatcher
         def initialize attachment_name
           @attachment_name = attachment_name
+          @allowed_types = []
+          @rejected_types = []
         end
 
         def allowing *types
@@ -37,13 +39,19 @@ module Paperclip
         end
 
         def failure_message
-          "Content types #{@allowed_types.join(", ")} should be accepted" +
-          " and #{@rejected_types.join(", ")} rejected by #{@attachment_name}"
+          "".tap do |str|
+            str << "Content types #{@allowed_types.join(", ")} should be accepted" if @allowed_types.present?
+            str << "\n" if @allowed_types.present? && @rejected_types.present?
+            str << "Content types #{@rejected_types.join(", ")} should be rejected by #{@attachment_name}" if @rejected_types.present?
+          end
         end
 
         def negative_failure_message
-          "Content types #{@allowed_types.join(", ")} should be rejected" +
-          " and #{@rejected_types.join(", ")} accepted by #{@attachment_name}"
+          "".tap do |str|
+            str << "Content types #{@allowed_types.join(", ")} should be rejected" if @allowed_types.present?
+            str << "\n" if @allowed_types.present? && @rejected_types.present?
+            str << "Content types #{@rejected_types.join(", ")} should be accepted by #{@attachment_name}" if @rejected_types.present?
+          end
         end
 
         def description
@@ -52,22 +60,20 @@ module Paperclip
 
         protected
 
-        def allow_types?(types)
-          types.all? do |type|
-            file = StringIO.new(".")
-            file.content_type = type
-            (subject = @subject.new).attachment_for(@attachment_name).assign(file)
-            subject.valid?
-            subject.errors[:"#{@attachment_name}_content_type"].blank?
-          end
+        def type_allowed?(type)
+          file = StringIO.new(".")
+          file.content_type = type
+          (subject = @subject.new).attachment_for(@attachment_name).assign(file)
+          subject.valid?
+          subject.errors[:"#{@attachment_name}_content_type"].blank?
         end
 
         def allowed_types_allowed?
-          allow_types?(@allowed_types)
+          @allowed_types.all? { |type| type_allowed?(type) }
         end
 
         def rejected_types_rejected?
-          not allow_types?(@rejected_types)
+          !@rejected_types.any? { |type| type_allowed?(type) }
         end
       end
     end

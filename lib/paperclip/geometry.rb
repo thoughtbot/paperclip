@@ -15,10 +15,13 @@ module Paperclip
     # File or path.
     def self.from_file file
       file = file.path if file.respond_to? "path"
+      raise(Paperclip::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file.blank?
       geometry = begin
                    Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
-                 rescue PaperclipCommandLineError
+                 rescue Cocaine::ExitStatusError
                    ""
+                 rescue Cocaine::CommandNotFoundError => e
+                   raise Paperclip::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
                  end
       parse(geometry) ||
         raise(NotIdentifiedByImageMagickError.new("#{file} is not recognized by the 'identify' command."))

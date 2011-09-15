@@ -1,7 +1,9 @@
 require 'rails/generators/active_record'
 
 class PaperclipGenerator < ActiveRecord::Generators::Base
-  desc "Create a migration to add paperclip-specific fields to your model."
+  desc "Create a migration to add paperclip-specific fields to your model. " +
+       "The NAME argument is the name of your model, and the following " +
+       "arguments are the name of the attachments"
 
   argument :attachment_names, :required => true, :type => :array, :desc => "The names of the attachment(s) to add.",
            :banner => "attachment_one attachment_two attachment_three ..."

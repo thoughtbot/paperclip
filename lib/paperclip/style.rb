@@ -30,8 +30,9 @@ module Paperclip
     # (which method (in the attachment) will call any supplied procs)
     # There is an important change of interface here: a style rule can set its own processors
     # by default we behave as before, though.
+    # if a proc has been supplied, we call it here
     def processors
-      @processors || attachment.processors
+      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.processors)
     end
 
     # retrieves from the attachment the whiny setting
@@ -48,6 +49,10 @@ module Paperclip
       attachment.send(:extra_options_for, name)
     end
 
+    def source_file_options
+      attachment.send(:extra_source_file_options_for, name)
+    end
+
     # returns the geometry string for this style
     # if a proc has been supplied, we call it here
     def geometry
@@ -62,7 +67,7 @@ module Paperclip
       @other_args.each do |k,v|
         args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end
-      [:processors, :geometry, :format, :whiny, :convert_options].each do |k|
+      [:processors, :geometry, :format, :whiny, :convert_options, :source_file_options].each do |k|
         (arg = send(k)) && args[k] = arg
       end
       args
@@ -71,7 +76,7 @@ module Paperclip
     # Supports getting and setting style properties with hash notation to ensure backwards-compatibility
     # eg. @attachment.styles[:large][:geometry]@ will still work
     def [](key)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated, :source_file_options].include?(key)
         send(key)
       elsif defined? @other_args[key]
         @other_args[key]
@@ -79,7 +84,7 @@ module Paperclip
     end
 
     def []=(key, value)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated, :source_file_options].include?(key)
         send("#{key}=".intern, value)
       else
         @other_args[key] = value

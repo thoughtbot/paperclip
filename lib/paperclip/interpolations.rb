@@ -6,13 +6,13 @@ module Paperclip
   module Interpolations
     extend self
 
-    # Hash assignment of interpolations. Included only for compatability,
+    # Hash assignment of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[]= name, block
       define_method(name, &block)
     end
 
-    # Hash access of interpolations. Included only for compatability,
+    # Hash access of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[] name
       method(name)
@@ -35,7 +35,7 @@ module Paperclip
 
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
-      "#{basename(attachment, style_name)}.#{extension(attachment, style_name)}"
+      [ basename(attachment, style_name), extension(attachment, style_name) ].reject(&:blank?).join(".")
     end
 
     # Returns the interpolated URL. Will raise an error if the url itself
@@ -48,8 +48,18 @@ module Paperclip
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
+    # in the server default time zone unless :use_global_time_zone is set
+    # to false.  Note that a Rails.config.time_zone change will still
+    # invalidate any path or URL that uses :timestamp.  For a
+    # time_zone-agnostic timestamp, use #updated_at.
     def timestamp attachment, style_name
-      attachment.instance_read(:updated_at).to_s
+      attachment.instance_read(:updated_at).in_time_zone(attachment.time_zone).to_s
+    end
+
+    # Returns an integer timestamp that is time zone-neutral, so that paths
+    # remain valid even if a server's time zone changes.
+    def updated_at attachment, style_name
+      attachment.updated_at
     end
 
     # Returns the Rails.root constant.
@@ -84,9 +94,39 @@ module Paperclip
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
 
+    # Returns an extension based on the content type. e.g. "jpeg" for "image/jpeg".
+    # Each mime type generally has multiple extensions associated with it, so
+    # if the extension from teh original filename is one of these extensions,
+    # that extension is used, otherwise, the first in the list is used.
+    def content_type_extension attachment, style_name
+      mime_type = MIME::Types[attachment.content_type]
+      extensions_for_mime_type = unless mime_type.empty?
+        mime_type.first.extensions
+      else
+        []
+      end
+
+      original_extension = extension(attachment, style_name)
+      if extensions_for_mime_type.include? original_extension
+        original_extension
+      elsif !extensions_for_mime_type.empty?
+        extensions_for_mime_type.first
+      else
+        # It's possible, though unlikely, that the mime type is not in the
+        # database, so just use the part after the '/' in the mime type as the
+        # extension.
+        %r{/([^/]*)$}.match(attachment.content_type)[1]
+      end
+    end
+
     # Returns the id of the instance.
     def id attachment, style_name
       attachment.instance.id
+    end
+
+    # Returns the #to_param of the instance.
+    def param attachment, style_name
+      attachment.instance.to_param
     end
 
     # Returns the fingerprint of the instance.
@@ -94,10 +134,20 @@ module Paperclip
       attachment.fingerprint
     end
 
+    # Returns a the attachment hash.  See Paperclip::Attachment#hash for
+    # more details.
+    def hash attachment, style_name
+      attachment.hash(style_name)
+    end
+
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name
-      ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
+      if (id = attachment.instance.id).is_a?(Integer)
+        ("%09d" % id).scan(/\d{3}/).join("/")
+      else
+        id.scan(/.{3}/).first(3).join("/")
+      end
     end
 
     # Returns the pluralized form of the attachment name. e.g.
