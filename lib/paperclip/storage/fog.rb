@@ -41,15 +41,9 @@ module Paperclip
         end unless defined?(Fog)
 
         base.instance_eval do
-          @fog_directory    = @options[:fog_directory]
-          @fog_credentials  = parse_credentials(@options[:fog_credentials])
-          @fog_host         = @options[:fog_host]
-          @fog_public       = @options.key?(:fog_public) ? @options[:fog_public] : true
-          @fog_file         = @options[:fog_file] || {}
-
-          unless @url.to_s.match(/^:fog.*url$/)
-            @path  = @path.gsub(/:url/, @url)
-            @url   = ':fog_public_url'
+          unless @options.url.to_s.match(/^:fog.*url$/)
+            @options.path  = @options.path.gsub(/:url/, @options.url)
+            @options.url   = ':fog_public_url'
           end
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
             attachment.public_url(style)
@@ -65,15 +59,27 @@ module Paperclip
         end
       end
 
+      def fog_credentials
+        @fog_credentials ||= parse_credentials(@options.fog_credentials)
+      end
+
+      def fog_file
+        @fog_file ||= @options.fog_file || {}
+      end
+
+      def fog_public
+        @fog_public ||= @options.fog_public || true
+      end
+
       def flush_writes
         for style, file in @queued_for_write do
           log("saving #{path(style)}")
           retried = false
           begin
-            directory.files.create(@fog_file.merge(
+            directory.files.create(fog_file.merge(
               :body   => file,
               :key    => path(style),
-              :public => @fog_public
+              :public => fog_public
             ))
           rescue Excon::Errors::NotFound
             raise if retried
@@ -115,8 +121,8 @@ module Paperclip
       end
 
       def public_url(style = default_style)
-        if @fog_host
-          host = (@fog_host =~ /%d/) ? @fog_host % (path(style).hash % 4) : @fog_host
+        if @options.fog_host
+          host = (@options.fog_host =~ /%d/) ? @options.fog_host % (path(style).hash % 4) : @options.fog_host
           "#{host}/#{path(style)}"
         else
           directory.files.new(:key => path(style)).public_url
@@ -145,11 +151,11 @@ module Paperclip
       end
 
       def connection
-        @connection ||= ::Fog::Storage.new(@fog_credentials)
+        @connection ||= ::Fog::Storage.new(fog_credentials)
       end
 
       def directory
-        @directory ||= connection.directories.new(:key => @fog_directory)
+        @directory ||= connection.directories.new(:key => @options.fog_directory)
       end
     end
   end

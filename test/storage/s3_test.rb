@@ -173,15 +173,23 @@ class S3Test < Test::Unit::TestCase
       AWS::S3::Base.stubs(:establish_connection!)
       rebuild_model :storage => :s3,
                     :s3_credentials => { :bucket => "prod_bucket" },
-                    :s3_host_alias => Proc.new { |image| "cdn#{image.size.to_i % 4}.example.com" },
+                    :s3_host_alias => Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_alias_url"
+      Dummy.class_eval do
+        def counter
+          @counter ||= 0
+          @counter += 1
+          @counter
+        end
+      end
       @dummy = Dummy.new
       @dummy.avatar = StringIO.new(".")
     end
 
     should "return a url based on the host_alias" do
-      assert_match %r{^http://cdn0.example.com/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://cdn1.example.com/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://cdn2.example.com/avatars/stringio.txt}, @dummy.avatar.url
     end
 
     should "still return the bucket name" do
@@ -203,7 +211,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "return a relative URL for Rails to calculate assets host" do
-      assert_match %r{^avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^avatars/stringio\.txt}, @dummy.avatar.url
     end
   end
 
@@ -292,7 +300,7 @@ class S3Test < Test::Unit::TestCase
       AWS::S3::Base.stubs(:establish_connection!)
       rebuild_model :storage => :s3,
                     :s3_credentials => {
-                      :production   => {:s3_host_name => "s3-world-end.amazonaws.com"},
+                      :production   => { :s3_host_name => "s3-world-end.amazonaws.com" },
                       :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }
                     }
       @dummy = Dummy.new

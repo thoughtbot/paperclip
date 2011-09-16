@@ -32,12 +32,12 @@ module Paperclip
     # by default we behave as before, though.
     # if a proc has been supplied, we call it here
     def processors
-      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.processors)
+      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.options.processors)
     end
 
     # retrieves from the attachment the whiny setting
     def whiny
-      attachment.whiny
+      attachment.options.whiny
     end
 
     # returns true if we're inclined to grumble
@@ -74,7 +74,7 @@ module Paperclip
     end
 
     # Supports getting and setting style properties with hash notation to ensure backwards-compatibility
-    # eg. @attachment.styles[:large][:geometry]@ will still work
+    # eg. @attachment.options.styles[:large][:geometry]@ will still work
     def [](key)
       if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated, :source_file_options].include?(key)
         send(key)

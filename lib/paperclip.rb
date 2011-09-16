@@ -28,6 +28,7 @@
 require 'erb'
 require 'digest'
 require 'tempfile'
+require 'paperclip/options'
 require 'paperclip/version'
 require 'paperclip/upfile'
 require 'paperclip/iostream'

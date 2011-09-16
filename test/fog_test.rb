@@ -18,7 +18,7 @@ class FogTest < Test::Unit::TestCase
       end
 
       should "have the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
 
@@ -34,7 +34,7 @@ class FogTest < Test::Unit::TestCase
       end
 
       should "have the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
 
@@ -61,7 +61,7 @@ class FogTest < Test::Unit::TestCase
         File.stubs(:exist?).returns(true)
         Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
         Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-        
+
         @dummy.save!
       end
     end
@@ -181,7 +181,7 @@ class FogTest < Test::Unit::TestCase
         end
 
         should 'set the @fog_public instance variable to false' do
-          assert_equal false, @dummy.avatar.instance_variable_get('@fog_public')
+          assert_equal false, @dummy.avatar.options.fog_public
         end
       end
 

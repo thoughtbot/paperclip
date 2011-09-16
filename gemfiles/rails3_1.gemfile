@@ -19,6 +19,7 @@ gem "cucumber", "~> 1.0.0"
 gem "shoulda"
 gem "sqlite3", "~>1.3.4"
 gem "fakeweb", :require=>false
+gem "pry"
 gem "rails", "~> 3.1.0"
 gem "paperclip", :path=>"../"
 
