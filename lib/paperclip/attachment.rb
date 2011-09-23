@@ -86,13 +86,19 @@ module Paperclip
       @queued_for_write      = {}
       @errors                = {}
       @dirty                 = false
+      @operation             = :write
       @interpolator          = (options[:interpolator] || Paperclip::Interpolations)
 
       initialize_storage
     end
 
-    def styles
+    def operation
+      @operation
+    end
+
+    def styles(related_operation = :write)
       if @styles.respond_to?(:call) || !@normalized_styles
+        @operation = related_operation
         @normalized_styles = ActiveSupport::OrderedHash.new
         (@styles.respond_to?(:call) ? @styles.call(self) : @styles).each do |name, args|
           @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
@@ -392,7 +398,7 @@ module Paperclip
           if style_args.empty? || style_args.include?(name)
             raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
             @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
-              Paperclip.processor(processor).make(file, style.processor_options, self)
+              Paperclip.processor(processor).make(file, style.processor_options.merge(:name => name), self)
             end
           end
         rescue PaperclipError => e
@@ -408,7 +414,7 @@ module Paperclip
 
     def queue_existing_for_delete #:nodoc:
       return unless (file? && @preserve_files==false)
-      @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
+      @queued_for_delete += [:original, *styles(:delete).keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact
       instance_write(:file_name, nil)
