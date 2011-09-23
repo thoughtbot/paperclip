@@ -136,8 +136,12 @@ module Paperclip
 
     # Returns a the attachment hash.  See Paperclip::Attachment#hash for
     # more details.
-    def hash attachment, style_name
-      attachment.hash(style_name)
+    def hash attachment=nil, style_name=nil
+      if attachment && style_name
+        attachment.hash(style_name)
+      else
+        super()
+      end
     end
 
     # Returns the id of the instance in a split path form. e.g. returns
