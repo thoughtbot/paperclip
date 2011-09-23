@@ -53,7 +53,6 @@ class FogTest < Test::Unit::TestCase
         @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
       end
       should "be able to interpolate the path without blowing up" do
-        puts @dummy.avatar.instance_variable_get("@path")
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
