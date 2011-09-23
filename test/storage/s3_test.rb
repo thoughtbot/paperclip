@@ -110,6 +110,27 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment that uses S3 for storage and has spaces in file name" do
+    setup do
+      AWS::S3::Base.stubs(:establish_connection!)
+      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
+                    :storage => :s3,
+                    :bucket  => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    }
+
+      @dummy = Dummy.new
+      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
+    end
+
+    should "return an escaped version of url" do
+      assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+    end
+  end
+
   context "" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)

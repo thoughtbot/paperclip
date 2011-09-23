@@ -30,5 +30,23 @@ class FileSystemTest < Test::Unit::TestCase
 
       @dummy.save!
     end
+
+    context "with file that has space in file name" do
+      setup do
+        rebuild_model :styles => { :thumbnail => "25x25#" }
+        @dummy = Dummy.create!
+
+        @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "..", "fixtures", "spaced file.png"))
+        @dummy.save
+      end
+
+      should "store the file" do
+        assert File.exists?(@dummy.avatar.path)
+      end
+
+      should "return an escaped version of URL" do
+        assert_match /\/spaced%20file\.png/, @dummy.avatar.url
+      end
+    end
   end
 end

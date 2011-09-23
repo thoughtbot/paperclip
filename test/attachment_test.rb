@@ -918,7 +918,22 @@ class AttachmentTest < Test::Unit::TestCase
           end
         end
       end
+    end
 
+    context "with a file that has space in file name" do
+      setup do
+        @attachment.stubs(:instance_read).with(:file_name).returns("spaced file.png")
+        @attachment.stubs(:instance_read).with(:content_type).returns("image/png")
+        @attachment.stubs(:instance_read).with(:file_size).returns(12345)
+        dtnow = DateTime.now
+        @now = Time.now
+        Time.stubs(:now).returns(@now)
+        @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
+      end
+
+      should "returns an escaped version of the URL" do
+        assert_match /\/spaced%20file\.png/, @attachment.url
+      end
     end
 
     context "when trying a nonexistant storage type" do
