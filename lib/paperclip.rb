@@ -289,7 +289,7 @@ module Paperclip
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
-      Paperclip.classes_with_attachments << self
+      Paperclip.classes_with_attachments << self unless Paperclip.classes_with_attachments.include?(self)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy
