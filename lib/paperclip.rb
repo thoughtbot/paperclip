@@ -291,6 +291,20 @@ module Paperclip
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
     #   for backend-specific options.
+    #
+    # It's also possible for you to dynamicly define your interpolation string for :url,
+    # :default_url, and :path in your model by passing a method name as a symbol as a argument
+    # for your has_attached_file definition:
+    #
+    #   class Person
+    #     has_attached_file :avatar, :default_url => :default_url_by_gender
+    #
+    #     private
+    #
+    #     def default_url_by_gender
+    #       "/assets/avatars/default_#{gender}.png"
+    #     end
+    #   end
     def has_attached_file name, options = {}
       include InstanceMethods
 

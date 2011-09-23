@@ -25,7 +25,8 @@ module Paperclip
 
     # Perform the actual interpolation. Takes the pattern to interpolate
     # and the arguments to pass, which are the attachment and style name.
-    # You can pass a :symbol as pattern assigning some method in your model class.
+    # You can pass a method name on your record as a symbol, which should turn
+    # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
       all.reverse.inject( pattern.dup ) do |result, tag|
