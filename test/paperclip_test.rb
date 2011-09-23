@@ -2,10 +2,19 @@ require './test/helper'
 
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
-    should "run the command with Cocaine" do
+    setup do
       Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
+      @original_command_line_path = Cocaine::CommandLine.path
+    end
+
+    teardown do
+      Cocaine::CommandLine.path = @original_command_line_path
+    end
+
+    should "run the command with Cocaine" do
       Paperclip.run("convert", "stuff")
     end
+
     should "save Cocaine::CommandLine.path that set before" do
       Cocaine::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
