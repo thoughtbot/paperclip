@@ -362,7 +362,7 @@ class StorageTest < Test::Unit::TestCase
         File.stubs(:exist?).returns(true)
         Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
         Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-        
+
         @dummy.save!
       end
 
@@ -494,7 +494,7 @@ class StorageTest < Test::Unit::TestCase
       assert_equal 'env_secret', AWS::S3::Base.connection.options[:secret_access_key]
     end
   end
-  
+
   context "S3 Permissions" do
     context "defaults to public-read" do
       setup do
@@ -545,16 +545,16 @@ class StorageTest < Test::Unit::TestCase
                       },
                       :s3_permissions => 'private'
       end
-    
+
       context "when assigned" do
         setup do
           @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
-    
+
         teardown { @file.close }
-    
+
         context "and saved" do
           setup do
             AWS::S3::Base.stubs(:establish_connection!)
@@ -565,14 +565,14 @@ class StorageTest < Test::Unit::TestCase
                                                    :access => 'private')
             @dummy.save
           end
-    
+
           should "succeed" do
             assert true
           end
         end
       end
     end
-    
+
     context "hash permissions set" do
       setup do
         rebuild_model :storage => :s3,
@@ -590,16 +590,16 @@ class StorageTest < Test::Unit::TestCase
                         :thumb => 'public-read'
                       }
       end
-    
+
       context "when assigned" do
         setup do
           @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
-    
+
         teardown { @file.close }
-    
+
         context "and saved" do
           setup do
             AWS::S3::Base.stubs(:establish_connection!)
@@ -612,7 +612,7 @@ class StorageTest < Test::Unit::TestCase
             end
             @dummy.save
           end
-    
+
           should "succeed" do
             assert true
           end
