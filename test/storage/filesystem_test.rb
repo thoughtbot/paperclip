@@ -1,4 +1,4 @@
-require 'helper'
+require './test/helper'
 
 class FileSystemTest < Test::Unit::TestCase
   context "Filesystem" do
