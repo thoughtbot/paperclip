@@ -1,41 +1,10 @@
-require './test/helper'
+require 'helper'
 require 'aws/s3'
 
-class StorageTest < Test::Unit::TestCase
+class S3Test < Test::Unit::TestCase
   def rails_env(env)
     silence_warnings do
       Object.const_set(:Rails, stub('Rails', :env => env))
-    end
-  end
-
-  context "filesystem" do
-    setup do
-      rebuild_model :styles => { :thumbnail => "25x25#" }
-      @dummy = Dummy.create!
-
-      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "fixtures", "5k.png"))
-    end
-
-    should "allow file assignment" do
-      assert @dummy.save
-    end
-
-    should "store the original" do
-      @dummy.save
-      assert File.exists?(@dummy.avatar.path)
-    end
-
-    should "store the thumbnail" do
-      @dummy.save
-      assert File.exists?(@dummy.avatar.path(:thumbnail))
-    end
-
-    should "clean up file objects" do
-      File.stubs(:exist?).returns(true)
-      Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
-      Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-
-      @dummy.save!
     end
   end
 
@@ -129,7 +98,7 @@ class StorageTest < Test::Unit::TestCase
                     }
 
       @dummy = Dummy.new
-      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
     end
 
     should "return a url containing the correct original file mime type" do
@@ -345,7 +314,7 @@ class StorageTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -436,7 +405,7 @@ class StorageTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -471,7 +440,7 @@ class StorageTest < Test::Unit::TestCase
        rails_env('test')
 
        rebuild_model :storage        => :s3,
-                     :s3_credentials => Pathname.new(File.join(File.dirname(__FILE__))).join("fixtures/s3.yml")
+                     :s3_credentials => Pathname.new(File.join(File.dirname(__FILE__))).join("../fixtures/s3.yml")
 
        Dummy.delete_all
        @dummy = Dummy.new
@@ -493,7 +462,7 @@ class StorageTest < Test::Unit::TestCase
       rails_env('test')
 
       rebuild_model :storage        => :s3,
-                    :s3_credentials => File.new(File.join(File.dirname(__FILE__), "fixtures/s3.yml"))
+                    :s3_credentials => File.new(File.join(File.dirname(__FILE__), "../fixtures/s3.yml"))
 
       Dummy.delete_all
 
@@ -521,7 +490,7 @@ class StorageTest < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -560,7 +529,7 @@ class StorageTest < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -605,7 +574,7 @@ class StorageTest < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -627,53 +596,6 @@ class StorageTest < Test::Unit::TestCase
 
           should "succeed" do
             assert true
-          end
-        end
-      end
-    end
-  end
-
-  unless ENV["S3_TEST_BUCKET"].blank?
-    context "Using S3 for real, an attachment with S3 storage" do
-      setup do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "s3.yml"))
-
-        Dummy.delete_all
-        @dummy = Dummy.new
-      end
-
-      should "be extended by the S3 module" do
-        assert Dummy.new.avatar.is_a?(Paperclip::Storage::S3)
-      end
-
-      context "when assigned" do
-        setup do
-          @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
-          @dummy.avatar = @file
-        end
-
-        teardown { @file.close }
-
-        should "still return a Tempfile when sent #to_file" do
-          assert_equal Paperclip::Tempfile, @dummy.avatar.to_file.class
-        end
-
-        context "and saved" do
-          setup do
-            @dummy.save
-          end
-
-          should "be on S3" do
-            assert true
-          end
-
-          should "generate a tempfile with the right name" do
-            file = @dummy.avatar.to_file
-            assert_match /^original.*\.png$/, File.basename(file.path)
           end
         end
       end
