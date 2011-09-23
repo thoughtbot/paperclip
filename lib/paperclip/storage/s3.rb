@@ -95,12 +95,12 @@ module Paperclip
             @url          = ":s3_path_url"
           end
           @url            = ":asset_host" if @options[:url].to_s == ":asset_host"
-          
+
           @http_proxy = @options[:http_proxy] || nil
           if @http_proxy
             @s3_options.merge!({:proxy => @http_proxy})
           end
-          
+
           AWS::S3::Base.establish_connection!( @s3_options.merge(
             :access_key_id => @s3_credentials[:access_key_id],
             :secret_access_key => @s3_credentials[:secret_access_key]
@@ -127,11 +127,11 @@ module Paperclip
       def bucket_name
         @bucket
       end
-      
+
       def using_http_proxy?
         !!@http_proxy
       end
-      
+
       def http_proxy_host
         using_http_proxy? ? @http_proxy[:host] : nil
       end
@@ -139,7 +139,7 @@ module Paperclip
       def http_proxy_port
         using_http_proxy? ? @http_proxy[:port] : nil
       end
-      
+
       def http_proxy_user
         using_http_proxy? ? @http_proxy[:user] : nil
       end
@@ -147,7 +147,6 @@ module Paperclip
       def http_proxy_password
         using_http_proxy? ? @http_proxy[:password] : nil
       end
-      
 
       def s3_host_name
         @s3_host_name || "s3.amazonaws.com"

@@ -70,7 +70,7 @@ class StorageTest < Test::Unit::TestCase
       rails_env("not really an env")
       assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
     end
-    
+
     should "support HTTP proxy settings" do
       rails_env("development")
       assert_equal(true, @avatar.using_http_proxy?)
@@ -79,7 +79,7 @@ class StorageTest < Test::Unit::TestCase
       assert_equal(@proxy_settings[:user], @avatar.http_proxy_user)
       assert_equal(@proxy_settings[:password], @avatar.http_proxy_password)
     end
-    
+
   end
 
   context "" do
