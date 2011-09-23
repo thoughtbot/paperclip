@@ -184,6 +184,19 @@ module Paperclip
         raise e
       end
     end
+
+    def check_for_url_clash(name,url,klass)
+      @names_url ||= {}
+      default_url = url || Attachment.default_options[:url]
+      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass
+        log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
+      end
+      @names_url[name] = {:url => default_url, :class => klass}
+    end
+
+    def reset_duplicate_clash_check!
+      @names_url = nil
+    end
   end
 
   class PaperclipError < StandardError #:nodoc:
@@ -290,6 +303,7 @@ module Paperclip
 
       attachment_definitions[name] = {:validations => []}.merge(options)
       Paperclip.classes_with_attachments << self
+      Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy

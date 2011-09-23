@@ -46,6 +46,24 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Attachments with clashing URLs should raise error" do
+    setup do
+      class Dummy2 < ActiveRecord::Base
+        include Paperclip::Glue
+      end
+    end
+
+    should "generate warning if attachment is redefined with the same url string" do
+      Paperclip.expects(:log).with("Duplicate URL for blah with /system/:attachment/:id/:style/:filename. This will clash with attachment defined in Dummy class")
+      Dummy.class_eval do
+        has_attached_file :blah
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah
+      end
+    end
+  end
+
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
