@@ -1,8 +1,8 @@
 require './test/helper'
 require 'aws/s3'
 
-class S3LiveTest < Test::Unit::TestCase
-  unless ENV["S3_TEST_BUCKET"].blank?
+unless ENV["S3_TEST_BUCKET"].blank?
+  class S3LiveTest < Test::Unit::TestCase
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
