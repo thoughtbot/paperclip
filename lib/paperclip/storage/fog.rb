@@ -71,9 +71,10 @@ module Paperclip
           retried = false
           begin
             directory.files.create(@fog_file.merge(
-              :body   => file,
-              :key    => path(style),
-              :public => @fog_public
+              :body         => file,
+              :key          => path(style),
+              :public       => @fog_public,
+              :content_type => file.content_type.to_s.strip
             ))
           rescue Excon::Errors::NotFound
             raise if retried
