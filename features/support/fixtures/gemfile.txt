@@ -1,0 +1,5 @@
+source "http://rubygems.org"
+
+gem "rails", "RAILS_VERSION"
+gem "rdoc"
+gem "sqlite3"

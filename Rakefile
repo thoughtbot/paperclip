@@ -4,17 +4,18 @@ require 'bundler/setup'
 
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
+require 'cucumber/rake/task'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'paperclip'
 
 desc 'Default: run unit tests.'
-task :default => [:clean, :all]
+task :default => [:clean, 'appraisal:install', :all]
 
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
-  exec('rake appraisal test')
+  exec('rake appraisal test cucumber')
 end
 
 desc 'Test the paperclip plugin.'
@@ -24,6 +25,11 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
+desc 'Run integration test'
+Cucumber::Rake::Task.new do |t|
+  t.cucumber_opts = %w{--format progress}
+end
+
 desc 'Start an IRB session with all necessary files required.'
 task :shell do |t|
   chdir File.dirname(__FILE__)
@@ -31,7 +37,7 @@ task :shell do |t|
 end
 
 desc 'Generate documentation for the paperclip plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
+RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = 'Paperclip'
   rdoc.options << '--line-numbers' << '--inline-source'

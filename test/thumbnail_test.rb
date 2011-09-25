@@ -102,6 +102,10 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_equal nil, @thumb.convert_options
       end
 
+      should "have source_file_options set to nil by default" do
+        assert_equal nil, @thumb.source_file_options
+      end
+
       should "send the right command to convert when sent #make" do
         Paperclip.expects(:run).with do |*arg|
           arg[0] == 'convert' &&
@@ -220,6 +224,53 @@ class ThumbnailTest < Test::Unit::TestCase
         assert !@thumb.transformation_command.include?("-resize")
       end
     end
+
+    context "passing a custom file geometry parser" do
+      should "produce the appropriate transformation_command" do
+        GeoParser = Class.new do
+          def self.from_file(file)
+            new
+          end
+          def transformation_to(target, should_crop)
+            ["SCALE", "CROP"]
+          end
+        end
+
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :file_geometry_parser => GeoParser)
+
+        transformation_command = thumb.transformation_command
+
+        assert transformation_command.include?('-crop'),
+          %{expected #{transformation_command.inspect} to include '-crop'}
+        assert transformation_command.include?('"CROP"'),
+          %{expected #{transformation_command.inspect} to include '"CROP"'}
+        assert transformation_command.include?('-resize'),
+          %{expected #{transformation_command.inspect} to include '-resize'}
+        assert transformation_command.include?('"SCALE"'),
+          %{expected #{transformation_command.inspect} to include '"SCALE"'}
+      end
+    end
+
+    context "passing a custom geometry string parser" do
+      should "produce the appropriate transformation_command" do
+        GeoParser = Class.new do
+          def self.parse(s)
+            new
+          end
+
+          def to_s
+            "151x167"
+          end
+        end
+
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :string_geometry_parser => GeoParser)
+
+        transformation_command = thumb.transformation_command
+
+        assert transformation_command.include?('"151x167"'),
+          %{expected #{transformation_command.inspect} to include '151x167'}
+      end
+    end
   end
 
   context "A multipage PDF" do
@@ -251,6 +302,81 @@ class ThumbnailTest < Test::Unit::TestCase
       should "create the thumbnail when sent #make" do
         dst = @thumb.make
         assert_match /100x100/, `identify "#{dst.path}"`
+      end
+    end
+  end
+
+  context "An animated gif" do
+    setup do
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "animated.gif"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    should "start with 12 frames with size 100x100" do
+      cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
+      assert_equal "100x100"*12, `#{cmd}`.chomp
+    end
+
+    context "with static output" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :jpg)
+      end
+
+      should "create the single frame thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50", `#{cmd}`.chomp
+      end
+    end
+
+    context "with animated output format" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :gif)
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with omitted output format" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with animated option set to false" do
+      setup do
+       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :animated => false)
+      end
+
+      should "output the gif format" do
+        dst = @thumb.make
+        cmd = %Q[identify "#{dst.path}"]
+        assert_match /GIF/, `#{cmd}`.chomp
+      end
+
+      should "create the single frame thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "50x50", `#{cmd}`.chomp
       end
     end
   end

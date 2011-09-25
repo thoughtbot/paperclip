@@ -30,7 +30,7 @@ module IOStream
 end
 
 # Corrects a bug in Windows when asking for Tempfile size.
-if defined? Tempfile
+if defined?(Tempfile) && RUBY_PLATFORM !~ /java/
   class Tempfile
     def size
       if @tmpfile

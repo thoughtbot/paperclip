@@ -62,12 +62,12 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with style rules in various forms" do
     setup do
+      styles = ActiveSupport::OrderedHash.new
+      styles[:aslist] = ["100x100", :png]
+      styles[:ashash] = {:geometry => "100x100", :format => :png}
+      styles[:asstring] = "100x100"
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => {
-                                 :aslist => ["100x100", :png],
-                                 :ashash => {:geometry => "100x100", :format => :png},
-                                 :asstring => "100x100"
-                                }
+                               :styles => styles
     end
     should "have the right number of styles" do
       assert_kind_of Hash, @attachment.styles
@@ -92,6 +92,9 @@ class StyleTest < Test::Unit::TestCase
       assert_nil @attachment.styles[:asstring].format
     end
 
+    should "retain order" do
+      assert_equal [:aslist, :ashash, :asstring], @attachment.styles.keys
+    end
   end
 
   context "An attachment with :convert_options" do
@@ -111,6 +114,26 @@ class StyleTest < Test::Unit::TestCase
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_options_for).with(:thumb)
       @attachment.styles[:thumb].convert_options
+    end
+  end
+
+  context "An attachment with :source_file_options" do
+    setup do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {:thumb => "100x100", :large => "400x400"},
+                               :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
+      @style = @attachment.styles[:thumb]
+      @file = StringIO.new("...")
+      @file.stubs(:original_filename).returns("file.jpg")
+    end
+
+    before_should "not have called extra_source_file_options_for(:thumb/:large) on initialization" do
+      @attachment.expects(:extra_source_file_options_for).never
+    end
+
+    should "call extra_options_for(:thumb/:large) when convert options are requested" do
+      @attachment.expects(:extra_source_file_options_for).with(:thumb)
+      @attachment.styles[:thumb].source_file_options
     end
   end
 
@@ -138,7 +161,7 @@ class StyleTest < Test::Unit::TestCase
     end
 
   end
-  
+
   context "A style rule with :processors supplied as procs" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
