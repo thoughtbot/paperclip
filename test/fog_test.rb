@@ -135,7 +135,7 @@ class FogTest < Test::Unit::TestCase
           @dummy.save
         end
 
-        should "not provide a public url" do
+        should "provide a public url" do
           assert !@dummy.avatar.url.nil?
         end
       end
