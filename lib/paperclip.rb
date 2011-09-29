@@ -318,7 +318,7 @@ module Paperclip
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
-      Paperclip.classes_with_attachments << self unless Paperclip.classes_with_attachments.include?(self)
+      Paperclip.classes_with_attachments << self.name unless Paperclip.classes_with_attachments.include?(self.name)
       Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
 
       after_save :save_attached_files
