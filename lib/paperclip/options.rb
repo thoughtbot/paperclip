@@ -62,17 +62,17 @@ module Paperclip
     end
 
     def processors
-      @processors.respond_to?(:call) ? @processors.call(instance) : @processors
+      @processors.respond_to?(:call) ? @processors.call(@attachment.instance) : @processors
     end
 
     def styles
       if @styles.respond_to?(:call) || !@normalized_styles
-        normalized_styles = ActiveSupport::OrderedHash.new
+        @normalized_styles = ActiveSupport::OrderedHash.new
         (@styles.respond_to?(:call) ? @styles.call(@attachment) : @styles).each do |name, args|
           normalized_styles[name] = Paperclip::Style.new(name, args.dup, @attachment)
         end
       end
-      normalized_styles
+      @normalized_styles
     end
   end
 end
