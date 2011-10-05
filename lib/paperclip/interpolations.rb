@@ -86,7 +86,7 @@ module Paperclip
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
+      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}$/, "")
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
