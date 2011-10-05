@@ -54,7 +54,7 @@ module Paperclip
     end
 
     def method_missing(method, *args, &blk)
-      if method.to_s[-1] == "="
+      if method.to_s[-1,1] == "="
         instance_variable_set("@#{method[0..-2]}", args[0])
       else
         instance_variable_get("@#{method}")

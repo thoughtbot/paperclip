@@ -8,6 +8,13 @@ class MockAttachment < Struct.new(:one, :two)
 end
 
 class OptionsTest < Test::Unit::TestCase
+  should "be able to set a value" do
+    @options = Paperclip::Options.new(nil, {})
+    assert_nil @options.path
+    @options.path = "this/is/a/path"
+    assert_equal "this/is/a/path", @options.path
+  end
+
   context "#styles with a plain hash" do
     setup do
       @attachment = MockAttachment.new(nil, nil)
