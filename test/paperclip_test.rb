@@ -3,11 +3,13 @@ require './test/helper'
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
     setup do
-      Cocaine::CommandLine.expects(:new).with("convert", "stuff").returns(stub(:run))
+      Paperclip.options[:log_command] = false
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
       @original_command_line_path = Cocaine::CommandLine.path
     end
 
     teardown do
+      Paperclip.options[:log_command] = true
       Cocaine::CommandLine.path = @original_command_line_path
     end
 
@@ -19,6 +21,14 @@ class PaperclipTest < Test::Unit::TestCase
       Cocaine::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
       assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
+    end
+  end
+
+  context "Calling Paperclip.run with a logger" do
+    should "pass the defined logger if :log_command is set" do
+      Paperclip.options[:log_command] = true
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", :logger => Paperclip.logger).returns(stub(:run))
+      Paperclip.run("convert", "stuff")
     end
   end
 

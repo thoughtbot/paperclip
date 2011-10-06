@@ -78,29 +78,28 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes a command to execute and an array of parameters
-    # that get passed to it. The command is prefixed with the :command_path
-    # option from Paperclip.options. If you have many commands to run and
-    # they are in different paths, the suggested course of action is to
-    # symlink them so they are all in the same directory.
+    # The run method takes the name of a binary to run, the arguments to that binary
+    # and some options:
     #
-    # If the command returns with a result code that is not one of the
-    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
-    # a code of 0 is expected, but a list of codes may be passed if necessary.
-    # These codes should be passed as a hash as the last argument, like so:
+    #   :command_path -> A $PATH-like variable that defines where to look for the binary
+    #                    on the filesystem. Colon-separated, just like $PATH.
     #
-    #   Paperclip.run("echo", "something", :expected_outcodes => [0,1,2,3])
+    #   :expected_outcodes -> An array of integers that defines the expected exit codes
+    #                         of the binary. Defaults to [0].
     #
-    # This method can log the command being run when
-    # Paperclip.options[:log_command] is set to true (defaults to false). This
-    # will only log if logging in general is set to true as well.
-    def run(cmd, *params)
+    #   :log_command -> Log the command being run when set to true (defaults to false).
+    #                   This will only log if logging in general is set to true as well.
+    #
+    #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
+    #
+    def run(cmd, arguments = "", local_options = {})
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
       command_path = options[:command_path] || options[:image_magick_path]
       Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path, command_path ].flatten : command_path )
-      Cocaine::CommandLine.new(cmd, *params).run
+      local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run
     end
 
     def processor(name) #:nodoc:
