@@ -245,7 +245,7 @@ Example Usage:
 
 
 The `:hash` interpolation will be replaced with a unique hash made up of whatever
-is specified in `:hash_data`. The default value for `:hash_data` is ":class/:attachment/:id/:style/:updated_at".
+is specified in `:hash_data`. The default value for `:hash_data` is `":class/:attachment/:id/:style/:updated_at"`.
 
 `:hash_secret` is required, an exception will be raised if `:hash` is used without `:hash_secret` present.
 
