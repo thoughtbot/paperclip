@@ -234,10 +234,22 @@ URI Obfuscation
 ---------------
 
 Paperclip has an interpolation called `:hash` for obfuscating filenames of
-publicly-available files. For more on this feature read the author's own
-explanation.
+publicly-available files.
 
-[https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
+Example Usage:
+
+    has_attached_file :avatar, {
+        :url => "/system/:hash.:extension",
+        :hash_secret => "longSecretString"
+    }
+
+
+The `:hash` interpolation will be replaced with a unique hash made up of whatever
+is specified in `:hash_data`. The default value for `:hash_data` is ":class/:attachment/:id/:style/:updated_at".
+
+`:hash_secret` is required, an exception will be raised if `:hash` is used without `:hash_secret` present.
+
+For more on this feature read the author's own explanation. [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
 
 MD5 Checksum / Fingerprint
 -------
