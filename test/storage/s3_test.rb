@@ -116,7 +116,6 @@ class S3Test < Test::Unit::TestCase
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
                     :storage => :s3,
                     :bucket  => "bucket",
-                    :path => ":attachment/:basename.:extension",
                     :s3_credentials => {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
@@ -126,7 +125,11 @@ class S3Test < Test::Unit::TestCase
       @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
     end
 
-    should "return an escaped version of url" do
+    should "return an unescaped version for path" do
+      assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+    end
+
+    should "return an escaped version for url" do
       assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
     end
   end

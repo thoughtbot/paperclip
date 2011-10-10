@@ -25,7 +25,10 @@ unless ENV["S3_TEST_BUCKET"].blank?
           @dummy.avatar = @file
         end
 
-        teardown { @file.close }
+        teardown do
+          @file.close
+          @dummy.destroy
+        end
 
         should "still return a Tempfile when sent #to_file" do
           assert_equal Paperclip::Tempfile, @dummy.avatar.to_file.class
@@ -45,6 +48,40 @@ unless ENV["S3_TEST_BUCKET"].blank?
             assert_match /^original.*\.png$/, File.basename(file.path)
           end
         end
+      end
+    end
+
+    context "An attachment that uses S3 for storage and has spaces in file name" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+
+        Dummy.delete_all
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
+        @dummy.save
+      end
+
+      teardown { @dummy.destroy }
+
+      should "return an unescaped version for path" do
+        assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+      end
+
+      should "return an escaped version for url" do
+        assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+      end
+
+      should "be accessible" do
+        assert_match /200 OK/, `curl -I #{@dummy.avatar.url}`
+      end
+
+      should "be destoryable" do
+        url = @dummy.avatar.url
+        @dummy.destroy
+        assert_match /404 Not Found/, `curl -I #{url}`
       end
     end
   end
