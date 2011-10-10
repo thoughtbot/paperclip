@@ -154,6 +154,13 @@ class InterpolationsTest < Test::Unit::TestCase
     attachment.stubs(:original_filename).returns("one")
     assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
   end
+  
+  should "return the basename when the extension contains regexp special characters" do
+    attachment = mock
+    attachment.stubs(:styles).returns({})
+    attachment.stubs(:original_filename).returns("one.ab)")
+    assert_equal "one", Paperclip::Interpolations.basename(attachment, :style)
+  end
 
   should "return the timestamp" do
     now = Time.now
@@ -171,11 +178,18 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal seconds_since_epoch, Paperclip::Interpolations.updated_at(attachment, :style)
   end
 
-  should "return hash" do
+  should "return attachment's hash when passing both arguments" do
     attachment = mock
     fake_hash = "a_wicked_secure_hash"
     attachment.expects(:hash).returns(fake_hash)
     assert_equal fake_hash, Paperclip::Interpolations.hash(attachment, :style)
+  end
+
+  should "return Object#hash when passing no argument" do
+    attachment = mock
+    fake_hash = "a_wicked_secure_hash"
+    attachment.expects(:hash).never.returns(fake_hash)
+    assert_not_equal fake_hash, Paperclip::Interpolations.hash
   end
 
   should "call all expected interpolations with the given arguments" do

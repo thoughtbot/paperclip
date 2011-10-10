@@ -19,6 +19,8 @@ module Paperclip
     def self.insert
       ActiveRecord::Base.send(:include, Paperclip::Glue)
       File.send(:include, Paperclip::Upfile)
+
+      Paperclip.options[:logger] = defined?(ActiveRecord) ? ActiveRecord::Base.logger : Rails.logger
     end
   end
 end

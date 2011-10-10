@@ -1,10 +1,11 @@
 require 'rubygems'
-require 'appraisal'
 require 'bundler/setup'
+require 'appraisal'
 
 require 'rake'
 require 'rake/testtask'
 require 'rdoc/task'
+require 'cucumber/rake/task'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'paperclip'
@@ -14,7 +15,7 @@ task :default => [:clean, 'appraisal:install', :all]
 
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
-  exec('rake appraisal test')
+  exec('rake appraisal test cucumber')
 end
 
 desc 'Test the paperclip plugin.'
@@ -22,6 +23,11 @@ Rake::TestTask.new(:test) do |t|
   t.libs << 'lib' << 'profile'
   t.pattern = 'test/**/*_test.rb'
   t.verbose = true
+end
+
+desc 'Run integration test'
+Cucumber::Rake::Task.new do |t|
+  t.cucumber_opts = %w{--format progress}
 end
 
 desc 'Start an IRB session with all necessary files required.'

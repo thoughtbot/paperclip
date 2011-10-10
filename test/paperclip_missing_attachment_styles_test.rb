@@ -1,0 +1,80 @@
+require './test/helper'
+
+class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
+
+  context "Paperclip" do
+    setup do
+      Paperclip.classes_with_attachments = Set.new
+    end 
+    
+    teardown do
+      File.unlink(Paperclip.registered_attachments_styles_path) rescue nil
+    end
+
+    should "be able to keep list of models using it" do
+      assert_kind_of Set, Paperclip.classes_with_attachments 
+      assert Paperclip.classes_with_attachments.empty?, 'list should be empty'
+      rebuild_model
+      assert_equal ['Dummy'].to_set, Paperclip.classes_with_attachments
+    end
+
+    should "enable to get and set path to registered styles file" do
+      assert_equal ROOT.join('public/system/paperclip_attachments.yml').to_s, Paperclip.registered_attachments_styles_path
+      Paperclip.registered_attachments_styles_path = '/tmp/config/paperclip_attachments.yml'
+      assert_equal '/tmp/config/paperclip_attachments.yml', Paperclip.registered_attachments_styles_path
+      Paperclip.registered_attachments_styles_path = nil
+      assert_equal ROOT.join('public/system/paperclip_attachments.yml').to_s, Paperclip.registered_attachments_styles_path
+    end
+    
+    should "be able to get current attachment styles" do
+      assert_equal Hash.new, Paperclip.send(:current_attachments_styles)
+      rebuild_model :styles => {:croppable => '600x600>', :big => '1000x1000>'}
+      expected_hash = { :Dummy => {:avatar => [:big, :croppable]}}
+      assert_equal expected_hash, Paperclip.send(:current_attachments_styles)
+    end
+    
+    should "be able to save current attachment styles for further comparison" do
+      rebuild_model :styles => {:croppable => '600x600>', :big => '1000x1000>'}
+      Paperclip.save_current_attachments_styles!
+      expected_hash = { :Dummy => {:avatar => [:big, :croppable]}}
+      assert_equal expected_hash, YAML.load_file(Paperclip.registered_attachments_styles_path)
+    end
+
+    should "be able to read registered attachment styles from file" do
+      rebuild_model :styles => {:croppable => '600x600>', :big => '1000x1000>'}
+      Paperclip.save_current_attachments_styles!
+      expected_hash = { :Dummy => {:avatar => [:big, :croppable]}}
+      assert_equal expected_hash, Paperclip.send(:get_registered_attachments_styles)
+    end
+
+    should "be able to calculate differences between registered styles and current styles" do
+      rebuild_model :styles => {:croppable => '600x600>', :big => '1000x1000>'}
+      Paperclip.save_current_attachments_styles!
+      rebuild_model :styles => {:thumb => 'x100', :export => 'x400>', :croppable => '600x600>', :big => '1000x1000>'}
+      expected_hash = { :Dummy => {:avatar => [:export, :thumb]} }
+      assert_equal expected_hash, Paperclip.missing_attachments_styles
+
+      ActiveRecord::Base.connection.create_table :books, :force => true
+      class ::Book < ActiveRecord::Base
+        has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
+        has_attached_file :sample, :styles => {:thumb => 'x100'}
+      end
+
+      expected_hash = {
+        :Dummy => {:avatar => [:export, :thumb]},
+        :Book => {:sample => [:thumb], :cover => [:large, :small]}
+      }
+      assert_equal expected_hash, Paperclip.missing_attachments_styles
+      Paperclip.save_current_attachments_styles!
+      assert_equal Hash.new, Paperclip.missing_attachments_styles
+    end
+
+    # It's impossible to build styles hash without loading from database whole bunch of records
+    should "skip lambda-styles" do
+      rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
+      assert_equal Hash.new, Paperclip.send(:current_attachments_styles)
+    end
+    
+  end
+
+end

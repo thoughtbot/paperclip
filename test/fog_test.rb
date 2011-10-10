@@ -18,7 +18,7 @@ class FogTest < Test::Unit::TestCase
       end
 
       should "have the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
 
@@ -34,7 +34,7 @@ class FogTest < Test::Unit::TestCase
       end
 
       should "have the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.instance_variable_get("@fog_credentials")[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
 
@@ -53,9 +53,16 @@ class FogTest < Test::Unit::TestCase
         @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
       end
       should "be able to interpolate the path without blowing up" do
-        puts @dummy.avatar.instance_variable_get("@path")
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
                      @dummy.avatar.path
+      end
+
+      should "clean up file objects" do
+        File.stubs(:exist?).returns(true)
+        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
+        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
+
+        @dummy.save!
       end
     end
 
@@ -174,7 +181,7 @@ class FogTest < Test::Unit::TestCase
         end
 
         should 'set the @fog_public instance variable to false' do
-          assert_equal false, @dummy.avatar.instance_variable_get('@fog_public')
+          assert_equal false, @dummy.avatar.options.fog_public
         end
       end
 

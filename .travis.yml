@@ -3,8 +3,10 @@ rvm:
   - 1.9.2
   - ree
   - rbx-2.0
-  
-script: "bundle exec rake clean test"
+
+before_script: "sudo ntpdate -ub ntp.ubuntu.com pool.ntp.org; true"
+script: "bundle exec rake clean test cucumber"
+
 gemfile:
   - gemfiles/rails2.gemfile
   - gemfiles/rails3.gemfile

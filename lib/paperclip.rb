@@ -28,6 +28,7 @@
 require 'erb'
 require 'digest'
 require 'tempfile'
+require 'paperclip/options'
 require 'paperclip/version'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
@@ -39,6 +40,7 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatibility'
+require 'paperclip/missing_attachment_styles'
 require 'paperclip/railtie'
 require 'logger'
 require 'cocaine'
@@ -76,38 +78,40 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes a command to execute and an array of parameters
-    # that get passed to it. The command is prefixed with the :command_path
-    # option from Paperclip.options. If you have many commands to run and
-    # they are in different paths, the suggested course of action is to
-    # symlink them so they are all in the same directory.
+    # The run method takes the name of a binary to run, the arguments to that binary
+    # and some options:
     #
-    # If the command returns with a result code that is not one of the
-    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
-    # a code of 0 is expected, but a list of codes may be passed if necessary.
-    # These codes should be passed as a hash as the last argument, like so:
+    #   :command_path -> A $PATH-like variable that defines where to look for the binary
+    #                    on the filesystem. Colon-separated, just like $PATH.
     #
-    #   Paperclip.run("echo", "something", :expected_outcodes => [0,1,2,3])
+    #   :expected_outcodes -> An array of integers that defines the expected exit codes
+    #                         of the binary. Defaults to [0].
     #
-    # This method can log the command being run when
-    # Paperclip.options[:log_command] is set to true (defaults to false). This
-    # will only log if logging in general is set to true as well.
-    def run cmd, *params
+    #   :log_command -> Log the command being run when set to true (defaults to false).
+    #                   This will only log if logging in general is set to true as well.
+    #
+    #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
+    #
+    def run(cmd, arguments = "", local_options = {})
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-      Cocaine::CommandLine.path = options[:command_path] || options[:image_magick_path]
-      Cocaine::CommandLine.new(cmd, *params).run
+      command_path = options[:command_path] || options[:image_magick_path]
+      Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path, command_path ].flatten : command_path )
+      local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run
     end
 
-    def processor name #:nodoc:
-      name = name.to_s.camelize
-      load_processor(name) unless Paperclip.const_defined?(name)
-      processor = Paperclip.const_get(name)
-      unless processor.ancestors.include?(Paperclip::Processor)
-        raise PaperclipError.new("Processor #{name} was not found")
+    def processor(name) #:nodoc:
+      @known_processors ||= {}
+      if @known_processors[name.to_s]
+        @known_processors[name.to_s]
+      else
+        name = name.to_s.camelize
+        load_processor(name) unless Paperclip.const_defined?(name)
+        processor = Paperclip.const_get(name)
+        @known_processors[name.to_s] = processor
       end
-      processor
     end
 
     def load_processor(name)
@@ -116,13 +120,32 @@ module Paperclip
       end
     end
 
+    def clear_processors!
+      @known_processors.try(:clear)
+    end
+
+    # You can add your own processor via the Paperclip configuration. Normally
+    # Paperclip will load all processors from the
+    # Rails.root/lib/paperclip_processors directory, but here you can add any
+    # existing class using this mechanism.
+    #
+    #   Paperclip.configure do |c|
+    #     c.register_processor :watermarker, WatermarkingProcessor.new
+    #   end
+    def register_processor(name, processor)
+      @known_processors ||= {}
+      @known_processors[name.to_s] = processor
+    end
+
+    # Find all instances of the given Active Record model +klass+ with attachment +name+.
+    # This method is used by the refresh rake tasks.
     def each_instance_with_attachment(klass, name)
-      class_for(klass).all.each do |instance|
+      class_for(klass).find(:all, :order => 'id').each do |instance|
         yield(instance) if instance.send(:"#{name}?")
       end
     end
 
-    # Log a paperclip-specific line. Uses ActiveRecord::Base.logger
+    # Log a paperclip-specific line. This will logs to STDOUT
     # by default. Set Paperclip.options[:log] to false to turn off.
     def log message
       logger.info("[paperclip] #{message}") if logging?
@@ -163,6 +186,19 @@ module Paperclip
       else
         raise e
       end
+    end
+
+    def check_for_url_clash(name,url,klass)
+      @names_url ||= {}
+      default_url = url || Attachment.default_options[:url]
+      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass
+        log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
+      end
+      @names_url[name] = {:url => default_url, :class => klass}
+    end
+
+    def reset_duplicate_clash_check!
+      @names_url = nil
     end
   end
 
@@ -257,6 +293,20 @@ module Paperclip
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
     #   for backend-specific options.
+    #
+    # It's also possible for you to dynamicly define your interpolation string for :url,
+    # :default_url, and :path in your model by passing a method name as a symbol as a argument
+    # for your has_attached_file definition:
+    #
+    #   class Person
+    #     has_attached_file :avatar, :default_url => :default_url_by_gender
+    #
+    #     private
+    #
+    #     def default_url_by_gender
+    #       "/assets/avatars/default_#{gender}.png"
+    #     end
+    #   end
     def has_attached_file name, options = {}
       include InstanceMethods
 
@@ -269,6 +319,8 @@ module Paperclip
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
+      Paperclip.classes_with_attachments << self.name
+      Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy

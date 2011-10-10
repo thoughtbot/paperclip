@@ -6,8 +6,9 @@ class StyleTest < Test::Unit::TestCase
   context "A style rule" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => { :foo => {:geometry => "100x100#", :format => :png} }
-      @style = @attachment.styles[:foo]
+                               :styles => { :foo => {:geometry => "100x100#", :format => :png} },
+                               :whiny => true
+      @style = @attachment.options.styles[:foo]
     end
 
     should "be held as a Style object" do
@@ -23,7 +24,6 @@ class StyleTest < Test::Unit::TestCase
     end
 
     should "be whiny if the attachment is" do
-      @attachment.expects(:whiny).returns(true)
       assert @style.whiny?
     end
 
@@ -46,17 +46,11 @@ class StyleTest < Test::Unit::TestCase
                                }
     end
 
-    should "defer processing of procs until they are needed" do
-      assert_kind_of Proc, @attachment.styles[:foo].instance_variable_get("@geometry")
-      assert_kind_of Proc, @attachment.styles[:bar].instance_variable_get("@geometry")
-      assert_kind_of Proc, @attachment.instance_variable_get("@processors")
-    end
-
     should "call procs when they are needed" do
-      assert_equal "300x300#", @attachment.styles[:foo].geometry
-      assert_equal "300x300#", @attachment.styles[:bar].geometry
-      assert_equal [:test], @attachment.styles[:foo].processors
-      assert_equal [:test], @attachment.styles[:bar].processors
+      assert_equal "300x300#", @attachment.options.styles[:foo].geometry
+      assert_equal "300x300#", @attachment.options.styles[:bar].geometry
+      assert_equal [:test], @attachment.options.styles[:foo].processors
+      assert_equal [:test], @attachment.options.styles[:bar].processors
     end
   end
 
@@ -70,30 +64,30 @@ class StyleTest < Test::Unit::TestCase
                                :styles => styles
     end
     should "have the right number of styles" do
-      assert_kind_of Hash, @attachment.styles
-      assert_equal 3, @attachment.styles.size
+      assert_kind_of Hash, @attachment.options.styles
+      assert_equal 3, @attachment.options.styles.size
     end
 
     should "have styles as Style objects" do
       [:aslist, :ashash, :aslist].each do |s|
-        assert_kind_of Paperclip::Style, @attachment.styles[s]
+        assert_kind_of Paperclip::Style, @attachment.options.styles[s]
       end
     end
 
     should "have the right geometries" do
       [:aslist, :ashash, :aslist].each do |s|
-        assert_equal @attachment.styles[s].geometry, "100x100"
+        assert_equal @attachment.options.styles[s].geometry, "100x100"
       end
     end
 
     should "have the right formats" do
-      assert_equal @attachment.styles[:aslist].format, :png
-      assert_equal @attachment.styles[:ashash].format, :png
-      assert_nil @attachment.styles[:asstring].format
+      assert_equal @attachment.options.styles[:aslist].format, :png
+      assert_equal @attachment.options.styles[:ashash].format, :png
+      assert_nil @attachment.options.styles[:asstring].format
     end
 
     should "retain order" do
-      assert_equal [:aslist, :ashash, :asstring], @attachment.styles.keys
+      assert_equal [:aslist, :ashash, :asstring], @attachment.options.styles.keys
     end
   end
 
@@ -102,7 +96,7 @@ class StyleTest < Test::Unit::TestCase
       @attachment = attachment :path => ":basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
-      @style = @attachment.styles[:thumb]
+      @style = @attachment.options.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
     end
@@ -113,7 +107,7 @@ class StyleTest < Test::Unit::TestCase
 
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_options_for).with(:thumb)
-      @attachment.styles[:thumb].convert_options
+      @attachment.options.styles[:thumb].convert_options
     end
   end
 
@@ -122,7 +116,7 @@ class StyleTest < Test::Unit::TestCase
       @attachment = attachment :path => ":basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
-      @style = @attachment.styles[:thumb]
+      @style = @attachment.options.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
     end
@@ -133,7 +127,7 @@ class StyleTest < Test::Unit::TestCase
 
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_source_file_options_for).with(:thumb)
-      @attachment.styles[:thumb].source_file_options
+      @attachment.options.styles[:thumb].source_file_options
     end
   end
 
@@ -148,7 +142,7 @@ class StyleTest < Test::Unit::TestCase
                                   }
                                 },
                                :processors => [:thumbnail]
-      @style = @attachment.styles[:foo]
+      @style = @attachment.options.styles[:foo]
     end
 
     should "not get processors from the attachment" do
@@ -176,11 +170,11 @@ class StyleTest < Test::Unit::TestCase
     end
 
     should "defer processing of procs until they are needed" do
-      assert_kind_of Proc, @attachment.styles[:foo].instance_variable_get("@processors")
+      assert_kind_of Proc, @attachment.options.styles[:foo].instance_variable_get("@processors")
     end
 
     should "call procs when they are needed" do
-      assert_equal [:test], @attachment.styles[:foo].processors
+      assert_equal [:test], @attachment.options.styles[:foo].processors
     end
   end
 end

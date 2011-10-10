@@ -1,3 +1,5 @@
+require 'uri'
+
 module Paperclip
   module Storage
 
@@ -87,47 +89,36 @@ module Paperclip
         end unless defined?(AWS::S3)
 
         base.instance_eval do
-          @s3_credentials = parse_credentials(@options[:s3_credentials])
-          @s3_host_name   = @options[:s3_host_name] || @s3_credentials[:s3_host_name]
-          @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
-          @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
-          @s3_options     = @options[:s3_options]     || {}
-          @s3_permissions = set_permissions(@options[:s3_permissions])
-          @s3_protocol    = @options[:s3_protocol]    ||
+          @s3_options     = @options.s3_options     || {}
+          @s3_permissions = set_permissions(@options.s3_permissions)
+          @s3_protocol    = @options.s3_protocol    ||
             Proc.new do |style|
               (@s3_permissions[style.to_sym] || @s3_permissions[:default]) == :public_read ? 'http' : 'https'
             end
-          @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = (@options[:s3_headers] || {}).inject({}) do |headers, (name, value)|
-            case name
-            when /^x-amz-meta-(.*)/
-              @s3_metadata[$1] = value
+
+          @s3_metadata = @options.s3_metadata || {}
+          @s3_headers = (@options.s3_headers || {}).inject({}) do |headers,(name,value)|
+            case name.to_s
+            when /^x-amz-meta-(.*)/i 
+              @s3_metadata[$1.downcase] = value
             else
-              name = name.downcase.
-                sub(/^x-amz-/,'').
-                tr("-","_").
-                to_sym
+              name = name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym
               headers[name] = value
             end
             headers
           end
-          @s3_headers[:storage_class] = @options[:s3_storage_class] if
-            @options[:s3_storage_class]
-          @s3_host_alias  = @options[:s3_host_alias]
-          @s3_host_alias  = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
-          unless @url.to_s.match(/^:s3.*url$/)
-            @path         = @path.gsub(/:url/, @url)
-            @url          = ":s3_path_url"
+
+          @s3_headers[:storage_class] = @options.s3_storage_class if
+            @options.s3_storage_class
+
+          unless @options.url.to_s.match(/^:s3.*url$/) || @options.url == ":asset_host"
+            @options.path         = @options.path.gsub(/:url/, @options.url).gsub(/^:rails_root\/public\/system/, '')
+            @options.url          = ":s3_path_url"
           end
-          @url            = ":asset_host" if @options[:url].to_s == ":asset_host"
-          config = {}
-          config[:access_key_id] = @s3_credentials[:access_key_id] if
-            @s3_credentials[:access_key_id]
-          config[:secret_access_key] = @s3_credentials[:secret_access_key] if
-            @s3_credentials[:secret_access_key]
-          config[:s3_endpoint] = @s3_host_name if @s3_host_name
-          @s3_interface = AWS::S3.new(config)
-          @s3_bucket = @s3_interface.buckets[bucket_name]
+          @options.url = @options.url.inspect if @options.url.is_a?(Symbol)
+
+          @http_proxy = @options.http_proxy || nil
+
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -150,24 +141,80 @@ module Paperclip
                                       (s3_protocol(style_name) == 'https')).to_s
       end
 
-      def bucket_name
-        @bucket
+      def s3_credentials
+        @s3_credentials ||= parse_credentials(@options.s3_credentials)
       end
 
       def s3_host_name
-        @s3_host_name || "s3.amazonaws.com"
+        @options.s3_host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
       end
 
-      def s3_bucket
-        @s3_bucket
+      def s3_host_alias
+        @s3_host_alias = @options.s3_host_alias
+        @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
+        @s3_host_alias
       end
 
-      def s3_object(style_name = default_style)
-        @s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+      def bucket_name
+        @bucket = @options.bucket || s3_credentials[:bucket]
+        @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
+        @bucket
       end
 
       def s3_interface
-        @s3_interface
+        @s3_interface ||= begin
+
+          config = {}
+
+          config[:s3_endpoint] = s3_host_name
+
+          if using_http_proxy?
+            proxy_opts = {}
+            proxy_opts[:host] = http_proxy_host
+            proxy_opts[:port] = http_proxy_port if http_proxy_port
+            if http_proxy_user
+              userinfo = http_proxy_user.to_s
+              userinfo += ":#{http_proxy_password}" if http_proxy_password
+              proxy_opts[:userinfo] = userinfo
+            end
+            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+          end
+
+          [:access_key_id, :secret_access_key].each do |opt|
+            config[opt] = s3_credentials[opt] if s3_credentials[opt]
+          end
+
+          AWS::S3.new(config.merge(@s3_options))
+
+        end
+      end
+
+      def s3_bucket
+        @s3_bucket ||= s3_interface.buckets[bucket_name]
+      end
+
+      def s3_object style_name = default_style
+        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+      end
+
+      def using_http_proxy?
+        !!@http_proxy
+      end
+
+      def http_proxy_host
+        using_http_proxy? ? @http_proxy[:host] : nil
+      end
+
+      def http_proxy_port
+        using_http_proxy? ? @http_proxy[:port] : nil
+      end
+
+      def http_proxy_user
+        using_http_proxy? ? @http_proxy[:user] : nil
+      end
+
+      def http_proxy_password
+        using_http_proxy? ? @http_proxy[:password] : nil
       end
 
       def set_permissions permissions
@@ -177,10 +224,6 @@ module Paperclip
           permissions = { :default => permissions || :public_read }
         end
         permissions
-      end
-
-      def s3_host_alias
-        @s3_host_alias
       end
 
       def parse_credentials creds
@@ -197,7 +240,7 @@ module Paperclip
         end
       end
 
-      def s3_protocol(style)
+      def s3_protocol(style = default_style)
         if @s3_protocol.is_a?(Proc)
           @s3_protocol.call(style)
         else
@@ -229,7 +272,7 @@ module Paperclip
             log("saving #{path(style)}")
             write_options = {
               :content_type => file.content_type.to_s.strip,
-              :acl => (@s3_permissions[style] || @s3_permissions[:default])
+              :acl => (@s3_permissions[style] || @s3_permissions[:default]),
             }
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
@@ -239,6 +282,9 @@ module Paperclip
             retry
           end
         end
+
+        after_flush_writes # allows attachment to clean up temp files
+
         @queued_for_write = {}
       end
 
