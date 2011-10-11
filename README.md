@@ -96,7 +96,7 @@ In your migrations:
 
 In your edit and new views:
 
-    <% form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
+    <%= form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
       <%= form.file_field :avatar %>
     <% end %>
 
