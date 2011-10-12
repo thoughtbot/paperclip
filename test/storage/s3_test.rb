@@ -54,6 +54,71 @@ class S3Test < Test::Unit::TestCase
 
   end
 
+  context "missing :bucket option" do
+    
+    setup do
+      rebuild_model :storage => :s3,
+                    #:bucket => "testing", # intentionally left out
+                    :s3_credentials => {:not => :important}
+
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+
+    end
+
+    should "raise an argument error" do
+      exception = assert_raise(ArgumentError) { @dummy.save }
+      assert_match /missing required :bucket option/, exception.message
+    end
+
+  end
+
+  context ":bucket option via :s3_credentials" do
+    
+    setup do
+      rebuild_model :storage => :s3, :s3_credentials => {:bucket => 'testing'}
+      @dummy = Dummy.new
+    end
+
+    should "populate #bucket_name" do
+      assert_equal @dummy.avatar.bucket_name, 'testing'
+    end
+
+  end
+
+  context ":bucket option" do
+    
+    setup do
+      rebuild_model :storage => :s3, :bucket => "testing", :s3_credentials => {}
+      @dummy = Dummy.new
+    end
+
+    should "populate #bucket_name" do
+      assert_equal @dummy.avatar.bucket_name, 'testing'
+    end
+
+  end
+
+  context "missing :bucket option" do
+    
+    setup do
+      rebuild_model :storage => :s3,
+                    #:bucket => "testing", # intentionally left out
+                    :http_proxy => @proxy_settings,
+                    :s3_credentials => {:not => :important}
+
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+
+    end
+
+    should "raise an argument error" do
+      exception = assert_raise(ArgumentError) { @dummy.save }
+      assert_match /missing required :bucket option/, exception.message
+    end
+
+  end
+
   context "" do
     setup do
       rebuild_model :storage => :s3,
@@ -349,6 +414,7 @@ class S3Test < Test::Unit::TestCase
   context "Parsing S3 credentials with a s3_host_name in them" do
     setup do
       rebuild_model :storage => :s3,
+                    :bucket => 'testing',
                     :s3_credentials => {
                       :production   => { :s3_host_name => "s3-world-end.amazonaws.com" },
                       :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }

@@ -158,7 +158,7 @@ module Paperclip
       def bucket_name
         @bucket = @options.bucket || s3_credentials[:bucket]
         @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
-        @bucket
+        @bucket or raise ArgumentError, "missing required :bucket option" 
       end
 
       def s3_interface
