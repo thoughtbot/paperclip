@@ -60,6 +60,12 @@ Or, if you don't use Bundler (though you probably should, even in Rails 2), with
       config.gem "paperclip", :version => "~> 2.4"
       ...
     end
+For Non-Rails usage:
+
+    class ModuleName < ActiveRecord::Base
+        include Paperclip::Glue
+        ...
+    end
 
 Quick Start
 -----------
@@ -90,7 +96,7 @@ In your migrations:
 
 In your edit and new views:
 
-    <% form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
+    <%= form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
       <%= form.file_field :avatar %>
     <% end %>
 
@@ -203,7 +209,7 @@ styles, no processors will be run if there are no styles defined._
 If you're interested in caching your thumbnail's width, height and size in the
 database, take a look at the [paperclip-meta](https://github.com/y8/paperclip-meta) gem.
 
-Also, if you're interesting to generate the thumbnail on-the-fly, you might want
+Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
 
 Events
@@ -227,7 +233,9 @@ called with valid attachments._
 URI Obfuscation
 ---------------
 
-Paperclip has an interpolation called `:hash` for obfuscating filenames of publicly-available files. For more on this feature read author's own explanation.
+Paperclip has an interpolation called `:hash` for obfuscating filenames of
+publicly-available files. For more on this feature read the author's own
+explanation.
 
 [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
 
@@ -269,7 +277,7 @@ a few utility examples would be compression and encryption processors.
 Dynamic Configuration
 ---------------------
 
-Callable objects (labdas, Procs) can be used in a number of places for dynamic
+Callable objects (lambdas, Procs) can be used in a number of places for dynamic
 configuration throughout Paperclip.  This strategy exists in a number of
 components of the library but is most significant in the possibilities for
 allowing custom styles and processors to be applied for specific model
@@ -322,7 +330,7 @@ Here is an example for Capistrano:
         run "cd #{release_path}; RAILS_ENV=production bundle exec rake paperclip:refresh:missing_styles"
       end
     end
-    
+
     after("deploy:update_code", "deploy:build_missing_paperclip_styles")
 
 Now you don't have to remember to refresh thumbnails in production everytime you add new style.
@@ -334,7 +342,7 @@ Paperclip about existing styles. Simply create paperclip_attachments.yml file by
     class User < ActiveRecord::Base
       has_attached_file :avatar, :styles => {:thumb => 'x100', :croppable => '600x600>', :big => '1000x1000>'}
     end
-  
+
     class Book < ActiveRecord::Base
       has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
       has_attached_file :sample, :styles => {:thumb => 'x100'}
@@ -342,17 +350,17 @@ Paperclip about existing styles. Simply create paperclip_attachments.yml file by
 
 Then in `RAILS_ROOT/public/system/paperclip_attachments.yml`:
 
-    --- 
-    :User: 
-      :avatar: 
+    ---
+    :User:
+      :avatar:
       - :thumb
       - :croppable
       - :big
-    :Book: 
-      :cover: 
+    :Book:
+      :cover:
       - :small
       - :large
-      :sample: 
+      :sample:
       - :thumb
 
 Testing

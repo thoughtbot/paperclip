@@ -71,6 +71,22 @@ class IntegrationTest < Test::Unit::TestCase
       should "change the timestamp" do
         assert_not_equal @original_timestamp, @d2.avatar_updated_at
       end
+
+      should "clean up the old original if it is a tempfile" do
+        original = @d2.avatar.to_file(:original)
+        tf = Paperclip::Tempfile.new('original')
+        tf.binmode
+        original.binmode
+        tf.write(original.read)
+        original.close
+        tf.rewind
+
+        File.expects(:unlink).with(tf.instance_variable_get(:@tmpname))
+
+        @d2.avatar.expects(:to_file).with(:original).returns(tf)
+
+        @d2.avatar.reprocess!
+      end
     end
   end
 

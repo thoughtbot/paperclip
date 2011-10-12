@@ -10,3 +10,4 @@ capybara*.html
 *SPIKE*
 .rvmrc
 *emfile.lock
+.rbx

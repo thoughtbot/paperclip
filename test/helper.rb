@@ -9,6 +9,7 @@ require 'active_record'
 require 'active_record/version'
 require 'active_support'
 require 'mime/types'
+require 'pry'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
@@ -84,6 +85,7 @@ def rebuild_class options = {}
   ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, "Dummy") rescue nil
   Object.const_set("Dummy", Class.new(ActiveRecord::Base))
+  Paperclip.reset_duplicate_clash_check!
   Dummy.class_eval do
     include Paperclip::Glue
     has_attached_file :avatar, options

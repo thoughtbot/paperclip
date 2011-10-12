@@ -36,6 +36,13 @@ class AttachmentTest < Test::Unit::TestCase
     assert_equal "fake_models/blegga.png", @attachment.url
   end
 
+  should "return the url by executing and interpolating the default_url when assigned with symbol as method in attachment model" do
+    @attachment = attachment :default_url => :some_method_to_determine_default_url
+    @model = @attachment.instance
+    @model.stubs(:some_method_to_determine_default_url).returns(":class/female_:style_blegga.png")
+    assert_equal "fake_models/female_foostyle_blegga.png", @attachment.url(:foostyle)
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model
@@ -78,7 +85,7 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Attachment.default_options.keys.each do |key|
         should "be the default_options for #{key}" do
           assert_equal @old_default_options[key],
-                       @attachment.instance_variable_get("@#{key}"),
+                       @attachment.options.send(key),
                        key
         end
       end
@@ -93,22 +100,9 @@ class AttachmentTest < Test::Unit::TestCase
         Paperclip::Attachment.default_options.keys.each do |key|
           should "be the new default_options for #{key}" do
             assert_equal @new_default_options[key],
-                         @attachment.instance_variable_get("@#{key}"),
+                         @attachment.options.send(key),
                          key
           end
-        end
-      end
-
-      context "with nested hash default" do
-        setup do
-          @nested_hash = {:thumb => {:first => "second" }}
-          Paperclip::Attachment.default_options[:styles] = @nested_hash
-          @dummy = Dummy.new
-          @attachment = @dummy.avatar
-        end
-
-        should "correctly clone the nested hash" do
-          assert_equal(@nested_hash, @attachment.instance_variable_get(:@styles))
         end
       end
     end
@@ -190,12 +184,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "interpolate the hash data" do
-        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
+        @attachment.expects(:interpolate).with(@attachment.options.hash_data,anything).returns("interpolated_stuff")
         @attachment.hash
       end
 
       should "result in the correct interpolation" do
-        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
+        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options.hash_data)
       end
 
       should "result in a correct hash" do
@@ -278,7 +272,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "report the correct options when sent #extra_source_file_options_for(:thumb)" do
-      assert_equal "-depth 8 -density 400", @dummy.avatar.send(:extra_source_file_options_for, :thumb), @dummy.avatar.source_file_options.inspect
+      assert_equal "-depth 8 -density 400", @dummy.avatar.send(:extra_source_file_options_for, :thumb), @dummy.avatar.options.source_file_options.inspect
     end
 
     should "report the correct options when sent #extra_source_file_options_for(:large)" do
@@ -360,7 +354,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "have the correct geometry" do
-      assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
+      assert_equal "50x50#", @attachment.options.styles[:thumb][:geometry]
     end
   end
   
@@ -372,13 +366,13 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "have the correct styles for the assigned instance values" do
-      assert_equal "50x50#", @dummy.avatar.styles[:thumb][:geometry]
-      assert_nil @dummy.avatar.styles[:large]
+      assert_equal "50x50#", @dummy.avatar.options.styles[:thumb][:geometry]
+      assert_nil @dummy.avatar.options.styles[:large]
 
       @dummy.other = 'b'
       
-      assert_equal "400x400", @dummy.avatar.styles[:large][:geometry]
-      assert_nil @dummy.avatar.styles[:thumb]
+      assert_equal "400x400", @dummy.avatar.options.styles[:large][:geometry]
+      assert_nil @dummy.avatar.options.styles[:thumb]
     end
   end
 
@@ -422,7 +416,7 @@ class AttachmentTest < Test::Unit::TestCase
         end
 
         should "have the correct geometry" do
-          assert_equal "50x50#", @attachment.styles[:normal][:geometry]
+          assert_equal "50x50#", @attachment.options.styles[:normal][:geometry]
         end
       end
     end
@@ -440,7 +434,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     [:processors, :whiny, :convert_options, :geometry, :format].each do |field|
       should "have the same #{field} field" do
-        assert_equal @attachment.styles[:normal][field], @attachment.styles[:hash][field]
+        assert_equal @attachment.options.styles[:normal][field], @attachment.options.styles[:hash][field]
       end
     end
   end
@@ -461,7 +455,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "have the correct processors" do
-        assert_equal [ :test ], @attachment.styles[:normal][:processors]
+        assert_equal [ :test ], @attachment.options.styles[:normal][:processors]
       end
     end
   end
@@ -874,7 +868,7 @@ class AttachmentTest < Test::Unit::TestCase
 
             context "and trying to delete" do
               setup do
-                @existing_names = @attachment.styles.keys.collect do |style|
+                @existing_names = @attachment.options.styles.keys.collect do |style|
                   @attachment.path(style)
                 end
               end
@@ -911,7 +905,22 @@ class AttachmentTest < Test::Unit::TestCase
           end
         end
       end
+    end
 
+    context "with a file that has space in file name" do
+      setup do
+        @attachment.stubs(:instance_read).with(:file_name).returns("spaced file.png")
+        @attachment.stubs(:instance_read).with(:content_type).returns("image/png")
+        @attachment.stubs(:instance_read).with(:file_size).returns(12345)
+        dtnow = DateTime.now
+        @now = Time.now
+        Time.stubs(:now).returns(@now)
+        @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
+      end
+
+      should "returns an escaped version of the URL" do
+        assert_match /\/spaced%20file\.png/, @attachment.url
+      end
     end
 
     context "when trying a nonexistant storage type" do
@@ -1099,12 +1108,12 @@ class AttachmentTest < Test::Unit::TestCase
         @dummy.destroy
       end
 
-      assert File.exists?(@path)
+      assert File.exists?(@path), "#{@path} does not exist."
     end
 
     should "be deleted when the model is destroyed" do
       @dummy.destroy
-      assert ! File.exists?(@path)
+      assert ! File.exists?(@path), "#{@path} does not exist."
     end
   end
 
