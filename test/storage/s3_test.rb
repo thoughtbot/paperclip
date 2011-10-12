@@ -1,6 +1,7 @@
 require 'aws'
-AWS.config(:access_key_id => "TESTKEY",
-           :secret_access_key => "TESTSECRET")
+
+AWS.stub!
+AWS.config(:access_key_id => "TESTKEY", :secret_access_key => "TESTSECRET")
 
 require './test/helper'
 
@@ -159,7 +160,6 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has spaces in file name" do
     setup do
-      AWS::S3::Base.stubs(:establish_connection!)
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
                     :storage => :s3,
                     :bucket  => "bucket",
@@ -425,12 +425,13 @@ class S3Test < Test::Unit::TestCase
       end
 
       should "delete tempfiles" do
-        AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png', :access => :public_read)
+
         File.stubs(:exist?).returns(true)
         Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
         Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
 
         @dummy.save!
+
       end
 
       context "and saved without a bucket" do
@@ -531,7 +532,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -570,7 +571,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -609,7 +610,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -648,7 +649,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end

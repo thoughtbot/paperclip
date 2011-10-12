@@ -22,6 +22,7 @@ Feature: Rails integration
     And I should see an image with a path of "/system/attachments/1/original/5k.png"
     And the file at "/system/attachments/1/original/5k.png" should be the same as "test/fixtures/5k.png"
 
+  @s3
   Scenario: S3 Integration test
     Given I add this snippet to the User model:
       """

@@ -292,7 +292,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path].delete
+            s3_bucket.objects[path.sub(%r{^/},'')].delete
           rescue AWS::Errors::Base => e
             # Ignore this.
           end
