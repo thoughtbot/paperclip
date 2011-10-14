@@ -113,6 +113,16 @@ Given /^I update my application to use Bundler$/ do
   end
 end
 
+Given /^I prepare my old Rails application for rake task$/ do
+  if framework_version?("2.3")
+    require 'fileutils'
+    source = File.expand_path('lib/tasks/paperclip.rake')
+    destination = in_current_dir { File.expand_path("lib/tasks") }
+    FileUtils.cp source, destination
+    append_to "Rakefile", "require 'paperclip'"
+  end
+end
+
 Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, path|
   expected = IO.read(path)
   actual = if web_file.match %r{^https?://}

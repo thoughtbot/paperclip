@@ -22,9 +22,7 @@ When /^I modify my attachment definition to:$/ do |definition|
 end
 
 When /^I upload the fixture "([^"]*)"$/ do |filename|
-  in_current_dir do
-    run_simple %(bundle exec rails runner "User.create!(:attachment => File.open('#{fixture_path(filename)}'))")
-  end
+  run_simple %(bundle exec #{runner_command} "User.create!(:attachment => File.open('#{fixture_path(filename)}'))")
 end
 
 Then /^the attachment "([^"]*)" should have a dimension of (\d+x\d+)$/ do |filename, dimension|
@@ -51,14 +49,14 @@ end
 Then /^the attachment should have the same content type as the fixture "([^"]*)"$/ do |filename|
   in_current_dir do
     require 'mime/types'
-    attachment_content_type = `bundle exec rails runner "puts User.last.attachment_content_type"`.strip
+    attachment_content_type = `bundle exec #{runner_command} "puts User.last.attachment_content_type"`.strip
     attachment_content_type.should == MIME::Types.type_for(filename).first.content_type
   end
 end
 
 Then /^the attachment should have the same file size as the fixture "([^"]*)"$/ do |filename|
   in_current_dir do
-    attachment_file_size = `bundle exec rails runner "puts User.last.attachment_file_size"`.strip
+    attachment_file_size = `bundle exec #{runner_command} "puts User.last.attachment_file_size"`.strip
     attachment_file_size.should == File.size(fixture_path(filename)).to_s
   end
 end

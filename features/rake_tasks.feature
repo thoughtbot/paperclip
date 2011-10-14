@@ -5,6 +5,7 @@ Feature: Rake tasks
     And I run a rails generator to generate a "User" scaffold with "name:string"
     And I run a paperclip generator to add a paperclip "attachment" to the "User" model
     And I run a migration
+    And I prepare my old Rails application for rake task
     And I add this snippet to the User model:
       """
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename"
