@@ -73,7 +73,7 @@ namespace :paperclip do
           ENV['STYLES'] = missing_styles.join(',')
           Rake::Task['paperclip:refresh:thumbnails'].execute
         end
-      end  
+      end
       Paperclip.save_current_attachments_styles!
     end
   end
