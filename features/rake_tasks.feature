@@ -47,7 +47,6 @@ Feature: Rake tasks
     Then the attachment file "original/5k.png" should exist
     And the attachment file "medium/5k.png" should exist
 
-  @wip
   Scenario: Paperclip clean task
     When I upload the fixture "5k.png"
     And I upload the fixture "12k.png"

@@ -84,12 +84,16 @@ namespace :paperclip do
     names = Paperclip::Task.obtain_attachments(klass)
     names.each do |name|
       Paperclip.each_instance_with_attachment(klass, name) do |instance|
-        instance.send(name).send(:validate)
-        if instance.send(name).valid?
-          true
-        else
-          instance.send("#{name}=", nil)
-          instance.save
+        unless instance.valid?
+          attributes = %w(file_size file_name content_type).map{ |suffix| "#{name}_#{suffix}".to_sym }
+          if attributes.any?{ |attribute| instance.errors[attribute].present? }
+            instance.send("#{name}=", nil)
+            if Rails.version >= "3.0.0"
+              instance.save(:validate => false)
+            else
+              instance.save(false)
+            end
+          end
         end
       end
     end
