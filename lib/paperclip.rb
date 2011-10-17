@@ -217,6 +217,9 @@ module Paperclip
   class InfiniteInterpolationError < PaperclipError #:nodoc:
   end
 
+  class InvalidCropGeometryError < PaperclipError #:nodoc:
+  end
+
   module Glue
     def self.included base #:nodoc:
       base.extend ClassMethods

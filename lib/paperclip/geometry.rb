@@ -89,6 +89,8 @@ module Paperclip
     # is weighted at the center of the Geometry.
     def transformation_to dst, crop = false
       if crop
+        raise InvalidCropGeometryError if self.width < dst.width or self.height < dst.height
+
         ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
         scale_geometry, scale = scaling(dst, ratio)
         crop_geometry         = cropping(dst, ratio, scale)
