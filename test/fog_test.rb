@@ -182,6 +182,7 @@ class FogTest < Test::Unit::TestCase
 
         should 'set the @fog_public instance variable to false' do
           assert_equal false, @dummy.avatar.options.fog_public
+          assert_equal false, @dummy.avatar.fog_public
         end
       end
 
