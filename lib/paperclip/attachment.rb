@@ -95,7 +95,7 @@ module Paperclip
         uploaded_file = uploaded_file.to_file(:original)
         close_uploaded_file = uploaded_file.respond_to?(:close)
       else
-        instance_write(:uploaded_file, uploaded_file)
+        instance_write(:uploaded_file, uploaded_file) if uploaded_file
       end
 
       return nil unless valid_assignment?(uploaded_file)
@@ -209,7 +209,7 @@ module Paperclip
     def original_filename
       instance_read(:file_name)
     end
-    
+
     # Returns the size of the file as originally assigned, and lives in the
     # <attachment>_file_size attribute of the model.
     def size

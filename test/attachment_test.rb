@@ -855,6 +855,10 @@ class AttachmentTest < Test::Unit::TestCase
             assert @attachment.dirty?
           end
 
+          should "set uploaded_file for access beyond the paperclip lifecycle" do
+            assert_equal @file, @attachment.uploaded_file
+          end
+
           context "and saved" do
             setup do
               @attachment.save
