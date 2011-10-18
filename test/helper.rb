@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'tempfile'
+require 'pathname'
 require 'test/unit'
 
 require 'shoulda'
