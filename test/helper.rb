@@ -8,6 +8,8 @@ require 'mocha'
 require 'active_record'
 require 'active_record/version'
 require 'active_support'
+require 'mime/types'
+require 'pry'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
@@ -19,7 +21,7 @@ rescue LoadError => e
   puts "debugger disabled"
 end
 
-ROOT = File.join(File.dirname(__FILE__), '..')
+ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
 def silence_warnings
   old_verbose, $VERBOSE = $VERBOSE, nil
@@ -47,6 +49,7 @@ FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
+Paperclip.options[:logger] = ActiveRecord::Base.logger
 
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
@@ -67,6 +70,7 @@ end
 
 def rebuild_model options = {}
   ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+    table.column :title, :string
     table.column :other, :string
     table.column :avatar_file_name, :string
     table.column :avatar_content_type, :string
@@ -81,10 +85,12 @@ def rebuild_class options = {}
   ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, "Dummy") rescue nil
   Object.const_set("Dummy", Class.new(ActiveRecord::Base))
+  Paperclip.reset_duplicate_clash_check!
   Dummy.class_eval do
     include Paperclip::Glue
     has_attached_file :avatar, options
   end
+  Dummy.reset_column_information
 end
 
 class FakeModel

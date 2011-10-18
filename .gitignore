@@ -8,3 +8,6 @@ capybara*.html
 *.rbc
 .bundle
 *SPIKE*
+.rvmrc
+*emfile.lock
+.rbx

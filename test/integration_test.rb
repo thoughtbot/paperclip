@@ -34,20 +34,20 @@ class IntegrationTest < Test::Unit::TestCase
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
     end
-    
+
     context 'reprocessing with unreadable original' do
       setup { File.chmod(0000, @dummy.avatar.path) }
-      
+
       should "not raise an error" do
         assert_nothing_raised do
           @dummy.avatar.reprocess!
         end
       end
-      
+
       should "return false" do
         assert ! @dummy.avatar.reprocess!
       end
-      
+
       teardown { File.chmod(0644, @dummy.avatar.path) }
     end
 
@@ -58,6 +58,7 @@ class IntegrationTest < Test::Unit::TestCase
           has_attached_file :avatar, :styles => { :thumb => "150x25#", :dynamic => lambda { |a| '50x50#' } }
         end
         @d2 = Dummy.find(@dummy.id)
+        @original_timestamp = @d2.avatar_updated_at
         @d2.avatar.reprocess!
         @d2.save
       end
@@ -65,6 +66,26 @@ class IntegrationTest < Test::Unit::TestCase
       should "create its thumbnails properly" do
         assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
         assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`
+      end
+
+      should "change the timestamp" do
+        assert_not_equal @original_timestamp, @d2.avatar_updated_at
+      end
+
+      should "clean up the old original if it is a tempfile" do
+        original = @d2.avatar.to_file(:original)
+        tf = Paperclip::Tempfile.new('original')
+        tf.binmode
+        original.binmode
+        tf.write(original.read)
+        original.close
+        tf.rewind
+
+        File.expects(:unlink).with(tf.instance_variable_get(:@tmpname))
+
+        @d2.avatar.expects(:to_file).with(:original).returns(tf)
+
+        @d2.avatar.reprocess!
       end
     end
   end
@@ -278,6 +299,38 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  context "A model with no source_file_options setting" do
+    setup do
+      rebuild_model :styles => { :large => "300x300>",
+                                 :medium => "100x100",
+                                 :thumb => ["32x32#", :gif] },
+                    :default_style => :medium,
+                    :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                    :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      @dummy     = Dummy.new
+    end
+
+    should "have its definition return nil when asked about source_file_options" do
+      assert ! Dummy.attachment_definitions[:avatar][:source_file_options]
+    end
+
+    context "redefined to have source_file_options setting" do
+      setup do
+        rebuild_model :styles => { :large => "300x300>",
+                                   :medium => "100x100",
+                                   :thumb => ["32x32#", :gif] },
+                      :source_file_options => "-density 400",
+                      :default_style => :medium,
+                      :url => "/:attachment/:class/:style/:id/:basename.:extension",
+                      :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      end
+
+      should "have its definition return source_file_options value when asked about source_file_options" do
+        assert_equal "-density 400", Dummy.attachment_definitions[:avatar][:source_file_options]
+      end
+    end
+  end
+
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
@@ -383,6 +436,24 @@ class IntegrationTest < Test::Unit::TestCase
       assert_equal "5k.png", @dummy.avatar_file_name
     end
 
+    [000,002,022].each do |umask|
+      context "when the umask is #{umask}" do
+        setup do
+          @umask = File.umask umask
+        end
+
+        teardown do
+          File.umask @umask
+        end
+
+        should "respect the current umask" do
+          @dummy.avatar = @file
+          @dummy.save
+          assert_equal 0666&~umask, 0666&File.stat(@dummy.avatar.path).mode
+        end
+      end
+    end
+
     context "that is assigned its file from another Paperclip attachment" do
       setup do
         @dummy2 = Dummy.new
@@ -399,6 +470,7 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy.save
         assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                      `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
+        assert_equal @dummy.avatar_file_name, @dummy2.avatar_file_name
       end
     end
 
@@ -464,6 +536,18 @@ class IntegrationTest < Test::Unit::TestCase
         assert @dummy.save
 
         @files_on_s3 = s3_files_for @dummy.avatar
+      end
+
+      context 'assigning itself to a new model' do
+        setup do
+          @d2 = Dummy.new
+          @d2.avatar = @dummy.avatar
+          @d2.save
+        end
+
+        should "have the same name as the old file" do
+          assert_equal @d2.avatar.original_filename, @dummy.avatar.original_filename
+        end
       end
 
       should "have the same contents as the original" do

@@ -1,3 +1,5 @@
+require 'paperclip/interpolated_string'
+
 module Paperclip
   # This module contains all the methods that are available for interpolation
   # in paths and urls. To add your own (or override an existing one), you
@@ -6,13 +8,13 @@ module Paperclip
   module Interpolations
     extend self
 
-    # Hash assignment of interpolations. Included only for compatability,
+    # Hash assignment of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[]= name, block
       define_method(name, &block)
     end
 
-    # Hash access of interpolations. Included only for compatability,
+    # Hash access of interpolations. Included only for compatibility,
     # and is not intended for normal use.
     def self.[] name
       method(name)
@@ -25,17 +27,22 @@ module Paperclip
 
     # Perform the actual interpolation. Takes the pattern to interpolate
     # and the arguments to pass, which are the attachment and style name.
+    # You can pass a method name on your record as a symbol, which should turn
+    # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
-      all.reverse.inject( pattern.dup ) do |result, tag|
+      pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
+      interpolated_string = all.reverse.inject(InterpolatedString.new(pattern)) do |result, tag|
         result.gsub(/:#{tag}/) do |match|
           send( tag, *args )
         end
       end
+      interpolated_string.force_escape if pattern =~ /:url/
+      interpolated_string
     end
 
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
-      "#{basename(attachment, style_name)}.#{extension(attachment, style_name)}"
+      [ basename(attachment, style_name), extension(attachment, style_name) ].reject(&:blank?).join(".")
     end
 
     # Returns the interpolated URL. Will raise an error if the url itself
@@ -83,7 +90,7 @@ module Paperclip
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
+      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}$/, "")
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
@@ -94,9 +101,39 @@ module Paperclip
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
 
+    # Returns an extension based on the content type. e.g. "jpeg" for "image/jpeg".
+    # Each mime type generally has multiple extensions associated with it, so
+    # if the extension from teh original filename is one of these extensions,
+    # that extension is used, otherwise, the first in the list is used.
+    def content_type_extension attachment, style_name
+      mime_type = MIME::Types[attachment.content_type]
+      extensions_for_mime_type = unless mime_type.empty?
+        mime_type.first.extensions
+      else
+        []
+      end
+
+      original_extension = extension(attachment, style_name)
+      if extensions_for_mime_type.include? original_extension
+        original_extension
+      elsif !extensions_for_mime_type.empty?
+        extensions_for_mime_type.first
+      else
+        # It's possible, though unlikely, that the mime type is not in the
+        # database, so just use the part after the '/' in the mime type as the
+        # extension.
+        %r{/([^/]*)$}.match(attachment.content_type)[1]
+      end
+    end
+
     # Returns the id of the instance.
     def id attachment, style_name
       attachment.instance.id
+    end
+
+    # Returns the #to_param of the instance.
+    def param attachment, style_name
+      attachment.instance.to_param
     end
 
     # Returns the fingerprint of the instance.
@@ -106,14 +143,22 @@ module Paperclip
 
     # Returns a the attachment hash.  See Paperclip::Attachment#hash for
     # more details.
-    def hash attachment, style_name
-      attachment.hash(style_name)
+    def hash attachment=nil, style_name=nil
+      if attachment && style_name
+        attachment.hash(style_name)
+      else
+        super()
+      end
     end
 
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name
-      ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
+      if (id = attachment.instance.id).is_a?(Integer)
+        ("%09d" % id).scan(/\d{3}/).join("/")
+      else
+        id.scan(/.{3}/).first(3).join("/")
+      end
     end
 
     # Returns the pluralized form of the attachment name. e.g.

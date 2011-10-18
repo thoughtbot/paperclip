@@ -13,7 +13,7 @@ spec = Gem::Specification.new do |s|
   s.version           = Paperclip::VERSION
   s.author            = "Jon Yurek"
   s.email             = "jyurek@thoughtbot.com"
-  s.homepage          = "http://www.thoughtbot.com/projects/paperclip"
+  s.homepage          = "https://github.com/thoughtbot/paperclip"
   s.description       = "Easy upload management for ActiveRecord"
   s.platform          = Gem::Platform::RUBY
   s.summary           = "File attachments as attributes for ActiveRecord"
@@ -21,15 +21,18 @@ spec = Gem::Specification.new do |s|
   s.require_path      = "lib"
   s.test_files        = Dir["test/**/test_*.rb"]
   s.rubyforge_project = "paperclip"
-  s.has_rdoc          = true
   s.extra_rdoc_files  = Dir["README*"]
   s.rdoc_options << '--line-numbers' << '--inline-source'
   s.requirements << "ImageMagick"
-  s.add_dependency 'activerecord'
-  s.add_dependency 'activesupport'
+  s.add_dependency 'activerecord', '>=2.3.0'
+  s.add_dependency 'activesupport', '>=2.3.2'
+  s.add_dependency 'cocaine', '>=0.0.2'
+  s.add_dependency 'mime-types'
   s.add_development_dependency 'shoulda'
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'mocha'
   s.add_development_dependency 'aws-s3'
-  s.add_development_dependency 'sqlite3-ruby'
+  s.add_development_dependency 'sqlite3'
+  s.add_development_dependency 'cucumber'
+  s.add_development_dependency 'capybara'
 end
