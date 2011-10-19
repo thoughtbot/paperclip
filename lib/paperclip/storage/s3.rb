@@ -80,8 +80,10 @@ module Paperclip
           @s3_options     = @options.s3_options     || {}
           @s3_permissions = set_permissions(@options.s3_permissions)
           @s3_protocol    = @options.s3_protocol    ||
-            Proc.new do |style|
-              (@s3_permissions[style.to_sym] || @s3_permissions[:default]) == :public_read ? 'http' : 'https'
+            Proc.new do |style, attachment|
+              permission = (@s3_permissions[style.to_sym] || @s3_permissions[:default])
+              permission = permission.call(attachment, style) if permission.is_a?(Proc)
+              permission == :public_read ? 'http' : 'https'
             end
           @s3_headers     = @options.s3_headers     || {}
 
@@ -184,7 +186,7 @@ module Paperclip
 
       def s3_protocol(style = default_style)
         if @s3_protocol.is_a?(Proc)
-          @s3_protocol.call(style)
+          @s3_protocol.call(style, self)
         else
           @s3_protocol
         end
@@ -212,11 +214,13 @@ module Paperclip
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
+            s3_permission = @s3_permissions[style] || @s3_permissions[:default]
+            s3_permission = s3_permission.call(self, style) if s3_permission.is_a?(Proc)
             AWS::S3::S3Object.store(path(style),
                                     file,
                                     bucket_name,
                                     {:content_type => file.content_type.to_s.strip,
-                                     :access => (@s3_permissions[style] || @s3_permissions[:default]),
+                                     :access => (s3_permission),
                                     }.merge(@s3_headers))
           rescue AWS::S3::NoSuchBucket => e
             create_bucket
