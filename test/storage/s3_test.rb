@@ -476,6 +476,7 @@ class S3Test < Test::Unit::TestCase
 
        Dummy.delete_all
        @dummy = Dummy.new
+       @dummy.avatar.send(:establish_connection!)
      end
 
      should "parse the credentials" do
@@ -499,6 +500,7 @@ class S3Test < Test::Unit::TestCase
       Dummy.delete_all
 
       @dummy = Dummy.new
+      @dummy.avatar.send(:establish_connection!)
     end
 
     should "run the file through ERB" do

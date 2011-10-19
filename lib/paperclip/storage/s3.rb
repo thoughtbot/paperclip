@@ -97,11 +97,6 @@ module Paperclip
           if @http_proxy
             @s3_options.merge!({:proxy => @http_proxy})
           end
-
-          AWS::S3::Base.establish_connection!( @s3_options.merge(
-            :access_key_id => s3_credentials[:access_key_id],
-            :secret_access_key => s3_credentials[:secret_access_key]
-          ))
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -118,7 +113,7 @@ module Paperclip
       end
 
       def expiring_url(time = 3600, style_name = default_style)
-        AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol(style_name) == 'https'))
+        s3_object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol(style_name) == 'https'))
       end
 
       def s3_credentials
@@ -178,7 +173,7 @@ module Paperclip
 
       def exists?(style = default_style)
         if original_filename
-          AWS::S3::S3Object.exists?(path(style), bucket_name)
+          s3_object.exists?(path(style), bucket_name)
         else
           false
         end
@@ -207,20 +202,20 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
-        file.write(AWS::S3::S3Object.value(path(style), bucket_name))
+        file.write(s3_object.value(path(style), bucket_name))
         file.rewind
         return file
       end
 
       def create_bucket
-        AWS::S3::Bucket.create(bucket_name)
+        s3_bucket.create(bucket_name)
       end
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
-            AWS::S3::S3Object.store(path(style),
+            s3_object.store(path(style),
                                     file,
                                     bucket_name,
                                     {:content_type => file.content_type.to_s.strip,
@@ -243,7 +238,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            AWS::S3::S3Object.delete(path, bucket_name)
+            s3_object.delete(path, bucket_name)
           rescue AWS::S3::ResponseError
             # Ignore this.
           end
@@ -265,6 +260,25 @@ module Paperclip
       end
       private :find_credentials
 
+      def s3_object
+        establish_connection!
+        AWS::S3::S3Object
+      end
+      private :s3_object
+
+      def s3_bucket
+        establish_connection!
+        AWS::S3::Bucket
+      end
+      private :s3_bucket
+
+      def establish_connection!
+        @connection ||= AWS::S3::Base.establish_connection!( @s3_options.merge(
+          :access_key_id => s3_credentials[:access_key_id],
+          :secret_access_key => s3_credentials[:secret_access_key]
+        ))
+      end
+      private :establish_connection!
     end
   end
 end
