@@ -95,11 +95,6 @@ module Paperclip
           if @http_proxy
             @s3_options.merge!({:proxy => @http_proxy})
           end
-
-          AWS::S3::Base.establish_connection!( @s3_options.merge(
-            :access_key_id => s3_credentials[:access_key_id],
-            :secret_access_key => s3_credentials[:secret_access_key]
-          ))
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -116,6 +111,7 @@ module Paperclip
       end
 
       def expiring_url(time = 3600, style_name = default_style)
+        establish_connection!
         AWS::S3::S3Object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol(style_name) == 'https'))
       end
 
@@ -176,6 +172,7 @@ module Paperclip
 
       def exists?(style = default_style)
         if original_filename
+          establish_connection!
           AWS::S3::S3Object.exists?(path(style), bucket_name)
         else
           false
@@ -199,6 +196,7 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
+        establish_connection!
         file.write(AWS::S3::S3Object.value(path(style), bucket_name))
         file.rewind
         return file
@@ -212,6 +210,7 @@ module Paperclip
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
+            establish_connection!
             AWS::S3::S3Object.store(path(style),
                                     file,
                                     bucket_name,
@@ -235,6 +234,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
+            establish_connection!
             AWS::S3::S3Object.delete(path, bucket_name)
           rescue AWS::S3::ResponseError
             # Ignore this.
@@ -256,7 +256,14 @@ module Paperclip
         end
       end
       private :find_credentials
-
+      
+      def establish_connection!
+        @connection ||= AWS::S3::Base.establish_connection!( @s3_options.merge(
+          :access_key_id => s3_credentials[:access_key_id],
+          :secret_access_key => s3_credentials[:secret_access_key]
+        ))
+      end
+      private :establish_connection!
     end
   end
 end
