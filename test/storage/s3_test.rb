@@ -672,9 +672,8 @@ class S3Test < Test::Unit::TestCase
           end
 
           should "succeed" do
-            @dummy.avatar.url() =~ /^https:/
-            @dummy.avatar.url(:thumb) =~ /^http:/
-            assert true
+            assert_equal 0, @dummy.avatar.url()       =~ /^https:/
+            assert_equal 0, @dummy.avatar.url(:thumb) =~ /^http:/
           end
         end
       end
