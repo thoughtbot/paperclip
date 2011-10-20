@@ -238,7 +238,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.avatar = valid_file
             @dummy.valid?
           end
-          should "not have an error when assigned a valid file" do
+          should "not have an error" do
             assert_equal 0, @dummy.errors.size, @dummy.errors.full_messages.join(", ")
           end
         end
@@ -247,7 +247,7 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.avatar = invalid_file
             @dummy.valid?
           end
-          should "have an error when assigned a valid file" do
+          should "have an error" do
             assert @dummy.errors.size > 0
           end
         end

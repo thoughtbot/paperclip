@@ -388,7 +388,9 @@ module Paperclip
     def validates_attachment_presence name, options = {}
       message = options[:message] || :empty
       validates_each :"#{name}_file_name" do |record, attr, value|
-        record.errors.add(name, message) if attr.blank?
+        if_clause_passed = options[:if].nil? || (options[:if].call(record) != false)
+        unless_clause_passed = options[:unless].nil? || (!!options[:unless].call(record) == false)
+        record.errors.add(name, message) if if_clause_passed && unless_clause_passed && value.blank?
       end
     end
 
