@@ -390,7 +390,10 @@ module Paperclip
       validates_each :"#{name}_file_name" do |record, attr, value|
         if_clause_passed = options[:if].nil? || (options[:if].call(record) != false)
         unless_clause_passed = options[:unless].nil? || (!!options[:unless].call(record) == false)
-        record.errors.add(name, message) if if_clause_passed && unless_clause_passed && value.blank?
+        if if_clause_passed && unless_clause_passed && value.blank?
+          record.errors.add(name, message)
+          record.errors.add("#{name}_file_name", message)
+        end
       end
     end
 

@@ -225,6 +225,7 @@ class PaperclipTest < Test::Unit::TestCase
           end
           if validation == :presence
             should "have an error on the attachment" do
+              assert @dummy.errors[:avatar]
               assert @dummy.errors[:avatar_file_name]
             end
           else
