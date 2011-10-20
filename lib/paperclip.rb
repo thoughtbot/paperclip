@@ -387,10 +387,9 @@ module Paperclip
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || :empty
-      validates_presence_of :"#{name}_file_name",
-                            :message   => message,
-                            :if        => options[:if],
-                            :unless    => options[:unless]
+      validates_each :"#{name}_file_name" do |record, attr, value|
+        record.errors.add(name, message) if attr.blank?
+      end
     end
 
     # Places ActiveRecord-style validations on the content type of the file

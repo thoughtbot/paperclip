@@ -128,12 +128,13 @@ module Paperclip
     # grained security.  This is not recommended if you don't need the
     # security, however, for performance reasons. Set use_timestamp to false
     # if you want to stop the attachment update time appended to the url
-    def url(style_name = default_style, use_timestamp = @options.use_timestamp)
-      default_url = @options.default_url.is_a?(Proc) ? @options.default_url.call(self) : @options.default_url
-      url = original_filename.nil? ? interpolate(default_url, style_name) : interpolate(@options.url, style_name)
+    def url(style_name = default_style, options = {})
+      options = handle_url_options(options)
+      url = interpolate(most_appropriate_url, style_name)
 
-      url << (url.include?("?") ? "&" : "?") + updated_at.to_s if use_timestamp && updated_at
-      url.respond_to?(:escape) ? url.escape : URI.escape(url)
+      url = url_timestamp(url) if options[:timestamp]
+      url = escape_url(url)    if options[:escape]
+      url
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -319,6 +320,44 @@ module Paperclip
     end
 
     private
+
+    def handle_url_options(options)
+      timestamp = extract_timestamp(options)
+      options = {} if options == true || options == false
+      options[:timestamp] = timestamp
+      options[:escape] = true if options[:escape].nil?
+      options
+    end
+
+    def extract_timestamp(options)
+      possibilities = [((options == true || options == false) ? options : nil),
+                       (options.respond_to?(:[]) ? options[:timestamp] : nil),
+                       @options.use_timestamp]
+      possibilities.find{|n| !n.nil? }
+    end
+
+    def default_url
+      return @options.default_url.call(self) if @options.default_url.is_a?(Proc)
+      @options.default_url
+    end
+
+    def most_appropriate_url
+      if original_filename.nil?
+        default_url
+      else
+        @options.url
+      end
+    end
+
+    def url_timestamp(url)
+      return url unless updated_at
+      delimiter_char = url.include?("?") ? "&" : "?"
+      "#{url}#{delimiter_char}#{updated_at.to_s}"
+    end
+
+    def escape_url(url)
+      url.respond_to?(:escape) ? url.escape : URI.escape(url)
+    end
 
     def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|

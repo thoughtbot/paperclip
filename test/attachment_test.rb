@@ -160,6 +160,36 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment" do
+    setup do
+      @file = StringIO.new("...")
+    end
+
+    context "using default time zone" do
+      setup do
+        rebuild_model :url => "X"
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      should "generate a url with a timestamp when passing true" do
+        assert_equal "X?#{@dummy.avatar_updated_at.to_i.to_s}", @dummy.avatar.url(:style, true)
+      end
+
+      should "not generate a url with a timestamp when passing false" do
+        assert_equal "X", @dummy.avatar.url(:style, false)
+      end
+
+      should "generate a url with a timestamp when setting a timestamp option" do
+        assert_equal "X?#{@dummy.avatar_updated_at.to_i.to_s}", @dummy.avatar.url(:style, :timestamp => true)
+      end
+
+      should "not generate a url with a timestamp when setting a timestamp option to false" do
+        assert_equal "X", @dummy.avatar.url(:style, :timestamp => false)
+      end
+    end
+  end
+
   context "An attachment with :hash interpolations" do
     setup do
       @file = StringIO.new("...")
