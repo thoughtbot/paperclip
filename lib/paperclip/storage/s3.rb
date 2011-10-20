@@ -81,9 +81,9 @@ module Paperclip
           @s3_permissions = set_permissions(@options.s3_permissions)
           @s3_protocol    = @options.s3_protocol    ||
             Proc.new do |style, attachment|
-              permission = (@s3_permissions[style.to_sym] || @s3_permissions[:default])
-              permission = permission.call(attachment, style) if permission.is_a?(Proc)
-              permission == :public_read ? 'http' : 'https'
+              permission  = (@s3_permissions[style.to_sym] || @s3_permissions[:default])
+              permission  = permission.call(attachment, style) if permission.is_a?(Proc)
+              (permission == :public_read) ? 'http' : 'https'
             end
           @s3_headers     = @options.s3_headers     || {}
 
