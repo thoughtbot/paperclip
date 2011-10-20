@@ -184,6 +184,12 @@ module Paperclip
         end
       end
 
+      def s3_permissions(style = default_style)
+        s3_permissions = @s3_permissions[style] || @s3_permissions[:default]
+        s3_permissions = s3_permissions.call(self, style) if s3_permissions.is_a?(Proc)
+        s3_permissions
+      end
+
       def s3_protocol(style = default_style)
         if @s3_protocol.is_a?(Proc)
           @s3_protocol.call(style, self)
@@ -214,13 +220,11 @@ module Paperclip
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
-            s3_permission = @s3_permissions[style] || @s3_permissions[:default]
-            s3_permission = s3_permission.call(self, style) if s3_permission.is_a?(Proc)
             AWS::S3::S3Object.store(path(style),
                                     file,
                                     bucket_name,
                                     {:content_type => file.content_type.to_s.strip,
-                                     :access => (s3_permission),
+                                     :access => s3_permissions(style),
                                     }.merge(@s3_headers))
           rescue AWS::S3::NoSuchBucket => e
             create_bucket
