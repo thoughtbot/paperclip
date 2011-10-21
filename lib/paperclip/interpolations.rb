@@ -1,5 +1,3 @@
-require 'paperclip/interpolated_string'
-
 module Paperclip
   # This module contains all the methods that are available for interpolation
   # in paths and urls. To add your own (or override an existing one), you
