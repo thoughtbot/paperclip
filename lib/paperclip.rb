@@ -316,6 +316,8 @@ module Paperclip
         else
           write_inheritable_attribute(:attachment_definitions, {})
         end
+      else
+        self.attachment_definitions = self.attachment_definitions.dup
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
