@@ -509,7 +509,7 @@ class S3Test < Test::Unit::TestCase
   end
 
   context "S3 Permissions" do
-    context "defaults to public-read" do
+    context "defaults to :public_read" do
       setup do
         rebuild_model :storage => :s3,
                       :bucket => "testing",
@@ -556,7 +556,7 @@ class S3Test < Test::Unit::TestCase
                         'access_key_id' => "12345",
                         'secret_access_key' => "54321"
                       },
-                      :s3_permissions => 'private'
+                      :s3_permissions => :private
       end
 
       context "when assigned" do
@@ -575,7 +575,7 @@ class S3Test < Test::Unit::TestCase
                                                    anything,
                                                    'testing',
                                                    :content_type => 'image/png',
-                                                   :access => 'private')
+                                                   :access => :private)
             @dummy.save
           end
 
@@ -599,8 +599,8 @@ class S3Test < Test::Unit::TestCase
                         'secret_access_key' => "54321"
                       },
                       :s3_permissions => {
-                        :original => 'private',
-                        :thumb => 'public-read'
+                        :original => :private,
+                        :thumb => :public_read
                       }
       end
 
@@ -621,7 +621,7 @@ class S3Test < Test::Unit::TestCase
                                                     anything,
                                                     'testing',
                                                     :content_type => 'image/png',
-                                                    :access => style == :thumb ? 'public-read' : 'private')
+                                                    :access => style == :thumb ? :public_read : :private)
             end
             @dummy.save
           end
@@ -631,6 +631,59 @@ class S3Test < Test::Unit::TestCase
           end
         end
       end
+    end
+
+    context "proc permission set" do
+      setup do
+        rebuild_model(
+          :storage => :s3,
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :styles => {
+             :thumb => "80x80>"
+          },
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          :s3_permissions => lambda {|attachment, style|
+            attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : :public_read
+          }
+        )
+      end
+
+      context "when assigned" do
+        setup do
+          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.stubs(:private_attachment? => true)
+          @dummy.avatar = @file
+        end
+
+        teardown { @file.close }
+
+        context "and saved" do
+          setup do
+            AWS::S3::Base.stubs(:establish_connection!)
+            [:thumb, :original].each do |style|
+              AWS::S3::S3Object.expects(:store).with(
+                "avatars/#{style}/5k.png",
+                anything,
+                'testing',
+                :content_type => 'image/png',
+                :access => style == :thumb ? :public_read : :private
+              )
+            end
+            @dummy.save
+          end
+
+          should "succeed" do
+            assert @dummy.avatar.url().include?       "https://"
+            assert @dummy.avatar.url(:thumb).include? "http://"
+          end
+        end
+      end
+
     end
   end
 end
