@@ -88,8 +88,8 @@ module Paperclip
           @s3_headers     = @options.s3_headers     || {}
 
           unless @options.url.to_s.match(/^:s3.*url$/) || @options.url == ":asset_host"
-            @options.path         = @options.path.gsub(/:url/, @options.url).gsub(/^:rails_root\/public\/system/, '')
-            @options.url          = ":s3_path_url"
+            @options.path = @options.path.gsub(/:url/, @options.url).gsub(/^:rails_root\/public\/system/, '')
+            @options.url  = ":s3_path_url"
           end
           @options.url = @options.url.inspect if @options.url.is_a?(Symbol)
 
