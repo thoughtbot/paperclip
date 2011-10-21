@@ -31,13 +31,11 @@ module Paperclip
     # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
-      interpolated_string = all.reverse.inject(InterpolatedString.new(pattern)) do |result, tag|
+      all.reverse.inject(pattern) do |result, tag|
         result.gsub(/:#{tag}/) do |match|
           send( tag, *args )
         end
       end
-      interpolated_string.force_escape if pattern =~ /:url/
-      interpolated_string
     end
 
     # Returns the filename, the same way as ":basename.:extension" would.
@@ -51,7 +49,7 @@ module Paperclip
     RIGHT_HERE = "#{__FILE__.gsub(%r{^\./}, "")}:#{__LINE__ + 3}"
     def url attachment, style_name
       raise InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
-      attachment.url(style_name, false)
+      attachment.url(style_name, :timestamp => false, :escape => false)
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field

@@ -120,7 +120,7 @@ class InterpolationsTest < Test::Unit::TestCase
 
   should "reinterpolate :url" do
     attachment = mock
-    attachment.expects(:url).with(:style, false).returns("1234")
+    attachment.expects(:url).with(:style, :timestamp => false, :escape => false).returns("1234")
     assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
   end
 
