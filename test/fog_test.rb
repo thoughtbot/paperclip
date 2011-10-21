@@ -185,7 +185,34 @@ class FogTest < Test::Unit::TestCase
           assert_equal false, @dummy.avatar.fog_public
         end
       end
-
+      
+      context "with a valid bucket name for a subdomain" do
+        should "provide an url in subdomain style" do
+          assert @dummy.avatar.url =~ /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?\d*$/
+        end
+      end
+      
+      context "with an invalid bucket name for a subdomain" do
+        setup do
+          rebuild_model(@options.merge(:fog_directory => "this_is_invalid"))
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+            
+        should "not match the bucket-subdomain restrictions" do
+          invalid_subdomains = %w(this_is_invalid in iamareallylongbucketnameiamareallylongbucketnameiamareallylongbu invalid- inval..id inval-.id inval.-id -invalid 192.168.10.2)
+          invalid_subdomains.each do |name|
+            assert_no_match Paperclip::Storage::Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX, name
+          end
+        end
+        
+        should "provide an url in folder style" do
+          assert @dummy.avatar.url =~ /^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/
+        end
+        
+      end
+      
     end
 
   end
