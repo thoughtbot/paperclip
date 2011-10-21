@@ -136,6 +136,12 @@ class GeometryTest < Test::Unit::TestCase
       assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
+    should "raise an InvalidCropGeometryError when cropping from an initial geometry that is smaller than the target geometry" do
+      assert @src = Paperclip::Geometry.parse("10x10")
+      assert @dst = Paperclip::Geometry.parse("123x456>")
+      assert_raise(Paperclip::InvalidCropGeometryError) { @src.transformation_to(@dst, true) }
+    end
+
     should "let us know when a command isn't found versus a processing error" do
       old_path = ENV['PATH']
       begin
