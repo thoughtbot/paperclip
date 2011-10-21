@@ -43,7 +43,9 @@ module Paperclip
       @s3_permissions        = hash[:s3_permissions]
       @s3_protocol           = hash[:s3_protocol]
       @s3_headers            = hash[:s3_headers]
+      @s3_metadata           = hash[:s3_metadata]
       @s3_host_alias         = hash[:s3_host_alias]
+      @s3_storage_class      = hash[:s3_storage_class]
 
       #fog options
       @fog_directory         = hash[:fog_directory]
