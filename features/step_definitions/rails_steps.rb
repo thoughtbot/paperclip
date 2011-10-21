@@ -113,7 +113,7 @@ Given /^I update my application to use Bundler$/ do
   end
 end
 
-Given /^I prepare my old Rails application for rake task$/ do
+Given /^I add the paperclip rake task to a Rails 2.3 application$/ do
   if framework_version?("2.3")
     require 'fileutils'
     source = File.expand_path('lib/tasks/paperclip.rake')
