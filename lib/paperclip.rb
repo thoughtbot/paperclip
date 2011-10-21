@@ -385,13 +385,13 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     # Options:
     # * +if+: A lambda or name of a method on the instance. Validation will only
-    #   be run is this lambda or method returns true.
+    #   be run if this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || :empty
       validates_each :"#{name}_file_name" do |record, attr, value|
-        if_clause_passed = options[:if].nil? || (options[:if].call(record) != false)
-        unless_clause_passed = options[:unless].nil? || (!!options[:unless].call(record) == false)
+        if_clause_passed = options[:if].nil? || (options[:if].respond_to?(:call) ? options[:if].call(record) != false : record.send(options[:if]))
+        unless_clause_passed = options[:unless].nil? || (options[:unless].respond_to?(:call) ? !!options[:unless].call(record) == false : !record.send(options[:unless]))
         if if_clause_passed && unless_clause_passed && value.blank?
           record.errors.add(name, message)
           record.errors.add("#{name}_file_name", message)
