@@ -464,26 +464,26 @@ class S3Test < Test::Unit::TestCase
   end
 
   context "with S3 credentials supplied as Pathname" do
-     setup do
-       ENV['S3_KEY']    = 'pathname_key'
-       ENV['S3_BUCKET'] = 'pathname_bucket'
-       ENV['S3_SECRET'] = 'pathname_secret'
+    setup do
+      ENV['S3_KEY']    = 'pathname_key'
+      ENV['S3_BUCKET'] = 'pathname_bucket'
+      ENV['S3_SECRET'] = 'pathname_secret'
 
-       rails_env('test')
+      rails_env('test')
 
-       rebuild_model :storage        => :s3,
-                     :s3_credentials => Pathname.new(File.join(File.dirname(__FILE__))).join("../fixtures/s3.yml")
+      rebuild_model :storage        => :s3,
+                    :s3_credentials => Pathname.new(File.join(File.dirname(__FILE__))).join("../fixtures/s3.yml")
 
-       Dummy.delete_all
-       @dummy = Dummy.new
-       @dummy.avatar.send(:establish_connection!)
-     end
+      Dummy.delete_all
+      @dummy = Dummy.new
+      @dummy.avatar.send(:establish_connection!)
+    end
 
-     should "parse the credentials" do
-       assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
-       assert_equal 'pathname_key', AWS::S3::Base.connection.options[:access_key_id]
-       assert_equal 'pathname_secret', AWS::S3::Base.connection.options[:secret_access_key]
-     end
+    should "parse the credentials" do
+      assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
+      assert_equal 'pathname_key', AWS::S3::Base.connection.options[:access_key_id]
+      assert_equal 'pathname_secret', AWS::S3::Base.connection.options[:secret_access_key]
+    end
   end
 
   context "with S3 credentials in a YAML file" do
