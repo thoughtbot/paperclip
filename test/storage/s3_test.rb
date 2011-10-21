@@ -480,6 +480,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "parse the credentials" do
+      assert_kind_of AWS::S3::Connection, @dummy.avatar.send(:establish_connection!)
       assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
       assert_equal 'pathname_key', AWS::S3::Base.connection.options[:access_key_id]
       assert_equal 'pathname_secret', AWS::S3::Base.connection.options[:secret_access_key]
@@ -504,6 +505,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "run the file through ERB" do
+      assert_kind_of AWS::S3::Connection, @dummy.avatar.send(:establish_connection!)
       assert_equal 'env_bucket', @dummy.avatar.bucket_name
       assert_equal 'env_key', AWS::S3::Base.connection.options[:access_key_id]
       assert_equal 'env_secret', AWS::S3::Base.connection.options[:secret_access_key]
