@@ -68,7 +68,8 @@ module Paperclip
       end
 
       def fog_public
-        @fog_public ||= @options.fog_public || true
+        return @fog_public if defined?(@fog_public)
+        @fog_public = defined?(@options.fog_public) ? @options.fog_public : true
       end
 
       def flush_writes
