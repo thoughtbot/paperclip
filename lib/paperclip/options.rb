@@ -51,6 +51,9 @@ module Paperclip
       @fog_host              = hash[:fog_host]
       @fog_public            = hash[:fog_public]
       @fog_file              = hash[:fog_file]
+
+      #access to the raw options hash passed in
+      @raw_options           = hash
     end
 
     def method_missing(method, *args, &blk)
