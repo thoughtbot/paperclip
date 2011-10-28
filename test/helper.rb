@@ -53,6 +53,10 @@ ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FIL
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
+Dir[File.join(File.dirname(__FILE__), 'support','*')].each do |f|
+  require f
+end
+
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, class_name) rescue nil

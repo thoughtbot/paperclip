@@ -34,6 +34,9 @@ module Paperclip
       @processors            = hash[:processors]
       @preserve_files        = hash[:preserve_files]
       @http_proxy            = hash[:http_proxy]
+      @interpolator          = hash[:interpolator]
+      @escape                = hash[:escape]
+      @url_generator         = hash[:url_generator]
 
       #s3 options
       @s3_credentials        = hash[:s3_credentials]

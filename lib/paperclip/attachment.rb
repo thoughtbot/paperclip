@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'uri'
+require 'paperclip/url_generator'
 
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
@@ -25,7 +26,9 @@ module Paperclip
         :use_default_time_zone => true,
         :hash_digest           => "SHA1",
         :hash_data             => ":class/:attachment/:id/:style/:updated_at",
-        :preserve_files        => false
+        :preserve_files        => false,
+        :interpolator          => Paperclip::Interpolations,
+        :url_generator         => Paperclip::UrlGenerator
       }
     end
 
@@ -38,25 +41,26 @@ module Paperclip
     #
     # Options include:
     #
-    #  +url+ - a relative URL of the attachment. This is interpolated using +interpolator+
-    #  +path+ - where on the filesystem to store the attachment. This is interpolated using +interpolator+
-    #  +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
-    #  +only_process+ - style args to be run through the post-processor. This defaults to the empty list
-    #  +default_url+ - a URL for the missing image
-    #  +default_style+ - the style to use when don't specify an argument to e.g. #url, #path
-    #  +storage+ - the storage mechanism. Defaults to :filesystem
-    #  +use_timestamp+ - whether to append an anti-caching timestamp to image URLs. Defaults to true
-    #  +whiny+, +whiny_thumbnails+ - whether to raise when thumbnailing fails
-    #  +use_default_time_zone+ - related to +use_timestamp+. Defaults to true
-    #  +hash_digest+ - a string representing a class that will be used to hash URLs for obfuscation
-    #  +hash_data+ - the relative URL for the hash data. This is interpolated using +interpolator+
-    #  +hash_secret+ - a secret passed to the +hash_digest+
-    #  +convert_options+ - flags passed to the +convert+ command for processing
-    #  +source_file_options+ - flags passed to the +convert+ command that controls how the file is read
-    #  +processors+ - classes that transform the attachment. Defaults to [:thumbnail]
-    #  +preserve_files+ - whether to keep files on the filesystem when deleting to clearing the attachment. Defaults to false
-    #  +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
-    def initialize name, instance, options = {}
+    # +url+ - a relative URL of the attachment. This is interpolated using +interpolator+
+    # +path+ - where on the filesystem to store the attachment. This is interpolated using +interpolator+
+    # +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
+    # +only_process+ - style args to be run through the post-processor. This defaults to the empty list
+    # +default_url+ - a URL for the missing image
+    # +default_style+ - the style to use when don't specify an argument to e.g. #url, #path
+    # +storage+ - the storage mechanism. Defaults to :filesystem
+    # +use_timestamp+ - whether to append an anti-caching timestamp to image URLs. Defaults to true
+    # +whiny+, +whiny_thumbnails+ - whether to raise when thumbnailing fails
+    # +use_default_time_zone+ - related to +use_timestamp+. Defaults to true
+    # +hash_digest+ - a string representing a class that will be used to hash URLs for obfuscation
+    # +hash_data+ - the relative URL for the hash data. This is interpolated using +interpolator+
+    # +hash_secret+ - a secret passed to the +hash_digest+
+    # +convert_options+ - flags passed to the +convert+ command for processing
+    # +source_file_options+ - flags passed to the +convert+ command that controls how the file is read
+    # +processors+ - classes that transform the attachment. Defaults to [:thumbnail]
+    # +preserve_files+ - whether to keep files on the filesystem when deleting to clearing the attachment. Defaults to false
+    # +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
+    # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
+    def initialize(name, instance, options = {})
       @name              = name
       @instance          = instance
 
@@ -68,7 +72,8 @@ module Paperclip
       @queued_for_write      = {}
       @errors                = {}
       @dirty                 = false
-      @interpolator          = (options[:interpolator] || Paperclip::Interpolations)
+      @interpolator          = options[:interpolator]
+      @url_generator         = options[:url_generator].new(self, @options)
 
       initialize_storage
     end
@@ -124,19 +129,36 @@ module Paperclip
       uploaded_file.close if close_uploaded_file
     end
 
-    # Returns the public URL of the attachment, with a given style. Note that
-    # this does not necessarily need to point to a file that your web server
-    # can access and can point to an action in your app, if you need fine
-    # grained security.  This is not recommended if you don't need the
-    # security, however, for performance reasons. Set use_timestamp to false
-    # if you want to stop the attachment update time appended to the url
+    # Returns the public URL of the attachment with a given style. This does
+    # not necessarily need to point to a file that your Web server can access
+    # and can instead point to an action in your app, for example for fine grained
+    # security; this has a serious performance tradeoff.
+    #
+    # Options:
+    #
+    # +timestamp+ - Add a timestamp to the end of the URL. Default: true.
+    # +escape+    - Perform URI escaping to the URL. Default: true.
+    #
+    # Global controls (set on has_attached_file):
+    #
+    # +interpolator+  - The object that fills in a URL pattern's variables.
+    # +default_url+   - The image to show when the attachment has no image.
+    # +url+           - The URL for a saved image.
+    # +url_generator+ - The object that generates a URL. Default: Paperclip::UrlGenerator.
+    #
+    # As mentioned just above, the object that generates this URL can be passed
+    # in, for finer control. This object must respond to two methods:
+    #
+    # +#new(Paperclip::Attachment, Paperclip::Options)+
+    # +#for(style_name, options_hash)+
     def url(style_name = default_style, options = {})
-      options = handle_url_options(options)
-      url = interpolate(most_appropriate_url, style_name)
+      default_options = {:timestamp => @options.use_timestamp, :escape => true}
 
-      url = url_timestamp(url) if options[:timestamp]
-      url = escape_url(url)    if options[:escape]
-      url
+      if options == true || options == false # Backwards compatibility.
+        @url_generator.for(style_name, default_options.merge(:timestamp => options))
+      else
+        @url_generator.for(style_name, default_options.merge(options))
+      end
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -327,44 +349,6 @@ module Paperclip
     end
 
     private
-
-    def handle_url_options(options)
-      timestamp = extract_timestamp(options)
-      options = {} if options == true || options == false
-      options[:timestamp] = timestamp
-      options[:escape] = true if options[:escape].nil?
-      options
-    end
-
-    def extract_timestamp(options)
-      possibilities = [((options == true || options == false) ? options : nil),
-                       (options.respond_to?(:[]) ? options[:timestamp] : nil),
-                       @options.use_timestamp]
-      possibilities.find{|n| !n.nil? }
-    end
-
-    def default_url
-      return @options.default_url.call(self) if @options.default_url.is_a?(Proc)
-      @options.default_url
-    end
-
-    def most_appropriate_url
-      if original_filename.nil?
-        default_url
-      else
-        @options.url
-      end
-    end
-
-    def url_timestamp(url)
-      return url unless updated_at
-      delimiter_char = url.include?("?") ? "&" : "?"
-      "#{url}#{delimiter_char}#{updated_at.to_s}"
-    end
-
-    def escape_url(url)
-      url.respond_to?(:escape) ? url.escape : URI.escape(url)
-    end
 
     def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|

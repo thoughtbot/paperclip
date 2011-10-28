@@ -1,46 +1,92 @@
 # encoding: utf-8
 require './test/helper'
+require 'paperclip/attachment'
 
-class Dummy
-  # This is a dummy class
-end
+class Dummy; end
 
 class AttachmentTest < Test::Unit::TestCase
+  should "handle a boolean second argument to #url" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+
+    attachment.url(:style_name, true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => true, :escape => true)
+
+    attachment.url(:style_name, false)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => false, :escape => true)
+  end
+
+  should "pass the style and options through to the URL generator on #url" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+
+    attachment.url(:style_name, :options => :values)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:options => :values)
+  end
+
+  should "pass default options through when #url is given one argument" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
+  should "pass default style and options through when #url is given no arguments" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :default_style => 'default style',
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
+  end
+
+  should "pass the option :timestamp => true if :use_timestamp is true and :timestamp is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
+  should "pass the option :timestamp => false if :use_timestamp is false and :timestamp is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => false)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => false)
+  end
+
+  should "not change the :timestamp if :timestamp is passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => false)
+
+    attachment.url(:style_name, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
   should "return the path based on the url by default" do
     @attachment = attachment :url => "/:class/:id/:basename"
     @model = @attachment.instance
     @model.id = 1234
     @model.avatar_file_name = "fake.jpg"
     assert_equal "#{Rails.root}/public/fake_models/1234/fake", @attachment.path
-  end
-
-  should "return the url by interpolating the default_url option when no file assigned" do
-    @attachment = attachment :default_url => ":class/blegga.png"
-    @model = @attachment.instance
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
-  end
-
-  should "return the url by executing and interpolating the default_url Proc when no file assigned" do
-    @attachment = attachment :default_url => lambda { |a| ":class/blegga.png" }
-    @model = @attachment.instance
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
-  end
-
-  should "return the url by executing and interpolating the default_url Proc with attachment arg when no file assigned" do
-    @attachment = attachment :default_url => lambda { |a| a.instance.some_method_to_determine_default_url }
-    @model = @attachment.instance
-    @model.stubs(:some_method_to_determine_default_url).returns(":class/blegga.png")
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
-  end
-
-  should "return the url by executing and interpolating the default_url when assigned with symbol as method in attachment model" do
-    @attachment = attachment :default_url => :some_method_to_determine_default_url
-    @model = @attachment.instance
-    @model.stubs(:some_method_to_determine_default_url).returns(":class/female_:style_blegga.png")
-    assert_equal "fake_models/female_foostyle_blegga.png", @attachment.url(:foostyle)
   end
 
   context "Attachment default_options" do
@@ -156,36 +202,6 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "return a time in the per-thread zone" do
         assert_equal @dummy.avatar_updated_at.in_time_zone(@zone).to_s, @dummy.avatar.path
-      end
-    end
-  end
-
-  context "An attachment" do
-    setup do
-      @file = StringIO.new("...")
-    end
-
-    context "using default time zone" do
-      setup do
-        rebuild_model :url => "X"
-        @dummy = Dummy.new
-        @dummy.avatar = @file
-      end
-
-      should "generate a url with a timestamp when passing true" do
-        assert_equal "X?#{@dummy.avatar_updated_at.to_i.to_s}", @dummy.avatar.url(:style, true)
-      end
-
-      should "not generate a url with a timestamp when passing false" do
-        assert_equal "X", @dummy.avatar.url(:style, false)
-      end
-
-      should "generate a url with a timestamp when setting a timestamp option" do
-        assert_equal "X?#{@dummy.avatar_updated_at.to_i.to_s}", @dummy.avatar.url(:style, :timestamp => true)
-      end
-
-      should "not generate a url with a timestamp when setting a timestamp option to false" do
-        assert_equal "X", @dummy.avatar.url(:style, :timestamp => false)
       end
     end
   end
@@ -406,27 +422,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "An attachment with :url that is a proc" do
-    setup do
-      rebuild_model :url => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
-
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
-      @dummyA = Dummy.new(:other => 'a')
-      @dummyA.avatar = @file
-      @dummyB = Dummy.new(:other => 'b')
-      @dummyB.avatar = @file
-    end
-
-    teardown { @file.close }
-
-    should "return correct url" do
-      assert_equal "path/a.png", @dummyA.avatar.url(:original, false)
-      assert_equal "path/b.png", @dummyB.avatar.url(:original, false)
-    end
-  end
-
   geometry_specs = [
     [ lambda{|z| "50x50#" }, :png ],
     lambda{|z| "50x50#" },
@@ -552,16 +547,16 @@ class AttachmentTest < Test::Unit::TestCase
     rebuild_model :storage => :FileSystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
-    
+
     rebuild_model :storage => :Filesystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
   end
-  
+
   should "convert underscored storage name to camelcase" do
     rebuild_model :storage => :not_here
     @dummy = Dummy.new
-    exception = assert_raises(Paperclip::StorageMethodNotFound) do |e|
+    exception = assert_raises(Paperclip::StorageMethodNotFound) do
       @dummy.avatar
     end
     assert exception.message.include?("NotHere")
@@ -770,12 +765,6 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
-    should "return its default_url when no file assigned" do
-      assert @attachment.to_file.nil?
-      assert_equal "/avatars/original/missing.png", @attachment.url
-      assert_equal "/avatars/blah/missing.png", @attachment.url(:blah)
-    end
-
     should "return nil as path when no file assigned" do
       assert @attachment.to_file.nil?
       assert_equal nil, @attachment.path
@@ -800,29 +789,6 @@ class AttachmentTest < Test::Unit::TestCase
         @now = Time.now
         Time.stubs(:now).returns(@now)
         @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
-      end
-
-      should "return a correct url even if the file does not exist" do
-        assert_nil @attachment.to_file
-        assert_match %r{^/system/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
-      end
-
-      should "make sure the updated_at mtime is in the url if it is defined" do
-        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah)
-      end
-
-      should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
-        assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
-      end
-
-      context "with the updated_at field removed" do
-        setup do
-          @attachment.stubs(:instance_read).with(:updated_at).returns(nil)
-        end
-
-        should "only return the url without the updated_at when sent #url" do
-          assert_match "/avatars/#{@instance.id}/blah/5k.png", @attachment.url(:blah)
-        end
       end
 
       should "return the proper path when filename has a single .'s" do
@@ -862,14 +828,6 @@ class AttachmentTest < Test::Unit::TestCase
           context "and saved" do
             setup do
               @attachment.save
-            end
-
-            should "return the real url" do
-              file = @attachment.to_file
-              assert file
-              assert_match %r{^/system/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
-              assert_match %r{^/system/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
-              file.close
             end
 
             should "commit the files to disk" do
@@ -938,22 +896,6 @@ class AttachmentTest < Test::Unit::TestCase
             end
           end
         end
-      end
-    end
-
-    context "with a file that has space in file name" do
-      setup do
-        @attachment.stubs(:instance_read).with(:file_name).returns("spaced file.png")
-        @attachment.stubs(:instance_read).with(:content_type).returns("image/png")
-        @attachment.stubs(:instance_read).with(:file_size).returns(12345)
-        dtnow = DateTime.now
-        @now = Time.now
-        Time.stubs(:now).returns(@now)
-        @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
-      end
-
-      should "returns an escaped version of the URL" do
-        assert_match /\/spaced%20file\.png/, @attachment.url
       end
     end
 
@@ -1106,21 +1048,6 @@ class AttachmentTest < Test::Unit::TestCase
     should "not delete the file when model is destroyed" do
       @dummy.destroy
       assert File.exists?(@path)
-    end
-  end
-
-  context "setting an interpolation class" do
-    should "produce the URL with the given interpolations" do
-      Interpolator = Class.new do
-        def self.interpolate(pattern, attachment, style_name)
-          "hello"
-        end
-      end
-
-      instance = Dummy.new
-      attachment = Paperclip::Attachment.new(:avatar, instance, :interpolator => Interpolator)
-
-      assert_equal "hello", attachment.url
     end
   end
 

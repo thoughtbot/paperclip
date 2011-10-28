@@ -1,7 +1,7 @@
 # encoding: utf-8
 require './test/helper'
 
-class MockAttachment < Struct.new(:one, :two)
+class DSO < Struct.new(:one, :two)
   def instance
     self
   end
@@ -17,7 +17,7 @@ class OptionsTest < Test::Unit::TestCase
 
   context "#styles with a plain hash" do
     setup do
-      @attachment = MockAttachment.new(nil, nil)
+      @attachment = DSO.new(nil, nil)
       @options = Paperclip::Options.new(@attachment,
                                         :styles => {
                                           :something => ["400x400", :png]
@@ -35,7 +35,7 @@ class OptionsTest < Test::Unit::TestCase
 
   context "#styles is a proc" do
     setup do
-      @attachment = MockAttachment.new("123x456", :doc)
+      @attachment = DSO.new("123x456", :doc)
       @options = Paperclip::Options.new(@attachment,
                                         :styles => lambda {|att|
                                           {:something => {:geometry => att.one, :format => att.two}}
@@ -59,7 +59,7 @@ class OptionsTest < Test::Unit::TestCase
 
   context "#processors" do
     setup do
-      @attachment = MockAttachment.new(nil, nil)
+      @attachment = DSO.new(nil, nil)
     end
     should "return processors if not a proc" do
       @options = Paperclip::Options.new(@attachment, :processors => [:one])
