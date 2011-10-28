@@ -21,7 +21,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy.avatar = @file
         end
 
@@ -60,7 +60,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
 
         Dummy.delete_all
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
         @dummy.save
       end
 

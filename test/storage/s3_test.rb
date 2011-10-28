@@ -98,7 +98,7 @@ class S3Test < Test::Unit::TestCase
                     }
 
       @dummy = Dummy.new
-      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+      @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
     end
 
     should "return a url containing the correct original file mime type" do
@@ -122,7 +122,7 @@ class S3Test < Test::Unit::TestCase
                     }
 
       @dummy = Dummy.new
-      @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
+      @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
     end
 
     should "return an unescaped version for path" do
@@ -346,7 +346,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -437,7 +437,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -472,7 +472,7 @@ class S3Test < Test::Unit::TestCase
       rails_env('test')
 
       rebuild_model :storage        => :s3,
-                    :s3_credentials => Pathname.new(File.join(File.dirname(__FILE__))).join("../fixtures/s3.yml")
+                    :s3_credentials => Pathname.new(fixture_file('s3.yml'))
 
       Dummy.delete_all
       @dummy = Dummy.new
@@ -495,7 +495,7 @@ class S3Test < Test::Unit::TestCase
       rails_env('test')
 
       rebuild_model :storage        => :s3,
-                    :s3_credentials => File.new(File.join(File.dirname(__FILE__), "../fixtures/s3.yml"))
+                    :s3_credentials => File.new(fixture_file('s3.yml'))
 
       Dummy.delete_all
 
@@ -524,7 +524,7 @@ class S3Test < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -563,7 +563,7 @@ class S3Test < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -608,7 +608,7 @@ class S3Test < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -656,7 +656,7 @@ class S3Test < Test::Unit::TestCase
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.stubs(:private_attachment? => true)
           @dummy.avatar = @file

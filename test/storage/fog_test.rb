@@ -12,9 +12,9 @@ class FogTest < Test::Unit::TestCase
                       :storage => :fog,
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
-                      :fog_credentials => File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml')
+                      :fog_credentials => fixture_file('fog.yml')
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
 
       should "have the proper information loading credentials from a file" do
@@ -28,9 +28,9 @@ class FogTest < Test::Unit::TestCase
                       :storage => :fog,
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
-                      :fog_credentials => File.open(File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml'))
+                      :fog_credentials => File.open(fixture_file('fog.yml'))
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
 
       should "have the proper information loading credentials from a file" do
@@ -50,10 +50,10 @@ class FogTest < Test::Unit::TestCase
                         :aws_secret_access_key => 'AWS_SECRET'
                       }
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
       should "be able to interpolate the path without blowing up" do
-        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
+        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
 
@@ -98,7 +98,7 @@ class FogTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
