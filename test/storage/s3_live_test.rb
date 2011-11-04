@@ -3,6 +3,22 @@ require 'aws/s3'
 
 unless ENV["S3_TEST_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
+
+    context "Generating an expiring url on a nonexistant attachment" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :path => ":class/:attachment/:id/:style.:extension",
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+
+        @dummy = Dummy.new
+      end
+      should "return nil" do
+        assert_nil @dummy.avatar.expiring_url
+      end
+    end
+
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
@@ -54,9 +70,9 @@ unless ENV["S3_TEST_BUCKET"].blank?
     context "An attachment that uses S3 for storage and has spaces in file name" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+          :storage => :s3,
+          :bucket => ENV["S3_TEST_BUCKET"],
+          :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
