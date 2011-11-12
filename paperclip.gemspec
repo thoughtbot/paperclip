@@ -1,38 +1,41 @@
-$LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
+$LOAD_PATH.push File.expand_path("../lib", __FILE__)
 require 'paperclip/version'
 
-include_files = ["README*", "LICENSE", "Rakefile", "init.rb", "{lib,tasks,test,rails,generators,shoulda_macros}/**/*"].map do |glob|
-  Dir[glob]
-end.flatten
-exclude_files = ["**/*.rbc", "test/s3.yml", "test/debug.log", "test/paperclip.db", "test/doc", "test/doc/*", "test/pkg", "test/pkg/*", "test/tmp", "test/tmp/*"].map do |glob|
-  Dir[glob]
-end.flatten
-
-spec = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
   s.name              = "paperclip"
   s.version           = Paperclip::VERSION
-  s.author            = "Jon Yurek"
-  s.email             = "jyurek@thoughtbot.com"
-  s.homepage          = "https://github.com/thoughtbot/paperclip"
-  s.description       = "Easy upload management for ActiveRecord"
   s.platform          = Gem::Platform::RUBY
+  s.author            = "Jon Yurek"
+  s.email             = ["jyurek@thoughtbot.com"]
+  s.homepage          = "https://github.com/thoughtbot/paperclip"
   s.summary           = "File attachments as attributes for ActiveRecord"
-  s.files             = include_files - exclude_files
-  s.require_path      = "lib"
-  s.test_files        = Dir["test/**/test_*.rb"]
+  s.description       = "Easy upload management for ActiveRecord"
+
   s.rubyforge_project = "paperclip"
-  s.extra_rdoc_files  = Dir["README*"]
-  s.rdoc_options << '--line-numbers' << '--inline-source'
+
+  s.files         = `git ls-files`.split("\n")
+  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.require_paths = ["lib"]
+
   s.requirements << "ImageMagick"
-  s.add_dependency 'activerecord', '>=2.3.0'
-  s.add_dependency 'activesupport', '>=2.3.2'
-  s.add_dependency 'cocaine', '>=0.0.2'
-  s.add_dependency 'mime-types'
-  s.add_development_dependency 'shoulda'
-  s.add_development_dependency 'appraisal'
-  s.add_development_dependency 'mocha'
-  s.add_development_dependency 'aws-s3'
-  s.add_development_dependency 'sqlite3'
-  s.add_development_dependency 'cucumber'
-  s.add_development_dependency 'capybara'
+
+  s.add_dependency('activerecord', '>= 2.3.0')
+  s.add_dependency('activesupport', '>= 2.3.2')
+  s.add_dependency('cocaine', '>= 0.0.2')
+  s.add_dependency('mime-types')
+
+  s.add_development_dependency('shoulda')
+  s.add_development_dependency('appraisal', '~> 0.4.0')
+  s.add_development_dependency('mocha')
+  s.add_development_dependency('aws-s3')
+  s.add_development_dependency('sqlite3', '~> 1.3.4')
+  s.add_development_dependency('cucumber', '~> 1.0.0')
+  s.add_development_dependency('aruba')
+  s.add_development_dependency('capybara')
+  s.add_development_dependency('bundler')
+  s.add_development_dependency('cocaine', '~> 0.2')
+  s.add_development_dependency('fog')
+  s.add_development_dependency('rake')
+  s.add_development_dependency('fakeweb')
 end
