@@ -1,9 +1,7 @@
-require 'bundler'
+require 'bundler/gem_tasks'
 require 'appraisal'
 require 'rake/testtask'
 require 'cucumber/rake/task'
-
-Bundler::GemHelper.install_tasks
 
 desc 'Default: run unit tests.'
 task :default => [:clean, 'appraisal:install', :all]
