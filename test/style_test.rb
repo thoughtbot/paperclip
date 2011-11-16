@@ -41,7 +41,9 @@ class StyleTest < Test::Unit::TestCase
                                :styles => {
                                  :foo => lambda{|a| "300x300#"},
                                  :bar => {
-                                   :geometry => lambda{|a| "300x300#"}
+                                   :geometry => lambda{|a| "300x300#"},
+                                   :convert_options => lambda{|a| "-do_stuff"},
+                                   :source_file_options => lambda{|a| "-do_extra_stuff"}
                                  }
                                }
     end
@@ -51,6 +53,8 @@ class StyleTest < Test::Unit::TestCase
       assert_equal "300x300#", @attachment.options.styles[:bar].geometry
       assert_equal [:test], @attachment.options.styles[:foo].processors
       assert_equal [:test], @attachment.options.styles[:bar].processors
+      assert_equal "-do_stuff", @attachment.options.styles[:bar].convert_options
+      assert_equal "-do_extra_stuff", @attachment.options.styles[:bar].source_file_options
     end
   end
 
@@ -175,6 +179,31 @@ class StyleTest < Test::Unit::TestCase
 
     should "call procs when they are needed" do
       assert_equal [:test], @attachment.options.styles[:foo].processors
+    end
+  end
+
+  context "An attachment with :convert_options and :source_file_options in :styles" do
+    setup do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {
+                                 :thumb => "100x100", 
+                                 :large => {:geometry => "400x400",
+                                            :convert_options => "-do_stuff",
+                                            :source_file_options => "-do_extra_stuff"
+                                 }
+                               }
+      @file = StringIO.new("...")
+      @file.stubs(:original_filename).returns("file.jpg")
+    end
+
+    should "have empty options for :thumb style" do
+      assert_equal "", @attachment.options.styles[:thumb].processor_options[:convert_options]
+      assert_equal "", @attachment.options.styles[:thumb].processor_options[:source_file_options]
+    end
+
+    should "have the right options for :large style" do
+      assert_equal "-do_stuff", @attachment.options.styles[:large].processor_options[:convert_options]
+      assert_equal "-do_extra_stuff", @attachment.options.styles[:large].processor_options[:source_file_options]
     end
   end
 end
