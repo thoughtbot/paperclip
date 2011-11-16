@@ -9,7 +9,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
                       :storage => :s3,
                       :bucket => ENV["S3_TEST_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -56,7 +56,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_TEST_BUCKET"],
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -82,6 +82,44 @@ unless ENV["S3_TEST_BUCKET"].blank?
         url = @dummy.avatar.url
         @dummy.destroy
         assert_match /404 Not Found/, `curl -I #{url}`
+      end
+    end
+
+    context "An attachment that uses S3 for storage and has a question mark in file name" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+
+        Dummy.delete_all
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'question?mark.png'), 'rb')
+        @dummy.save
+      end
+
+      teardown { @dummy.destroy }
+
+      should "return an unescaped version for path" do
+        assert_match /.+\/question\?mark\.png/, @dummy.avatar.path
+      end
+
+#      should "return an escaped version for url" do
+#        assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
+#      end
+
+      should "be accessible" do
+        assert_match /200 OK/, `curl -I "#{@dummy.avatar.url}"`
+      end
+
+      should "be accessible with an expiring url" do
+        assert_match /200 OK/, `curl -I "#{@dummy.avatar.expiring_url}"`
+      end
+
+      should "be destroyable" do
+        url = @dummy.avatar.url
+        @dummy.destroy
+        assert_match /404 Not Found/, `curl -I "#{url}"`
       end
     end
   end
