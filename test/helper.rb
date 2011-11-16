@@ -12,6 +12,8 @@ require 'active_support'
 require 'mime/types'
 require 'pathname'
 
+require 'pathname'
+
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
 `ruby -e 'exit 0'` # Prime $? with a value.
