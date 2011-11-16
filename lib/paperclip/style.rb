@@ -19,6 +19,10 @@ module Paperclip
         @format = definition.delete(:format)
         @processors = definition.delete(:processors)
         @other_args = definition
+      elsif definition.is_a? String
+        @geometry = definition
+        @format = nil
+        @other_args = {}
       else
         @geometry, @format = [definition, nil].flatten[0..1]
         @other_args = {}
