@@ -140,8 +140,11 @@ module Paperclip
     # Find all instances of the given Active Record model +klass+ with attachment +name+.
     # This method is used by the refresh rake tasks.
     def each_instance_with_attachment(klass, name)
-      class_for(klass).find(:all, :order => 'id').each do |instance|
-        yield(instance) if instance.send(:"#{name}?")
+      unscope_method = class_for(klass).respond_to?(:unscoped) ? :unscoped : :with_exclusive_scope
+      class_for(klass).send(unscope_method) do
+        class_for(klass).find(:all, :order => 'id').each do |instance|
+          yield(instance) if instance.send(:"#{name}?")
+        end
       end
     end
 
