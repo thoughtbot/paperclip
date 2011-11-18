@@ -10,15 +10,12 @@ end
 World(AttachmentHelpers)
 
 When /^I modify my attachment definition to:$/ do |definition|
-  in_current_dir do
-    File.open("app/models/user.rb", "w") do |file|
-      file.write <<-FILE
-        class User < ActiveRecord::Base
-          #{definition}
-        end
-      FILE
+  write_file "app/models/user.rb", <<-FILE
+    class User < ActiveRecord::Base
+      #{definition}
     end
-  end
+  FILE
+  remove_file 'app/models/user.rbc' rescue nil
 end
 
 When /^I upload the fixture "([^"]*)"$/ do |filename|
