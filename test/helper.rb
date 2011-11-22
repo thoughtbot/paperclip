@@ -121,13 +121,6 @@ def attachment options
   Paperclip::Attachment.new(:avatar, FakeModel.new, options)
 end
 
-def silence_warnings
-  old_verbose, $VERBOSE = $VERBOSE, nil
-  yield
-ensure
-  $VERBOSE = old_verbose
-end
-
 def should_accept_dummy_class
   should "accept the class" do
     assert_accepts @matcher, @dummy_class
