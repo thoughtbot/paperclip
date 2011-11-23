@@ -523,7 +523,7 @@ class IntegrationTest < Test::Unit::TestCase
                                    :thumb => ["32x32#", :gif] },
                       :storage => :s3,
                       :whiny_thumbnails => true,
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "s3.yml")),
+                      :s3_credentials => File.new(fixture_file("s3.yml")),
                       :default_style => :medium,
                       :bucket => ENV['S3_TEST_BUCKET'],
                       :path => ":class/:attachment/:id/:style/:basename.:extension"
