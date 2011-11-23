@@ -96,7 +96,7 @@ module Paperclip
       ensure_required_accessors!
 
       if uploaded_file.is_a?(Paperclip::Attachment)
-        uploaded_filename = uploaded_file.original_filename
+        uploaded_filename = uploaded_file.original_filename.gsub('?', '%3F')
         uploaded_file = uploaded_file.to_file(:original)
         close_uploaded_file = uploaded_file.respond_to?(:close)
       else
@@ -110,7 +110,7 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
-      uploaded_filename ||= uploaded_file.original_filename
+      uploaded_filename ||= uploaded_file.original_filename.gsub('?', '%3F')
       @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       uploaded_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
