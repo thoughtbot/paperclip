@@ -394,6 +394,21 @@ class S3Test < Test::Unit::TestCase
         end
       end
 
+      context "and saving raises an unexpected exception" do
+        setup do
+          class AWS::S3::SomethingWentReallyWrong < AWS::S3::ResponseError
+            # Force the class to be created as a proper subclass of ResponseError thanks to AWS::S3's autocreation of exceptions
+          end
+          AWS::S3::S3Object.stubs(:store).raises(AWS::S3::SomethingWentReallyWrong.new(:message, :response))
+        end
+
+        should "propagate that exception instead of uninitialized constant AWS::S3::NoSuchBucket" do
+          assert_raises(AWS::S3::SomethingWentReallyWrong) do
+            @dummy.save
+          end
+        end
+      end
+
       context "and remove" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
