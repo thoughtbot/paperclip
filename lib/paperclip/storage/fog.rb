@@ -129,7 +129,7 @@ module Paperclip
         else
           if self.fog_credentials[:provider] == 'AWS'
             if @options.fog_directory.to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-              "https://#{@options.fog_directory}.s3.amazonaws.com/#{path(style)}"
+              "http://#{@options.fog_directory}.s3.amazonaws.com/#{path(style)}"
             else
               # directory is not a valid subdomain, so use path style for access
               "https://s3.amazonaws.com/#{@options.fog_directory}/#{path(style)}"
