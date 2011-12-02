@@ -41,9 +41,9 @@ module Paperclip
         end unless defined?(Fog)
 
         base.instance_eval do
-          unless @options.url.to_s.match(/^:fog.*url$/)
-            @options.path  = @options.path.gsub(/:url/, @options.url)
-            @options.url   = ':fog_public_url'
+          unless @options[:url].to_s.match(/^:fog.*url$/)
+            @options[:path]  = @options[:path].gsub(/:url/, @options[:url])
+            @options[:url]   = ':fog_public_url'
           end
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
             attachment.public_url(style)
@@ -60,16 +60,16 @@ module Paperclip
       end
 
       def fog_credentials
-        @fog_credentials ||= parse_credentials(@options.fog_credentials)
+        @fog_credentials ||= parse_credentials(@options[:fog_credentials])
       end
 
       def fog_file
-        @fog_file ||= @options.fog_file || {}
+        @fog_file ||= @options[:fog_file] || {}
       end
 
       def fog_public
         return @fog_public if defined?(@fog_public)
-        @fog_public = defined?(@options.fog_public) ? @options.fog_public : true
+        @fog_public = defined?(@options[:fog_public]) ? @options[:fog_public] : true
       end
 
       def flush_writes
@@ -122,8 +122,8 @@ module Paperclip
       end
 
       def public_url(style = default_style)
-        if @options.fog_host
-          host = (@options.fog_host =~ /%d/) ? @options.fog_host % (path(style).hash % 4) : @options.fog_host
+        if @options[:fog_host]
+          host = (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
           "#{host}/#{path(style)}"
         else
           directory.files.new(:key => path(style)).public_url
@@ -156,7 +156,7 @@ module Paperclip
       end
 
       def directory
-        @directory ||= connection.directories.new(:key => @options.fog_directory)
+        @directory ||= connection.directories.new(:key => @options[:fog_directory])
       end
     end
   end

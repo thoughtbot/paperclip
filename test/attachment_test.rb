@@ -131,7 +131,7 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Attachment.default_options.keys.each do |key|
         should "be the default_options for #{key}" do
           assert_equal @old_default_options[key],
-                       @attachment.options.send(key),
+                       @attachment.instance_variable_get("@options")[key],
                        key
         end
       end
@@ -146,7 +146,7 @@ class AttachmentTest < Test::Unit::TestCase
         Paperclip::Attachment.default_options.keys.each do |key|
           should "be the new default_options for #{key}" do
             assert_equal @new_default_options[key],
-                         @attachment.options.send(key),
+                         @attachment.instance_variable_get("@options")[key],
                          key
           end
         end
@@ -230,12 +230,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "interpolate the hash data" do
-        @attachment.expects(:interpolate).with(@attachment.options.hash_data,anything).returns("interpolated_stuff")
+        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
         @attachment.hash
       end
 
       should "result in the correct interpolation" do
-        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options.hash_data)
+        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
       end
 
       should "result in a correct hash" do
@@ -318,7 +318,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "report the correct options when sent #extra_source_file_options_for(:thumb)" do
-      assert_equal "-depth 8 -density 400", @dummy.avatar.send(:extra_source_file_options_for, :thumb), @dummy.avatar.options.source_file_options.inspect
+      assert_equal "-depth 8 -density 400", @dummy.avatar.send(:extra_source_file_options_for, :thumb), @dummy.avatar.source_file_options.inspect
     end
 
     should "report the correct options when sent #extra_source_file_options_for(:large)" do
@@ -400,10 +400,10 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "have the correct geometry" do
-      assert_equal "50x50#", @attachment.options.styles[:thumb][:geometry]
+      assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
     end
   end
-  
+
   context "An attachment with conditional :styles that is a proc" do
     setup do
       rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
@@ -412,13 +412,13 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "have the correct styles for the assigned instance values" do
-      assert_equal "50x50#", @dummy.avatar.options.styles[:thumb][:geometry]
-      assert_nil @dummy.avatar.options.styles[:large]
+      assert_equal "50x50#", @dummy.avatar.styles[:thumb][:geometry]
+      assert_nil @dummy.avatar.styles[:large]
 
       @dummy.other = 'b'
-      
-      assert_equal "400x400", @dummy.avatar.options.styles[:large][:geometry]
-      assert_nil @dummy.avatar.options.styles[:thumb]
+
+      assert_equal "400x400", @dummy.avatar.styles[:large][:geometry]
+      assert_nil @dummy.avatar.styles[:thumb]
     end
   end
 
@@ -441,7 +441,7 @@ class AttachmentTest < Test::Unit::TestCase
         end
 
         should "have the correct geometry" do
-          assert_equal "50x50#", @attachment.options.styles[:normal][:geometry]
+          assert_equal "50x50#", @attachment.styles[:normal][:geometry]
         end
       end
     end
@@ -459,7 +459,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     [:processors, :whiny, :convert_options, :geometry, :format].each do |field|
       should "have the same #{field} field" do
-        assert_equal @attachment.options.styles[:normal][field], @attachment.options.styles[:hash][field]
+        assert_equal @attachment.styles[:normal][field], @attachment.styles[:hash][field]
       end
     end
   end
@@ -480,7 +480,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "have the correct processors" do
-        assert_equal [ :test ], @attachment.options.styles[:normal][:processors]
+        assert_equal [ :test ], @attachment.styles[:normal][:processors]
       end
     end
   end
@@ -860,7 +860,7 @@ class AttachmentTest < Test::Unit::TestCase
 
             context "and trying to delete" do
               setup do
-                @existing_names = @attachment.options.styles.keys.collect do |style|
+                @existing_names = @attachment.styles.keys.collect do |style|
                   @attachment.path(style)
                 end
               end

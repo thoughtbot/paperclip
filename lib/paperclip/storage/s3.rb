@@ -77,23 +77,23 @@ module Paperclip
         end unless defined?(AWS::S3)
 
         base.instance_eval do
-          @s3_options     = @options.s3_options     || {}
-          @s3_permissions = set_permissions(@options.s3_permissions)
-          @s3_protocol    = @options.s3_protocol    ||
+          @s3_options     = @options[:s3_options]     || {}
+          @s3_permissions = set_permissions(@options[:s3_permissions])
+          @s3_protocol    = @options[:s3_protocol]    ||
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.is_a?(Proc)
               (permission == :public_read) ? 'http' : 'https'
             end
-          @s3_headers     = @options.s3_headers     || {}
+          @s3_headers     = @options[:s3_headers]     || {}
 
-          unless @options.url.to_s.match(/^:s3.*url$/) || @options.url == ":asset_host"
-            @options.path = @options.path.gsub(/:url/, @options.url).gsub(/^:rails_root\/public\/system/, '')
-            @options.url  = ":s3_path_url"
+          unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
+            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
+            @options[:url]  = ":s3_path_url"
           end
-          @options.url = @options.url.inspect if @options.url.is_a?(Symbol)
+          @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
-          @http_proxy = @options.http_proxy || nil
+          @http_proxy = @options[:http_proxy] || nil
           if @http_proxy
             @s3_options.merge!({:proxy => @http_proxy})
           end
@@ -117,21 +117,21 @@ module Paperclip
       end
 
       def s3_credentials
-        @s3_credentials ||= parse_credentials(@options.s3_credentials)
+        @s3_credentials ||= parse_credentials(@options[:s3_credentials])
       end
 
       def s3_host_name
-        @options.s3_host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        @options[:s3_host_name] || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
       end
 
       def s3_host_alias
-        @s3_host_alias = @options.s3_host_alias
+        @s3_host_alias = @options[:s3_host_alias]
         @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
         @s3_host_alias
       end
 
       def bucket_name
-        @bucket = @options.bucket || s3_credentials[:bucket]
+        @bucket = @options[:bucket] || s3_credentials[:bucket]
         @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
         @bucket
       end
