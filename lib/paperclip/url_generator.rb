@@ -10,7 +10,7 @@ module Paperclip
     def for(style_name, options)
       escape_url_as_needed(
         timestamp_as_needed(
-          @attachment_options.interpolator.interpolate(most_appropriate_url, @attachment, style_name),
+          @attachment_options[:interpolator].interpolate(most_appropriate_url, @attachment, style_name),
           options
       ), options)
     end
@@ -19,12 +19,12 @@ module Paperclip
 
     # This method is all over the place.
     def default_url
-      if @attachment_options.default_url.respond_to?(:call)
-        @attachment_options.default_url.call(@attachment)
-      elsif @attachment_options.default_url.is_a?(Symbol)
-        @attachment.instance.send(@attachment_options.default_url)
+      if @attachment_options[:default_url].respond_to?(:call)
+        @attachment_options[:default_url].call(@attachment)
+      elsif @attachment_options[:default_url].is_a?(Symbol)
+        @attachment.instance.send(@attachment_options[:default_url])
       else
-        @attachment_options.default_url
+        @attachment_options[:default_url]
       end
     end
 
@@ -32,7 +32,7 @@ module Paperclip
       if @attachment.original_filename.nil?
         default_url
       else
-        @attachment_options.url
+        @attachment_options[:url]
       end
     end
 
