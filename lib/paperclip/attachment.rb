@@ -7,8 +7,6 @@ module Paperclip
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
-    include IOStream
-
     def self.default_options
       @default_options ||= {
         :convert_options       => {},
@@ -90,29 +88,16 @@ module Paperclip
     #   new_user.avatar = old_user.avatar
     def assign uploaded_file
       ensure_required_accessors!
+      file = Paperclip.io_adapters.for(uploaded_file)
 
-      if uploaded_file.is_a?(Paperclip::Attachment)
-        uploaded_filename = uploaded_file.original_filename
-        uploaded_file = uploaded_file.to_file(:original)
-        close_uploaded_file = uploaded_file.respond_to?(:close)
-      else
-        instance_write(:uploaded_file, uploaded_file) if uploaded_file
-      end
-
-      return nil unless valid_assignment?(uploaded_file)
-
-      uploaded_file.binmode if uploaded_file.respond_to? :binmode
       self.clear
+      return nil if file.nil?
 
-      return nil if uploaded_file.nil?
-
-      uploaded_filename ||= uploaded_file.original_filename
-      stores_fingerprint             = @instance.respond_to?("#{name}_fingerprint".to_sym)
-      @queued_for_write[:original]   = to_tempfile(uploaded_file)
-      instance_write(:file_name,       cleanup_filename(uploaded_filename.strip))
-      instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
-      instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     generate_fingerprint(uploaded_file)) if stores_fingerprint
+      @queued_for_write[:original]   = file
+      instance_write(:file_name,       cleanup_filename(file.original_filename))
+      instance_write(:content_type,    file.content_type)
+      instance_write(:file_size,       file.size)
+      instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -120,10 +105,8 @@ module Paperclip
       post_process(*@options[:only_process]) if post_processing
 
       # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size,   @queued_for_write[:original].size.to_i)
-      instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original])) if stores_fingerprint
-    ensure
-      uploaded_file.close if close_uploaded_file
+      instance_write(:file_size,   @queued_for_write[:original].size)
+      instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
     end
 
     # Returns the public URL of the attachment with a given style. This does
@@ -252,16 +235,10 @@ module Paperclip
       instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
     end
 
-    # Returns the hash of the file as originally assigned, and lives in the
-    # <attachment>_fingerprint attribute of the model.
+    # Returns the fingerprint of the file, if one's defined. The fingerprint is
+    # stored in the <attachment>_fingerpring attribute of the model.
     def fingerprint
-      if instance_read(:fingerprint)
-        instance_read(:fingerprint)
-      elsif @instance.respond_to?("#{name}_fingerprint".to_sym)
-        @queued_for_write[:original] && generate_fingerprint(@queued_for_write[:original])
-      else
-        nil
-      end
+      instance_read(:fingerprint)
     end
 
     # Returns the content_type of the file as originally assigned, and lives
@@ -307,26 +284,16 @@ module Paperclip
     # thumbnails forcefully, by reobtaining the original file and going through
     # the post-process again.
     def reprocess!(*style_args)
-      new_original = Tempfile.new("paperclip-reprocess")
-      new_original.binmode
-      if old_original = to_file(:original)
-        new_original.write( old_original.respond_to?(:get) ? old_original.get : old_original.read )
-        new_original.rewind
-
-        @queued_for_write = { :original => new_original }
-        instance_write(:updated_at, Time.now)
-        post_process(*style_args)
-
-        old_original.close if old_original.respond_to?(:close)
-        old_original.unlink if old_original.respond_to?(:unlink)
-
+      saved_only_process, @options[:only_process] = @options[:only_process], style_args
+      begin
+        assign(self)
         save
-      else
-        true
+      rescue Errno::EACCES => e
+        warn "#{e} - skipping file."
+        false
+      ensure
+        @options[:only_process] = saved_only_process
       end
-    rescue Errno::EACCES => e
-      warn "#{e} - skipping file"
-      false
     end
 
     # Returns true if a file has been assigned.
@@ -335,6 +302,12 @@ module Paperclip
     end
 
     alias :present? :file?
+
+    # Determines whether the instance responds to this attribute. Used to prevent
+    # calculations on fields we won't even store.
+    def instance_respond_to?(attr)
+      instance.respond_to?(:"#{name}_#{attr}")
+    end
 
     # Writes the attachment-specific attribute on the instance. For example,
     # instance_write(:file_name, "me.jpg") will write "me.jpg" to the instance's
@@ -428,6 +401,7 @@ module Paperclip
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
           Paperclip.processor(processor).make(file, style.processor_options, self)
         end
+        @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
       rescue Paperclip::Error => e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
@@ -463,8 +437,8 @@ module Paperclip
     # called by storage after the writes are flushed and before @queued_for_writes is cleared
     def after_flush_writes
       @queued_for_write.each do |style, file|
-        file.close unless file.closed?
-        file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
+        # file.close unless file.closed?
+        # file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
       end
     end
 

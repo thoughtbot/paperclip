@@ -56,14 +56,6 @@ class FogTest < Test::Unit::TestCase
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
-
-      should "clean up file objects" do
-        File.stubs(:exist?).returns(true)
-        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
-        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-
-        @dummy.save!
-      end
     end
 
     setup do
@@ -110,12 +102,14 @@ class FogTest < Test::Unit::TestCase
         directory.destroy
       end
 
+      # NOTE: This might not be necessary, watch for this to error
       should "always be rewound when returning from #to_file" do
         assert_equal 0, @dummy.avatar.to_file.pos
         @dummy.avatar.to_file.seek(10)
         assert_equal 0, @dummy.avatar.to_file.pos
       end
 
+      # NOTE: This might not be necessary, watch for this to error
       should "rewind file in flush_writes" do
         @dummy.avatar.queued_for_write.each { |style, file| file.expects(:rewind).with() }
         @dummy.save

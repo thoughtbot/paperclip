@@ -84,7 +84,7 @@ module Paperclip
               :body         => file,
               :key          => path(style),
               :public       => fog_public,
-              :content_type => file.content_type.to_s.strip
+              :content_type => file.content_type
             ))
           rescue Excon::Errors::NotFound
             raise if retried
@@ -107,25 +107,6 @@ module Paperclip
         @queued_for_delete = []
       end
 
-      # Returns representation of the data of the file assigned to the given
-      # style, in the format most representative of the current storage.
-      def to_file(style = default_style)
-        if @queued_for_write[style]
-          @queued_for_write[style].rewind
-          @queued_for_write[style]
-        else
-          body      = directory.files.get(path(style)).body
-          filename  = path(style)
-          extname   = File.extname(filename)
-          basename  = File.basename(filename, extname)
-          file      = Tempfile.new([basename, extname])
-          file.binmode
-          file.write(body)
-          file.rewind
-          file
-        end
-      end
-
       def public_url(style = default_style)
         if @options[:fog_host]
           host = if @options[:fog_host].respond_to?(:call)
@@ -133,7 +114,7 @@ module Paperclip
           else
             (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
           end
-          
+
           "#{host}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'

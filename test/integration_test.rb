@@ -54,7 +54,6 @@ class IntegrationTest < Test::Unit::TestCase
     context "redefining its attachment styles" do
       setup do
         Dummy.class_eval do
-          has_attached_file :avatar, :styles => { :thumb => "150x25#" }
           has_attached_file :avatar, :styles => { :thumb => "150x25#", :dynamic => lambda { |a| '50x50#' } }
         end
         @d2 = Dummy.find(@dummy.id)
@@ -70,20 +69,6 @@ class IntegrationTest < Test::Unit::TestCase
 
       should "change the timestamp" do
         assert_not_equal @original_timestamp, @d2.avatar_updated_at
-      end
-
-      should "clean up the old original if it is a tempfile" do
-        original = @d2.avatar.to_file(:original)
-        tf = Paperclip::Tempfile.new('original')
-        tf.binmode
-        original.binmode
-        tf.write(original.read)
-        original.close
-        tf.rewind
-
-        @d2.avatar.expects(:to_file).with(:original).returns(tf)
-
-        @d2.avatar.reprocess!
       end
     end
   end
@@ -171,7 +156,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
 
     should "report the file size of the processed file and not the original" do
-      assert_not_equal @file.size, @dummy.avatar.size
+      assert_not_equal File.size(@file.path), @dummy.avatar.size
     end
 
     teardown { @file.close }
@@ -287,6 +272,27 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  [000,002,022].each do |umask|
+    context "when the umask is #{umask}" do
+      setup do
+        rebuild_model
+        @dummy = Dummy.new
+        @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+        @umask = File.umask(umask)
+      end
+
+      teardown do
+        File.umask @umask
+      end
+
+      should "respect the current umask" do
+        @dummy.avatar = @file
+        @dummy.save
+        assert_equal 0666&~umask, 0666&File.stat(@dummy.avatar.path).mode
+      end
+    end
+  end
+
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
@@ -322,8 +328,6 @@ class IntegrationTest < Test::Unit::TestCase
       assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
       assert_equal "32x32",  `identify -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
 
-      @dummy.avatar = "not a valid file but not nil"
-      assert_equal File.basename(@file.path), @dummy.avatar_file_name
       assert @dummy.valid?
       assert @dummy.save
 
@@ -362,13 +366,13 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
 
-    should "know the difference between good files, bad files, and not files" do
-      expected = @dummy.avatar.to_file
-      @dummy.avatar = "not a file"
-      assert @dummy.valid?
-      assert_equal expected.path, @dummy.avatar.path
-      expected.close
+    should "not abide things that don't have adapters" do
+      assert_raises(Paperclip::AdapterRegistry::NoHandlerError) do
+        @dummy.avatar = "not a file"
+      end
+    end
 
+    should "not be ok with bad files" do
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
     end
@@ -384,29 +388,11 @@ class IntegrationTest < Test::Unit::TestCase
 
     should "be able to reload without saving and not have the file disappear" do
       @dummy.avatar = @file
-      assert @dummy.save
+      assert @dummy.save, @dummy.errors.full_messages.inspect
       @dummy.avatar.clear
       assert_nil @dummy.avatar_file_name
       @dummy.reload
       assert_equal "5k.png", @dummy.avatar_file_name
-    end
-
-    [000,002,022].each do |umask|
-      context "when the umask is #{umask}" do
-        setup do
-          @umask = File.umask umask
-        end
-
-        teardown do
-          File.umask @umask
-        end
-
-        should "respect the current umask" do
-          @dummy.avatar = @file
-          @dummy.save
-          assert_equal 0666&~umask, 0666&File.stat(@dummy.avatar.path).mode
-        end
-      end
     end
 
     context "that is assigned its file from another Paperclip attachment" do
@@ -423,9 +409,9 @@ class IntegrationTest < Test::Unit::TestCase
 
         assert @dummy.avatar = @dummy2.avatar
         @dummy.save
+        assert_equal @dummy.avatar_file_name, @dummy2.avatar_file_name
         assert_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                      `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
-        assert_equal @dummy.avatar_file_name, @dummy2.avatar_file_name
       end
     end
 
@@ -505,7 +491,6 @@ class IntegrationTest < Test::Unit::TestCase
       end
 
       should "have the same contents as the original" do
-        @file.rewind
         assert_equal @file.read, @files_on_s3[:original].read
       end
 

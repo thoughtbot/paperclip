@@ -23,20 +23,6 @@ class FileSystemTest < Test::Unit::TestCase
       assert File.exists?(@dummy.avatar.path(:thumbnail))
     end
 
-    should "clean up file objects" do
-      File.stubs(:exist?).returns(true)
-      Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
-      Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-
-      @dummy.save!
-    end
-
-    should "always be rewound when returning from #to_file" do
-      assert_equal 0, @dummy.avatar.to_file.pos
-      @dummy.avatar.to_file.seek(10)
-      assert_equal 0, @dummy.avatar.to_file.pos
-    end
-        
     context "with file that has space in file name" do
       setup do
         rebuild_model :styles => { :thumbnail => "25x25#" }

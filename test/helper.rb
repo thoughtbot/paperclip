@@ -5,6 +5,7 @@ require 'test/unit'
 
 require 'shoulda'
 require 'mocha'
+require 'bourne'
 
 require 'active_record'
 require 'active_record/version'
@@ -12,6 +13,9 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'mime/types'
 require 'pathname'
+
+require 'pathname'
+require 'pry'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 

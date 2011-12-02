@@ -241,7 +241,7 @@ class S3Test < Test::Unit::TestCase
                       'secret_access_key' => "54321"
                     }
 
-      file = StringIO.new(".")
+      file = Paperclip.io_adapters.for(StringIO.new("."))
       file.original_filename = "question?mark.png"
       @dummy = Dummy.new
       @dummy.avatar = file
@@ -336,17 +336,18 @@ class S3Test < Test::Unit::TestCase
       assert_match %r{^avatars/stringio\.txt}, @dummy.avatar.url
     end
 
+      # NOTE: This might not be necessary, watch for this to error
     should "always be rewound when returning from #to_file" do
         assert_equal 0, @dummy.avatar.to_file.pos
         @dummy.avatar.to_file.seek(10)
         assert_equal 0, @dummy.avatar.to_file.pos
       end
 
+      # NOTE: This might not be necessary, watch for this to error
     should "rewind file in flush_writes" do
       @dummy.avatar.queued_for_write.each { |style, file| file.expects(:rewind).with() }
       @dummy.save
     end
-
   end
 
   context "Generating a secure url with an expiration" do
@@ -553,14 +554,6 @@ class S3Test < Test::Unit::TestCase
         should "succeed" do
           assert true
         end
-      end
-
-      should "delete tempfiles" do
-        File.stubs(:exist?).returns(true)
-        Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
-        Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-
-        @dummy.save!
       end
 
       context "and saved without a bucket" do
@@ -1065,13 +1058,6 @@ class S3Test < Test::Unit::TestCase
 
         context "and saved" do
           setup do
-            [:thumb, :original].each do |style|
-              object = stub
-              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
-              object.expects(:write).with(anything,
-                                          :content_type => "image/png",
-                                          :acl => style == :thumb ? :public_read : :private)
-            end
             @dummy.save
           end
 

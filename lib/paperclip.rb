@@ -29,8 +29,6 @@ require 'erb'
 require 'digest'
 require 'tempfile'
 require 'paperclip/version'
-require 'paperclip/upfile'
-require 'paperclip/iostream'
 require 'paperclip/geometry'
 require 'paperclip/processor'
 require 'paperclip/tempfile'
@@ -49,6 +47,7 @@ require 'paperclip/instance_methods'
 require 'paperclip/logger'
 require 'paperclip/helpers'
 require 'paperclip/railtie'
+require 'mime/types'
 require 'logger'
 require 'cocaine'
 
@@ -203,3 +202,12 @@ module Paperclip
     end
   end
 end
+
+# This stuff needs to be run after Paperclip is defined.
+require 'paperclip/io_adapters/registry'
+require 'paperclip/io_adapters/identity_adapter'
+require 'paperclip/io_adapters/file_adapter'
+require 'paperclip/io_adapters/stringio_adapter'
+require 'paperclip/io_adapters/nil_adapter'
+require 'paperclip/io_adapters/attachment_adapter'
+require 'paperclip/io_adapters/uploaded_file_adapter'

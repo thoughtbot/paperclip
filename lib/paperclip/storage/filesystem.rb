@@ -27,23 +27,14 @@ module Paperclip
         end
       end
 
-      # Returns representation of the data of the file assigned to the given
-      # style, in the format most representative of the current storage.
-      def to_file style_name = default_style
-        if @queued_for_write[style_name]
-          @queued_for_write[style_name].rewind
-          @queued_for_write[style_name]
-        elsif exists?(style_name)
-          File.new(path(style_name), 'rb')
-        end
-      end
-
       def flush_writes #:nodoc:
         @queued_for_write.each do |style_name, file|
-          file.close
           FileUtils.mkdir_p(File.dirname(path(style_name)))
-          log("saving #{path(style_name)}")
-          FileUtils.cp(file.path, path(style_name))
+          File.open(path(style_name), "wb") do |new_file|
+            while chunk = file.read(16 * 1024)
+              new_file.write(chunk)
+            end
+          end
           FileUtils.chmod(0666&~File.umask, path(style_name))
         end
 

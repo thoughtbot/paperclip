@@ -678,10 +678,7 @@ class AttachmentTest < Test::Unit::TestCase
       @file = StringIO.new(".")
       @file.stubs(:original_filename).returns("5k.png\n\n")
       @file.stubs(:content_type).returns("image/png\n\n")
-      @file.stubs(:to_tempfile).returns(@file)
       @dummy = Dummy.new
-      Paperclip::Thumbnail.expects(:make).returns(@file)
-      @attachment = @dummy.avatar
       @dummy.avatar = @file
     end
 
@@ -698,23 +695,12 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model
 
-      @not_file = mock("not_file")
-      @tempfile = mock("tempfile")
-      @not_file.stubs(:nil?).returns(false)
-      @not_file.expects(:size).returns(10)
-      @tempfile.expects(:size).returns(10)
-      @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
-      @not_file.expects(:content_type).returns("image/png\r\n")
+      @file  = StringIO.new(".")
+      @file.stubs(:original_filename).returns("sheep_say_bæ.png\r\n")
+      @file.stubs(:content_type).returns("image/png\r\n")
 
       @dummy = Dummy.new
-      @attachment = @dummy.avatar
-      @attachment.expects(:valid_assignment?).with(@not_file).returns(true)
-      @attachment.expects(:queue_existing_for_delete)
-      @attachment.expects(:post_process)
-      @attachment.expects(:to_tempfile).returns(@tempfile)
-      @attachment.expects(:generate_fingerprint).with(@tempfile).returns("12345")
-      @attachment.expects(:generate_fingerprint).with(@not_file).returns("12345")
-      @dummy.avatar = @not_file
+      @dummy.avatar = @file
     end
 
     should "not remove strange letters" do
@@ -725,14 +711,14 @@ class AttachmentTest < Test::Unit::TestCase
   context "Attachment with reserved filename" do
     setup do
       rebuild_model
-      @file = StringIO.new(".")
+      @file = Paperclip.io_adapters.for(StringIO.new("."))
     end
 
     context "with default configuration" do
       "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
         context "with character #{character}" do
           setup do
-            @file.stubs(:original_filename).returns("file#{character}name.png")
+            @file.original_filename = "file#{character}name.png"
             @dummy = Dummy.new
             @dummy.avatar = @file
           end
@@ -796,11 +782,8 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "should have matching to_s and url methods" do
-      file = @attachment.to_file
-      assert file
       assert_match @attachment.to_s, @attachment.url
       assert_match @attachment.to_s(:small), @attachment.url(:small)
-      file.close
     end
   end
 
@@ -831,7 +814,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "return nil as path when no file assigned" do
-      assert @attachment.to_file.nil?
       assert_equal nil, @attachment.path
       assert_equal nil, @attachment.path(:blah)
     end
@@ -886,10 +868,6 @@ class AttachmentTest < Test::Unit::TestCase
             assert @attachment.dirty?
           end
 
-          should "set uploaded_file for access beyond the paperclip lifecycle" do
-            assert_equal @file, @attachment.uploaded_file
-          end
-
           context "and saved" do
             setup do
               @attachment.save
@@ -897,11 +875,7 @@ class AttachmentTest < Test::Unit::TestCase
 
             should "commit the files to disk" do
               [:large, :medium, :small].each do |style|
-                io = @attachment.to_file(style)
-                # p "in commit to disk test, io is #{io.inspect} and @instance.id is #{@instance.id}"
-                assert File.exists?(io.path)
-                assert ! io.is_a?(::Tempfile)
-                io.close
+                assert File.exists?(@attachment.path(style))
               end
             end
 
@@ -916,11 +890,6 @@ class AttachmentTest < Test::Unit::TestCase
                 assert_equal style[2].to_s, height.to_s
                 assert_equal style[3].to_s, format.to_s
               end
-            end
-
-            should "still have its #file attribute not be nil" do
-              assert ! (file = @attachment.to_file).nil?
-              file.close
             end
 
             context "and trying to delete" do
@@ -1047,7 +1016,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "return the right value when sent #avatar_file_size" do
       @dummy.avatar = @file
-      assert_equal @file.size, @dummy.avatar.size
+      assert_equal File.size(@file), @dummy.avatar.size
     end
 
     context "and avatar_updated_at column" do
@@ -1068,18 +1037,12 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal now.to_i, @dummy.avatar.updated_at
       end
     end
-    
-    should "not calculate fingerprint after save" do
-      @dummy.avatar = @file
-      @dummy.save
-      assert_nil @dummy.avatar.fingerprint
-    end
-    
-    should "not calculate fingerprint before saving" do
+
+    should "not calculate fingerprint" do
       @dummy.avatar = @file
       assert_nil @dummy.avatar.fingerprint
     end
-    
+
     context "and avatar_content_type column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
@@ -1110,14 +1073,14 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "return the right value when sent #avatar_file_size" do
         @dummy.avatar = @file
-        assert_equal @file.size, @dummy.avatar.size
+        assert_equal File.size(@file), @dummy.avatar.size
       end
 
       should "return the right value when saved, reloaded, and sent #avatar_file_size" do
         @dummy.avatar = @file
         @dummy.save
         @dummy = Dummy.find(@dummy.id)
-        assert_equal @file.size, @dummy.avatar.size
+        assert_equal File.size(@file), @dummy.avatar.size
       end
     end
 

@@ -264,23 +264,6 @@ module Paperclip
         end
       end
 
-      # Returns representation of the data of the file assigned to the given
-      # style, in the format most representative of the current storage.
-      def to_file style = default_style
-        if @queued_for_write[style]
-          @queued_for_write[style].rewind
-          return @queued_for_write[style]
-        end
-        filename = path(style)
-        extname  = File.extname(filename)
-        basename = File.basename(filename, extname)
-        file = Tempfile.new([basename, extname])
-        file.binmode
-        file.write(s3_object(style).read)
-        file.rewind
-        return file
-      end
-
       def create_bucket
         s3_interface.buckets.create(bucket_name)
       end
@@ -293,7 +276,7 @@ module Paperclip
             acl = @s3_permissions[style] || @s3_permissions[:default]
             acl = acl.call(self, style) if acl.respond_to?(:call)
             write_options = {
-              :content_type => file.content_type.to_s.strip,
+              :content_type => file.content_type,
               :acl => acl
             }
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?

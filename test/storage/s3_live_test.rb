@@ -46,10 +46,6 @@ unless ENV["S3_BUCKET"].blank?
           @dummy.destroy
         end
 
-        should "still return a Tempfile when sent #to_file" do
-          assert_equal Paperclip::Tempfile, @dummy.avatar.to_file.class
-        end
-
         context "and saved" do
           setup do
             @dummy.save
@@ -57,11 +53,6 @@ unless ENV["S3_BUCKET"].blank?
 
           should "be on S3" do
             assert true
-          end
-
-          should "generate a tempfile with the right name" do
-            file = @dummy.avatar.to_file
-            assert_match /^original.*\.png$/, File.basename(file.path)
           end
         end
       end
