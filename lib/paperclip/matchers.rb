@@ -40,7 +40,7 @@ module Paperclip
     # And _extend_ the module:
     #
     #   class ActiveSupport::TestCase
-    #     extend  Paperclip::Shoulda::Matchers
+    #     extend Paperclip::Shoulda::Matchers
     #     
     #     #...other initializers...#
     #   end
