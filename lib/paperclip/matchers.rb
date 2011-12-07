@@ -31,7 +31,7 @@ module Paperclip
     #   end
     #
     #
-    # *Test*::*Unit*
+    # *TestUnit*
     #
     # In test_helper.rb, you'll need to require the matchers as well:
     #
