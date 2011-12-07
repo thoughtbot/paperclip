@@ -10,7 +10,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
                       :storage => :s3,
                       :bucket => ENV["S3_TEST_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+                      :s3_credentials => File.new(fixture_file("s3.yml"))
 
         @dummy = Dummy.new
       end
@@ -25,7 +25,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
                       :storage => :s3,
                       :bucket => ENV["S3_TEST_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+                      :s3_credentials => File.new(fixture_file("s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -72,7 +72,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
           :storage => :s3,
           :bucket => ENV["S3_TEST_BUCKET"],
-          :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+          :s3_credentials => File.new(fixture_file("s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -106,11 +106,11 @@ unless ENV["S3_TEST_BUCKET"].blank?
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_TEST_BUCKET"],
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+                      :s3_credentials => File.new(fixture_file("s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'question?mark.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('question?mark.png'), 'rb')
         @dummy.save
       end
 
