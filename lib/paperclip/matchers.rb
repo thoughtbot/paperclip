@@ -5,13 +5,15 @@ require 'paperclip/matchers/validate_attachment_size_matcher'
 
 module Paperclip
   module Shoulda
-    # Provides rspec-compatible matchers for testing Paperclip attachments.
+    # Provides RSpec-compatible & Test::Unit-compatible matchers for testing Paperclip attachments.
+    #
+    # *RSpec*
     #
     # In spec_helper.rb, you'll need to require the matchers:
     #
     #   require "paperclip/matchers"
     #
-    # And include the module:
+    # And _include_ the module:
     #
     #   Spec::Runner.configure do |config|
     #     config.include Paperclip::Shoulda::Matchers
@@ -27,6 +29,35 @@ module Paperclip
     #     it { should validate_attachment_size(:avatar).
     #                   less_than(2.megabytes) }
     #   end
+    #
+    #
+    # *Test*::*Unit*
+    #
+    # In test_helper.rb, you'll need to require the matchers as well:
+    #
+    #   require "paperclip/matchers"
+    #
+    # And _extend_ the module:
+    #
+    #   class ActiveSupport::TestCase
+    #     extend  Paperclip::Shoulda::Matchers
+    #     
+    #     #...other initializers...#
+    #   end
+    #
+    # Example:
+    #   require 'test_helper'
+    #
+    #   class UserTest < ActiveSupport::TestCase
+    #     should have_attached_file(:avatar)
+    #     should validate_attachment_presence(:avatar)
+    #     should validate_attachment_content_type(:avatar).
+    #                  allowing('image/png', 'image/gif').
+    #                  rejecting('text/plain', 'text/xml')
+    #     should validate_attachment_size(:avatar).
+    #                  less_than(2.megabytes)
+    #   end
+    #  
     module Matchers
     end
   end
