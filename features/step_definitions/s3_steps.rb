@@ -1,6 +1,6 @@
 When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
   definition = User.attachment_definitions[field.downcase.to_sym]
-  path = "http://s3.amazonaws.com/paperclip#{definition[:path]}"
+  path = "https://paperclip.s3.amazonaws.com#{definition[:path]}"
   path.gsub!(':filename', File.basename(file_path))
   path.gsub!(/:([^\/\.]+)/) do |match|
     "([^\/\.]+)"

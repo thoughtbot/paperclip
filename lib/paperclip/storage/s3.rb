@@ -67,12 +67,21 @@ module Paperclip
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
     # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
+    # * +s3_metadata+: These key/value pairs will be stored with the
+    #   object.  This option works by prefixing each key with
+    #   "x-amz-meta-" before sending it as a header on the object
+    #   upload request.
+    # * +s3_storage_class+: If this option is set to
+    #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
+    #   Redundancy Storage.  RRS enables customers to reduce their
+    #   costs by storing non-critical, reproducible data at lower
+    #   levels of redundancy than Amazon S3's standard storage.
     module S3
       def self.extended base
         begin
           require 'aws/s3'
         rescue LoadError => e
-          e.message << " (You may need to install the aws-s3 gem)"
+          e.message << " (You may need to install the aws-sdk gem)"
           raise e
         end unless defined?(AWS::S3)
 
@@ -85,7 +94,19 @@ module Paperclip
               permission  = permission.call(attachment, style) if permission.is_a?(Proc)
               (permission == :public_read) ? 'http' : 'https'
             end
-          @s3_headers     = @options[:s3_headers]     || {}
+          @s3_metadata = @options[:s3_metadata] || {}
+          @s3_headers = (@options[:s3_headers] || {}).inject({}) do |headers,(name,value)|
+            case name.to_s
+            when /^x-amz-meta-(.*)/i
+              @s3_metadata[$1.downcase] = value
+            else
+              name = name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym
+              headers[name] = value
+            end
+            headers
+          end
+
+          @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
 
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
             @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
@@ -94,9 +115,6 @@ module Paperclip
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
           @http_proxy = @options[:http_proxy] || nil
-          if @http_proxy
-            @s3_options.merge!({:proxy => @http_proxy})
-          end
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -113,7 +131,9 @@ module Paperclip
       end
 
       def expiring_url(time = 3600, style_name = default_style)
-        path.nil? ? nil : s3_object.url_for(path(style_name), bucket_name, :expires_in => time, :use_ssl => (s3_protocol(style_name) == 'https'))
+        if path
+          s3_object(style_name).url_for(:read, :expires => time, :secure => use_secure_protocol?(style_name)).to_s
+        end
       end
 
       def s3_credentials
@@ -133,7 +153,39 @@ module Paperclip
       def bucket_name
         @bucket = @options[:bucket] || s3_credentials[:bucket]
         @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
-        @bucket
+        @bucket or raise ArgumentError, "missing required :bucket option"
+      end
+
+      def s3_interface
+        @s3_interface ||= begin
+          config = { :s3_endpoint => s3_host_name }
+
+          if using_http_proxy?
+
+            proxy_opts = { :host => http_proxy_host }
+            proxy_opts[:port] = http_proxy_port if http_proxy_port
+            if http_proxy_user
+              userinfo = http_proxy_user.to_s
+              userinfo += ":#{http_proxy_password}" if http_proxy_password
+              proxy_opts[:userinfo] = userinfo
+            end
+            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+          end
+
+          [:access_key_id, :secret_access_key].each do |opt|
+            config[opt] = s3_credentials[opt] if s3_credentials[opt]
+          end
+
+          AWS::S3.new(config.merge(@s3_options))
+        end
+      end
+
+      def s3_bucket
+        @s3_bucket ||= s3_interface.buckets[bucket_name]
+      end
+
+      def s3_object style_name = default_style
+        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
       end
 
       def using_http_proxy?
@@ -173,7 +225,7 @@ module Paperclip
 
       def exists?(style = default_style)
         if original_filename
-          s3_object.exists?(path(style), bucket_name)
+          s3_object(style).exists?
         else
           false
         end
@@ -202,30 +254,31 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
-        file.write(s3_object.value(path(style), bucket_name))
+        file.write(s3_object(style).read)
         file.rewind
         return file
       end
 
       def create_bucket
-        s3_bucket.create(bucket_name)
+        s3_interface.buckets.create(bucket_name)
       end
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
-            s3_object.store(path(style),
-                                    file,
-                                    bucket_name,
-                                    {:content_type => file.content_type.to_s.strip,
-                                     :access => s3_permissions(style),
-                                    }.merge(@s3_headers))
-          rescue AWS::S3::NoSuchBucket => e
+            acl = @s3_permissions[style] || @s3_permissions[:default]
+            acl = acl.call(self, style) if acl.respond_to?(:call)
+            write_options = {
+              :content_type => file.content_type.to_s.strip,
+              :acl => acl
+            }
+            write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
+            write_options.merge!(@s3_headers)
+            s3_object(style).write(file, write_options)
+          rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
             retry
-          rescue AWS::S3::ResponseError => e
-            raise
           end
         end
 
@@ -238,8 +291,8 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_object.delete(path, bucket_name)
-          rescue AWS::S3::ResponseError
+            s3_bucket.objects[path.sub(%r{^/},'')].delete
+          rescue AWS::Errors::Base => e
             # Ignore this.
           end
         end
@@ -260,18 +313,6 @@ module Paperclip
       end
       private :find_credentials
 
-      def s3_object
-        establish_connection!
-        AWS::S3::S3Object
-      end
-      private :s3_object
-
-      def s3_bucket
-        establish_connection!
-        AWS::S3::Bucket
-      end
-      private :s3_bucket
-
       def establish_connection!
         @connection ||= AWS::S3::Base.establish_connection!( @s3_options.merge(
           :access_key_id => s3_credentials[:access_key_id],
@@ -279,6 +320,11 @@ module Paperclip
         ))
       end
       private :establish_connection!
+
+      def use_secure_protocol?(style_name)
+        s3_protocol(style_name) == "https"
+      end
+      private :use_secure_protocol?
     end
   end
 end

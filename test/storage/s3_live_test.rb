@@ -1,5 +1,5 @@
 require './test/helper'
-require 'aws/s3'
+require 'aws'
 
 unless ENV["S3_TEST_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
@@ -72,7 +72,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
           :storage => :s3,
           :bucket => ENV["S3_TEST_BUCKET"],
-          :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+          :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -120,9 +120,9 @@ unless ENV["S3_TEST_BUCKET"].blank?
         assert_match /.+\/question\?mark\.png/, @dummy.avatar.path
       end
 
-#      should "return an escaped version for url" do
-#        assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
-#      end
+      should "return an escaped version for url" do
+        assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
+      end
 
       should "be accessible" do
         assert_match /200 OK/, `curl -I "#{@dummy.avatar.url}"`

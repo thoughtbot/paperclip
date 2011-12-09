@@ -10,7 +10,7 @@ Given /^I generate a new rails application$/ do
       gem "sqlite3"
       gem "capybara"
       gem "gherkin"
-      gem "aws-s3"
+      gem "aws-sdk"
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
