@@ -1,14 +1,14 @@
 require './test/helper'
 require 'aws'
 
-unless ENV["S3_TEST_BUCKET"].blank?
+unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
 
     context "Generating an expiring url on a nonexistant attachment" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :bucket => ENV["S3_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
                       :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
@@ -23,7 +23,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :bucket => ENV["S3_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
                       :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
@@ -71,7 +71,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
           :storage => :s3,
-          :bucket => ENV["S3_TEST_BUCKET"],
+          :bucket => ENV["S3_BUCKET"],
           :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
@@ -105,7 +105,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :bucket => ENV["S3_BUCKET"],
                       :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
