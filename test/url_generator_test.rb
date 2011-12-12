@@ -146,8 +146,8 @@ class UrlGeneratorTest < Test::Unit::TestCase
     assert_equal "#{expected}?#{updated_at}", result
   end
 
-  should "produce URLs with the updated_at when it exists, separated with a & if a ? already exists" do
-    expected = "the?expected result"
+  should "produce URLs with the updated_at when it exists, separated with a & if a ? follow by = already exists" do
+    expected = "the?expected=result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:updated_at => updated_at)

@@ -38,7 +38,7 @@ module Paperclip
 
     def timestamp_as_needed(url, options)
       if options[:timestamp] && timestamp_possible?
-        delimiter_char = url.include?('?') ? '&' : '?'
+        delimiter_char = url.match(/\?.+=/) ? '&' : '?'
         "#{url}#{delimiter_char}#{@attachment.updated_at.to_s}"
       else
         url
@@ -58,7 +58,7 @@ module Paperclip
     end
 
     def escape_url(url)
-      url.respond_to?(:escape) ? url.escape : URI.escape(url)
+      (url.respond_to?(:escape) ? url.escape : URI.escape(url)).gsub(/(\/.+)\?(.+\.)/, '\1%3F\2')
     end
   end
 end
