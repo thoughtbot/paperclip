@@ -58,25 +58,6 @@ class S3Test < Test::Unit::TestCase
 
   end
 
-  context "missing :bucket option" do
-
-    setup do
-      rebuild_model :storage => :s3,
-                    #:bucket => "testing", # intentionally left out
-                    :s3_credentials => {:not => :important}
-
-      @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
-
-    end
-
-    should "raise an argument error" do
-      exception = assert_raise(ArgumentError) { @dummy.save }
-      assert_match /missing required :bucket option/, exception.message
-    end
-
-  end
-
   context ":bucket option via :s3_credentials" do
 
     setup do
