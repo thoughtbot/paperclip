@@ -6,7 +6,7 @@ When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
     "([^\/\.]+)"
   end
   FakeWeb.register_uri(:put, Regexp.new(path), :body => "OK")
-  When "I attach the file \"#{file_path}\" to \"#{field}\""
+  step "I attach the file \"#{file_path}\" to \"#{field}\""
 end
 
 Then /^the file at "([^"]*)" should be uploaded to S3$/ do |url|

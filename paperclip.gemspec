@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('mocha')
   s.add_development_dependency('aws-sdk')
   s.add_development_dependency('sqlite3', '~> 1.3.4')
-  s.add_development_dependency('cucumber', '~> 1.0.0')
+  s.add_development_dependency('cucumber', '~> 1.1.0')
   s.add_development_dependency('aruba')
   s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
