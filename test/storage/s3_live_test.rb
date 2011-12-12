@@ -80,8 +80,6 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.save
       end
 
-      teardown { @dummy.destroy }
-
       should "return an unescaped version for path" do
         assert_match /.+\/spaced file\.png/, @dummy.avatar.path
       end
@@ -113,8 +111,6 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'question?mark.png'), 'rb')
         @dummy.save
       end
-
-      teardown { @dummy.destroy }
 
       should "return an unescaped version for path" do
         assert_match /.+\/question\?mark\.png/, @dummy.avatar.path

@@ -1,14 +1,19 @@
 require './test/helper'
 require 'aws'
 
-AWS.stub!
-AWS.config(:access_key_id => "TESTKEY", :secret_access_key => "TESTSECRET")
-
 class S3Test < Test::Unit::TestCase
   def rails_env(env)
     silence_warnings do
       Object.const_set(:Rails, stub('Rails', :env => env))
     end
+  end
+
+  def setup
+    AWS.config(:access_key_id => "TESTKEY", :secret_access_key => "TESTSECRET", :stub_requests => true)
+  end
+
+  def teardown
+    AWS.config(:access_key_id => nil, :secret_access_key => nil, :stub_requests => nil)
   end
 
   context "Parsing S3 credentials" do
