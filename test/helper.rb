@@ -161,3 +161,17 @@ end
 def fixture_file(filename)
  File.join(File.dirname(__FILE__), 'fixtures', filename)
 end
+
+def assert_success_response(url)
+  Net::HTTP.get_response(URI.parse(url)) do |response|
+    assert_equal "200", response.code,
+      "Expected HTTP response code 200, got #{response.code}"
+  end
+end
+
+def assert_not_found_response(url)
+  Net::HTTP.get_response(URI.parse(url)) do |response|
+    assert_equal "404", response.code,
+      "Expected HTTP response code 404, got #{response.code}"
+  end
+end

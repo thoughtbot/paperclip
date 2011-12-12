@@ -91,13 +91,13 @@ unless ENV["S3_BUCKET"].blank?
       end
 
       should "be accessible" do
-        assert_match /200 OK/, `curl -I #{@dummy.avatar.url}`
+        assert_success_response @dummy.avatar.url
       end
 
       should "be destoryable" do
         url = @dummy.avatar.url
         @dummy.destroy
-        assert_match /404 Not Found/, `curl -I #{url}`
+        assert_not_found_response url
       end
     end
 
@@ -125,17 +125,17 @@ unless ENV["S3_BUCKET"].blank?
       end
 
       should "be accessible" do
-        assert_match /200 OK/, `curl -I "#{@dummy.avatar.url}"`
+        assert_success_response @dummy.avatar.url
       end
 
       should "be accessible with an expiring url" do
-        assert_match /200 OK/, `curl -I "#{@dummy.avatar.expiring_url}"`
+        assert_success_response @dummy.avatar.expiring_url
       end
 
       should "be destroyable" do
         url = @dummy.avatar.url
         @dummy.destroy
-        assert_match /404 Not Found/, `curl -I "#{url}"`
+        assert_not_found_response url
       end
     end
   end
