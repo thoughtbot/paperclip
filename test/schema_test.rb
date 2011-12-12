@@ -7,6 +7,7 @@ class MockSchema
   def initialize(table_name = nil)
     @table_name = table_name
     @columns = {}
+    @deleted_columns = []
   end
 
   def column(name, type)
@@ -14,11 +15,17 @@ class MockSchema
   end
 
   def remove_column(table_name, column_name)
+    return if @table_name && @table_name != table_name
     @columns.delete(column_name)
+    @deleted_columns.push(column_name)
   end
 
   def has_column?(column_name)
     @columns.key?(column_name)
+  end
+
+  def deleted_column?(column_name)
+    @deleted_columns.include?(column_name)
   end
 
   def type_of(column_name)
@@ -63,6 +70,29 @@ class SchemaTest < Test::Unit::TestCase
 
     should "make the updated_at column a datetime" do
       assert_equal :datetime, @schema.type_of(:avatar_updated_at)
+    end
+  end
+
+  context "Migrating down" do
+    setup do
+      @schema = MockSchema.new(:users)
+      @schema.drop_attached_file :users, :avatar
+    end
+
+    should "remove the file_name column" do
+      assert @schema.deleted_column?(:avatar_file_name)
+    end
+
+    should "remove the content_type column" do
+      assert @schema.deleted_column?(:avatar_content_type)
+    end
+
+    should "remove the file_size column" do
+      assert @schema.deleted_column?(:avatar_file_size)
+    end
+
+    should "remove the updated_at column" do
+      assert @schema.deleted_column?(:avatar_updated_at)
     end
   end
 end
