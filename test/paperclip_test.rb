@@ -86,6 +86,16 @@ class PaperclipTest < Test::Unit::TestCase
         has_attached_file :blah
       end
     end
+
+    should "not generate warning if attachment is redifined with the same url string but has :class in it" do
+      Paperclip.expects(:log).never
+      Dummy.class_eval do
+        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+      end
+    end
   end
 
   context "An ActiveRecord model with an 'avatar' attachment" do

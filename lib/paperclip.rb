@@ -193,7 +193,7 @@ module Paperclip
     def check_for_url_clash(name,url,klass)
       @names_url ||= {}
       default_url = url || Attachment.default_options[:url]
-      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass
+      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass && @names_url[name][:url] !~ /:class/
         log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
       end
       @names_url[name] = {:url => default_url, :class => klass}
