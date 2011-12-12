@@ -15,7 +15,7 @@ When /^I modify my attachment definition to:$/ do |definition|
       #{definition}
     end
   FILE
-  remove_file 'app/models/user.rbc' rescue nil
+  in_current_dir { FileUtils.rm_rf ".rbx" }
 end
 
 When /^I upload the fixture "([^"]*)"$/ do |filename|
