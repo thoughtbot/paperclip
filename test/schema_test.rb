@@ -1,5 +1,5 @@
-
-require 'test/helper'
+require './test/helper'
+require 'paperclip/schema'
 
 class MockSchema
   include Paperclip::Schema
