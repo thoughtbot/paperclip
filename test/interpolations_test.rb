@@ -88,6 +88,13 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal 23, Paperclip::Interpolations.id(attachment, :style)
   end
 
+  should "return nil for attachments to new records" do
+    attachment = mock
+    attachment.expects(:id).returns(nil)
+    attachment.expects(:instance).returns(attachment)
+    assert_nil Paperclip::Interpolations.id(attachment, :style)
+  end
+
   should "return the partitioned id of the attachment when the id is an integer" do
     attachment = mock
     attachment.expects(:id).returns(23)
@@ -100,6 +107,13 @@ class InterpolationsTest < Test::Unit::TestCase
     attachment.expects(:id).returns("32fnj23oio2f")
     attachment.expects(:instance).returns(attachment)
     assert_equal "32f/nj2/3oi", Paperclip::Interpolations.id_partition(attachment, :style)
+  end
+
+  should "return nil for the partitioned id of an attachment to a new record (when the id is nil)" do
+    attachment = mock
+    attachment.expects(:id).returns(nil)
+    attachment.expects(:instance).returns(attachment)
+    assert_nil Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
   should "return the name of the attachment" do
