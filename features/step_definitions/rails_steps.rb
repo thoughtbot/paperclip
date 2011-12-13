@@ -10,7 +10,7 @@ Given /^I generate a new rails application$/ do
       gem "sqlite3"
       gem "capybara"
       gem "gherkin"
-      gem "aws-s3"
+      gem "aws-sdk"
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
@@ -19,15 +19,15 @@ Given /^I generate a new rails application$/ do
 end
 
 Given /^I run a rails generator to generate a "([^"]*)" scaffold with "([^"]*)"$/ do |model_name, attributes|
-  Given %[I successfully run `bundle exec #{generator_command} scaffold #{model_name} #{attributes}`]
+  step %[I successfully run `bundle exec #{generator_command} scaffold #{model_name} #{attributes}`]
 end
 
 Given /^I run a paperclip generator to add a paperclip "([^"]*)" to the "([^"]*)" model$/ do |attachment_name, model_name|
-  Given %[I successfully run `bundle exec #{generator_command} paperclip #{model_name} #{attachment_name}`]
+  step %[I successfully run `bundle exec #{generator_command} paperclip #{model_name} #{attachment_name}`]
 end
 
 Given /^I run a migration$/ do
-  Given %[I successfully run `bundle exec rake db:migrate`]
+  step %[I successfully run `bundle exec rake db:migrate`]
 end
 
 Given /^I update my new user view to include the file upload field$/ do
@@ -113,7 +113,7 @@ Given /^I update my application to use Bundler$/ do
   end
 end
 
-Given /^I prepare my old Rails application for rake task$/ do
+Given /^I add the paperclip rake task to a Rails 2.3 application$/ do
   if framework_version?("2.3")
     require 'fileutils'
     source = File.expand_path('lib/tasks/paperclip.rake')

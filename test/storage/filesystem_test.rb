@@ -6,7 +6,7 @@ class FileSystemTest < Test::Unit::TestCase
       rebuild_model :styles => { :thumbnail => "25x25#" }
       @dummy = Dummy.create!
 
-      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "..", "fixtures", "5k.png"))
+      @dummy.avatar = File.open(fixture_file('5k.png'))
     end
 
     should "allow file assignment" do
@@ -36,7 +36,7 @@ class FileSystemTest < Test::Unit::TestCase
         rebuild_model :styles => { :thumbnail => "25x25#" }
         @dummy = Dummy.create!
 
-        @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "..", "fixtures", "spaced file.png"))
+        @dummy.avatar = File.open(fixture_file('spaced file.png'))
         @dummy.save
       end
 

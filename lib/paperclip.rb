@@ -28,7 +28,6 @@
 require 'erb'
 require 'digest'
 require 'tempfile'
-require 'paperclip/options'
 require 'paperclip/version'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
@@ -140,8 +139,11 @@ module Paperclip
     # Find all instances of the given Active Record model +klass+ with attachment +name+.
     # This method is used by the refresh rake tasks.
     def each_instance_with_attachment(klass, name)
-      class_for(klass).find(:all, :order => 'id').each do |instance|
-        yield(instance) if instance.send(:"#{name}?")
+      unscope_method = class_for(klass).respond_to?(:unscoped) ? :unscoped : :with_exclusive_scope
+      class_for(klass).send(unscope_method) do
+        class_for(klass).find(:all, :order => 'id').each do |instance|
+          yield(instance) if instance.send(:"#{name}?")
+        end
       end
     end
 
@@ -191,7 +193,7 @@ module Paperclip
     def check_for_url_clash(name,url,klass)
       @names_url ||= {}
       default_url = url || Attachment.default_options[:url]
-      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass
+      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass && @names_url[name][:url] !~ /:class/
         log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
       end
       @names_url[name] = {:url => default_url, :class => klass}
@@ -264,6 +266,9 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
+    # * +keep_old_files+: Keep the existing attachment files (original + resized) from
+    #   being automatically deleted when an attachment is cleared or updated.
+    #   Defaults to +false+.#
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
     #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
@@ -316,6 +321,8 @@ module Paperclip
         else
           write_inheritable_attribute(:attachment_definitions, {})
         end
+      else
+        self.attachment_definitions = self.attachment_definitions.dup
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
@@ -383,13 +390,13 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     # Options:
     # * +if+: A lambda or name of a method on the instance. Validation will only
-    #   be run is this lambda or method returns true.
+    #   be run if this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || :empty
       validates_each :"#{name}_file_name" do |record, attr, value|
-        if_clause_passed = options[:if].nil? || (options[:if].call(record) != false)
-        unless_clause_passed = options[:unless].nil? || (!!options[:unless].call(record) == false)
+        if_clause_passed = options[:if].nil? || (options[:if].respond_to?(:call) ? options[:if].call(record) != false : record.send(options[:if]))
+        unless_clause_passed = options[:unless].nil? || (options[:unless].respond_to?(:call) ? !!options[:unless].call(record) == false : !record.send(options[:unless]))
         if if_clause_passed && unless_clause_passed && value.blank?
           record.errors.add(name, message)
           record.errors.add("#{name}_file_name", message)

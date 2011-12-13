@@ -10,7 +10,8 @@ require 'active_record'
 require 'active_record/version'
 require 'active_support'
 require 'mime/types'
-require 'pry'
+require 'pathname'
+
 require 'pathname'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
@@ -52,6 +53,10 @@ config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
+
+Dir[File.join(File.dirname(__FILE__), 'support','*')].each do |f|
+  require f
+end
 
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
@@ -150,5 +155,23 @@ def with_exitstatus_returning(code)
     yield
   ensure
     `ruby -e 'exit #{saved_exitstatus.to_i}'`
+  end
+end
+
+def fixture_file(filename)
+ File.join(File.dirname(__FILE__), 'fixtures', filename)
+end
+
+def assert_success_response(url)
+  Net::HTTP.get_response(URI.parse(url)) do |response|
+    assert_equal "200", response.code,
+      "Expected HTTP response code 200, got #{response.code}"
+  end
+end
+
+def assert_not_found_response(url)
+  Net::HTTP.get_response(URI.parse(url)) do |response|
+    assert_equal "404", response.code,
+      "Expected HTTP response code 404, got #{response.code}"
   end
 end

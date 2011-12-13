@@ -1,15 +1,31 @@
 require './test/helper'
-require 'aws/s3'
+require 'aws'
 
-unless ENV["S3_TEST_BUCKET"].blank?
+unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
+
+    context "Generating an expiring url on a nonexistant attachment" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_BUCKET"],
+                      :path => ":class/:attachment/:id/:style.:extension",
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+
+        @dummy = Dummy.new
+      end
+      should "return nil" do
+        assert_nil @dummy.avatar.expiring_url
+      end
+    end
+
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
+                      :bucket => ENV["S3_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -21,7 +37,7 @@ unless ENV["S3_TEST_BUCKET"].blank?
 
       context "when assigned" do
         setup do
-          @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+          @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy.avatar = @file
         end
 
@@ -54,17 +70,15 @@ unless ENV["S3_TEST_BUCKET"].blank?
     context "An attachment that uses S3 for storage and has spaces in file name" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_TEST_BUCKET"],
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "s3.yml"))
+          :storage => :s3,
+          :bucket => ENV["S3_BUCKET"],
+          :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'spaced file.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
         @dummy.save
       end
-
-      teardown { @dummy.destroy }
 
       should "return an unescaped version for path" do
         assert_match /.+\/spaced file\.png/, @dummy.avatar.path
@@ -75,13 +89,49 @@ unless ENV["S3_TEST_BUCKET"].blank?
       end
 
       should "be accessible" do
-        assert_match /200 OK/, `curl -I #{@dummy.avatar.url}`
+        assert_success_response @dummy.avatar.url
       end
 
       should "be destoryable" do
         url = @dummy.avatar.url
         @dummy.destroy
-        assert_match /404 Not Found/, `curl -I #{url}`
+        assert_not_found_response url
+      end
+    end
+
+    context "An attachment that uses S3 for storage and has a question mark in file name" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_BUCKET"],
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+
+        Dummy.delete_all
+        @dummy = Dummy.new
+        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'question?mark.png'), 'rb')
+        @dummy.save
+      end
+
+      should "return an unescaped version for path" do
+        assert_match /.+\/question\?mark\.png/, @dummy.avatar.path
+      end
+
+      should "return an escaped version for url" do
+        assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
+      end
+
+      should "be accessible" do
+        assert_success_response @dummy.avatar.url
+      end
+
+      should "be accessible with an expiring url" do
+        assert_success_response @dummy.avatar.expiring_url
+      end
+
+      should "be destroyable" do
+        url = @dummy.avatar.url
+        @dummy.destroy
+        assert_not_found_response url
       end
     end
   end

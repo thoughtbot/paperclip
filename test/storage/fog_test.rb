@@ -12,9 +12,9 @@ class FogTest < Test::Unit::TestCase
                       :storage => :fog,
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
-                      :fog_credentials => File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml')
+                      :fog_credentials => fixture_file('fog.yml')
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
 
       should "have the proper information loading credentials from a file" do
@@ -28,9 +28,9 @@ class FogTest < Test::Unit::TestCase
                       :storage => :fog,
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
-                      :fog_credentials => File.open(File.join(File.dirname(__FILE__), 'fixtures', 'fog.yml'))
+                      :fog_credentials => File.open(fixture_file('fog.yml'))
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
 
       should "have the proper information loading credentials from a file" do
@@ -50,10 +50,10 @@ class FogTest < Test::Unit::TestCase
                         :aws_secret_access_key => 'AWS_SECRET'
                       }
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
       end
       should "be able to interpolate the path without blowing up" do
-        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../public/avatars/5k.png")),
+        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../public/avatars/5k.png")),
                      @dummy.avatar.path
       end
 
@@ -98,7 +98,7 @@ class FogTest < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -181,9 +181,36 @@ class FogTest < Test::Unit::TestCase
         end
 
         should 'set the @fog_public instance variable to false' do
-          assert_equal false, @dummy.avatar.options.fog_public
+          assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
           assert_equal false, @dummy.avatar.fog_public
         end
+      end
+
+      context "with a valid bucket name for a subdomain" do
+        should "provide an url in subdomain style" do
+          assert_match /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+        end
+      end
+
+      context "with an invalid bucket name for a subdomain" do
+        setup do
+          rebuild_model(@options.merge(:fog_directory => "this_is_invalid"))
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "not match the bucket-subdomain restrictions" do
+          invalid_subdomains = %w(this_is_invalid in iamareallylongbucketnameiamareallylongbucketnameiamareallylongbu invalid- inval..id inval-.id inval.-id -invalid 192.168.10.2)
+          invalid_subdomains.each do |name|
+            assert_no_match Paperclip::Storage::Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX, name
+          end
+        end
+
+        should "provide an url in folder style" do
+          assert_match /^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+        end
+
       end
 
     end

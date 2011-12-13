@@ -1,4 +1,4 @@
-# Paperclip [![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.png?branch=master)](http://travis-ci.org/thoughtbot/paperclip)
+# Paperclip [![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.png?branch=master)](http://travis-ci.org/thoughtbot/paperclip) [![Dependency Status](https://gemnasium.com/thoughtbot/paperclip.png?travis)](https://gemnasium.com/thoughtbot/paperclip)
 
 Paperclip is intended as an easy file attachment library for ActiveRecord. The
 intent behind it was to keep setup as easy as possible and to treat files as
@@ -80,17 +80,13 @@ In your migrations:
 
     class AddAvatarColumnsToUser < ActiveRecord::Migration
       def self.up
-        add_column :users, :avatar_file_name,    :string
-        add_column :users, :avatar_content_type, :string
-        add_column :users, :avatar_file_size,    :integer
-        add_column :users, :avatar_updated_at,   :datetime
+        change_table :users do |t|
+          t.has_attached_file :avatar
+        end
       end
 
       def self.down
-        remove_column :users, :avatar_file_name
-        remove_column :users, :avatar_content_type
-        remove_column :users, :avatar_file_size
-        remove_column :users, :avatar_updated_at
+        drop_attached_file :users, :avatar
       end
     end
 
@@ -121,25 +117,25 @@ Usage
 -----
 
 The basics of paperclip are quite simple: Declare that your model has an
-attachment with the has_attached_file method, and give it a name. Paperclip
+attachment with the has\_attached\_file method, and give it a name. Paperclip
 will wrap up up to four attributes (all prefixed with that attachment's name,
 so you can have multiple attachments per model if you wish) and give them a
 friendly front end. The attributes are `<attachment>_file_name`,
 `<attachment>_file_size`, `<attachment>_content_type`, and `<attachment>_updated_at`.
 Only `<attachment>_file_name` is required for paperclip to operate. More
-information about the options to has_attached_file is available in the
+information about the options to has\_attached\_file is available in the
 documentation of Paperclip::ClassMethods.
 
 Attachments can be validated with Paperclip's validation methods,
-validates_attachment_presence, validates_attachment_content_type, and
-validates_attachment_size.
+validates\_attachment\_presence, validates\_attachment\_content\_type, and
+validates\_attachment\_size.
 
 Storage
 -------
 
 The files that are assigned as attachments are, by default, placed in the
-directory specified by the :path option to has_attached_file. By default, this
-location is ":rails_root/public/system/:attachment/:id/:style/:filename". This
+directory specified by the :path option to has\_attached\_file. By default, this
+location is ":rails\_root/public/system/:attachment/:id/:style/:filename". This
 location was chosen because on standard Capistrano deployments, the
 public/system directory is symlinked to the app's shared directory, meaning it
 will survive between deployments. For example, using that :path, you may have a
@@ -169,11 +165,11 @@ a set of styles for an attachment, by default it is expected that those
 "styles" are actually "thumbnails". However, you can do much more than just
 thumbnail images. By defining a subclass of Paperclip::Processor, you can
 perform any processing you want on the files that are attached. Any file in
-your Rails app's lib/paperclip_processors directory is automatically loaded by
+your Rails app's lib/paperclip\_processors directory is automatically loaded by
 paperclip, allowing you to easily define custom processors. You can specify a
-processor with the :processors option to has_attached_file:
+processor with the :processors option to has\_attached\_file:
 
-    has_attached_file :scan, :styles => { :text => { :quality => :better } },
+    has_attached\_file :scan, :styles => { :text => { :quality => :better } },
                              :processors => [:ocr]
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
@@ -188,7 +184,8 @@ geometry and a format, which the file will be converted to, like so:
 
 This will convert the "thumb" style to a 32x32 square in png format, regardless
 of what was uploaded. If the format is not specified, it is kept the same (i.e.
-jpgs will remain jpgs).
+jpgs will remain jpgs). For more information on the accepted style formats, see
+[http://www.imagemagick.org/script/command-line-processing.php#geometry](here).
 
 Multiple processors can be specified, and they will be invoked in the order
 they are defined in the :processors array. Each successive processor will
@@ -222,8 +219,8 @@ are called before and after the processing of each attachment), and the
 attachment-specific `before_<attachment>_post_process` and
 `after_<attachment>_post_process`. The callbacks are intended to be as close to
 normal ActiveRecord callbacks as possible, so if you return false (specifically
-- returning nil is not the same) in a before_ filter, the post processing step
-will halt. Returning false in an after_ filter will not halt anything, but you
+\- returning nil is not the same) in a before\_ filter, the post processing step
+will halt. Returning false in an after\_ filter will not halt anything, but you
 can access the model and the attachment if necessary.
 
 _NOTE: Post processing will not even *start* if the attachment is not valid
@@ -349,7 +346,7 @@ Now you don't have to remember to refresh thumbnails in production everytime you
 Unfortunately it does not work with dynamic styles - it just ignores them.
 
 If you already have working app and don't want `rake paperclip:refresh:missing_styles` to refresh old pictures, you need to tell
-Paperclip about existing styles. Simply create paperclip_attachments.yml file by hand. For example:
+Paperclip about existing styles. Simply create paperclip\_attachments.yml file by hand. For example:
 
     class User < ActiveRecord::Base
       has_attached_file :avatar, :styles => {:thumb => 'x100', :croppable => '600x600>', :big => '1000x1000>'}
