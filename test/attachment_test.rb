@@ -893,6 +893,41 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
               end
+
+              context "when keeping old files" do
+                setup do
+                  @attachment.options[:keep_old_files] = true
+                end
+
+                should "keep the files after assigning nil" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.assign nil
+                  @attachment.save
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+
+                should "keep the files when you call #clear and #save" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.clear
+                  @attachment.save
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+
+                should "keep the files when you call #delete" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.destroy
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+              end
             end
           end
         end
