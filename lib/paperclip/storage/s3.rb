@@ -25,8 +25,16 @@ module Paperclip
     #   development versus production.
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/2006-03-01/RESTAccessPolicy.html#RESTCannedAccessPolicies)
+    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
     #   The default for Paperclip is :public_read.
+    #
+    #   You can set permission on a per style bases by doing the following:
+    #     :s3_permissions => {
+    #       :original => :private
+    #     }
+    #   Or globaly:
+    #     :s3_permissions => :private
+    #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
     #   default), and 'https' when your :s3_permissions are anything else.
@@ -39,9 +47,9 @@ module Paperclip
     # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
     #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
     #   link in the +url+ entry for more information about S3 domains and buckets.
-    # * +url+: There are three options for the S3 url. You can choose to have the bucket's name
+    # * +url+: There are four options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
-    #   Lastly, you can specify a CNAME (which requires the CNAME to be specified as
+    #   You can also specify a CNAME (which requires the CNAME to be specified as
     #   :s3_alias_url. You can read more about CNAMEs and S3 at
     #   http://docs.amazonwebservices.com/AmazonS3/latest/index.html?VirtualHosting.html
     #   Normally, this won't matter in the slightest and you can leave the default (which is
@@ -50,77 +58,191 @@ module Paperclip
     #   NOTE: If you use a CNAME for use with CloudFront, you can NOT specify https as your
     #   :s3_protocol; This is *not supported* by S3/CloudFront. Finally, when using the host
     #   alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
-    #   by S3.
+    #   by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
+    #   asset_host settings. NOTE: To get the full url from a paperclip'd object, use the
+    #   image_path helper; this is what image_tag uses to generate the url for an img tag.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
+    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
+    # * +s3_metadata+: These key/value pairs will be stored with the
+    #   object.  This option works by prefixing each key with
+    #   "x-amz-meta-" before sending it as a header on the object
+    #   upload request.
+    # * +s3_storage_class+: If this option is set to
+    #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
+    #   Redundancy Storage.  RRS enables customers to reduce their
+    #   costs by storing non-critical, reproducible data at lower
+    #   levels of redundancy than Amazon S3's standard storage.
     module S3
       def self.extended base
         begin
           require 'aws/s3'
         rescue LoadError => e
-          e.message << " (You may need to install the aws-s3 gem)"
+          e.message << " (You may need to install the aws-sdk gem)"
           raise e
-        end
+        end unless defined?(AWS::S3)
 
         base.instance_eval do
-          @s3_credentials = parse_credentials(@options[:s3_credentials])
-          @bucket         = @options[:bucket]         || @s3_credentials[:bucket]
-          @bucket         = @bucket.call(self) if @bucket.is_a?(Proc)
           @s3_options     = @options[:s3_options]     || {}
-          @s3_permissions = @options[:s3_permissions] || :public_read
-          @s3_protocol    = @options[:s3_protocol]    || (@s3_permissions == :public_read ? 'http' : 'https')
-          @s3_headers     = @options[:s3_headers]     || {}
-          @s3_host_alias  = @options[:s3_host_alias]
-          unless @url.to_s.match(/^:s3.*url$/)
-            @path          = @path.gsub(/:url/, @url)
-            @url           = ":s3_path_url"
+          @s3_permissions = set_permissions(@options[:s3_permissions])
+          @s3_protocol    = @options[:s3_protocol]    ||
+            Proc.new do |style, attachment|
+              permission  = (@s3_permissions[style.to_sym] || @s3_permissions[:default])
+              permission  = permission.call(attachment, style) if permission.is_a?(Proc)
+              (permission == :public_read) ? 'http' : 'https'
+            end
+          @s3_metadata = @options[:s3_metadata] || {}
+          @s3_headers = (@options[:s3_headers] || {}).inject({}) do |headers,(name,value)|
+            case name.to_s
+            when /^x-amz-meta-(.*)/i
+              @s3_metadata[$1.downcase] = value
+            else
+              name = name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym
+              headers[name] = value
+            end
+            headers
           end
-          AWS::S3::Base.establish_connection!( @s3_options.merge(
-            :access_key_id => @s3_credentials[:access_key_id],
-            :secret_access_key => @s3_credentials[:secret_access_key]
-          ))
+
+          @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
+
+          unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
+            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
+            @options[:url]  = ":s3_path_url"
+          end
+          @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
+
+          @http_proxy = @options[:http_proxy] || nil
         end
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol}://s3.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
-        end
+          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :s3_domain_url
+        Paperclip.interpolates(:asset_host) do |attachment, style|
+          "#{attachment.path(style).gsub(%r{^/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :asset_host
+      end
+
+      def expiring_url(time = 3600, style_name = default_style)
+        if path
+          s3_object(style_name).url_for(:read, :expires => time, :secure => use_secure_protocol?(style_name)).to_s
         end
       end
 
-      def expiring_url(time = 3600)
-        AWS::S3::S3Object.url_for(path, bucket_name, :expires_in => time )
+      def s3_credentials
+        @s3_credentials ||= parse_credentials(@options[:s3_credentials])
       end
 
-      def bucket_name
-        @bucket
+      def s3_host_name
+        @options[:s3_host_name] || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
       end
 
       def s3_host_alias
+        @s3_host_alias = @options[:s3_host_alias]
+        @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
         @s3_host_alias
+      end
+
+      def bucket_name
+        @bucket = @options[:bucket] || s3_credentials[:bucket]
+        @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
+        @bucket or raise ArgumentError, "missing required :bucket option"
+      end
+
+      def s3_interface
+        @s3_interface ||= begin
+          config = { :s3_endpoint => s3_host_name }
+
+          if using_http_proxy?
+
+            proxy_opts = { :host => http_proxy_host }
+            proxy_opts[:port] = http_proxy_port if http_proxy_port
+            if http_proxy_user
+              userinfo = http_proxy_user.to_s
+              userinfo += ":#{http_proxy_password}" if http_proxy_password
+              proxy_opts[:userinfo] = userinfo
+            end
+            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+          end
+
+          [:access_key_id, :secret_access_key].each do |opt|
+            config[opt] = s3_credentials[opt] if s3_credentials[opt]
+          end
+
+          AWS::S3.new(config.merge(@s3_options))
+        end
+      end
+
+      def s3_bucket
+        @s3_bucket ||= s3_interface.buckets[bucket_name]
+      end
+
+      def s3_object style_name = default_style
+        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+      end
+
+      def using_http_proxy?
+        !!@http_proxy
+      end
+
+      def http_proxy_host
+        using_http_proxy? ? @http_proxy[:host] : nil
+      end
+
+      def http_proxy_port
+        using_http_proxy? ? @http_proxy[:port] : nil
+      end
+
+      def http_proxy_user
+        using_http_proxy? ? @http_proxy[:user] : nil
+      end
+
+      def http_proxy_password
+        using_http_proxy? ? @http_proxy[:password] : nil
+      end
+
+      def set_permissions permissions
+        if permissions.is_a?(Hash)
+          permissions[:default] = permissions[:default] || :public_read
+        else
+          permissions = { :default => permissions || :public_read }
+        end
+        permissions
       end
 
       def parse_credentials creds
         creds = find_credentials(creds).stringify_keys
-        (creds[Rails.env] || creds).symbolize_keys
+        env = Object.const_defined?(:Rails) ? Rails.env : nil
+        (creds[env] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)
         if original_filename
-          AWS::S3::S3Object.exists?(path(style), bucket_name)
+          s3_object(style).exists?
         else
           false
         end
       end
 
-      def s3_protocol
-        @s3_protocol
+      def s3_permissions(style = default_style)
+        s3_permissions = @s3_permissions[style] || @s3_permissions[:default]
+        s3_permissions = s3_permissions.call(self, style) if s3_permissions.is_a?(Proc)
+        s3_permissions
+      end
+
+      def s3_protocol(style = default_style)
+        if @s3_protocol.is_a?(Proc)
+          @s3_protocol.call(style, self)
+        else
+          @s3_protocol
+        end
       end
 
       # Returns representation of the data of the file assigned to the given
@@ -132,32 +254,36 @@ module Paperclip
         basename = File.basename(filename, extname)
         file = Tempfile.new([basename, extname])
         file.binmode
-        file.write(AWS::S3::S3Object.value(path(style), bucket_name))
+        file.write(s3_object(style).read)
         file.rewind
         return file
       end
 
       def create_bucket
-        AWS::S3::Bucket.create(bucket_name)
+        s3_interface.buckets.create(bucket_name)
       end
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
-            AWS::S3::S3Object.store(path(style),
-                                    file,
-                                    bucket_name,
-                                    {:content_type => instance_read(:content_type),
-                                     :access => @s3_permissions,
-                                    }.merge(@s3_headers))
-          rescue AWS::S3::NoSuchBucket => e
+            acl = @s3_permissions[style] || @s3_permissions[:default]
+            acl = acl.call(self, style) if acl.respond_to?(:call)
+            write_options = {
+              :content_type => file.content_type.to_s.strip,
+              :acl => acl
+            }
+            write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
+            write_options.merge!(@s3_headers)
+            s3_object(style).write(file, write_options)
+          rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
             retry
-          rescue AWS::S3::ResponseError => e
-            raise
           end
         end
+
+        after_flush_writes # allows attachment to clean up temp files
+
         @queued_for_write = {}
       end
 
@@ -165,8 +291,8 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            AWS::S3::S3Object.delete(path, bucket_name)
-          rescue AWS::S3::ResponseError
+            s3_bucket.objects[path.sub(%r{^/},'')].delete
+          rescue AWS::Errors::Base => e
             # Ignore this.
           end
         end
@@ -187,6 +313,18 @@ module Paperclip
       end
       private :find_credentials
 
+      def establish_connection!
+        @connection ||= AWS::S3::Base.establish_connection!( @s3_options.merge(
+          :access_key_id => s3_credentials[:access_key_id],
+          :secret_access_key => s3_credentials[:secret_access_key]
+        ))
+      end
+      private :establish_connection!
+
+      def use_secure_protocol?(style_name)
+        s3_protocol(style_name) == "https"
+      end
+      private :use_secure_protocol?
     end
   end
 end

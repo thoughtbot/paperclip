@@ -3,48 +3,50 @@ require './test/helper'
 class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
     setup do
-      Paperclip.options[:image_magick_path] = nil
-      Paperclip.options[:command_path]      = nil
-      Paperclip::CommandLine.stubs(:'`')
+      Paperclip.options[:log_command] = false
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
+      @original_command_line_path = Cocaine::CommandLine.path
     end
 
-    should "execute the right command with :image_magick_path" do
-      Paperclip.options[:image_magick_path] = "/usr/bin"
-      Paperclip.expects(:log).with(includes('[DEPRECATION]'))
-      Paperclip.expects(:log).with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
+    teardown do
+      Paperclip.options[:log_command] = true
+      Cocaine::CommandLine.path = @original_command_line_path
     end
 
-    should "execute the right command with :command_path" do
-      Paperclip.options[:command_path] = "/usr/bin"
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{/usr/bin/convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
+    should "run the command with Cocaine" do
+      Paperclip.run("convert", "stuff")
     end
 
-    should "execute the right command with no path" do
-      Paperclip::CommandLine.expects(:"`").with(regexp_matches(%r{convert ['"]one.jpg['"] ['"]two.jpg['"]}))
-      Paperclip.run("convert", ":one :two", :one => "one.jpg", :two => "two.jpg")
-    end
-
-    should "tell you the command isn't there if the shell returns 127" do
-      with_exitstatus_returning(127) do
-        assert_raises(Paperclip::CommandNotFoundError) do
-          Paperclip.run("command")
-        end
-      end
-    end
-
-    should "tell you the command isn't there if an ENOENT is raised" do
-      assert_raises(Paperclip::CommandNotFoundError) do
-        Paperclip::CommandLine.stubs(:"`").raises(Errno::ENOENT)
-        Paperclip.run("command")
-      end
+    should "save Cocaine::CommandLine.path that set before" do
+      Cocaine::CommandLine.path = "/opt/my_app/bin"
+      Paperclip.run("convert", "stuff")
+      assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
     end
   end
 
-  should "raise when sent #processor and the name of a class that exists but isn't a subclass of Processor" do
-    assert_raises(Paperclip::PaperclipError){ Paperclip.processor(:attachment) }
+  context "Calling Paperclip.run with a logger" do
+    should "pass the defined logger if :log_command is set" do
+      Paperclip.options[:log_command] = true
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", :logger => Paperclip.logger).returns(stub(:run))
+      Paperclip.run("convert", "stuff")
+    end
+  end
+
+  context "Paperclip.each_instance_with_attachment" do
+    setup do
+      @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      d1 = Dummy.create(:avatar => @file)
+      d2 = Dummy.create
+      d3 = Dummy.create(:avatar => @file)
+      @expected = [d1, d3]
+    end
+    should "yield every instance of a model that has an attachment" do
+      actual = []
+      Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|
+        actual << instance
+      end
+      assert_same_elements @expected, actual
+    end
   end
 
   should "raise when sent #processor and the name of a class that doesn't exist" do
@@ -53,6 +55,47 @@ class PaperclipTest < Test::Unit::TestCase
 
   should "return a class when sent #processor and the name of a class under Paperclip" do
     assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
+  end
+
+  should "get a class from a namespaced class name" do
+    class ::One; class Two; end; end
+    assert_equal ::One::Two, Paperclip.class_for("One::Two")
+  end
+
+  should "raise when class doesn't exist in specified namespace" do
+    class ::Three; end
+    class ::Four; end
+    assert_raise NameError do
+      Paperclip.class_for("Three::Four")
+    end
+  end
+
+  context "Attachments with clashing URLs should raise error" do
+    setup do
+      class Dummy2 < ActiveRecord::Base
+        include Paperclip::Glue
+      end
+    end
+
+    should "generate warning if attachment is redefined with the same url string" do
+      Paperclip.expects(:log).with("Duplicate URL for blah with /system/:attachment/:id/:style/:filename. This will clash with attachment defined in Dummy class")
+      Dummy.class_eval do
+        has_attached_file :blah
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah
+      end
+    end
+
+    should "not generate warning if attachment is redifined with the same url string but has :class in it" do
+      Paperclip.expects(:log).never
+      Dummy.class_eval do
+        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+      end
+    end
   end
 
   context "An ActiveRecord model with an 'avatar' attachment" do
@@ -137,38 +180,78 @@ class PaperclipTest < Test::Unit::TestCase
     end
 
     context "a validation with an if guard clause" do
-      setup do
-        Dummy.send(:"validates_attachment_presence", :avatar, :if => lambda{|i| i.foo })
-        @dummy = Dummy.new
-        @dummy.stubs(:avatar_file_name).returns(nil)
+      context "as a lambda" do
+        setup do
+          Dummy.send(:"validates_attachment_presence", :avatar, :if => lambda{|i| i.foo })
+          @dummy = Dummy.new
+          @dummy.stubs(:avatar_file_name).returns(nil)
+        end
+
+        should "attempt validation if the guard returns true" do
+          @dummy.expects(:foo).returns(true)
+          assert ! @dummy.valid?
+        end
+
+        should "not attempt validation if the guard returns false" do
+          @dummy.expects(:foo).returns(false)
+          assert @dummy.valid?
+        end
       end
 
-      should "attempt validation if the guard returns true" do
-        @dummy.expects(:foo).returns(true)
-        assert ! @dummy.valid?
-      end
+      context "as a method name" do
+        setup do
+          Dummy.send(:"validates_attachment_presence", :avatar, :if => :foo)
+          @dummy = Dummy.new
+          @dummy.stubs(:avatar_file_name).returns(nil)
+        end
 
-      should "not attempt validation if the guard returns false" do
-        @dummy.expects(:foo).returns(false)
-        assert @dummy.valid?
+        should "attempt validation if the guard returns true" do
+          @dummy.expects(:foo).returns(true)
+          assert ! @dummy.valid?
+        end
+
+        should "not attempt validation if the guard returns false" do
+          @dummy.expects(:foo).returns(false)
+          assert @dummy.valid?
+        end
       end
     end
 
     context "a validation with an unless guard clause" do
-      setup do
-        Dummy.send(:"validates_attachment_presence", :avatar, :unless => lambda{|i| i.foo })
-        @dummy = Dummy.new
-        @dummy.stubs(:avatar_file_name).returns(nil)
+      context "as a lambda" do
+        setup do
+          Dummy.send(:"validates_attachment_presence", :avatar, :unless => lambda{|i| i.foo })
+          @dummy = Dummy.new
+          @dummy.stubs(:avatar_file_name).returns(nil)
+        end
+
+        should "attempt validation if the guard returns true" do
+          @dummy.expects(:foo).returns(false)
+          assert ! @dummy.valid?
+        end
+
+        should "not attempt validation if the guard returns false" do
+          @dummy.expects(:foo).returns(true)
+          assert @dummy.valid?
+        end
       end
 
-      should "attempt validation if the guard returns true" do
-        @dummy.expects(:foo).returns(false)
-        assert ! @dummy.valid?
-      end
+      context "as a method name" do
+        setup do
+          Dummy.send(:"validates_attachment_presence", :avatar, :unless => :foo)
+          @dummy = Dummy.new
+          @dummy.stubs(:avatar_file_name).returns(nil)
+        end
 
-      should "not attempt validation if the guard returns false" do
-        @dummy.expects(:foo).returns(true)
-        assert @dummy.valid?
+        should "attempt validation if the guard returns true" do
+          @dummy.expects(:foo).returns(false)
+          assert ! @dummy.valid?
+        end
+
+        should "not attempt validation if the guard returns false" do
+          @dummy.expects(:foo).returns(true)
+          assert @dummy.valid?
+        end
       end
     end
 
@@ -192,6 +275,7 @@ class PaperclipTest < Test::Unit::TestCase
           end
           if validation == :presence
             should "have an error on the attachment" do
+              assert @dummy.errors[:avatar]
               assert @dummy.errors[:avatar_file_name]
             end
           else
@@ -205,8 +289,8 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.avatar = valid_file
             @dummy.valid?
           end
-          should "not have an error when assigned a valid file" do
-            assert_equal 0, @dummy.errors.length, @dummy.errors.full_messages.join(", ")
+          should "not have an error" do
+            assert_equal 0, @dummy.errors.size, @dummy.errors.full_messages.join(", ")
           end
         end
         context "and assigned an invalid file" do
@@ -214,8 +298,8 @@ class PaperclipTest < Test::Unit::TestCase
             @dummy.avatar = invalid_file
             @dummy.valid?
           end
-          should "have an error when assigned a valid file" do
-            assert @dummy.errors.length > 0
+          should "have an error" do
+            assert @dummy.errors.size > 0
           end
         end
       end
@@ -235,6 +319,21 @@ class PaperclipTest < Test::Unit::TestCase
       should_validate validation, options, valid_file, invalid_file
     end
 
+    context "with content_type validation and lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_content_type", :avatar, :content_type => %r{image/.*}, :message => lambda {'lambda content type message'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "text.txt"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a content type error message" do
+          assert [@dummy.errors[:avatar_content_type]].flatten.any?{|error| error =~ %r/lambda content type message/ }
+        end
+      end
+    end
+
     context "with size validation and less_than 10240 option" do
       context "and assigned an invalid file" do
         setup do
@@ -250,5 +349,42 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
+    context "with size validation and less_than 10240 option with lambda message" do
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240, :message => lambda {'lambda between 0 and 10240 bytes'})
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
+          @dummy.valid?
+        end
+
+        should "have a file size min/max error message" do
+          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/lambda between 0 and 10240 bytes/ }
+        end
+      end
+    end
+
+  end
+
+  context "configuring a custom processor" do
+    setup do
+      @freedom_processor = Class.new do
+        def make(file, options = {}, attachment = nil)
+          file
+        end
+      end.new
+
+      Paperclip.configure do |config|
+        config.register_processor(:freedom, @freedom_processor)
+      end
+    end
+
+    should "be able to find the custom processor" do
+      assert_equal @freedom_processor, Paperclip.processor(:freedom)
+    end
+
+    teardown do
+      Paperclip.clear_processors!
+    end
   end
 end

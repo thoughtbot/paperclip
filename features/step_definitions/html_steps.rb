@@ -10,5 +10,6 @@ Then %r{^the file at "([^"]*)" is the same as "([^"]*)"$} do |web_file, path|
     visit(web_file)
     page.body
   end
+  actual.force_encoding("UTF-8") if actual.respond_to?(:force_encoding)
   actual.should == expected
 end

@@ -1,16 +1,14 @@
-require 'rake'
+require 'bundler/gem_tasks'
+require 'appraisal'
 require 'rake/testtask'
-require 'rake/rdoctask'
-
-$LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
-require 'paperclip'
+require 'cucumber/rake/task'
 
 desc 'Default: run unit tests.'
-task :default => [:clean, :test]
+task :default => [:clean, 'appraisal:install', :all]
 
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
-  exec('rake RAILS_VERSION=2.1 && rake RAILS_VERSION=2.3 && rake RAILS_VERSION=3.0')
+  exec('rake appraisal test cucumber')
 end
 
 desc 'Test the paperclip plugin.'
@@ -20,24 +18,15 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
+desc 'Run integration test'
+Cucumber::Rake::Task.new do |t|
+  t.cucumber_opts = %w{--format progress}
+end
+
 desc 'Start an IRB session with all necessary files required.'
 task :shell do |t|
   chdir File.dirname(__FILE__)
   exec 'irb -I lib/ -I lib/paperclip -r rubygems -r active_record -r tempfile -r init'
-end
-
-desc 'Generate documentation for the paperclip plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'doc'
-  rdoc.title    = 'Paperclip'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
-
-desc 'Update documentation on website'
-task :sync_docs => 'rdoc' do
-  `rsync -ave ssh doc/ dev@dev.thoughtbot.com:/home/dev/www/dev.thoughtbot.com/paperclip`
 end
 
 desc 'Clean up files.'
@@ -49,28 +38,4 @@ task :clean do |t|
   FileUtils.rm "test/debug.log" rescue nil
   FileUtils.rm "test/paperclip.db" rescue nil
   Dir.glob("paperclip-*.gem").each{|f| FileUtils.rm f }
-end
-
-desc 'Build the gemspec.'
-task :gemspec do |t|
-  exec 'gem build paperclip.gemspec'
-end
-
-desc "Print a list of the files to be put into the gem"
-task :manifest => :clean do
-  spec.files.each do |file|
-    puts file
-  end
-end
-
-desc "Generate a gemspec file for GitHub"
-task :gemspec => :clean do
-  File.open("#{spec.name}.gemspec", 'w') do |f|
-    f.write spec.to_ruby
-  end
-end
-
-desc "Build the gem into the current directory"
-task :gem => :gemspec do
-  `gem build #{spec.name}.gemspec`
 end

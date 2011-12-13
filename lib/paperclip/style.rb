@@ -18,7 +18,13 @@ module Paperclip
         @geometry = definition.delete(:geometry)
         @format = definition.delete(:format)
         @processors = definition.delete(:processors)
+        @convert_options = definition.delete(:convert_options)
+        @source_file_options = definition.delete(:source_file_options)
         @other_args = definition
+      elsif definition.is_a? String
+        @geometry = definition
+        @format = nil
+        @other_args = {}
       else
         @geometry, @format = [definition, nil].flatten[0..1]
         @other_args = {}
@@ -30,8 +36,9 @@ module Paperclip
     # (which method (in the attachment) will call any supplied procs)
     # There is an important change of interface here: a style rule can set its own processors
     # by default we behave as before, though.
+    # if a proc has been supplied, we call it here
     def processors
-      @processors || attachment.processors
+      @processors.respond_to?(:call) ? @processors.call(attachment.instance) : (@processors || attachment.processors)
     end
 
     # retrieves from the attachment the whiny setting
@@ -45,7 +52,13 @@ module Paperclip
     end
 
     def convert_options
-      attachment.send(:extra_options_for, name)
+      @convert_options.respond_to?(:call) ? @convert_options.call(attachment.instance) : 
+        (@convert_options || attachment.send(:extra_options_for, name))
+    end
+
+    def source_file_options
+      @source_file_options.respond_to?(:call) ? @source_file_options.call(attachment.instance) : 
+        (@source_file_options || attachment.send(:extra_source_file_options_for, name))
     end
 
     # returns the geometry string for this style
@@ -62,7 +75,7 @@ module Paperclip
       @other_args.each do |k,v|
         args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end
-      [:processors, :geometry, :format, :whiny, :convert_options].each do |k|
+      [:processors, :geometry, :format, :whiny, :convert_options, :source_file_options].each do |k|
         (arg = send(k)) && args[k] = arg
       end
       args
@@ -71,7 +84,7 @@ module Paperclip
     # Supports getting and setting style properties with hash notation to ensure backwards-compatibility
     # eg. @attachment.styles[:large][:geometry]@ will still work
     def [](key)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated, :source_file_options].include?(key)
         send(key)
       elsif defined? @other_args[key]
         @other_args[key]
@@ -79,7 +92,7 @@ module Paperclip
     end
 
     def []=(key, value)
-      if [:name, :convert_options, :whiny, :processors, :geometry, :format].include?(key)
+      if [:name, :convert_options, :whiny, :processors, :geometry, :format, :animated, :source_file_options].include?(key)
         send("#{key}=".intern, value)
       else
         @other_args[key] = value
