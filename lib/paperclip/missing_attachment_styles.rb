@@ -70,7 +70,7 @@ module Paperclip
     Hash.new.tap do |missing_styles|
       current_styles.each do |klass, attachment_definitions|
         attachment_definitions.each do |attachment_name, styles|
-          registered = registered_styles[klass][attachment_name] rescue []
+          registered = registered_styles[klass][attachment_name] || [] rescue []
           missed = styles - registered 
           if missed.present?
             klass_sym = klass.to_s.to_sym
