@@ -98,7 +98,9 @@ module Paperclip
               (permission == :public_read) ? 'http' : 'https'
             end
           @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = (@options[:s3_headers] || {}).inject({}) do |headers,(name,value)|
+          @s3_headers = @options[:s3_headers] || {}
+          @s3_headers = @s3_headers.call(instance) if @s3_headers.is_a?(Proc)
+          @s3_headers = (@s3_headers).inject({}) do |headers,(name,value)|
             case name.to_s
             when /^x-amz-meta-(.*)/i
               @s3_metadata[$1.downcase] = value
