@@ -1,6 +1,9 @@
-# Paperclip [![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.png?branch=master)](http://travis-ci.org/thoughtbot/paperclip) [![Dependency Status](https://gemnasium.com/thoughtbot/paperclip.png?travis)](https://gemnasium.com/thoughtbot/paperclip)
+Paperclip
+=========
 
-Paperclip is intended as an easy file attachment library for ActiveRecord. The
+[![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.png?branch=master)](http://travis-ci.org/thoughtbot/paperclip) [![Dependency Status](https://gemnasium.com/thoughtbot/paperclip.png?travis)](https://gemnasium.com/thoughtbot/paperclip)
+
+Paperclip is intended as an easy file attachment library for Active Record. The
 intent behind it was to keep setup as easy as possible and to treat files as
 much like other attributes as possible. This means they aren't saved to their
 final locations on disk, nor are they deleted if set to nil, until
@@ -12,10 +15,11 @@ packages). Attached files are saved to the filesystem and referenced in the
 browser by an easily understandable specification, which has sensible and
 useful defaults.
 
-See the documentation for `has_attached_file` in Paperclip::ClassMethods for
+See the documentation for `has_attached_file` in [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods) for
 more detailed options.
 
 The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
+
 
 Requirements
 ------------
@@ -32,13 +36,15 @@ In development mode, you might add this line to `config/environments/development
 
     Paperclip.options[:command_path] = "/usr/local/bin/"
 
-If you're on Mac OSX, you'll want to run the following with Homebrew:
+If you're on Mac OS X, you'll want to run the following with Homebrew:
 
     brew install imagemagick
 
-If you are dealing with pdf uploads or running the test suite, also run:
+If you are dealing with pdf uploads or running the test suite, you'll also need
+GhostScript to be installed. On Mac OS X, you can also install that using Homebrew:
 
     brew install gs
+
 
 Installation
 ------------
@@ -60,6 +66,7 @@ Or, if you don't use Bundler (though you probably should, even in Rails 2), with
       config.gem "paperclip", :version => "~> 2.4"
       ...
     end
+    
 For Non-Rails usage:
 
     class ModuleName < ActiveRecord::Base
@@ -117,44 +124,55 @@ Usage
 -----
 
 The basics of paperclip are quite simple: Declare that your model has an
-attachment with the has\_attached\_file method, and give it a name. Paperclip
-will wrap up up to four attributes (all prefixed with that attachment's name,
-so you can have multiple attachments per model if you wish) and give them a
-friendly front end. The attributes are `<attachment>_file_name`,
-`<attachment>_file_size`, `<attachment>_content_type`, and `<attachment>_updated_at`.
-Only `<attachment>_file_name` is required for paperclip to operate. More
-information about the options to has\_attached\_file is available in the
-documentation of Paperclip::ClassMethods.
+attachment with the `has_attached_file` method, and give it a name.
 
-Attachments can be validated with Paperclip's validation methods,
-validates\_attachment\_presence, validates\_attachment\_content\_type, and
-validates\_attachment\_size.
+Paperclip will wrap up up to four attributes (all prefixed with that attachment's name,
+so you can have multiple attachments per model if you wish) and give them a
+friendly front end. These attributes are:
+
+* `<attachment>_file_name`
+* `<attachment>_file_size`
+* `<attachment>_content_type`
+* `<attachment>_updated_at`
+
+By default, only `<attachment>_file_name` is required for paperclip to operate.
+You'll need to add `<attachment>_content_type` in case you want to use content type
+validation.
+
+More information about the options to `has_attached_file` is available in the
+documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
+
+For validations, attachments can be validated with these Paperclip's validation methods:
+
+* `validates_attachment_presence`
+* `validates_attachment_content_type`
+* `validates_attachment_size`
 
 Storage
 -------
 
 The files that are assigned as attachments are, by default, placed in the
-directory specified by the :path option to has\_attached\_file. By default, this
-location is ":rails\_root/public/system/:attachment/:id/:style/:filename". This
+directory specified by the `:path` option to `has_attached_file`. By default, this
+location is `:rails_root/public/system/:attachment/:id/:style/:filename`. This
 location was chosen because on standard Capistrano deployments, the
-public/system directory is symlinked to the app's shared directory, meaning it
-will survive between deployments. For example, using that :path, you may have a
+`public/system` directory is symlinked to the app's shared directory, meaning it
+will survive between deployments. For example, using that `:path`, you may have a
 file at
 
     /data/myapp/releases/20081229172410/public/system/avatars/13/small/my_pic.png
 
-_NOTE: This is a change from previous versions of Paperclip, but is overall a
+_**NOTE**: This is a change from previous versions of Paperclip, but is overall a
 safer choice for the default file store._
 
 You may also choose to store your files using Amazon's S3 service. You can find
 more information about S3 storage at the description for
-Paperclip::Storage::S3.
+[`Paperclip::Storage::S3`](http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
 
 Files on the local filesystem (and in the Rails app's public directory) will be
 available to the internet at large. If you require access control, it's
 possible to place your files in a different location. You will need to change
-both the :path and :url options in order to make sure the files are unavailable
-to the public. Both :path and :url allow the same set of interpolated
+both the `:path` and `:url` options in order to make sure the files are unavailable
+to the public. Both `:path` and `:url` allow the same set of interpolated
 variables.
 
 Post Processing
@@ -409,3 +427,4 @@ License
 -------
 
 Paperclip is Copyright © 2008-2011 thoughtbot. It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
+
