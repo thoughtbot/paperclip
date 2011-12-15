@@ -2,6 +2,9 @@ module Paperclip
   module Storage
     # Amazon's S3 file hosting service is a scalable, easy place to store files for
     # distribution. You can find out more about it at http://aws.amazon.com/s3
+    #
+    # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
+    #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
     # * +s3_credentials+: Takes a path, a File, or a Hash. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
