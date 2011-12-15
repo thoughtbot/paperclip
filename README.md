@@ -164,9 +164,14 @@ file at
 _**NOTE**: This is a change from previous versions of Paperclip, but is overall a
 safer choice for the default file store._
 
-You may also choose to store your files using Amazon's S3 service. You can find
-more information about S3 storage at the description for
-[`Paperclip::Storage::S3`](http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
+You may also choose to store your files using Amazon's S3 service. To do so, include
+the `aws-sdk` gem in your Gemfile:
+
+    gem 'aws-sdk'
+
+And then you can specify using S3 from `has_attached_file`. 
+You can find more information about configuring and using S3 storage in
+[the `Paperclip::Storage::S3` documentation](http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
 
 Files on the local filesystem (and in the Rails app's public directory) will be
 available to the internet at large. If you require access control, it's
