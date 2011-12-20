@@ -55,9 +55,18 @@ well with gems.
 
 Include the gem in your Gemfile:
 
-    gem "paperclip", "~> 2.4"
+    gem "paperclip", "~> 2.0"
 
-Or, if you don't use Bundler (though you probably should, even in Rails 2), with config.gem
+Or, if you want to get the latest, you can get master from the main paperclip repository:
+
+    gem "paperclip", :git => "git://github.com/thoughtbot/paperclip.git"
+    
+If you're trying to use features that don't seem to be in the latest released gem, but are
+mentioned in this README, then you probably need to specify the master branch if you want to
+use them. This README is probably ahead of the latest released version, if you're reading it
+on GitHub.
+
+Anyway, if you don't use Bundler (though you probably should, even in Rails 2), with config.gem
 
     # In config/environment.rb
     ...
