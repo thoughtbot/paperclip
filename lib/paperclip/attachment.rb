@@ -427,18 +427,21 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      styles.each do |name, style|
-        begin
-          if style_args.empty? || style_args.include?(name)
-            raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
-            @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
-              Paperclip.processor(processor).make(file, style.processor_options, self)
-            end
-          end
-        rescue PaperclipError => e
-          log("An error was received while processing: #{e.inspect}")
-          (@errors[:processing] ||= []) << e.message if @options[:whiny]
+      post_process_style(:original, styles[:original]) if styles.include?(:original) && (style_args.empty? || style_args.include?(:original))
+      styles.reject{ |name, style| name == :original }.each do |name, style|
+        post_process_style(name, style) if style_args.empty? || style_args.include?(name)
+      end
+    end
+
+    def post_process_style(name, style) #:nodoc:
+      begin
+        raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
+        @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
+          Paperclip.processor(processor).make(file, style.processor_options, self)
         end
+      rescue PaperclipError => e
+        log("An error was received while processing: #{e.inspect}")
+        (@errors[:processing] ||= []) << e.message if @options[:whiny]
       end
     end
 
