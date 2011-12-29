@@ -6,7 +6,8 @@ class StyleTest < Test::Unit::TestCase
   context "A style rule" do
     setup do
       @attachment = attachment :path => ":basename.:extension",
-                               :styles => { :foo => {:geometry => "100x100#", :format => :png} }
+                               :styles => { :foo => {:geometry => "100x100#", :format => :png} },
+                               :whiny => true
       @style = @attachment.styles[:foo]
     end
 
@@ -23,7 +24,6 @@ class StyleTest < Test::Unit::TestCase
     end
 
     should "be whiny if the attachment is" do
-      @attachment.expects(:whiny).returns(true)
       assert @style.whiny?
     end
 
@@ -41,15 +41,11 @@ class StyleTest < Test::Unit::TestCase
                                :styles => {
                                  :foo => lambda{|a| "300x300#"},
                                  :bar => {
-                                   :geometry => lambda{|a| "300x300#"}
+                                   :geometry => lambda{|a| "300x300#"},
+                                   :convert_options => lambda{|a| "-do_stuff"},
+                                   :source_file_options => lambda{|a| "-do_extra_stuff"}
                                  }
                                }
-    end
-
-    should "defer processing of procs until they are needed" do
-      assert_kind_of Proc, @attachment.styles[:foo].instance_variable_get("@geometry")
-      assert_kind_of Proc, @attachment.styles[:bar].instance_variable_get("@geometry")
-      assert_kind_of Proc, @attachment.instance_variable_get("@processors")
     end
 
     should "call procs when they are needed" do
@@ -57,6 +53,8 @@ class StyleTest < Test::Unit::TestCase
       assert_equal "300x300#", @attachment.styles[:bar].geometry
       assert_equal [:test], @attachment.styles[:foo].processors
       assert_equal [:test], @attachment.styles[:bar].processors
+      assert_equal "-do_stuff", @attachment.styles[:bar].convert_options
+      assert_equal "-do_extra_stuff", @attachment.styles[:bar].source_file_options
     end
   end
 
@@ -181,6 +179,31 @@ class StyleTest < Test::Unit::TestCase
 
     should "call procs when they are needed" do
       assert_equal [:test], @attachment.styles[:foo].processors
+    end
+  end
+
+  context "An attachment with :convert_options and :source_file_options in :styles" do
+    setup do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {
+                                 :thumb => "100x100",
+                                 :large => {:geometry => "400x400",
+                                            :convert_options => "-do_stuff",
+                                            :source_file_options => "-do_extra_stuff"
+                                 }
+                               }
+      @file = StringIO.new("...")
+      @file.stubs(:original_filename).returns("file.jpg")
+    end
+
+    should "have empty options for :thumb style" do
+      assert_equal "", @attachment.styles[:thumb].processor_options[:convert_options]
+      assert_equal "", @attachment.styles[:thumb].processor_options[:source_file_options]
+    end
+
+    should "have the right options for :large style" do
+      assert_equal "-do_stuff", @attachment.styles[:large].processor_options[:convert_options]
+      assert_equal "-do_extra_stuff", @attachment.styles[:large].processor_options[:source_file_options]
     end
   end
 end

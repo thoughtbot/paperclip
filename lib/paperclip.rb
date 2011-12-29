@@ -77,28 +77,28 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes a command to execute and an array of parameters
-    # that get passed to it. The command is prefixed with the :command_path
-    # option from Paperclip.options. If you have many commands to run and
-    # they are in different paths, the suggested course of action is to
-    # symlink them so they are all in the same directory.
+    # The run method takes the name of a binary to run, the arguments to that binary
+    # and some options:
     #
-    # If the command returns with a result code that is not one of the
-    # expected_outcodes, a Cocaine::CommandLineError will be raised. Generally
-    # a code of 0 is expected, but a list of codes may be passed if necessary.
-    # These codes should be passed as a hash as the last argument, like so:
+    #   :command_path -> A $PATH-like variable that defines where to look for the binary
+    #                    on the filesystem. Colon-separated, just like $PATH.
     #
-    #   Paperclip.run("echo", "something", :expected_outcodes => [0,1,2,3])
+    #   :expected_outcodes -> An array of integers that defines the expected exit codes
+    #                         of the binary. Defaults to [0].
     #
-    # This method can log the command being run when
-    # Paperclip.options[:log_command] is set to true (defaults to false). This
-    # will only log if logging in general is set to true as well.
-    def run(cmd, *params)
+    #   :log_command -> Log the command being run when set to true (defaults to false).
+    #                   This will only log if logging in general is set to true as well.
+    #
+    #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
+    #
+    def run(cmd, arguments = "", local_options = {})
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
-      Cocaine::CommandLine.path = options[:command_path] || options[:image_magick_path]
-      Cocaine::CommandLine.new(cmd, *params).run
+      command_path = options[:command_path] || options[:image_magick_path]
+      Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path, command_path ].flatten : command_path )
+      local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run
     end
 
     def processor(name) #:nodoc:
@@ -136,9 +136,14 @@ module Paperclip
       @known_processors[name.to_s] = processor
     end
 
+    # Find all instances of the given Active Record model +klass+ with attachment +name+.
+    # This method is used by the refresh rake tasks.
     def each_instance_with_attachment(klass, name)
-      class_for(klass).all.each do |instance|
-        yield(instance) if instance.send(:"#{name}?")
+      unscope_method = class_for(klass).respond_to?(:unscoped) ? :unscoped : :with_exclusive_scope
+      class_for(klass).send(unscope_method) do
+        class_for(klass).find(:all, :order => 'id').each do |instance|
+          yield(instance) if instance.send(:"#{name}?")
+        end
       end
     end
 
@@ -183,6 +188,19 @@ module Paperclip
       else
         raise e
       end
+    end
+
+    def check_for_url_clash(name,url,klass)
+      @names_url ||= {}
+      default_url = url || Attachment.default_options[:url]
+      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass && @names_url[name][:url] !~ /:class/
+        log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
+      end
+      @names_url[name] = {:url => default_url, :class => klass}
+    end
+
+    def reset_duplicate_clash_check!
+      @names_url = nil
     end
   end
 
@@ -248,6 +266,9 @@ module Paperclip
     #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
+    # * +keep_old_files+: Keep the existing attachment files (original + resized) from
+    #   being automatically deleted when an attachment is cleared or updated.
+    #   Defaults to +false+.#
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
     #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
@@ -277,6 +298,20 @@ module Paperclip
     #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
     #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
     #   for backend-specific options.
+    #
+    # It's also possible for you to dynamicly define your interpolation string for :url,
+    # :default_url, and :path in your model by passing a method name as a symbol as a argument
+    # for your has_attached_file definition:
+    #
+    #   class Person
+    #     has_attached_file :avatar, :default_url => :default_url_by_gender
+    #
+    #     private
+    #
+    #     def default_url_by_gender
+    #       "/assets/avatars/default_#{gender}.png"
+    #     end
+    #   end
     def has_attached_file name, options = {}
       include InstanceMethods
 
@@ -286,10 +321,13 @@ module Paperclip
         else
           write_inheritable_attribute(:attachment_definitions, {})
         end
+      else
+        self.attachment_definitions = self.attachment_definitions.dup
       end
 
       attachment_definitions[name] = {:validations => []}.merge(options)
-      Paperclip.classes_with_attachments << self
+      Paperclip.classes_with_attachments << self.name
+      Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy
@@ -352,14 +390,18 @@ module Paperclip
     # Places ActiveRecord-style validations on the presence of a file.
     # Options:
     # * +if+: A lambda or name of a method on the instance. Validation will only
-    #   be run is this lambda or method returns true.
+    #   be run if this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
       message = options[:message] || :empty
-      validates_presence_of :"#{name}_file_name",
-                            :message   => message,
-                            :if        => options[:if],
-                            :unless    => options[:unless]
+      validates_each :"#{name}_file_name" do |record, attr, value|
+        if_clause_passed = options[:if].nil? || (options[:if].respond_to?(:call) ? options[:if].call(record) != false : record.send(options[:if]))
+        unless_clause_passed = options[:unless].nil? || (options[:unless].respond_to?(:call) ? !!options[:unless].call(record) == false : !record.send(options[:unless]))
+        if if_clause_passed && unless_clause_passed && value.blank?
+          record.errors.add(name, message)
+          record.errors.add("#{name}_file_name", message)
+        end
+      end
     end
 
     # Places ActiveRecord-style validations on the content type of the file

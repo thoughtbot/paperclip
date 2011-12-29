@@ -1,39 +1,92 @@
 # encoding: utf-8
 require './test/helper'
+require 'paperclip/attachment'
 
-class Dummy
-  # This is a dummy class
-end
+class Dummy; end
 
 class AttachmentTest < Test::Unit::TestCase
+  should "handle a boolean second argument to #url" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+
+    attachment.url(:style_name, true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => true, :escape => true)
+
+    attachment.url(:style_name, false)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => false, :escape => true)
+  end
+
+  should "pass the style and options through to the URL generator on #url" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+
+    attachment.url(:style_name, :options => :values)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:options => :values)
+  end
+
+  should "pass default options through when #url is given one argument" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
+  should "pass default style and options through when #url is given no arguments" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :default_style => 'default style',
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
+  end
+
+  should "pass the option :timestamp => true if :use_timestamp is true and :timestamp is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => true)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
+  should "pass the option :timestamp => false if :use_timestamp is false and :timestamp is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => false)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => false)
+  end
+
+  should "not change the :timestamp if :timestamp is passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :use_timestamp => false)
+
+    attachment.url(:style_name, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+  end
+
   should "return the path based on the url by default" do
     @attachment = attachment :url => "/:class/:id/:basename"
     @model = @attachment.instance
     @model.id = 1234
     @model.avatar_file_name = "fake.jpg"
     assert_equal "#{Rails.root}/public/fake_models/1234/fake", @attachment.path
-  end
-
-  should "return the url by interpolating the default_url option when no file assigned" do
-    @attachment = attachment :default_url => ":class/blegga.png"
-    @model = @attachment.instance
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
-  end
-
-  should "return the url by executing and interpolating the default_url Proc when no file assigned" do
-    @attachment = attachment :default_url => lambda { |a| ":class/blegga.png" }
-    @model = @attachment.instance
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
-  end
-
-  should "return the url by executing and interpolating the default_url Proc with attachment arg when no file assigned" do
-    @attachment = attachment :default_url => lambda { |a| a.instance.some_method_to_determine_default_url }
-    @model = @attachment.instance
-    @model.stubs(:some_method_to_determine_default_url).returns(":class/blegga.png")
-    assert_nil @model.avatar_file_name
-    assert_equal "fake_models/blegga.png", @attachment.url
   end
 
   context "Attachment default_options" do
@@ -78,7 +131,7 @@ class AttachmentTest < Test::Unit::TestCase
       Paperclip::Attachment.default_options.keys.each do |key|
         should "be the default_options for #{key}" do
           assert_equal @old_default_options[key],
-                       @attachment.instance_variable_get("@#{key}"),
+                       @attachment.instance_variable_get("@options")[key],
                        key
         end
       end
@@ -93,22 +146,9 @@ class AttachmentTest < Test::Unit::TestCase
         Paperclip::Attachment.default_options.keys.each do |key|
           should "be the new default_options for #{key}" do
             assert_equal @new_default_options[key],
-                         @attachment.instance_variable_get("@#{key}"),
+                         @attachment.instance_variable_get("@options")[key],
                          key
           end
-        end
-      end
-
-      context "with nested hash default" do
-        setup do
-          @nested_hash = {:thumb => {:first => "second" }}
-          Paperclip::Attachment.default_options[:styles] = @nested_hash
-          @dummy = Dummy.new
-          @attachment = @dummy.avatar
-        end
-
-        should "correctly clone the nested hash" do
-          assert_equal(@nested_hash, @attachment.instance_variable_get(:@styles))
         end
       end
     end
@@ -363,7 +403,7 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal "50x50#", @attachment.styles[:thumb][:geometry]
     end
   end
-  
+
   context "An attachment with conditional :styles that is a proc" do
     setup do
       rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
@@ -376,30 +416,9 @@ class AttachmentTest < Test::Unit::TestCase
       assert_nil @dummy.avatar.styles[:large]
 
       @dummy.other = 'b'
-      
+
       assert_equal "400x400", @dummy.avatar.styles[:large][:geometry]
       assert_nil @dummy.avatar.styles[:thumb]
-    end
-  end
-
-  context "An attachment with :url that is a proc" do
-    setup do
-      rebuild_model :url => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
-
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
-      @dummyA = Dummy.new(:other => 'a')
-      @dummyA.avatar = @file
-      @dummyB = Dummy.new(:other => 'b')
-      @dummyB.avatar = @file
-    end
-
-    teardown { @file.close }
-
-    should "return correct url" do
-      assert_equal "path/a.png", @dummyA.avatar.url(:original, false)
-      assert_equal "path/b.png", @dummyB.avatar.url(:original, false)
     end
   end
 
@@ -528,16 +547,16 @@ class AttachmentTest < Test::Unit::TestCase
     rebuild_model :storage => :FileSystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
-    
+
     rebuild_model :storage => :Filesystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
   end
-  
+
   should "convert underscored storage name to camelcase" do
     rebuild_model :storage => :not_here
     @dummy = Dummy.new
-    exception = assert_raises(Paperclip::StorageMethodNotFound) do |e|
+    exception = assert_raises(Paperclip::StorageMethodNotFound) do
       @dummy.avatar
     end
     assert exception.message.include?("NotHere")
@@ -746,12 +765,6 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
-    should "return its default_url when no file assigned" do
-      assert @attachment.to_file.nil?
-      assert_equal "/avatars/original/missing.png", @attachment.url
-      assert_equal "/avatars/blah/missing.png", @attachment.url(:blah)
-    end
-
     should "return nil as path when no file assigned" do
       assert @attachment.to_file.nil?
       assert_equal nil, @attachment.path
@@ -776,29 +789,6 @@ class AttachmentTest < Test::Unit::TestCase
         @now = Time.now
         Time.stubs(:now).returns(@now)
         @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
-      end
-
-      should "return a correct url even if the file does not exist" do
-        assert_nil @attachment.to_file
-        assert_match %r{^/system/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
-      end
-
-      should "make sure the updated_at mtime is in the url if it is defined" do
-        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah)
-      end
-
-      should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
-        assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
-      end
-
-      context "with the updated_at field removed" do
-        setup do
-          @attachment.stubs(:instance_read).with(:updated_at).returns(nil)
-        end
-
-        should "only return the url without the updated_at when sent #url" do
-          assert_match "/avatars/#{@instance.id}/blah/5k.png", @attachment.url(:blah)
-        end
       end
 
       should "return the proper path when filename has a single .'s" do
@@ -831,17 +821,13 @@ class AttachmentTest < Test::Unit::TestCase
             assert @attachment.dirty?
           end
 
+          should "set uploaded_file for access beyond the paperclip lifecycle" do
+            assert_equal @file, @attachment.uploaded_file
+          end
+
           context "and saved" do
             setup do
               @attachment.save
-            end
-
-            should "return the real url" do
-              file = @attachment.to_file
-              assert file
-              assert_match %r{^/system/avatars/#{@instance.id}/original/5k\.png}, @attachment.url
-              assert_match %r{^/system/avatars/#{@instance.id}/small/5k\.jpg}, @attachment.url(:small)
-              file.close
             end
 
             should "commit the files to disk" do
@@ -907,11 +893,45 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
               end
+
+              context "when keeping old files" do
+                setup do
+                  @attachment.options[:keep_old_files] = true
+                end
+
+                should "keep the files after assigning nil" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.assign nil
+                  @attachment.save
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+
+                should "keep the files when you call #clear and #save" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.clear
+                  @attachment.save
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+
+                should "keep the files when you call #delete" do
+                  @attachment.expects(:instance_write).with(:file_name, nil)
+                  @attachment.expects(:instance_write).with(:content_type, nil)
+                  @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:updated_at, nil)
+                  @attachment.destroy
+                  @existing_names.each{|f| assert File.exists?(f) }
+                end
+              end
             end
           end
         end
       end
-
     end
 
     context "when trying a nonexistant storage type" do
@@ -1066,21 +1086,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "setting an interpolation class" do
-    should "produce the URL with the given interpolations" do
-      Interpolator = Class.new do
-        def self.interpolate(pattern, attachment, style_name)
-          "hello"
-        end
-      end
-
-      instance = Dummy.new
-      attachment = Paperclip::Attachment.new(:avatar, instance, :interpolator => Interpolator)
-
-      assert_equal "hello", attachment.url
-    end
-  end
-
   context "An attached file" do
     setup do
       rebuild_model
@@ -1099,12 +1104,12 @@ class AttachmentTest < Test::Unit::TestCase
         @dummy.destroy
       end
 
-      assert File.exists?(@path)
+      assert File.exists?(@path), "#{@path} does not exist."
     end
 
     should "be deleted when the model is destroyed" do
       @dummy.destroy
-      assert ! File.exists?(@path)
+      assert ! File.exists?(@path), "#{@path} does not exist."
     end
   end
 

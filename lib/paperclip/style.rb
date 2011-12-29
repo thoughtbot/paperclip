@@ -18,7 +18,13 @@ module Paperclip
         @geometry = definition.delete(:geometry)
         @format = definition.delete(:format)
         @processors = definition.delete(:processors)
+        @convert_options = definition.delete(:convert_options)
+        @source_file_options = definition.delete(:source_file_options)
         @other_args = definition
+      elsif definition.is_a? String
+        @geometry = definition
+        @format = nil
+        @other_args = {}
       else
         @geometry, @format = [definition, nil].flatten[0..1]
         @other_args = {}
@@ -46,11 +52,13 @@ module Paperclip
     end
 
     def convert_options
-      attachment.send(:extra_options_for, name)
+      @convert_options.respond_to?(:call) ? @convert_options.call(attachment.instance) : 
+        (@convert_options || attachment.send(:extra_options_for, name))
     end
 
     def source_file_options
-      attachment.send(:extra_source_file_options_for, name)
+      @source_file_options.respond_to?(:call) ? @source_file_options.call(attachment.instance) : 
+        (@source_file_options || attachment.send(:extra_source_file_options_for, name))
     end
 
     # returns the geometry string for this style

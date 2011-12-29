@@ -132,7 +132,7 @@ class GeometryTest < Test::Unit::TestCase
 
     should "not generate from a file with no path" do
       file = mock("file", :path => "")
-      file.stubs(:respond_to?).with("path").returns(true)
+      file.stubs(:respond_to?).with(:path).returns(true)
       assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
