@@ -175,7 +175,7 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
-          [:access_key_id, :secret_access_key].each do |opt|
+          [:access_key_id, :secret_access_key, :session_token].each do |opt|
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
 
