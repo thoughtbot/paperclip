@@ -997,7 +997,14 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal now.to_i, @dummy.avatar.updated_at
       end
     end
-
+    
+    should "not calculate fingerprint without fingerprint column" do
+      assert_equal false, @dummy.respond_to?(:avatar_fingerprint)
+      @dummy.avatar = @file
+      @dummy.save
+      assert_nil @dummy.avatar.fingerprint
+    end
+    
     context "and avatar_content_type column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
