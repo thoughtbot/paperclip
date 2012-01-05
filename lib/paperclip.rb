@@ -49,7 +49,7 @@ require 'cocaine'
 module Paperclip
 
   class << self
-    # Provides configurability to Paperclip. There are a number of options available, such as:
+    # Provides configurability to Paperclip. The options available are:
     # * whiny: Will raise an error if Paperclip cannot process thumbnails of
     #   an uploaded image. Defaults to true.
     # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
@@ -179,9 +179,9 @@ module Paperclip
         end
       end
     rescue ArgumentError => e
-      # Sadly, we need to capture ArguementError here because Rails 2.3.x
-      # Active Support dependency's management will try to the constant inherited
-      # from Object, and fail misably with "Object is not missing constant X" error
+      # Sadly, we need to capture ArgumentError here because Rails 2.3.x
+      # ActiveSupport dependency management will try to the constant inherited
+      # from Object, and fail miserably with "Object is not missing constant X" error
       # https://github.com/rails/rails/blob/v2.3.12/activesupport/lib/active_support/dependencies.rb#L124
       if e.message =~ /is not missing constant/
         raise NameError, "uninitialized constant #{class_name}"
@@ -295,11 +295,11 @@ module Paperclip
     #   shell quoting for safety. If your options require a space, please pre-split them
     #   and pass an array to :convert_options instead.
     # * +storage+: Chooses the storage backend where the files will be stored. The current
-    #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
-    #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
+    #   choices are :filesystem, :fog and :s3. The default is :filesystem. Make sure you read the
+    #   documentation for Paperclip::Storage::Filesystem, Paperclip::Storage::Fog and Paperclip::Storage::S3
     #   for backend-specific options.
     #
-    # It's also possible for you to dynamicly define your interpolation string for :url,
+    # It's also possible for you to dynamically define your interpolation string for :url,
     # :default_url, and :path in your model by passing a method name as a symbol as a argument
     # for your has_attached_file definition:
     #
@@ -360,8 +360,8 @@ module Paperclip
     # * +less_than+: equivalent to :in => 0..options[:less_than]
     # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
     # * +message+: error message to display, use :min and :max as replacements
-    # * +if+: A lambda or name of a method on the instance. Validation will only
-    #   be run is this lambda or method returns true.
+    # * +if+: A lambda or name of an instance method. Validation will only
+    #   be run if this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_size name, options = {}
       min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
@@ -389,7 +389,7 @@ module Paperclip
 
     # Places ActiveRecord-style validations on the presence of a file.
     # Options:
-    # * +if+: A lambda or name of a method on the instance. Validation will only
+    # * +if+: A lambda or name of an instance method. Validation will only
     #   be run if this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     def validates_attachment_presence name, options = {}
@@ -408,13 +408,13 @@ module Paperclip
     # assigned. The possible options are:
     # * +content_type+: Allowed content types.  Can be a single content type
     #   or an array.  Each type can be a String or a Regexp. It should be
-    #   noted that Internet Explorer upload files with content_types that you
+    #   noted that Internet Explorer uploads files with content_types that you
     #   may not expect. For example, JPEG images are given image/pjpeg and
     #   PNGs are image/x-png, so keep that in mind when determining how you
     #   match.  Allows all by default.
     # * +message+: The message to display when the uploaded file has an invalid
     #   content type.
-    # * +if+: A lambda or name of a method on the instance. Validation will only
+    # * +if+: A lambda or name of an instance method. Validation will only
     #   be run is this lambda or method returns true.
     # * +unless+: Same as +if+ but validates if lambda or method returns false.
     # NOTE: If you do not specify an [attachment]_content_type field on your
