@@ -998,10 +998,14 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
     
-    should "not calculate fingerprint without fingerprint column" do
-      assert_equal false, @dummy.respond_to?(:avatar_fingerprint)
+    should "not calculate fingerprint after save" do
       @dummy.avatar = @file
       @dummy.save
+      assert_nil @dummy.avatar.fingerprint
+    end
+    
+    should "not calculate fingerprint before saving" do
+      @dummy.avatar = @file
       assert_nil @dummy.avatar.fingerprint
     end
     
