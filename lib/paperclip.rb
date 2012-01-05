@@ -295,11 +295,11 @@ module Paperclip
     #   shell quoting for safety. If your options require a space, please pre-split them
     #   and pass an array to :convert_options instead.
     # * +storage+: Chooses the storage backend where the files will be stored. The current
-    #   choices are :filesystem and :s3. The default is :filesystem. Make sure you read the
-    #   documentation for Paperclip::Storage::Filesystem and Paperclip::Storage::S3
+    #   choices are :filesystem, :fog and :s3. The default is :filesystem. Make sure you read the
+    #   documentation for Paperclip::Storage::Filesystem, Paperclip::Storage::Fog and Paperclip::Storage::S3
     #   for backend-specific options.
     #
-    # It's also possible for you to dynamicly define your interpolation string for :url,
+    # It's also possible for you to dynamically define your interpolation string for :url,
     # :default_url, and :path in your model by passing a method name as a symbol as a argument
     # for your has_attached_file definition:
     #
