@@ -420,9 +420,9 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      post_process_style(:original, styles[:original]) if styles.include?(:original) && (style_args.empty? || style_args.include?(:original))
+      post_process_style(:original, styles[:original]) if styles.include?(:original) && process_style?(:original, style_args)
       styles.reject{ |name, style| name == :original }.each do |name, style|
-        post_process_style(name, style) if style_args.empty? || style_args.include?(name)
+        post_process_style(name, style) if process_style?(name, style_args)
       end
     end
 
@@ -436,6 +436,10 @@ module Paperclip
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
       end
+    end
+
+    def process_style?(style_name, style_args) #:nodoc:
+      style_args.empty? || style_args.include?(style_name)
     end
 
     def interpolate(pattern, style_name = default_style) #:nodoc:
