@@ -1,0 +1,23 @@
+New in 2.5.0:
+
+* Performance: Only connect to S3 when absolutely needed.
+* Bug fix: STI with cached classes respect new options.
+* Bug fix: conditional validations broke, and now work again.
+* Feature: URL generation is now parameterized and can be changed with plugins or custom code.
+* Feature: :convert_options and :source_file_options to control the ImageMagick processing.
+* Performance: String geometry specifications now parse more quickly.
+* Bug fix: Handle files with question marks in the filename.
+* Bug fix: Don't raise an error when generating an expiring URL on an unassigned attachment.
+* Bug fix: The rake task runs over all instances of an ActiveRecord model, ignoring default scopes.
+* Feature: DB migration has_attached_file and drop_attached_file methods.
+* Bug fix: Switch from AWS::S3 to AWS::SDK for the S3 backend.
+* Bug fix: URL generator uses '?' in the URL unless it already appears and there is no prior '='.
+* Bug fix: Always convert the content type to a string before stripping blanks.
+* Feature: The :keep_old_files option preserves the files in storage even when the attachment is cleared or changed.
+* Performance: Optimize Fog's public_url access by avoiding it when possible.
+* Bug fix: Avoid a runtime error when generating the ID partition for an unsaved attachment.
+* Performance: Do not calculate the fingerprint if it is never persisted.
+* Bug fix: Process the :original style before all others, in case of a dependency.
+* Feature: S3 headers can be set at runtime by passing a proc object as the value.
+* Bug fix: Generating missing attachment styles for a model which has had its attachment changed should not raise.
+* Bug fix: Do not collide with the built-in Ruby hashing method.
