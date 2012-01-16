@@ -110,6 +110,13 @@ class FogTest < Test::Unit::TestCase
         directory.destroy
       end
 
+      should "pass the content type to the Fog::Storage::AWS::Files instance" do
+        Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
+          hash[:content_type]
+        end
+        @dummy.save
+      end
+
       context "without a bucket" do
         setup do
           @connection.directories.get(@fog_directory).destroy
