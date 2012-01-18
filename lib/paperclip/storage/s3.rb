@@ -115,6 +115,8 @@ module Paperclip
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
 
+          @s3_encrypted = @options[:s3_encrypted]
+
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
             @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
@@ -281,6 +283,7 @@ module Paperclip
               :acl => acl
             }
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
+            write_options[:server_side_encryption] = :aes256 if @s3_encrypted
             write_options.merge!(@s3_headers)
             s3_object(style).write(file, write_options)
           rescue AWS::S3::Errors::NoSuchBucket => e
