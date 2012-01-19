@@ -693,7 +693,7 @@ class S3Test < Test::Unit::TestCase
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_encrypted => true
+                    :s3_server_side_encryption => :aes256
     end
 
     context "when assigned" do

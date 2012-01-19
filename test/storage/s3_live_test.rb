@@ -142,7 +142,7 @@ unless ENV["S3_BUCKET"].blank?
                       :bucket => ENV["S3_BUCKET"],
                       :path => ":class/:attachment/:id/:style.:extension",
                       :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml")),
-                      :s3_encrypted => true
+                      :s3_server_side_encryption => :aes256
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -165,7 +165,7 @@ unless ENV["S3_BUCKET"].blank?
           end
 
           should "be encrypted on S3" do
-            assert @dummy.avatar.s3_object.server_side_encryption?
+            assert @dummy.avatar.s3_object.server_side_encryption == :aes256
           end
         end
       end
