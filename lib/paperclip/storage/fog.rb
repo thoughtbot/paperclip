@@ -168,7 +168,13 @@ module Paperclip
       end
 
       def directory
-        @directory ||= connection.directories.new(:key => @options[:fog_directory])
+        dir = if @options[:fog_directory].is_a?(Proc)
+          @options[:fog_directory].call(self)
+        else
+          @options[:fog_directory]
+        end
+        
+        @directory ||= connection.directories.new(:key => dir)
       end
     end
   end

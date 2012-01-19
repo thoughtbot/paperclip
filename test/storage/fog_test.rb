@@ -220,6 +220,21 @@ class FogTest < Test::Unit::TestCase
 
       end
 
+      context "with a proc for a bucket name evaluating a model method" do
+        setup do
+          @dynamic_fog_directory = 'dynamicpaperclip'
+          rebuild_model(@options.merge(:fog_directory => lambda { |attachment| attachment.instance.bucket_name }))
+          @dummy = Dummy.new
+          @dummy.stubs(:bucket_name).returns(@dynamic_fog_directory)
+          @dummy.avatar = @file
+          @dummy.save
+        end
+        
+        should "have created the bucket" do
+          assert @connection.directories.get(@dynamic_fog_directory).inspect
+        end
+        
+      end
     end
 
   end
