@@ -126,7 +126,12 @@ module Paperclip
 
       def public_url(style = default_style)
         if @options[:fog_host]
-          host = (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          host = if @options[:fog_host].is_a?(Proc)
+            @options[:fog_host].call(self)
+          else
+            (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          end
+          
           "#{host}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'

@@ -229,11 +229,25 @@ class FogTest < Test::Unit::TestCase
           @dummy.avatar = @file
           @dummy.save
         end
-        
+
         should "have created the bucket" do
           assert @connection.directories.get(@dynamic_fog_directory).inspect
         end
-        
+
+      end
+
+      context "with a proc for the fog_host evaluating a model method" do
+        setup do
+          rebuild_model(@options.merge(:fog_host => lambda { |attachment| attachment.instance.fog_host }))
+          @dummy = Dummy.new
+          @dummy.stubs(:fog_host).returns('http://dynamicfoghost.com')
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "provide a public url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+        end
       end
     end
 
