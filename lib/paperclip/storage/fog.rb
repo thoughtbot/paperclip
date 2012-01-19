@@ -163,6 +163,8 @@ module Paperclip
           YAML::load(ERB.new(File.read(creds)).result)
         when Hash
           creds
+        when Proc
+          creds.call(self)
         else
           raise ArgumentError, "Credentials are not a path, file, or hash."
         end
