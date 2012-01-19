@@ -684,6 +684,45 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and using AES256 encryption" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket => "testing",
+                    :path => ":attachment/:style/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    },
+                    :s3_server_side_encryption => :aes256
+    end
+
+    context "when assigned" do
+      setup do
+        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      teardown { @file.close }
+
+      context "and saved" do
+        setup do
+          object = stub
+          @dummy.avatar.stubs(:s3_object).returns(object)
+          object.expects(:write).with(anything,
+                                      :content_type => "image/png",
+                                      :acl => :public_read,
+                                      :server_side_encryption => :aes256)
+          @dummy.save
+        end
+
+        should "succeed" do
+          assert true
+        end
+      end
+    end
+  end
+
   context "An attachment with S3 storage and storage class set using the :storage_class option" do
     setup do
       rebuild_model :storage => :s3,
