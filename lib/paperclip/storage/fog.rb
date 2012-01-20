@@ -75,7 +75,7 @@ module Paperclip
       end
 
       def flush_writes
-        for style, file in @queued_for_write do
+        expand_queued(@queued_for_write).each do |style, file|
           log("saving #{path(style)}")
           retried = false
           begin

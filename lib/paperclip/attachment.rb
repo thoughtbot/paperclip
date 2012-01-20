@@ -472,10 +472,24 @@ module Paperclip
 
     # called by storage after the writes are flushed and before @queued_for_writes is cleared
     def after_flush_writes
-      @queued_for_write.each do |style, file|
+      expand_queued(@queued_for_write).each do |style, file|
         file.close unless file.closed?
         file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
       end
+    end
+
+    def expand_queued(queued)
+      ret = {}
+      queued.each do |style, file|
+        if file.is_a?(Hash)
+          file.each do |substyle, real_file|
+            ret["#{style}_#{substyle}"] = real_file
+          end
+        else
+          ret[style] = file
+        end
+      end
+      ret
     end
 
   end
