@@ -75,7 +75,7 @@ module Paperclip
       end
 
       def flush_writes
-        for style, file in @queued_for_write do
+        expand_queued(@queued_for_write).each do |style, file|
           log("saving #{path(style)}")
           retried = false
           begin
@@ -126,7 +126,12 @@ module Paperclip
 
       def public_url(style = default_style)
         if @options[:fog_host]
-          host = (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          host = if @options[:fog_host].is_a?(Proc)
+            @options[:fog_host].call(self)
+          else
+            (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          end
+          
           "#{host}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'
@@ -158,8 +163,10 @@ module Paperclip
           YAML::load(ERB.new(File.read(creds)).result)
         when Hash
           creds
+        when Proc
+          creds.call(self)
         else
-          raise ArgumentError, "Credentials are not a path, file, or hash."
+          raise ArgumentError, "Credentials are not a path, file, hash or proc."
         end
       end
 
@@ -168,7 +175,13 @@ module Paperclip
       end
 
       def directory
-        @directory ||= connection.directories.new(:key => @options[:fog_directory])
+        dir = if @options[:fog_directory].is_a?(Proc)
+          @options[:fog_directory].call(self)
+        else
+          @options[:fog_directory]
+        end
+        
+        @directory ||= connection.directories.new(:key => dir)
       end
     end
   end
