@@ -273,7 +273,7 @@ module Paperclip
       end
 
       def flush_writes #:nodoc:
-        @queued_for_write.each do |style, file|
+        expand_queued(@queued_for_write).each do |style, file|
           begin
             log("saving #{path(style)}")
             acl = @s3_permissions[style] || @s3_permissions[:default]
