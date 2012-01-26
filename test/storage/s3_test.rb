@@ -311,6 +311,24 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":asset_host"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "always be rewound when returning from #to_file" do
+      assert_equal 0, @dummy.avatar.to_file.pos
+      @dummy.avatar.to_file.seek(10)
+      assert_equal 0, @dummy.avatar.to_file.pos
+    end
+  end
+
   context "Generating a secure url with an expiration" do
     setup do
       rebuild_model :storage => :s3,

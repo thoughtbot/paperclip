@@ -110,6 +110,7 @@ module Paperclip
       # style, in the format most representative of the current storage.
       def to_file(style = default_style)
         if @queued_for_write[style]
+          @queued_for_write[style].rewind # Rewind the file
           @queued_for_write[style]
         else
           body      = directory.files.get(path(style)).body

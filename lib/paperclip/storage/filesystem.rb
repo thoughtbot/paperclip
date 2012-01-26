@@ -30,7 +30,10 @@ module Paperclip
       # Returns representation of the data of the file assigned to the given
       # style, in the format most representative of the current storage.
       def to_file style_name = default_style
-        @queued_for_write[style_name] || (File.new(path(style_name), 'rb') if exists?(style_name))
+        if exists?(style_name)
+          @queued_for_write[style_name].rewind if @queued_for_write[style_name] # Rewind the file
+          @queued_for_write[style_name] || File.new(path(style_name), 'rb')
+        end
       end
 
       def flush_writes #:nodoc:
