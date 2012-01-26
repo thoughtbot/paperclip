@@ -68,6 +68,22 @@ class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
       Paperclip.save_current_attachments_styles!
       assert_equal Hash.new, Paperclip.missing_attachments_styles
     end
+    
+    should "be able to calculate differences when a new attachment is added to a model" do
+      rebuild_model :styles => {:croppable => '600x600>', :big => '1000x1000>'}
+      Paperclip.save_current_attachments_styles!
+      
+      class ::Dummy
+        has_attached_file :photo, :styles => {:small => 'x100', :large => '1000x1000>'}
+      end
+      
+      expected_hash = {
+        :Dummy => {:photo => [:large, :small]}
+      }
+      assert_equal expected_hash, Paperclip.missing_attachments_styles
+      Paperclip.save_current_attachments_styles!
+      assert_equal Hash.new, Paperclip.missing_attachments_styles
+    end
 
     # It's impossible to build styles hash without loading from database whole bunch of records
     should "skip lambda-styles" do

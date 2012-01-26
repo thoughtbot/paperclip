@@ -134,5 +134,41 @@ unless ENV["S3_BUCKET"].blank?
         assert_not_found_response url
       end
     end
+
+    context "An attachment that uses S3 for storage and uses AES256 encryption" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_BUCKET"],
+                      :path => ":class/:attachment/:id/:style.:extension",
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml")),
+                      :s3_server_side_encryption => :aes256
+
+        Dummy.delete_all
+        @dummy = Dummy.new
+      end
+
+      context "when assigned" do
+        setup do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy.avatar = @file
+        end
+
+        teardown do
+          @file.close
+          @dummy.destroy
+        end
+
+        context "and saved" do
+          setup do
+            @dummy.save
+          end
+
+          should "be encrypted on S3" do
+            assert @dummy.avatar.s3_object.server_side_encryption == :aes256
+          end
+        end
+      end
+    end
   end
 end

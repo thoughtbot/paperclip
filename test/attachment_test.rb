@@ -5,6 +5,20 @@ require 'paperclip/attachment'
 class Dummy; end
 
 class AttachmentTest < Test::Unit::TestCase
+
+  should "process :original style first" do
+    file = File.new(File.join(File.dirname(__FILE__), "fixtures", "50x50.png"), 'rb')
+    rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
+    dummy = Dummy.new
+    dummy.avatar = file
+    dummy.save
+
+    # :small avatar should be 42px wide (processed original), not 50px (preprocessed original)
+    assert_equal `identify -format "%w" "#{dummy.avatar.path(:small)}"`.strip, "42"
+
+    file.close
+  end
+
   should "handle a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
@@ -231,7 +245,7 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "interpolate the hash data" do
         @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
-        @attachment.hash
+        @attachment.hash_key
       end
 
       should "result in the correct interpolation" do
@@ -997,7 +1011,18 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal now.to_i, @dummy.avatar.updated_at
       end
     end
-
+    
+    should "not calculate fingerprint after save" do
+      @dummy.avatar = @file
+      @dummy.save
+      assert_nil @dummy.avatar.fingerprint
+    end
+    
+    should "not calculate fingerprint before saving" do
+      @dummy.avatar = @file
+      assert_nil @dummy.avatar.fingerprint
+    end
+    
     context "and avatar_content_type column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string

@@ -106,11 +106,12 @@ module Paperclip
       return nil if uploaded_file.nil?
 
       uploaded_filename ||= uploaded_file.original_filename
+      stores_fingerprint             = @instance.respond_to?("#{name}_fingerprint".to_sym)
       @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       uploaded_filename.strip)
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     generate_fingerprint(uploaded_file))
+      instance_write(:fingerprint,     generate_fingerprint(uploaded_file)) if stores_fingerprint
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -119,7 +120,7 @@ module Paperclip
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
-      instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original]))
+      instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original])) if stores_fingerprint
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -253,7 +254,13 @@ module Paperclip
     # Returns the hash of the file as originally assigned, and lives in the
     # <attachment>_fingerprint attribute of the model.
     def fingerprint
-      instance_read(:fingerprint) || (@queued_for_write[:original] && generate_fingerprint(@queued_for_write[:original]))
+      if instance_read(:fingerprint)
+        instance_read(:fingerprint)
+      elsif @instance.respond_to?("#{name}_fingerprint".to_sym)
+        @queued_for_write[:original] && generate_fingerprint(@queued_for_write[:original])
+      else
+        nil
+      end
     end
 
     # Returns the content_type of the file as originally assigned, and lives
@@ -277,7 +284,7 @@ module Paperclip
 
     # Returns a unique hash suitable for obfuscating the URL of an otherwise
     # publicly viewable attachment.
-    def hash(style_name = default_style)
+    def hash_key(style_name = default_style)
       raise ArgumentError, "Unable to generate hash without :hash_secret" unless @options[:hash_secret]
       require 'openssl' unless defined?(OpenSSL)
       data = interpolate(@options[:hash_data], style_name)
@@ -420,19 +427,26 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      styles.each do |name, style|
-        begin
-          if style_args.empty? || style_args.include?(name)
-            raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
-            @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
-              Paperclip.processor(processor).make(file, style.processor_options, self)
-            end
-          end
-        rescue PaperclipError => e
-          log("An error was received while processing: #{e.inspect}")
-          (@errors[:processing] ||= []) << e.message if @options[:whiny]
-        end
+      post_process_style(:original, styles[:original]) if styles.include?(:original) && process_style?(:original, style_args)
+      styles.reject{ |name, style| name == :original }.each do |name, style|
+        post_process_style(name, style) if process_style?(name, style_args)
       end
+    end
+
+    def post_process_style(name, style) #:nodoc:
+      begin
+        raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
+        @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
+          Paperclip.processor(processor).make(file, style.processor_options, self)
+        end
+      rescue PaperclipError => e
+        log("An error was received while processing: #{e.inspect}")
+        (@errors[:processing] ||= []) << e.message if @options[:whiny]
+      end
+    end
+
+    def process_style?(style_name, style_args) #:nodoc:
+      style_args.empty? || style_args.include?(style_name)
     end
 
     def interpolate(pattern, style_name = default_style) #:nodoc:
