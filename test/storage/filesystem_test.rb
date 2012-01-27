@@ -30,6 +30,12 @@ class FileSystemTest < Test::Unit::TestCase
 
       @dummy.save!
     end
+    
+    should "always be rewound when returning from #to_file" do
+      assert_equal 0, @dummy.avatar.to_file.pos
+      @dummy.avatar.to_file.seek(10)
+      assert_equal 0, @dummy.avatar.to_file.pos
+    end
 
     context "with file that has space in file name" do
       setup do

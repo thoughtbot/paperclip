@@ -337,6 +337,24 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :url => ":asset_host"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "always be rewound when returning from #to_file" do
+      assert_equal 0, @dummy.avatar.to_file.pos
+      @dummy.avatar.to_file.seek(10)
+      assert_equal 0, @dummy.avatar.to_file.pos
+    end
+  end
+
   context "Generating a secure url with an expiration" do
     setup do
       rebuild_model :storage => :s3,
@@ -804,6 +822,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "parse the credentials" do
+      assert_kind_of AWS::S3::Connection, @dummy.avatar.send(:establish_connection!)
       assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
       assert_equal 'pathname_key', @dummy.avatar.s3_bucket.config.access_key_id
       assert_equal 'pathname_secret', @dummy.avatar.s3_bucket.config.secret_access_key
@@ -827,6 +846,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "run the file through ERB" do
+      assert_kind_of AWS::S3::Connection, @dummy.avatar.send(:establish_connection!)
       assert_equal 'env_bucket', @dummy.avatar.bucket_name
       assert_equal 'env_key', @dummy.avatar.s3_bucket.config.access_key_id
       assert_equal 'env_secret', @dummy.avatar.s3_bucket.config.secret_access_key
