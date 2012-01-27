@@ -108,7 +108,7 @@ module Paperclip
       uploaded_filename ||= uploaded_file.original_filename
       stores_fingerprint             = @instance.respond_to?("#{name}_fingerprint".to_sym)
       @queued_for_write[:original]   = to_tempfile(uploaded_file)
-      instance_write(:file_name,       uploaded_filename.strip)
+      instance_write(:file_name,       cleanup_filename(uploaded_filename.strip))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
       instance_write(:fingerprint,     generate_fingerprint(uploaded_file)) if stores_fingerprint
@@ -478,5 +478,8 @@ module Paperclip
       end
     end
 
+    def cleanup_filename(filename)
+      filename.gsub(/[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/, '_')
+    end
   end
 end

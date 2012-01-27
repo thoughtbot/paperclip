@@ -666,7 +666,7 @@ class AttachmentTest < Test::Unit::TestCase
   context "Assigning an attachment" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }
-      @file  = StringIO.new(".")
+      @file = StringIO.new(".")
       @file.stubs(:original_filename).returns("5k.png\n\n")
       @file.stubs(:content_type).returns("image/png\n\n")
       @file.stubs(:to_tempfile).returns(@file)
@@ -710,6 +710,25 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "not remove strange letters" do
       assert_equal "sheep_say_bæ.png", @dummy.avatar.original_filename
+    end
+  end
+
+  context "Attachment with reserved filename" do
+    "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
+      context "with character #{character}" do
+        setup do
+          rebuild_model
+
+          file = StringIO.new(".")
+          file.stubs(:original_filename).returns("file#{character}name.png")
+          @dummy = Dummy.new
+          @dummy.avatar = file
+        end
+
+        should "convert special character into underscore" do
+          assert_equal "file_name.png", @dummy.avatar.original_filename
+        end
+      end
     end
   end
 

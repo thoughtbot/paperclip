@@ -222,12 +222,12 @@ class S3Test < Test::Unit::TestCase
       @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
     end
 
-    should "return an unescaped version for path" do
-      assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+    should "return a replaced version for path" do
+      assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
     end
 
-    should "return an escaped version for url" do
-      assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+    should "return a replaced version for url" do
+      assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
     end
   end
 
@@ -248,12 +248,12 @@ class S3Test < Test::Unit::TestCase
       @dummy.save
     end
 
-    should "return an unescaped version for path" do
-      assert_match /.+\/question\?mark\.png/, @dummy.avatar.path
+    should "return a replaced version for path" do
+      assert_match /.+\/question_mark\.png/, @dummy.avatar.path
     end
 
-    should "return an escaped version for url" do
-      assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
+    should "return a replaced version for url" do
+      assert_match /.+\/question_mark\.png/, @dummy.avatar.url
     end
   end
 

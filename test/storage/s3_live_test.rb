@@ -80,12 +80,12 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.save
       end
 
-      should "return an unescaped version for path" do
-        assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+      should "return a replaced version for path" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
       end
 
-      should "return an escaped version for url" do
-        assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+      should "return a replaced version for url" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
 
       should "be accessible" do
