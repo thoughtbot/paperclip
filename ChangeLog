@@ -1,0 +1,14 @@
+2012-01-20	Jon Yurek <jyurek@thoughtbot.com>
+
+	* lib/paperclip/railtie.rb (insert): Hide ActiveRecord-specific stuff in
+	the Railtie
+
+2012-01-18	Luke Griffiths <wlgriffiths@gmail.com>
+
+	* lib/paperclip/storage/s3.rb (self.extended),
+	test/storage/s3_live_test.rb, test/storage/s3_test.rb: Add S3 encryption
+
+2012-01-16	Jeremy McNevin <jeremy.mcnevin@thedolancompany.com> and ralph <ralph@rvdh.de>
+
+	* lib/paperclip/storage/fog.rb (flush_writes), fog_test.rb: Pass the
+	content type to Fog.

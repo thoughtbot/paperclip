@@ -1,3 +1,9 @@
+New in 2.5.1:
+
+* Feature: After we've computed the content type, pass it to Fog.
+* Feature: S3 encryption with the new :s3_server_side_encryption option.
+* Feature: Works without ActiveRecord, allowing for e.g. mongo backends.
+
 New in 2.5.0:
 
 * Performance: Only connect to S3 when absolutely needed.
