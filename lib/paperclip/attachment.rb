@@ -11,29 +11,29 @@ module Paperclip
 
     def self.default_options
       @default_options ||= {
-        :url                   => "/system/:attachment/:id/:style/:filename",
-        :path                  => ":rails_root/public:url",
-        :styles                => {},
-        :only_process          => [],
-        :processors            => [:thumbnail],
         :convert_options       => {},
-        :source_file_options   => {},
-        :default_url           => "/:attachment/:style/missing.png",
         :default_style         => :original,
+        :default_url           => "/:attachment/:style/missing.png",
+        :hash_data             => ":class/:attachment/:id/:style/:updated_at",
+        :hash_digest           => "SHA1",
+        :interpolator          => Paperclip::Interpolations,
+        :only_process          => [],
+        :path                  => ":rails_root/public:url",
+        :preserve_files        => false,
+        :processors            => [:thumbnail],
+        :source_file_options   => {},
         :storage               => :filesystem,
+        :styles                => {},
+        :url                   => "/system/:attachment/:id/:style/:filename",
+        :url_generator         => Paperclip::UrlGenerator
+        :use_default_time_zone => true,
         :use_timestamp         => true,
         :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
-        :use_default_time_zone => true,
-        :hash_digest           => "SHA1",
-        :hash_data             => ":class/:attachment/:id/:style/:updated_at",
-        :preserve_files        => false,
-        :interpolator          => Paperclip::Interpolations,
-        :url_generator         => Paperclip::UrlGenerator
       }
     end
 
-    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny, :options, :interpolator
-    attr_reader :source_file_options, :whiny
+    attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
+                :options, :interpolator, :source_file_options, :whiny
     attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,

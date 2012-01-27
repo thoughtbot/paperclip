@@ -5,7 +5,6 @@ module Paperclip
   # to the +File+ class. Useful for testing.
   #   user.avatar = File.new("test/test_avatar.jpg")
   module Upfile
-
     # Infer the MIME-type of the file from the extension.
     def content_type
       types = MIME::Types.type_for(self.original_filename)
@@ -23,7 +22,7 @@ module Paperclip
     end
 
     def type_from_file_command
-    #  On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
+      #  On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
       type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
       mime_type = (Paperclip.run("file", "-b --mime :file", :file => self.path).split(/[:;]\s+/)[0] rescue "application/x-#{type}")
       mime_type = "application/x-#{type}" if mime_type.match(/\(.*?\)/)
@@ -45,12 +44,15 @@ end
 if defined? StringIO
   class StringIO
     attr_accessor :original_filename, :content_type, :fingerprint
+
     def original_filename
       @original_filename ||= "stringio.txt"
     end
+
     def content_type
       @content_type ||= "text/plain"
     end
+
     def fingerprint
       @fingerprint ||= Digest::MD5.hexdigest(self.string)
     end
