@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paperclip (2.5.1)
+    paperclip (2.5.2)
       activerecord (>= 2.3.0)
       activesupport (>= 2.3.2)
       cocaine (>= 0.0.2)
