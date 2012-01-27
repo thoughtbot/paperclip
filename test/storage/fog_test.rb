@@ -220,6 +220,54 @@ class FogTest < Test::Unit::TestCase
 
       end
 
+      context "with a proc for a bucket name evaluating a model method" do
+        setup do
+          @dynamic_fog_directory = 'dynamicpaperclip'
+          rebuild_model(@options.merge(:fog_directory => lambda { |attachment| attachment.instance.bucket_name }))
+          @dummy = Dummy.new
+          @dummy.stubs(:bucket_name).returns(@dynamic_fog_directory)
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "have created the bucket" do
+          assert @connection.directories.get(@dynamic_fog_directory).inspect
+        end
+
+      end
+
+      context "with a proc for the fog_host evaluating a model method" do
+        setup do
+          rebuild_model(@options.merge(:fog_host => lambda { |attachment| attachment.instance.fog_host }))
+          @dummy = Dummy.new
+          @dummy.stubs(:fog_host).returns('http://dynamicfoghost.com')
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "provide a public url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+        end
+      end
+
+      context "with a proc for the fog_credentials evaluating a model method" do
+        setup do
+          @dynamic_fog_credentials = {
+            :provider               => 'AWS',
+            :aws_access_key_id      => 'DYNAMIC_ID',
+            :aws_secret_access_key  => 'DYNAMIC_SECRET'
+          }
+          rebuild_model(@options.merge(:fog_credentials => lambda { |attachment| attachment.instance.fog_credentials }))
+          @dummy = Dummy.new
+          @dummy.stubs(:fog_credentials).returns(@dynamic_fog_credentials)
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "provide a public url" do
+          assert_equal @dummy.avatar.fog_credentials, @dynamic_fog_credentials
+        end
+      end
     end
 
   end
