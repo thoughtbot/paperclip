@@ -126,7 +126,12 @@ module Paperclip
 
       def public_url(style = default_style)
         if @options[:fog_host]
-          host = (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          host = if @options[:fog_host].respond_to?(:call)
+            @options[:fog_host].call(self)
+          else
+            (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          end
+          
           "#{host}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'
@@ -159,7 +164,11 @@ module Paperclip
         when Hash
           creds
         else
-          raise ArgumentError, "Credentials are not a path, file, or hash."
+          if creds.respond_to?(:call)
+            creds.call(self)
+          else
+            raise ArgumentError, "Credentials are not a path, file, hash or proc."
+          end
         end
       end
 
@@ -168,7 +177,13 @@ module Paperclip
       end
 
       def directory
-        @directory ||= connection.directories.new(:key => @options[:fog_directory])
+        dir = if @options[:fog_directory].respond_to?(:call)
+          @options[:fog_directory].call(self)
+        else
+          @options[:fog_directory]
+        end
+        
+        @directory ||= connection.directories.new(:key => dir)
       end
     end
   end
