@@ -714,20 +714,43 @@ class AttachmentTest < Test::Unit::TestCase
   end
 
   context "Attachment with reserved filename" do
-    "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
-      context "with character #{character}" do
-        setup do
-          rebuild_model
+    setup do
+      rebuild_model
+      @file = StringIO.new(".")
+    end
 
-          file = StringIO.new(".")
-          file.stubs(:original_filename).returns("file#{character}name.png")
-          @dummy = Dummy.new
-          @dummy.avatar = file
-        end
+    context "with default configuration" do
+      "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
+        context "with character #{character}" do
+          setup do
+            @file.stubs(:original_filename).returns("file#{character}name.png")
+            @dummy = Dummy.new
+            @dummy.avatar = @file
+          end
 
-        should "convert special character into underscore" do
-          assert_equal "file_name.png", @dummy.avatar.original_filename
+          should "convert special character into underscore" do
+            assert_equal "file_name.png", @dummy.avatar.original_filename
+          end
         end
+      end
+    end
+
+    context "with specified regexp replacement" do
+      setup do
+        @old_defaults = Paperclip::Attachment.default_options.dup
+        Paperclip::Attachment.default_options.merge! :restricted_characters => /o/
+
+        @file.stubs(:original_filename).returns("goood.png")
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      teardown do
+        Paperclip::Attachment.default_options.merge! @old_defaults
+      end
+
+      should "match and convert that character" do
+        assert_equal "g___d.png", @dummy.avatar.original_filename
       end
     end
   end

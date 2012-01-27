@@ -1,5 +1,8 @@
 2012-01-27  Prem Sichanugrist <psichanugrist@thoughtbot.com>
 
+* Introducing `:restricted_characters` in Paperclip::Attachment.default_options
+  so people can override their blacklist characters by override that setting.
+
 * Paperclip will now replace all the special characters in the filename to an
   underscore. This is a more desired behavior against having to deal with URL
   escaping and unescaping later. You can see the list of blacklist characters

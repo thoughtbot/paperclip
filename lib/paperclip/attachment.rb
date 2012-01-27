@@ -14,6 +14,7 @@ module Paperclip
         :convert_options       => {},
         :default_style         => :original,
         :default_url           => "/:attachment/:style/missing.png",
+        :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
         :hash_data             => ":class/:attachment/:id/:style/:updated_at",
         :hash_digest           => "SHA1",
         :interpolator          => Paperclip::Interpolations,
@@ -25,10 +26,10 @@ module Paperclip
         :storage               => :filesystem,
         :styles                => {},
         :url                   => "/system/:attachment/:id/:style/:filename",
-        :url_generator         => Paperclip::UrlGenerator
+        :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
         :use_timestamp         => true,
-        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
 
@@ -479,7 +480,9 @@ module Paperclip
     end
 
     def cleanup_filename(filename)
-      filename.gsub(/[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/, '_')
+      if @options[:restricted_characters]
+        filename.gsub(@options[:restricted_characters], '_')
+      end
     end
   end
 end
