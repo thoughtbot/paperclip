@@ -195,14 +195,14 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return attachment's hash when passing both arguments" do
     attachment = mock
     fake_hash = "a_wicked_secure_hash"
-    attachment.expects(:hash).returns(fake_hash)
+    attachment.expects(:hash_key).returns(fake_hash)
     assert_equal fake_hash, Paperclip::Interpolations.hash(attachment, :style)
   end
 
   should "return Object#hash when passing no argument" do
     attachment = mock
     fake_hash = "a_wicked_secure_hash"
-    attachment.expects(:hash).never.returns(fake_hash)
+    attachment.expects(:hash_key).never.returns(fake_hash)
     assert_not_equal fake_hash, Paperclip::Interpolations.hash
   end
 

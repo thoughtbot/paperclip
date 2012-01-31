@@ -80,12 +80,12 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.save
       end
 
-      should "return an unescaped version for path" do
-        assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+      should "return a replaced version for path" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
       end
 
-      should "return an escaped version for url" do
-        assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+      should "return a replaced version for url" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
 
       should "be accessible" do
@@ -99,39 +99,39 @@ unless ENV["S3_BUCKET"].blank?
       end
     end
 
-    context "An attachment that uses S3 for storage and has a question mark in file name" do
+    context "An attachment that uses S3 for storage and uses AES256 encryption" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_BUCKET"],
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+                      :path => ":class/:attachment/:id/:style.:extension",
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml")),
+                      :s3_server_side_encryption => :aes256
 
         Dummy.delete_all
         @dummy = Dummy.new
-        @dummy.avatar = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', 'question?mark.png'), 'rb')
-        @dummy.save
       end
 
-      should "return an unescaped version for path" do
-        assert_match /.+\/question\?mark\.png/, @dummy.avatar.path
-      end
+      context "when assigned" do
+        setup do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy.avatar = @file
+        end
 
-      should "return an escaped version for url" do
-        assert_match /.+\/question%3Fmark\.png/, @dummy.avatar.url
-      end
+        teardown do
+          @file.close
+          @dummy.destroy
+        end
 
-      should "be accessible" do
-        assert_success_response @dummy.avatar.url
-      end
+        context "and saved" do
+          setup do
+            @dummy.save
+          end
 
-      should "be accessible with an expiring url" do
-        assert_success_response @dummy.avatar.expiring_url
-      end
-
-      should "be destroyable" do
-        url = @dummy.avatar.url
-        @dummy.destroy
-        assert_not_found_response url
+          should "be encrypted on S3" do
+            assert @dummy.avatar.s3_object.server_side_encryption == :aes256
+          end
+        end
       end
     end
   end

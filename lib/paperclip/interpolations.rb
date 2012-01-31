@@ -137,11 +137,11 @@ module Paperclip
       attachment.fingerprint
     end
 
-    # Returns a the attachment hash.  See Paperclip::Attachment#hash for
+    # Returns a the attachment hash.  See Paperclip::Attachment#hash_key for
     # more details.
     def hash attachment=nil, style_name=nil
       if attachment && style_name
-        attachment.hash(style_name)
+        attachment.hash_key(style_name)
       else
         super()
       end

@@ -1,0 +1,24 @@
+2012-01-27  Prem Sichanugrist <psichanugrist@thoughtbot.com>
+
+* Introducing `:restricted_characters` in Paperclip::Attachment.default_options
+  so people can override their blacklist characters by override that setting.
+
+* Paperclip will now replace all the special characters in the filename to an
+  underscore. This is a more desired behavior against having to deal with URL
+  escaping and unescaping later. You can see the list of blacklist characters
+  in `lib/paperclip/attachment.rb`
+
+2012-01-20	Jon Yurek <jyurek@thoughtbot.com>
+
+	* lib/paperclip/railtie.rb (insert): Hide ActiveRecord-specific stuff in
+	the Railtie
+
+2012-01-18	Luke Griffiths <wlgriffiths@gmail.com>
+
+	* lib/paperclip/storage/s3.rb (self.extended),
+	test/storage/s3_live_test.rb, test/storage/s3_test.rb: Add S3 encryption
+
+2012-01-16	Jeremy McNevin <jeremy.mcnevin@thedolancompany.com> and ralph <ralph@rvdh.de>
+
+	* lib/paperclip/storage/fog.rb (flush_writes), fog_test.rb: Pass the
+	content type to Fog.

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paperclip (2.4.5)
+    paperclip (2.5.2)
       activerecord (>= 2.3.0)
       activesupport (>= 2.3.2)
       cocaine (>= 0.0.2)
@@ -10,21 +10,21 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.1.2)
-      activesupport (= 3.1.2)
+    activemodel (3.2.1)
+      activesupport (= 3.2.1)
       builder (~> 3.0.0)
-      i18n (~> 0.6)
-    activerecord (3.1.2)
-      activemodel (= 3.1.2)
-      activesupport (= 3.1.2)
-      arel (~> 2.2.1)
+    activerecord (3.2.1)
+      activemodel (= 3.2.1)
+      activesupport (= 3.2.1)
+      arel (~> 3.0.0)
       tzinfo (~> 0.3.29)
-    activesupport (3.1.2)
+    activesupport (3.2.1)
+      i18n (~> 0.6)
       multi_json (~> 1.0)
     appraisal (0.4.0)
       bundler
       rake
-    arel (2.2.1)
+    arel (3.0.0)
     aruba (0.4.6)
       bcat (>= 0.6.1)
       childprocess (>= 0.2.0)

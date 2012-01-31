@@ -41,7 +41,9 @@ module Paperclip
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
     #   default), and 'https' when your :s3_permissions are anything else.
-    # * +s3_headers+: A hash of headers such as {'Expires' => 1.year.from_now.httpdate}
+    # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
+    #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
+    #   runtime. Paperclip will call that Proc with attachment as the only argument.
     # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
     #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
@@ -98,7 +100,9 @@ module Paperclip
               (permission == :public_read) ? 'http' : 'https'
             end
           @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = (@options[:s3_headers] || {}).inject({}) do |headers,(name,value)|
+          @s3_headers = @options[:s3_headers] || {}
+          @s3_headers = @s3_headers.call(instance) if @s3_headers.is_a?(Proc)
+          @s3_headers = (@s3_headers).inject({}) do |headers,(name,value)|
             case name.to_s
             when /^x-amz-meta-(.*)/i
               @s3_metadata[$1.downcase] = value
@@ -110,6 +114,8 @@ module Paperclip
           end
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
+
+          @s3_server_side_encryption = @options[:s3_server_side_encryption]
 
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
             @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
@@ -277,6 +283,9 @@ module Paperclip
               :acl => acl
             }
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
+            unless @s3_server_side_encryption.blank?
+              write_options[:server_side_encryption] = @s3_server_side_encryption
+            end
             write_options.merge!(@s3_headers)
             s3_object(style).write(file, write_options)
           rescue AWS::S3::Errors::NoSuchBucket => e
