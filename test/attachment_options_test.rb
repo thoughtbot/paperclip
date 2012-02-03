@@ -1,13 +1,8 @@
 require './test/helper'
 
 class AttachmentOptionsTest < Test::Unit::TestCase
-  should "exist" do
-    Paperclip::AttachmentOptions
-  end
-
   should "be a Hash" do
-    attachment_options = Paperclip::AttachmentOptions.new({})
-    assert attachment_options.is_a?(Hash), "attachment_options is not a Hash"
+    assert_kind_of Hash, Paperclip::AttachmentOptions.new({})
   end
 
   should "add a default empty validations" do
@@ -24,7 +19,7 @@ class AttachmentOptionsTest < Test::Unit::TestCase
   end
 
   should "respond to []" do
-    Paperclip::AttachmentOptions.new({})[:foo]
+    assert Paperclip::AttachmentOptions.new({}).respond_to?(:[])
   end
 
   should "deliver the specified options through []" do
@@ -34,7 +29,7 @@ class AttachmentOptionsTest < Test::Unit::TestCase
   end
 
   should "respond to []=" do
-    Paperclip::AttachmentOptions.new({})[:foo] = "bar"
+    assert Paperclip::AttachmentOptions.new({}).respond_to?(:[]=)
   end
 
   should "remember options set with []=" do
