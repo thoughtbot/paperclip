@@ -47,5 +47,26 @@ class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
         should_accept_dummy_class
       end
     end
+
+    context "using an :if to control the validation" do
+      setup do
+        @dummy_class.class_eval do
+          validates_attachment_size :avatar, :greater_than => 1024, :if => :go
+          attr_accessor :go
+        end
+        @dummy = @dummy_class.new
+        @matcher = self.class.validate_attachment_size(:avatar).greater_than(1024)
+      end
+
+      should "run the validation if the control is true" do
+        @dummy.go = true
+        assert_accepts @matcher, @dummy
+      end
+
+      should "not run the validation if the control is false" do
+        @dummy.go = false
+        assert_rejects @matcher, @dummy
+      end
+    end
   end
 end

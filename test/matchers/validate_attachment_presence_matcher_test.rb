@@ -22,5 +22,26 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
 
       should_accept_dummy_class
     end
+
+    context "using an :if to control the validation" do
+      setup do
+        @dummy_class.class_eval do
+          validates_attachment_presence :avatar, :if => :go
+          attr_accessor :go
+        end
+        @dummy = @dummy_class.new
+        @dummy.avatar = nil
+      end
+
+      should "run the validation if the control is true" do
+        @dummy.go = true
+        assert_accepts @matcher, @dummy
+      end
+
+      should "not run the validation if the control is false" do
+        @dummy.go = false
+        assert_rejects @matcher, @dummy
+      end
+    end
   end
 end

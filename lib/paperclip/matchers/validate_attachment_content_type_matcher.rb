@@ -33,7 +33,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
-          @subject = @subject.class unless Class === @subject
+          @subject = @subject.new if @subject.class == Class
           @allowed_types && @rejected_types &&
           allowed_types_allowed? && rejected_types_rejected?
         end
@@ -63,9 +63,9 @@ module Paperclip
         def type_allowed?(type)
           file = StringIO.new(".")
           file.content_type = type
-          (subject = @subject.new).attachment_for(@attachment_name).assign(file)
-          subject.valid?
-          subject.errors[:"#{@attachment_name}_content_type"].blank?
+          @subject.attachment_for(@attachment_name).assign(file)
+          @subject.valid?
+          @subject.errors[:"#{@attachment_name}_content_type"].blank?
         end
 
         def allowed_types_allowed?
