@@ -37,6 +37,7 @@ require 'paperclip/thumbnail'
 require 'paperclip/interpolations'
 require 'paperclip/style'
 require 'paperclip/attachment'
+require 'paperclip/attachment_options'
 require 'paperclip/storage'
 require 'paperclip/callback_compatibility'
 require 'paperclip/missing_attachment_styles'
@@ -325,7 +326,7 @@ module Paperclip
         self.attachment_definitions = self.attachment_definitions.dup
       end
 
-      attachment_definitions[name] = {:validations => []}.merge(options)
+      attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
       Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
 
