@@ -98,6 +98,13 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "An ActiveRecord model responding to has_attached_file" do
+    should "pass the options to Paperclip::AttachmentOptions.new" do
+      Paperclip::AttachmentOptions.expects(:new).with({"test" => "hash"}).returns(MockAttachmentOptions.new)
+      rebuild_model "test" => "hash"
+    end
+  end
+
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"

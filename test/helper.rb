@@ -54,9 +54,14 @@ ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FIL
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
-Dir[File.join(File.dirname(__FILE__), 'support','*')].each do |f|
-  require f
+def require_everything_in_directory(directory_name)
+  Dir[File.join(File.dirname(__FILE__), directory_name, '*')].each do |f|
+    require f
+  end
 end
+
+require_everything_in_directory('support')
+require_everything_in_directory('mocks')
 
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
