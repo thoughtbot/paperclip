@@ -126,7 +126,7 @@ module Paperclip
 
       def public_url(style = default_style)
         if @options[:fog_host]
-          host = if @options[:fog_host].is_a?(Proc)
+          host = if @options[:fog_host].respond_to?(:call)
             @options[:fog_host].call(self)
           else
             (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
@@ -163,10 +163,12 @@ module Paperclip
           YAML::load(ERB.new(File.read(creds)).result)
         when Hash
           creds
-        when Proc
-          creds.call(self)
         else
-          raise ArgumentError, "Credentials are not a path, file, hash or proc."
+          if creds.respond_to?(:call)
+            creds.call(self)
+          else
+            raise ArgumentError, "Credentials are not a path, file, hash or proc."
+          end
         end
       end
 
@@ -175,7 +177,7 @@ module Paperclip
       end
 
       def directory
-        dir = if @options[:fog_directory].is_a?(Proc)
+        dir = if @options[:fog_directory].respond_to?(:call)
           @options[:fog_directory].call(self)
         else
           @options[:fog_directory]
