@@ -18,6 +18,8 @@ module Paperclip
 
   class Railtie
     def self.insert
+      Paperclip.options[:logger] = Rails.logger if defined?(Rails)
+      
       if defined?(ActiveRecord)
         ActiveRecord::Base.send(:include, Paperclip::Glue)
         Paperclip.options[:logger] = ActiveRecord::Base.logger
@@ -25,8 +27,6 @@ module Paperclip
         ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, Paperclip::Schema)
         ActiveRecord::ConnectionAdapters::Table.send(:include, Paperclip::Schema)
         ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, Paperclip::Schema)
-      else
-        Paperclip.options[:logger] = Rails.logger
       end
 
       File.send(:include, Paperclip::Upfile)
