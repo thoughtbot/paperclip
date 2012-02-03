@@ -61,7 +61,6 @@ def require_everything_in_directory(directory_name)
 end
 
 require_everything_in_directory('support')
-require_everything_in_directory('mocks')
 
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
