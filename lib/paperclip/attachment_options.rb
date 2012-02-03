@@ -1,19 +1,10 @@
 module Paperclip
-  class AttachmentOptions
+  class AttachmentOptions < Hash
     def initialize(options)
-      @options = {:validations => []}.merge(options)
-    end
-
-    def [](key)
-      @options[key]
-    end
-
-    def []=(key, value)
-      @options[key] = value
-    end
-
-    def to_hash
-      @options
+      options = {:validations => []}.merge(options)
+      options.each do |k, v|
+        self.[]=(k, v)
+      end
     end
   end
 end
