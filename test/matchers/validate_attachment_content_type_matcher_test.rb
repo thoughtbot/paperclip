@@ -83,5 +83,28 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
 
       should_reject_dummy_class
     end
+
+    context "using an :if to control the validation" do
+      setup do
+        @dummy_class.class_eval do
+          validates_attachment_content_type :avatar, :content_type => %r{image/*} , :if => :go
+          attr_accessor :go
+        end
+        @matcher = self.class.validate_attachment_content_type(:avatar).
+                        allowing(%w(image/png image/jpeg)).
+                        rejecting(%w(audio/mp3 application/octet-stream))
+        @dummy = @dummy_class.new
+      end
+
+      should "run the validation if the control is true" do
+        @dummy.go = true
+        assert_accepts @matcher, @dummy
+      end
+
+      should "not run the validation if the control is false" do
+        @dummy.go = false
+        assert_rejects @matcher, @dummy
+      end
+    end
   end
 end

@@ -38,7 +38,7 @@ module Paperclip
 
         def matches? subject
           @subject = subject
-          @subject = @subject.class unless Class === @subject
+          @subject = @subject.new if @subject.class == Class
           lower_than_low? && higher_than_low? && lower_than_high? && higher_than_high?
         end
 
@@ -67,9 +67,9 @@ module Paperclip
           override_method(file, :size){ new_size }
           override_method(file, :to_tempfile){ file }
 
-          (subject = @subject.new).send(@attachment_name).assign(file)
-          subject.valid?
-          subject.errors[:"#{@attachment_name}_file_size"].blank?
+          @subject.send(@attachment_name).assign(file)
+          @subject.valid?
+          @subject.errors[:"#{@attachment_name}_file_size"].blank?
         end
 
         def lower_than_low?
