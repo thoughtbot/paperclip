@@ -81,8 +81,6 @@ class IntegrationTest < Test::Unit::TestCase
         original.close
         tf.rewind
 
-        File.expects(:unlink).with(tf.instance_variable_get(:@tmpname))
-
         @d2.avatar.expects(:to_file).with(:original).returns(tf)
 
         @d2.avatar.reprocess!
