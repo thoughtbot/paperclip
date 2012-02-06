@@ -227,6 +227,7 @@ module Paperclip
       end
 
       def parse_credentials creds
+        creds = creds.is_a?(Proc) ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
         env = Object.const_defined?(:Rails) ? Rails.env : nil
         (creds[env] || creds).symbolize_keys
