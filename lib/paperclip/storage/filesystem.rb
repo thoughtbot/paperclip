@@ -38,12 +38,7 @@ module Paperclip
           file.close
           FileUtils.mkdir_p(File.dirname(path(style_name)))
           log("saving #{path(style_name)}")
-          begin
-            FileUtils.mv(file.path, path(style_name))
-          rescue SystemCallError
-            FileUtils.cp(file.path, path(style_name))
-            FileUtils.rm(file.path)
-          end
+          FileUtils.cp(file.path, path(style_name))
           FileUtils.chmod(0666&~File.umask, path(style_name))
         end
 
