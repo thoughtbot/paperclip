@@ -234,6 +234,7 @@ module Paperclip
       end
 
       def parse_credentials creds
+        creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
         env = Object.const_defined?(:Rails) ? Rails.env : nil
         (creds[env] || creds).symbolize_keys
@@ -333,7 +334,7 @@ module Paperclip
         when Hash
           creds
         else
-          raise ArgumentError, "Credentials are not a path, file, or hash."
+          raise ArgumentError, "Credentials are not a path, file, proc, or hash."
         end
       end
       private :find_credentials
