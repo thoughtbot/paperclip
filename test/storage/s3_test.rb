@@ -208,7 +208,7 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context "An attachment that uses S3 for storage and has spaces in file name" do
+  context "A new attachment that uses S3 for storage and has spaces in file name" do
     setup do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
                     :storage => :s3,
@@ -229,6 +229,37 @@ class S3Test < Test::Unit::TestCase
     should "return a replaced version for url" do
       assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
     end
+  end
+
+  context "A saved attachment that uses S3 for storage and has spaces in file name" do
+    setup do
+      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
+                    :storage => :s3,
+                    :bucket  => "bucket",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    }
+
+      @dummy = Dummy.new
+      @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
+      @dummy.save!
+      @dummy.update_attributes(:avatar_file_name  => 'spaced file.png')
+      @dummy = Dummy.find(@dummy.id)
+    end
+
+    should "return an untouched version for path" do
+      assert_match /.+\/spaced file\.png/, @dummy.avatar.path
+    end
+
+    should "return an URI escaped version for url" do
+      assert_match /.+\/spaced%20file\.png/, @dummy.avatar.url
+    end
+
+    should 'have the s3_object key escaped' do
+      assert_match /.+\/spaced%20file\.png/, @dummy.avatar.s3_object.key
+    end
+
   end
 
   context "An attachment that uses S3 for storage and has a question mark in file name" do
