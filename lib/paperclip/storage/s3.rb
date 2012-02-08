@@ -194,7 +194,7 @@ module Paperclip
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+        s3_bucket.objects[URI.escape(path(style_name).sub(%r{^/},''))]
       end
 
       def using_http_proxy?
