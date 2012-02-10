@@ -110,6 +110,12 @@ class FogTest < Test::Unit::TestCase
         directory.destroy
       end
 
+      should "always be rewound when returning from #to_file" do
+        assert_equal 0, @dummy.avatar.to_file.pos
+        @dummy.avatar.to_file.seek(10)
+        assert_equal 0, @dummy.avatar.to_file.pos
+      end
+            
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]
