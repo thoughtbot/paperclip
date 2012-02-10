@@ -1,12 +1,62 @@
+2012-02-10  Mike Burns <mburns@thoughtbot.com>
+
+	* lib/paperclip/version.rb, ChangeLog, NEWS: Bump to 2.6.0.
+
+2012-02-06  Kelley Reynolds <kelley@insidesystems.net>
+
+	* filesystem.rb (to_file), fog.rb (to_file), s3.rb (to_file): Rewind after
+	reading from the file.
+	* filesystem.rb (flush_writes): Replace mv and unlink complication with a
+	cp, since the unlink already happens elsewhere.
+
+2012-02-03  Luke Griffiths <wlgriffiths@gmail.com>
+
+	* lib/paperclip.rb (has_attached_file), lib/paperclip/attachment_options.rb,
+	attachment_options_test.rb, test/helper.rb, paperclip_test.rb:
+	Introduce Paperclip::AttachmentOptions, a hash-like object that knows about
+	Paperclip-specific options, defaults, and deprecations.
+
+2012-02-03  Jon Yurek <jyurek@thoughtbot.com>
+
+	* lib/paperclip/matchers/validate_attachment_content_type_matcher.rb
+	(matches?, type_allowed?),
+	lib/paperclip/matches/validate_attachment_presence_matcher.rb (matches?,
+	error_when_not_valid?, no_error_when_valid?),
+	lib/paperclip/matches/validate_attachment_size_matcher.rb (matches?,
+	passes_validation_with_size),
+	validate_attachment_content_type_matcher_test.rb,
+	validate_attachment_presence_matcher_test.rb,
+	validate_attachment_size_matcher_test.rb:
+	Validation matchers respect conditionals.
+
+2012-02-01  Justin Ko <justin@kospecinc.com>
+
+	* lib/paperclip/railtie.rb (insert): Guard against the Rails constant not
+	existing.
+
 2012-01-27  Prem Sichanugrist <psichanugrist@thoughtbot.com>
 
-* Introducing `:restricted_characters` in Paperclip::Attachment.default_options
-  so people can override their blacklist characters by override that setting.
+	* lib/paperclip/attachment.rb (assign), attachment_test.rb,
+	filesystem_test.rb, s3_test.rb:
+	Introduce :restricted_characters in Paperclip::Attachment.default_options as
+	an overrideable blacklist of characters that will be replaced with an
+	underscore.
 
-* Paperclip will now replace all the special characters in the filename to an
-  underscore. This is a more desired behavior against having to deal with URL
-  escaping and unescaping later. You can see the list of blacklist characters
-  in `lib/paperclip/attachment.rb`
+	* lib/paperclip/version.rb: Bump to 2.5.2.
+
+2012-01-27  Prem Sichanugrist <s@sikachu.com>
+
+	* test/storage/s3_live_test.rb, test/storage/s3_test.rb:
+	Remove the questionmark filename test, for Windows compatibility.
+
+2012-01-19  Benjamin Hüttinger <huettinger@kupferwerk.com>
+
+	* lib/paperclip/storage/fog.rb: fog_host, fog_credentials, and fog_directory
+	can be Proc objects.
+
+2012-01-27  Mike Burns <mburns@thoughtbot.com>
+
+	* lib/paperclip/version.rb: Bump to 2.5.1.
 
 2012-01-20	Jon Yurek <jyurek@thoughtbot.com>
 

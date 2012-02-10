@@ -1,3 +1,15 @@
+New in 2.6.0:
+
+* Bug fix: Files are re-wound after reading.
+* Feature: Remove Rails dependency from specs that need Paperclip.
+* Feature: Validation matchers support conditionals.
+
+New in 2.5.2:
+
+* Bug fix: Can be installed on Windows.
+* Feature: The Fog bucket name, authentication, and host can be determined at runtime via Proc.
+* Feature: Special characters are replaced with underscores in #url and #path.
+
 New in 2.5.1:
 
 * Feature: After we've computed the content type, pass it to Fog.
