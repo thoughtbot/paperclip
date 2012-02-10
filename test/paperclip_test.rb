@@ -34,6 +34,7 @@ class PaperclipTest < Test::Unit::TestCase
 
   context "Paperclip.each_instance_with_attachment" do
     setup do
+      rebuild_model
       @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
       d1 = Dummy.create(:avatar => @file)
       d2 = Dummy.create
@@ -335,35 +336,30 @@ class PaperclipTest < Test::Unit::TestCase
     end
 
     context "with size validation and less_than 10240 option" do
-      context "and assigned an invalid file" do
+      context "and assigned an valid file" do
         setup do
-          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240)
+          Dummy.send(:validates_attachment_size, :avatar, :less_than => 10240)
           @dummy = Dummy.new
-          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
-          @dummy.valid?
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "5k.png"), "rb")
         end
 
-        should "have a file size min/max error message" do
-          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/between 0 and 10240 bytes/ }
+        should "be valid" do
+          assert @dummy.valid?
+        end
+      end
+
+      context "and assigned an invalid file" do
+        setup do
+          Dummy.send(:validates_attachment_size, :avatar, :less_than => 10240)
+          @dummy = Dummy.new
+          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
+        end
+
+        should "be invalid" do
+          assert !@dummy.valid?
         end
       end
     end
-
-    context "with size validation and less_than 10240 option with lambda message" do
-      context "and assigned an invalid file" do
-        setup do
-          Dummy.send(:"validates_attachment_size", :avatar, :less_than => 10240, :message => lambda {'lambda between 0 and 10240 bytes'})
-          @dummy = Dummy.new
-          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "12k.png"), "rb")
-          @dummy.valid?
-        end
-
-        should "have a file size min/max error message" do
-          assert [@dummy.errors[:avatar_file_size]].flatten.any?{|error| error =~ %r/lambda between 0 and 10240 bytes/ }
-        end
-      end
-    end
-
   end
 
   context "configuring a custom processor" do
