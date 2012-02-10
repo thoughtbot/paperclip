@@ -18,8 +18,8 @@ module Paperclip
 
   class Railtie
     def self.insert
-      Paperclip.options[:logger] = Rails.logger
-
+      Paperclip.options[:logger] = Rails.logger if defined?(Rails)
+      
       if defined?(ActiveRecord)
         ActiveRecord::Base.send(:include, Paperclip::Glue)
         Paperclip.options[:logger] = ActiveRecord::Base.logger
