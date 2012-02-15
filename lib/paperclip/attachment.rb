@@ -482,6 +482,8 @@ module Paperclip
     def cleanup_filename(filename)
       if @options[:restricted_characters]
         filename.gsub(@options[:restricted_characters], '_')
+      else
+        filename
       end
     end
   end
