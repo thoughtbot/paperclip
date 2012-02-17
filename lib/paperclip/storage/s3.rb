@@ -238,6 +238,8 @@ module Paperclip
         else
           false
         end
+      rescue AWS::Errors::Base => e
+        false
       end
 
       def s3_permissions(style = default_style)

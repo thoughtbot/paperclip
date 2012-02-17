@@ -542,6 +542,16 @@ class S3Test < Test::Unit::TestCase
           assert true
         end
       end
+
+      context 'that the file were missing' do
+        setup do
+          AWS::S3::S3Object.any_instance.stubs(:exists?).raises(AWS::Errors::Base)
+        end
+
+        should 'return false on exists?' do
+          assert !@dummy.avatar.exists?
+        end
+      end
     end
   end
 
