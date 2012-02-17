@@ -60,7 +60,7 @@ Include the gem in your Gemfile:
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
     gem "paperclip", :git => "git://github.com/thoughtbot/paperclip.git"
-    
+
 If you're trying to use features that don't seem to be in the latest released gem, but are
 mentioned in this README, then you probably need to specify the master branch if you want to
 use them. This README is probably ahead of the latest released version, if you're reading it
@@ -75,7 +75,7 @@ Anyway, if you don't use Bundler (though you probably should, even in Rails 2), 
       config.gem "paperclip", :version => "~> 2.4"
       ...
     end
-    
+
 For Non-Rails usage:
 
     class ModuleName < ActiveRecord::Base
@@ -176,9 +176,9 @@ safer choice for the default file store._
 You may also choose to store your files using Amazon's S3 service. To do so, include
 the `aws-sdk` gem in your Gemfile:
 
-    gem 'aws-sdk'
+    gem 'aws-sdk', '~> 1.3.4'
 
-And then you can specify using S3 from `has_attached_file`. 
+And then you can specify using S3 from `has_attached_file`.
 You can find more information about configuring and using S3 storage in
 [the `Paperclip::Storage::S3` documentation](http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
 
