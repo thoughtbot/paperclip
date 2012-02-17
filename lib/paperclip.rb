@@ -324,7 +324,11 @@ module Paperclip
           write_inheritable_attribute(:attachment_definitions, {})
         end
       else
-        self.attachment_definitions = self.attachment_definitions.dup
+        if respond_to?(:class_attribute)
+          self.attachment_definitions = self.attachment_definitions.dup
+        else
+          write_inheritable_attribute(:attachment_definitions, self.attachment_definitions.dup)
+        end
       end
 
       attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
