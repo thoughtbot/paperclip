@@ -226,11 +226,16 @@ class ThumbnailTest < Test::Unit::TestCase
     end
 
     context "passing a custom file geometry parser" do
+      teardown do
+        self.class.send(:remove_const, :GeoParser)
+      end
+
       should "produce the appropriate transformation_command" do
         GeoParser = Class.new do
           def self.from_file(file)
             new
           end
+
           def transformation_to(target, should_crop)
             ["SCALE", "CROP"]
           end
@@ -252,6 +257,10 @@ class ThumbnailTest < Test::Unit::TestCase
     end
 
     context "passing a custom geometry string parser" do
+      teardown do
+        self.class.send(:remove_const, :GeoParser)
+      end
+
       should "produce the appropriate transformation_command" do
         GeoParser = Class.new do
           def self.parse(s)
