@@ -99,6 +99,7 @@ module Paperclip
       command_path = options[:command_path] || options[:image_magick_path]
       Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path, command_path ].flatten : command_path )
       local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
+      local_options = local_options.merge(:swallow_stderr => options[:swallow_stderr]) if !local_options[:swallow_stderr] && !options[:swallow_stderr].nil?
       Cocaine::CommandLine.new(cmd, arguments, local_options).run
     end
 
