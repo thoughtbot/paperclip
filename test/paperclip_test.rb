@@ -4,6 +4,7 @@ class PaperclipTest < Test::Unit::TestCase
   context "Calling Paperclip.run" do
     setup do
       Paperclip.options[:log_command] = false
+      Paperclip.options[:swallow_stderr] = nil
       Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
       @original_command_line_path = Cocaine::CommandLine.path
     end
@@ -21,6 +22,18 @@ class PaperclipTest < Test::Unit::TestCase
       Cocaine::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
       assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
+    end
+
+    should "respect Paperclip.options[:swallow_stderr]" do
+      Paperclip.options[:swallow_stderr] = false
+      Cocaine::CommandLine.unstub(:new)
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {:swallow_stderr => false}).returns(stub(:run))
+      Paperclip.run("convert", "stuff")
+
+      Paperclip.options[:swallow_stderr] = true
+      Cocaine::CommandLine.unstub(:new)
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {:swallow_stderr => true}).returns(stub(:run))
+      Paperclip.run("convert", "stuff")
     end
   end
 
