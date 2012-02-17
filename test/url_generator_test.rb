@@ -77,7 +77,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     end.new
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:escape => true})
@@ -89,7 +89,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:escape => false})
@@ -101,7 +101,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {})
@@ -113,7 +113,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:responds_to_updated_at => false)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:timestamp => true})
@@ -125,7 +125,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:responds_to_updated_at => true, :updated_at => nil)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:timestamp => true})
@@ -138,7 +138,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:updated_at => updated_at)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:timestamp => true})
@@ -151,7 +151,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:updated_at => updated_at)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:timestamp => true})
@@ -164,7 +164,7 @@ class UrlGeneratorTest < Test::Unit::TestCase
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:updated_at => updated_at)
-    options = { :interpolator => mock_interpolator}
+    options = { :interpolator => mock_interpolator }
     url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
 
     result = url_generator.for(:style_name, {:timestamp => false})
