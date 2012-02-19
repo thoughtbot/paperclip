@@ -925,6 +925,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:fingerprint, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
@@ -935,6 +936,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:fingerprint, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.clear
                 @attachment.save
@@ -945,6 +947,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:fingerprint, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
@@ -959,6 +962,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:file_name, nil)
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:fingerprint, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.assign nil
                   @attachment.save
@@ -969,6 +973,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:file_name, nil)
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:fingerprint, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.clear
                   @attachment.save
@@ -979,6 +984,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:file_name, nil)
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
+                  @attachment.expects(:instance_write).with(:fingerprint, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.destroy
                   @existing_names.each{|f| assert File.exists?(f) }
