@@ -123,7 +123,11 @@ module Paperclip
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:fingerprint, generate_fingerprint(@queued_for_write[:original])) if stores_fingerprint
     ensure
-      uploaded_file.close if close_uploaded_file
+      if close_uploaded_file
+        uploaded_file.close
+      elsif uploaded_file.respond_to?(:tempfile)
+        uploaded_file.tempfile.close! if uploaded_file.tempfile
+      end
     end
 
     # Returns the public URL of the attachment with a given style. This does
