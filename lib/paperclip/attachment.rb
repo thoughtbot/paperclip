@@ -462,6 +462,7 @@ module Paperclip
       instance_write(:file_name, nil)
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
+      instance_write(:fingerprint, nil)
       instance_write(:updated_at, nil)
     end
 
