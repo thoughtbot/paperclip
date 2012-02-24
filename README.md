@@ -180,6 +180,33 @@ Lastly, you can also define multiple validations on a single attachment using `v
       :content_type => { :content_type => "image/jpg" },
       :size => { :in => 0..10.kilobytes }
 
+Defaults
+--------
+Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
+
+If you're using Rails 3.x you can define a Hash with default options in config/application.rb or in any of the config/environments/*.rb files on config.paperclip_defaults, these well get merged into Paperclip::Attachment.default_options as your Rails app boots. An example: 
+
+```ruby
+module YourApp
+  class Application < Rails::Application
+    # Other code...
+
+    config.paperclip_defaults = {:storage => :fog, :fog_credentials => {:provider => "Local", :local_root => "#{Rails.root}/public"}, :fog_directory => "", :fog_host => "localhost"}
+  end
+end
+```
+
+In earlier version of Rails you can also directly modify the Paperclip::Attachment.default_options Hash in an initializer, this method also works when you're not using Rails (and still works in Rails 3).
+
+An example Rails initializer would look something like this:
+
+```ruby
+Paperclip::Attachment.default_options[:storage] = :fog
+Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local", :local_root => "#{Rails.root}/public"}
+Paperclip::Attachment.default_options[:fog_directory] = ""
+Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"}
+```
+
 Storage
 -------
 

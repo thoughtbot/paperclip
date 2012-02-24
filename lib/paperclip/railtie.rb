@@ -4,10 +4,11 @@ require 'paperclip/schema'
 module Paperclip
   require 'rails'
   class Railtie < Rails::Railtie
-    initializer 'paperclip.insert_into_active_record' do
+    initializer 'paperclip.insert_into_active_record' do |app|
       ActiveSupport.on_load :active_record do
         Paperclip::Railtie.insert
       end
+      Paperclip::Attachment.default_options.merge!(app.config.paperclip_defaults) if app.config.respond_to?(:paperclip_defaults)
     end
     rake_tasks do
       load "tasks/paperclip.rake"
