@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paperclip (2.6.0)
+    paperclip (2.7.0)
       activerecord (>= 2.3.0)
       activesupport (>= 2.3.2)
       cocaine (>= 0.0.2)
@@ -24,7 +24,7 @@ GEM
     appraisal (0.4.1)
       bundler
       rake
-    arel (3.0.0)
+    arel (3.0.2)
     aruba (0.4.6)
       bcat (>= 0.6.1)
       childprocess (>= 0.2.0)

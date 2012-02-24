@@ -1,3 +1,12 @@
+New in 2.7.0:
+
+* Bug fix: Checking the existence of a file on S3 handles all AWS errors.
+* Bug fix: Clear the fingerprint when removing an attachment.
+* Bug fix: Attachment size validation message reads more nicely now.
+* Feature: Style names can be either symbols or strings.
+* Compatibility: Support for ActiveSupport < 2.3.12.
+* Compatibility: Support for Rails 3.2.
+
 New in 2.6.0:
 
 * Bug fix: Files are re-wound after reading.
