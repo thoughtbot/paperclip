@@ -32,13 +32,14 @@ end
 # Corrects a bug in Windows when asking for Tempfile size.
 if defined?(Tempfile) && RUBY_PLATFORM !~ /java/
   class Tempfile
+    alias orig_size size
     def size
       if @tmpfile
         @tmpfile.fsync
         @tmpfile.flush
         @tmpfile.stat.size
       else
-        0
+        orig_size
       end
     end
   end
