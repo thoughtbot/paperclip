@@ -330,14 +330,6 @@ module Paperclip
       end
       private :find_credentials
 
-      def establish_connection!
-        @connection ||= AWS::S3::Base.establish_connection!( @s3_options.merge(
-          :access_key_id => s3_credentials[:access_key_id],
-          :secret_access_key => s3_credentials[:secret_access_key]
-        ))
-      end
-      private :establish_connection!
-
       def use_secure_protocol?(style_name)
         s3_protocol(style_name) == "https"
       end
