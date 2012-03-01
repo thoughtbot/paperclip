@@ -259,6 +259,16 @@ _NOTE: Post processing will not even *start* if the attachment is not valid
 according to the validations. Your callbacks and processors will *only* be
 called with valid attachments._
 
+    class Message < ActiveRecord::Base
+      has_attached_file :asset, styles: {thumb: "100x100#"}
+      
+      before_post_process :skip_for_audio
+      
+      def skip_for_audio
+        return false if %w(audio/ogg application/ogg).include?(asset_content_type)
+      end
+    end
+
 URI Obfuscation
 ---------------
 
