@@ -201,7 +201,7 @@ your Rails app's lib/paperclip\_processors directory is automatically loaded by
 paperclip, allowing you to easily define custom processors. You can specify a
 processor with the :processors option to has\_attached\_file:
 
-    has_attached\_file :scan, :styles => { :text => { :quality => :better } },
+    has_attached_file :scan, :styles => { :text => { :quality => :better } },
                              :processors => [:ocr]
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
