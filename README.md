@@ -254,7 +254,7 @@ attachment-specific `before_<attachment>_post_process` and
 `after_<attachment>_post_process`. The callbacks are intended to be as close to
 normal ActiveRecord callbacks as possible, so if you return false (specifically
 \- returning nil is not the same) in a `before_filter`, the post processing step
-will halt. Returning false in an `after_filter will not halt anything, but you
+will halt. Returning false in an `after_filter` will not halt anything, but you
 can access the model and the attachment if necessary.
 
 _NOTE: Post processing will not even *start* if the attachment is not valid
