@@ -350,24 +350,27 @@ class S3Test < Test::Unit::TestCase
   end
 
   context "Generating a secure url with an expiration" do
-    def build_model_with_options(options = {})
-      base_options = {
-        :storage => :s3,
-        :s3_credentials => {
-          :production   => { :bucket => "prod_bucket" },
-          :development  => { :bucket => "dev_bucket" }
-        },
-        :s3_host_alias => "something.something.com",
-        :s3_permissions => "private",
-        :path => ":attachment/:basename.:extension",
-        :url => ":s3_alias_url"
-      }
+    setup do
+      @build_model_with_options = lambda {|options|
+        options ||= {}
+        base_options = {
+          :storage => :s3,
+          :s3_credentials => {
+            :production   => { :bucket => "prod_bucket" },
+            :development  => { :bucket => "dev_bucket" }
+          },
+          :s3_host_alias => "something.something.com",
+          :s3_permissions => "private",
+          :path => ":attachment/:basename.:extension",
+          :url => ":s3_alias_url"
+        }
 
-      rebuild_model base_options.merge(options)
+        rebuild_model base_options.merge(options)
+      }
     end
 
     should "use default options" do
-      build_model_with_options
+      @build_model_with_options[{}]
 
       rails_env("production")
 
@@ -382,7 +385,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "allow overriding s3_url_options" do
-      build_model_with_options :s3_url_options => { :response_content_disposition => "inline" }
+      @build_model_with_options[:s3_url_options => { :response_content_disposition => "inline" }]
 
       rails_env("production")
 
@@ -397,7 +400,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "allow overriding s3_object options with a proc" do
-      build_model_with_options :s3_url_options => lambda {|attachment| { :response_content_type => attachment.avatar_content_type } }
+      @build_model_with_options[:s3_url_options => lambda {|attachment| { :response_content_type => attachment.avatar_content_type } }]
 
       rails_env("production")
 
