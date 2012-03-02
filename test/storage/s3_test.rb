@@ -352,7 +352,6 @@ class S3Test < Test::Unit::TestCase
   context "Generating a secure url with an expiration" do
     setup do
       @build_model_with_options = lambda {|options|
-        options ||= {}
         base_options = {
           :storage => :s3,
           :s3_credentials => {
