@@ -350,16 +350,24 @@ class S3Test < Test::Unit::TestCase
   end
 
   context "Generating a secure url with an expiration" do
-    setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
-                    },
-                    :s3_host_alias => "something.something.com",
-                    :s3_permissions => "private",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_alias_url"
+    def build_model_with_options(options = {})
+      base_options = {
+        :storage => :s3,
+        :s3_credentials => {
+          :production   => { :bucket => "prod_bucket" },
+          :development  => { :bucket => "dev_bucket" }
+        },
+        :s3_host_alias => "something.something.com",
+        :s3_permissions => "private",
+        :path => ":attachment/:basename.:extension",
+        :url => ":s3_alias_url"
+      }
+
+      rebuild_model base_options.merge(options)
+    end
+
+    should "use default options" do
+      build_model_with_options
 
       rails_env("production")
 
@@ -373,8 +381,40 @@ class S3Test < Test::Unit::TestCase
       @dummy.avatar.expiring_url
     end
 
-    should "should succeed" do
-      assert true
+    should "allow overriding s3_url_options" do
+      build_model_with_options :s3_url_options => { :response_content_disposition => "inline" }
+
+      rails_env("production")
+
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+
+      object = stub
+      @dummy.avatar.stubs(:s3_object).returns(object)
+      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_disposition => "inline")
+
+      @dummy.avatar.expiring_url
+    end
+
+    should "allow overriding s3_object options with a proc" do
+      build_model_with_options :s3_url_options => lambda {|attachment| { :response_content_type => attachment.avatar_content_type } }
+
+      rails_env("production")
+
+      @dummy = Dummy.new
+
+      @file = StringIO.new(".")
+      @file.stubs(:original_filename).returns("5k.png\n\n")
+      @file.stubs(:content_type).returns("image/png\n\n")
+      @file.stubs(:to_tempfile).returns(@file)
+
+      @dummy.avatar = @file
+
+      object = stub
+      @dummy.avatar.stubs(:s3_object).returns(object)
+      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_type => "image/png")
+
+      @dummy.avatar.expiring_url
     end
   end
 

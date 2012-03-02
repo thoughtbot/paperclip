@@ -141,7 +141,8 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path
-          s3_object(style_name).url_for(:read, :expires => time, :secure => use_secure_protocol?(style_name)).to_s
+          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
+          s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
         end
       end
 
@@ -157,6 +158,12 @@ module Paperclip
         @s3_host_alias = @options[:s3_host_alias]
         @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
         @s3_host_alias
+      end
+
+      def s3_url_options
+        s3_url_options = @options[:s3_url_options] || {}
+        s3_url_options = s3_url_options.call(instance) if s3_url_options.is_a?(Proc)
+        s3_url_options
       end
 
       def bucket_name
