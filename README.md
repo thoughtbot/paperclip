@@ -265,7 +265,7 @@ called with valid attachments._
       before_post_process :skip_for_audio
       
       def skip_for_audio
-        return false if %w(audio/ogg application/ogg).include?(asset_content_type)
+        ! %w(audio/ogg application/ogg).include?(asset_content_type)
       end
     end
 
