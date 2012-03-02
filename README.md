@@ -55,7 +55,7 @@ well with gems.
 
 Include the gem in your Gemfile:
 
-    gem "paperclip", "~> 2.0"
+    gem "paperclip", "~> 2.7"
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
@@ -72,7 +72,7 @@ Anyway, if you don't use Bundler (though you probably should, even in Rails 2), 
     ...
     Rails::Initializer.run do |config|
       ...
-      config.gem "paperclip", :version => "~> 2.4"
+      config.gem "paperclip", :version => "~> 2.7"
       ...
     end
 
@@ -105,6 +105,8 @@ In your migrations:
         drop_attached_file :users, :avatar
       end
     end
+
+(Or you can use migration generator: `rails generate paperclip user avatar`)
 
 In your edit and new views:
 
@@ -199,9 +201,9 @@ thumbnail images. By defining a subclass of Paperclip::Processor, you can
 perform any processing you want on the files that are attached. Any file in
 your Rails app's lib/paperclip\_processors directory is automatically loaded by
 paperclip, allowing you to easily define custom processors. You can specify a
-processor with the :processors option to has\_attached\_file:
+processor with the :processors option to `has_attached_file`:
 
-    has_attached\_file :scan, :styles => { :text => { :quality => :better } },
+    has_attached_file :scan, :styles => { :text => { :quality => :better } },
                              :processors => [:ocr]
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
@@ -251,8 +253,8 @@ are called before and after the processing of each attachment), and the
 attachment-specific `before_<attachment>_post_process` and
 `after_<attachment>_post_process`. The callbacks are intended to be as close to
 normal ActiveRecord callbacks as possible, so if you return false (specifically
-\- returning nil is not the same) in a before\_ filter, the post processing step
-will halt. Returning false in an after\_ filter will not halt anything, but you
+\- returning nil is not the same) in a `before_filter`, the post processing step
+will halt. Returning false in an `after_filter will not halt anything, but you
 can access the model and the attachment if necessary.
 
 _NOTE: Post processing will not even *start* if the attachment is not valid
@@ -261,9 +263,9 @@ called with valid attachments._
 
     class Message < ActiveRecord::Base
       has_attached_file :asset, styles: {thumb: "100x100#"}
-      
+
       before_post_process :skip_for_audio
-      
+
       def skip_for_audio
         ! %w(audio/ogg application/ogg).include?(asset_content_type)
       end
