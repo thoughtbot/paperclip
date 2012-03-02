@@ -618,6 +618,21 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and S3 credentials defined as a Proc" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket => {:not => :important},
+                    :s3_credentials => lambda { |attachment|
+                      Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
+                    }
+    end
+
+    should "get the right credentials" do
+      assert "access1234", Dummy.new(:other => '1234').avatar.s3_credentials[:access_key_id]
+      assert "secret1234", Dummy.new(:other => '1234').avatar.s3_credentials[:secret_access_key]
+    end
+  end
+  
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
       rebuild_model :storage => :s3,
