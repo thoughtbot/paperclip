@@ -632,7 +632,7 @@ class S3Test < Test::Unit::TestCase
       assert "secret1234", Dummy.new(:other => '1234').avatar.s3_credentials[:secret_access_key]
     end
   end
-  
+
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
       rebuild_model :storage => :s3,
