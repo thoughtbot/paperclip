@@ -58,7 +58,6 @@ module Paperclip
     # * command_path: Defines the path at which to find the command line
     #   programs if they are not visible to Rails the system's search path. Defaults to
     #   nil, which uses the first executable found in the user's search path.
-    # * image_magick_path: Deprecated alias of command_path.
     def options
       @options ||= {
         :whiny             => true,
@@ -93,10 +92,7 @@ module Paperclip
     #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
     #
     def run(cmd, arguments = "", local_options = {})
-      if options[:image_magick_path]
-        Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
-      end
-      command_path = options[:command_path] || options[:image_magick_path]
+      command_path = options[:command_path]
       Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path, command_path ].flatten : command_path )
       local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
       Cocaine::CommandLine.new(cmd, arguments, local_options).run
@@ -272,8 +268,7 @@ module Paperclip
     #   Defaults to +false+.#
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
-    #   Defaults to true. This option used to be called :whiny_thumbanils, but this is
-    #   deprecated.
+    #   Defaults to true.
     # * +convert_options+: When creating thumbnails, use this free-form options
     #   array to pass in various convert command options.  Typical options are "-strip" to
     #   remove all Exif data from the image (save space for thumbnails and avatars) or
@@ -382,14 +377,6 @@ module Paperclip
                              :if        => options[:if],
                              :unless    => options[:unless],
                              :allow_nil => true
-    end
-
-    # Adds errors if thumbnail creation fails. The same as specifying :whiny_thumbnails => true.
-    def validates_attachment_thumbnails name, options = {}
-      warn('[DEPRECATION] validates_attachment_thumbnail is deprecated. ' +
-           'This validation is on by default and will be removed from future versions. ' +
-           'If you wish to turn it off, supply :whiny => false in your definition.')
-      attachment_definitions[name][:whiny_thumbnails] = true
     end
 
     # Places ActiveRecord-style validations on the presence of a file.

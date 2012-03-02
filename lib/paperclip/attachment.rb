@@ -302,18 +302,6 @@ module Paperclip
       end
     end
 
-    # Paths and URLs can have a number of variables interpolated into them
-    # to vary the storage location based on name, id, style, class, etc.
-    # This method is a deprecated access into supplying and retrieving these
-    # interpolations. Future access should use either Paperclip.interpolates
-    # or extend the Paperclip::Interpolations module directly.
-    def self.interpolations
-      warn('[DEPRECATION] Paperclip::Attachment.interpolations is deprecated ' +
-           'and will be removed from future versions. ' +
-           'Use Paperclip.interpolates instead')
-      Paperclip::Interpolations
-    end
-
     # This method really shouldn't be called that often. It's expected use is
     # in the paperclip:refresh rake task and that's it. It will regenerate all
     # thumbnails forcefully, by reobtaining the original file and going through
