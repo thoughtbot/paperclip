@@ -341,7 +341,13 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar.to_file.seek(10)
         assert_equal 0, @dummy.avatar.to_file.pos
       end
+
+    should "rewind file in flush_writes" do
+      @dummy.avatar.queued_for_write.each { |style, file| file.expects(:rewind).with() }
+      @dummy.save
     end
+
+  end
 
   context "Generating a secure url with an expiration" do
     setup do
