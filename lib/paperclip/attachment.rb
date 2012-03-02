@@ -485,5 +485,9 @@ module Paperclip
         filename.gsub(@options[:restricted_characters], '_')
       end
     end
+    
+    def geometry
+      @geometry ||= Paperclip::Geometry.from_file self.path
+    end
   end
 end
