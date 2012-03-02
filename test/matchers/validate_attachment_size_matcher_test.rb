@@ -68,5 +68,19 @@ class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
         assert_rejects @matcher, @dummy
       end
     end
+
+    context "post processing" do
+      setup do
+        @dummy_class.validates_attachment_size :avatar, :greater_than => 1024
+
+        @dummy = @dummy_class.new
+        @matcher = self.class.validate_attachment_size(:avatar).greater_than(1024)
+      end
+
+      should "be skipped" do
+        @dummy.avatar.expects(:post_process).never
+        assert_accepts @matcher, @dummy
+      end
+    end
   end
 end
