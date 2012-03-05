@@ -266,8 +266,8 @@ module Paperclip
 
     # Returns the content_type of the file as originally assigned, and lives
     # in the <attachment>_content_type attribute of the model.
-    def content_type
-      instance_read(:content_type)
+    def content_type(style=nil)
+      style ? MIME::Types.type_for(path(style)).first.content_type : instance_read(:content_type)
     end
 
     # Returns the last modified time of the file as originally assigned, and
