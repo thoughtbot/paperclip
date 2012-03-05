@@ -22,6 +22,15 @@ class PaperclipTest < Test::Unit::TestCase
       Paperclip.run("convert", "stuff")
       assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
     end
+
+    should "not duplicate Cocaine::CommandLine.path on multiple runs" do
+      Cocaine::CommandLine.expects(:new).with("convert", "more_stuff", {}).returns(stub(:run))
+      Cocaine::CommandLine.path = nil
+      Paperclip.options[:command_path] = "/opt/my_app/bin"
+      Paperclip.run("convert", "stuff")
+      Paperclip.run("convert", "more_stuff")
+      assert_equal 1, [Cocaine::CommandLine.path].flatten.size
+    end
   end
 
   context "Calling Paperclip.run with a logger" do
