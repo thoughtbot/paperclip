@@ -31,33 +31,18 @@ Given /^I run a migration$/ do
 end
 
 Given /^I update my new user view to include the file upload field$/ do
-  if framework_version?("3")
-    steps %{
-      Given I overwrite "app/views/users/new.html.erb" with:
-        """
-        <%= form_for @user, :html => { :multipart => true } do |f| %>
-          <%= f.label :name %>
-          <%= f.text_field :name %>
-          <%= f.label :attachment %>
-          <%= f.file_field :attachment %>
-          <%= submit_tag "Submit" %>
-        <% end %>
-        """
-    }
-  else
-    steps %{
-      Given I overwrite "app/views/users/new.html.erb" with:
-        """
-        <% form_for @user, :html => { :multipart => true } do |f| %>
-          <%= f.label :name %>
-          <%= f.text_field :name %>
-          <%= f.label :attachment %>
-          <%= f.file_field :attachment %>
-          <%= submit_tag "Submit" %>
-        <% end %>
-        """
-    }
-  end
+  steps %{
+    Given I overwrite "app/views/users/new.html.erb" with:
+      """
+      <%= form_for @user, :html => { :multipart => true } do |f| %>
+        <%= f.label :name %>
+        <%= f.text_field :name %>
+        <%= f.label :attachment %>
+        <%= f.file_field :attachment %>
+        <%= submit_tag "Submit" %>
+      <% end %>
+      """
+  }
 end
 
 Given /^I update my user view to include the attachment$/ do
@@ -89,37 +74,13 @@ Given /^I reload my application$/ do
   Rails::Application.reload!
 end
 
-When %r{I turn off class caching} do
+When /^I turn off class caching$/ do
   in_current_dir do
     file = "config/environments/test.rb"
     config = IO.read(file)
     config.gsub!(%r{^\s*config.cache_classes.*$},
                  "config.cache_classes = false")
     File.open(file, "w"){|f| f.write(config) }
-  end
-end
-
-Given /^I update my application to use Bundler$/ do
-  if framework_version?("2")
-    boot_config_template = File.read('features/support/fixtures/boot_config.txt')
-    preinitializer_template = File.read('features/support/fixtures/preinitializer.txt')
-    gemfile_template = File.read('features/support/fixtures/gemfile.txt')
-    in_current_dir do
-      content = File.read("config/boot.rb").sub(/Rails\.boot!/, boot_config_template)
-      File.open("config/boot.rb", "w") { |file| file.write(content) }
-      File.open("config/preinitializer.rb", "w") { |file| file.write(preinitializer_template) }
-      File.open("Gemfile", "w") { |file| file.write(gemfile_template.sub(/RAILS_VERSION/, framework_version)) }
-    end
-  end
-end
-
-Given /^I add the paperclip rake task to a Rails 2.3 application$/ do
-  if framework_version?("2.3")
-    require 'fileutils'
-    source = File.expand_path('lib/tasks/paperclip.rake')
-    destination = in_current_dir { File.expand_path("lib/tasks") }
-    FileUtils.cp source, destination
-    append_to "Rakefile", "require 'paperclip'"
   end
 end
 
@@ -155,28 +116,3 @@ end
 When /^I comment out the gem "([^"]*)" from the Gemfile$/ do |gemname|
   comment_out_gem_in_gemfile gemname
 end
-
-module FileHelpers
-  def append_to(path, contents)
-    in_current_dir do
-      File.open(path, "a") do |file|
-        file.puts
-        file.puts contents
-      end
-    end
-  end
-
-  def append_to_gemfile(contents)
-    append_to('Gemfile', contents)
-  end
-
-  def comment_out_gem_in_gemfile(gemname)
-    in_current_dir do
-      gemfile = File.read("Gemfile")
-      gemfile.sub!(/^(\s*)(gem\s*['"]#{gemname})/, "\\1# \\2")
-      File.open("Gemfile", 'w'){ |file| file.write(gemfile) }
-    end
-  end
-end
-
-World(FileHelpers)

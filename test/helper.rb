@@ -66,7 +66,11 @@ def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
   Object.send(:remove_const, class_name) rescue nil
   klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
-  klass.class_eval{ include Paperclip::Glue }
+
+  klass.class_eval do
+    include Paperclip::Glue
+  end
+
   klass
 end
 

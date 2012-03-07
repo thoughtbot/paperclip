@@ -39,7 +39,8 @@ require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/attachment_options'
 require 'paperclip/storage'
-require 'paperclip/callback_compatibility'
+require 'paperclip/callbacks'
+require 'paperclip/glue'
 require 'paperclip/missing_attachment_styles'
 require 'paperclip/railtie'
 require 'logger'
@@ -175,16 +176,6 @@ module Paperclip
           klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name, false) : klass.const_missing(partial_class_name)
         end
       end
-    rescue ArgumentError => e
-      # Sadly, we need to capture ArgumentError here because Rails 2.3.x
-      # ActiveSupport dependency management will try to the constant inherited
-      # from Object, and fail miserably with "Object is not missing constant X" error
-      # https://github.com/rails/rails/blob/v2.3.12/activesupport/lib/active_support/dependencies.rb#L124
-      if e.message =~ /is not missing constant/
-        raise NameError, "uninitialized constant #{class_name}"
-      else
-        raise e
-      end
     end
 
     def check_for_url_clash(name,url,klass)
@@ -214,18 +205,6 @@ module Paperclip
   end
 
   class InfiniteInterpolationError < PaperclipError #:nodoc:
-  end
-
-  module Glue
-    def self.included base #:nodoc:
-      base.extend ClassMethods
-      base.class_attribute :attachment_definitions if base.respond_to?(:class_attribute)
-      if base.respond_to?(:set_callback)
-        base.send :include, Paperclip::CallbackCompatability::Rails3
-      else
-        base.send :include, Paperclip::CallbackCompatability::Rails21
-      end
-    end
   end
 
   module ClassMethods
@@ -312,17 +291,9 @@ module Paperclip
       include InstanceMethods
 
       if attachment_definitions.nil?
-        if respond_to?(:class_attribute)
-          self.attachment_definitions = {}
-        else
-          write_inheritable_attribute(:attachment_definitions, {})
-        end
+        self.attachment_definitions = {}
       else
-        if respond_to?(:class_attribute)
-          self.attachment_definitions = self.attachment_definitions.dup
-        else
-          write_inheritable_attribute(:attachment_definitions, self.attachment_definitions.dup)
-        end
+        self.attachment_definitions = self.attachment_definitions.dup
       end
 
       attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
@@ -433,11 +404,7 @@ module Paperclip
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions
-      if respond_to?(:class_attribute)
-        self.attachment_definitions
-      else
-        read_inheritable_attribute(:attachment_definitions)
-      end
+      self.attachment_definitions
     end
   end
 

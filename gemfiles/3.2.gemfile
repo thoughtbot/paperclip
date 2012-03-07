@@ -3,7 +3,7 @@
 source "http://rubygems.org"
 
 gem "jruby-openssl", :platform=>:jruby
-gem "rails", "~> 3.1.0"
+gem "rails", "~> 3.2.2"
 gem "paperclip", :path=>"../"
 
 gemspec :path=>"../"
