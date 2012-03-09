@@ -2,23 +2,24 @@ PATH
   remote: .
   specs:
     paperclip (2.7.0)
-      activerecord (>= 2.3.0)
-      activesupport (>= 2.3.2)
+      activemodel (>= 3.0.0)
+      activerecord (>= 3.0.0)
+      activesupport (>= 3.0.0)
       cocaine (>= 0.0.2)
       mime-types
 
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.1)
-      activesupport (= 3.2.1)
+    activemodel (3.2.2)
+      activesupport (= 3.2.2)
       builder (~> 3.0.0)
-    activerecord (3.2.1)
-      activemodel (= 3.2.1)
-      activesupport (= 3.2.1)
-      arel (~> 3.0.0)
+    activerecord (3.2.2)
+      activemodel (= 3.2.2)
+      activesupport (= 3.2.2)
+      arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.1)
+    activesupport (3.2.2)
       i18n (~> 0.6)
       multi_json (~> 1.0)
     appraisal (0.4.1)
@@ -111,7 +112,7 @@ GEM
     shoulda (2.11.3)
     sqlite3 (1.3.4)
     term-ansicolor (1.0.7)
-    tzinfo (0.3.31)
+    tzinfo (0.3.32)
     uuidtools (2.1.2)
     xpath (0.1.4)
       nokogiri (~> 1.3)
