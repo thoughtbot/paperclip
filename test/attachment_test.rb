@@ -103,6 +103,15 @@ class AttachmentTest < Test::Unit::TestCase
     assert_equal "#{Rails.root}/public/fake_models/1234/fake", @attachment.path
   end
 
+  should "default to a path that scales" do
+    avatar_attachment = attachment
+    model = avatar_attachment.instance
+    model.id = 1234
+    model.avatar_file_name = "fake.jpg"
+    expected_path = "#{Rails.root}/public/system/fake_models/avatars/000/001/234/original/fake.jpg"
+    assert_equal expected_path, avatar_attachment.path
+  end
+
   context "Attachment default_options" do
     setup do
       rebuild_model

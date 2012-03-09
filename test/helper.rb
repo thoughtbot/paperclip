@@ -121,7 +121,7 @@ class FakeModel
 
 end
 
-def attachment options
+def attachment(options={})
   Paperclip::Attachment.new(:avatar, FakeModel.new, options)
 end
 

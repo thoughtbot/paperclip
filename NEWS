@@ -1,3 +1,13 @@
+* API CHANGE: The default :url and :path have changed. The new scheme avoids
+  filesystem conflicts and scales to handle larger numbers of uploads.
+
+  The easiest way to upgrade is to add an explicit :url and :path to your
+  has_attached_file calls:
+  
+      has_attached_file :avatar,
+        :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
+        :url => "/system/:attachment/:id/:style/:filename"
+
 New in 2.7.0:
 
 * Bug fix: Checking the existence of a file on S3 handles all AWS errors.

@@ -25,7 +25,7 @@ module Paperclip
         :source_file_options   => {},
         :storage               => :filesystem,
         :styles                => {},
-        :url                   => "/system/:attachment/:id/:style/:filename",
+        :url                   => "/system/:class/:attachment/:id_partition/:style/:filename",
         :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
         :use_timestamp         => true,

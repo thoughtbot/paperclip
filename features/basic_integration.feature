@@ -19,8 +19,8 @@ Feature: Rails integration
     And I attach the file "test/fixtures/5k.png" to "Attachment"
     And I press "Submit"
     Then I should see "Name: something"
-    And I should see an image with a path of "/system/attachments/1/original/5k.png"
-    And the file at "/system/attachments/1/original/5k.png" should be the same as "test/fixtures/5k.png"
+    And I should see an image with a path of "/system/users/attachments/000/000/001/original/5k.png"
+    And the file at "/system/users/attachments/000/000/001/original/5k.png" should be the same as "test/fixtures/5k.png"
 
   Scenario: S3 Integration test
     Given I add this snippet to the User model:

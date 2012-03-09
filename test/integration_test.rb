@@ -90,7 +90,7 @@ class IntegrationTest < Test::Unit::TestCase
 
   context "Attachment" do
     setup do
-      @thumb_path = "./test/../public/system/avatars/1/thumb/5k.png"
+      @thumb_path = "./test/../public/system/dummies/avatars/000/000/001/thumb/5k.png"
       File.delete(@thumb_path) if File.exists?(@thumb_path)
       rebuild_model :styles => { :thumb => "50x50#" }
       @dummy = Dummy.new
@@ -119,8 +119,8 @@ class IntegrationTest < Test::Unit::TestCase
 
   context "Attachment with no generated thumbnails" do
     setup do
-      @thumb_small_path = "./test/../public/system/avatars/1/thumb_small/5k.png"
-      @thumb_large_path = "./test/../public/system/avatars/1/thumb_large/5k.png"
+      @thumb_small_path = "./test/../public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
+      @thumb_large_path = "./test/../public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
       File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
       File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
       rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
