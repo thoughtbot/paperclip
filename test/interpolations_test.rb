@@ -178,7 +178,7 @@ class InterpolationsTest < Test::Unit::TestCase
     attachment.stubs(:original_filename).returns("one")
     assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
   end
-  
+
   should "return the basename when the extension contains regexp special characters" do
     attachment = mock
     attachment.stubs(:styles).returns({})
