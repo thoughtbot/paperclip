@@ -77,6 +77,13 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "found", interpolations.content_type_extension(attachment, :style)
   end
 
+  should "be able to handle numeric style names" do
+    attachment = mock(
+      :styles => {:"4" => {:format => :expected_extension}}
+    )
+    assert_equal :expected_extension, Paperclip::Interpolations.extension(attachment, 4)
+  end
+
   should "return the #to_param of the attachment" do
     attachment = mock
     attachment.expects(:to_param).returns("23-awesome")
