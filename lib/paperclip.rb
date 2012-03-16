@@ -195,40 +195,6 @@ module Paperclip
       end
     end
 
-    # Places ActiveRecord-style validations on the content type of the file
-    # assigned. The possible options are:
-    # * +content_type+: Allowed content types.  Can be a single content type
-    #   or an array.  Each type can be a String or a Regexp. It should be
-    #   noted that Internet Explorer uploads files with content_types that you
-    #   may not expect. For example, JPEG images are given image/pjpeg and
-    #   PNGs are image/x-png, so keep that in mind when determining how you
-    #   match.  Allows all by default.
-    # * +message+: The message to display when the uploaded file has an invalid
-    #   content type.
-    # * +if+: A lambda or name of an instance method. Validation will only
-    #   be run is this lambda or method returns true.
-    # * +unless+: Same as +if+ but validates if lambda or method returns false.
-    # NOTE: If you do not specify an [attachment]_content_type field on your
-    # model, content_type validation will work _ONLY upon assignment_ and
-    # re-validation after the instance has been reloaded will always succeed.
-    # You'll still need to have a virtual attribute (created by +attr_accessor+)
-    # name +[attachment]_content_type+ to be able to use this validator.
-    def validates_attachment_content_type name, options = {}
-      validation_options = options.dup
-      allowed_types = [validation_options[:content_type]].flatten
-      validates_each(:"#{name}_content_type", validation_options) do |record, attr, value|
-        if !allowed_types.any?{|t| t === value } && !(value.nil? || value.blank?)
-          if record.errors.method(:add).arity == -2
-            message = options[:message] || "is not one of #{allowed_types.join(", ")}"
-            message = message.call if message.respond_to?(:call)
-            record.errors.add(:"#{name}_content_type", message)
-          else
-            record.errors.add(:"#{name}_content_type", :inclusion, :default => options[:message], :value => value)
-          end
-        end
-      end
-    end
-
     # Returns the attachment definitions defined by each call to
     # has_attached_file.
     def attachment_definitions

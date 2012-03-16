@@ -329,21 +329,6 @@ class PaperclipTest < Test::Unit::TestCase
       should_validate validation, options, valid_file, invalid_file
     end
 
-    context "with content_type validation and lambda message" do
-      context "and assigned an invalid file" do
-        setup do
-          Dummy.send(:"validates_attachment_content_type", :avatar, :content_type => %r{image/.*}, :message => lambda {'lambda content type message'})
-          @dummy = Dummy.new
-          @dummy.avatar &&= File.open(File.join(FIXTURES_DIR, "text.txt"), "rb")
-          @dummy.valid?
-        end
-
-        should "have a content type error message" do
-          assert [@dummy.errors[:avatar_content_type]].flatten.any?{|error| error =~ %r/lambda content type message/ }
-        end
-      end
-    end
-
     context "with size validation and less_than 10240 option" do
       context "and assigned an invalid file" do
         setup do
