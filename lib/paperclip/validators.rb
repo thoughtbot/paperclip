@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'paperclip/validators/attachment_presence_validator'
 require 'paperclip/validators/attachment_size_validator'
 
 module Paperclip
