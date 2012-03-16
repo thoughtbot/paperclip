@@ -7,7 +7,9 @@ Given /^I generate a new rails application$/ do
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3"
+      gem "sqlite3", :platform => :ruby
+      gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
+      gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"

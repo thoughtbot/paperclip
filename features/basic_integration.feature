@@ -11,7 +11,7 @@ Feature: Rails integration
   Scenario: Filesystem integration test
     Given I add this snippet to the User model:
       """
-      has_attached_file :attachment
+      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename"
       """
     And I start the rails application
     When I go to the new user page
@@ -19,15 +19,15 @@ Feature: Rails integration
     And I attach the file "test/fixtures/5k.png" to "Attachment"
     And I press "Submit"
     Then I should see "Name: something"
-    And I should see an image with a path of "/system/users/attachments/000/000/001/original/5k.png"
-    And the file at "/system/users/attachments/000/000/001/original/5k.png" should be the same as "test/fixtures/5k.png"
+    And I should see an image with a path of "/system/attachments/original/5k.png"
+    And the file at "/system/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
 
   Scenario: S3 Integration test
     Given I add this snippet to the User model:
       """
       has_attached_file :attachment,
                         :storage => :s3,
-                        :path => "/:attachment/:id/:style/:filename",
+                        :path => "/:attachment/:style/:filename",
                         :s3_credentials => Rails.root.join("config/s3.yml")
       """
     And I write to "config/s3.yml" with:
@@ -42,5 +42,5 @@ Feature: Rails integration
     And I attach the file "test/fixtures/5k.png" to "Attachment" on S3
     And I press "Submit"
     Then I should see "Name: something"
-    And I should see an image with a path of "http://s3.amazonaws.com/paperclip/attachments/1/original/5k.png"
-    And the file at "http://s3.amazonaws.com/paperclip/attachments/1/original/5k.png" should be uploaded to S3
+    And I should see an image with a path of "http://s3.amazonaws.com/paperclip/attachments/original/5k.png"
+    And the file at "http://s3.amazonaws.com/paperclip/attachments/original/5k.png" should be uploaded to S3
