@@ -103,4 +103,26 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
       end
     end
   end
+
+  context "using the helper" do
+    setup do
+      Dummy.validates_attachment_content_type :avatar, :content_type => "image/jpg"
+    end
+
+    should "add the validator to the class" do
+      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_content_type }
+    end
+  end
+
+  context "given options" do
+    should "raise argument error if no required argument was given" do
+      assert_raises(ArgumentError) do
+        build_validator :message => "Some message"
+      end
+    end
+
+    should "not raise arguemnt error if :content_type was given" do
+      build_validator :content_type => "image/jpg"
+    end
+  end
 end

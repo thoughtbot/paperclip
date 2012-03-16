@@ -16,6 +16,12 @@ module Paperclip
           end
         end
       end
+
+      def check_validity!
+        unless options.has_key?(:content_type)
+          raise ArgumentError, "You must pass in :content_type to the validator"
+        end
+      end
     end
 
     module HelperMethods

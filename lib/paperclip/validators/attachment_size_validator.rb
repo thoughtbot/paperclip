@@ -31,6 +31,12 @@ module Paperclip
         end
       end
 
+      def check_validity!
+        unless (AVAILABLE_CHECKS + [:in]).any? { |argument| options.has_key?(argument) }
+          raise ArgumentError, "You must pass either :less_than, :greater_than, or :in to the validator"
+        end
+      end
+
       private
 
       def extract_options(options)

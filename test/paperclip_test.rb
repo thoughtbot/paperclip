@@ -49,6 +49,7 @@ class PaperclipTest < Test::Unit::TestCase
       d3 = Dummy.create(:avatar => @file)
       @expected = [d1, d3]
     end
+
     should "yield every instance of a model that has an attachment" do
       actual = []
       Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|
@@ -166,6 +167,7 @@ class PaperclipTest < Test::Unit::TestCase
       end
 
       teardown do
+        SubDummy.delete_all
         Object.send(:remove_const, "SubDummy") rescue nil
       end
     end
