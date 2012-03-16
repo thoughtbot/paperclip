@@ -77,7 +77,7 @@ class ThumbnailTest < Test::Unit::TestCase
         old_path = ENV['PATH']
         begin
           ENV['PATH'] = ''
-          assert_raises(Paperclip::CommandNotFoundError) do
+          assert_raises(Paperclip::Errors::CommandNotFoundError) do
             @thumb.make
           end
         ensure
@@ -154,7 +154,7 @@ class ThumbnailTest < Test::Unit::TestCase
         end
 
         should "error when trying to create the thumbnail" do
-          assert_raises(Paperclip::PaperclipError) do
+          assert_raises(Paperclip::Error) do
             @thumb.make
           end
         end
@@ -194,7 +194,7 @@ class ThumbnailTest < Test::Unit::TestCase
         end
 
         should "error when trying to create the thumbnail" do
-          assert_raises(Paperclip::PaperclipError) do
+          assert_raises(Paperclip::Error) do
             @thumb.make
           end
         end
@@ -203,7 +203,7 @@ class ThumbnailTest < Test::Unit::TestCase
           old_path = ENV['PATH']
           begin
             ENV['PATH'] = ''
-            assert_raises(Paperclip::CommandNotFoundError) do
+            assert_raises(Paperclip::Errors::CommandNotFoundError) do
               @thumb.make
             end
           ensure

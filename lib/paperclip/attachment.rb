@@ -365,7 +365,7 @@ module Paperclip
     def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|
         unless @instance.respond_to?("#{name}_#{field}") && @instance.respond_to?("#{name}_#{field}=")
-          raise PaperclipError.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
+          raise Paperclip::Error.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
         end
       end
     end
@@ -383,7 +383,7 @@ module Paperclip
       begin
         storage_module = Paperclip::Storage.const_get(storage_class_name)
       rescue NameError
-        raise StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
+        raise Errors::StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
       end
       self.extend(storage_module)
     end
@@ -428,7 +428,7 @@ module Paperclip
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
           Paperclip.processor(processor).make(file, style.processor_options, self)
         end
-      rescue PaperclipError => e
+      rescue Paperclip::Error => e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
       end

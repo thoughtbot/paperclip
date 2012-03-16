@@ -512,7 +512,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model :processor => [:thumbnail], :styles => { :small => '' }, :whiny_thumbnails => true
       @dummy = Dummy.new
-      Paperclip::Thumbnail.expects(:make).raises(Paperclip::PaperclipError, "cannot be processed.")
+      Paperclip::Thumbnail.expects(:make).raises(Paperclip::Error, "cannot be processed.")
       @file = StringIO.new("...")
       @file.stubs(:to_tempfile).returns(@file)
       @dummy.avatar = @file
@@ -579,7 +579,7 @@ class AttachmentTest < Test::Unit::TestCase
   should "convert underscored storage name to camelcase" do
     rebuild_model :storage => :not_here
     @dummy = Dummy.new
-    exception = assert_raises(Paperclip::StorageMethodNotFound) do
+    exception = assert_raises(Paperclip::Errors::StorageMethodNotFound) do
       @dummy.avatar
     end
     assert exception.message.include?("NotHere")
@@ -588,7 +588,7 @@ class AttachmentTest < Test::Unit::TestCase
   should "raise an error if you try to include a storage module that doesn't exist" do
     rebuild_model :storage => :not_here
     @dummy = Dummy.new
-    assert_raises(Paperclip::StorageMethodNotFound) do
+    assert_raises(Paperclip::Errors::StorageMethodNotFound) do
       @dummy.avatar
     end
   end
@@ -825,7 +825,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "raise if there are not the correct columns when you try to assign" do
       @other_attachment = Paperclip::Attachment.new(:not_here, @instance)
-      assert_raises(Paperclip::PaperclipError) do
+      assert_raises(Paperclip::Error) do
         @other_attachment.assign(@file)
       end
     end
@@ -1011,7 +1011,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "not be able to find the module" do
-        assert_raise(Paperclip::StorageMethodNotFound){ Dummy.new.avatar }
+        assert_raise(Paperclip::Errors::StorageMethodNotFound){ Dummy.new.avatar }
       end
     end
   end

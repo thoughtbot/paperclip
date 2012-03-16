@@ -41,7 +41,12 @@ require 'paperclip/attachment_options'
 require 'paperclip/storage'
 require 'paperclip/callbacks'
 require 'paperclip/glue'
+require 'paperclip/errors'
 require 'paperclip/missing_attachment_styles'
+require 'paperclip/validators'
+require 'paperclip/instance_methods'
+require 'paperclip/logger'
+require 'paperclip/helpers'
 require 'paperclip/railtie'
 require 'logger'
 require 'cocaine'
@@ -49,162 +54,27 @@ require 'cocaine'
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
+  extend Helpers
+  extend Logger
+  extend ProcessorHelpers
 
-  class << self
-    # Provides configurability to Paperclip. The options available are:
-    # * whiny: Will raise an error if Paperclip cannot process thumbnails of
-    #   an uploaded image. Defaults to true.
-    # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
-    #   log levels, etc. Defaults to true.
-    # * command_path: Defines the path at which to find the command line
-    #   programs if they are not visible to Rails the system's search path. Defaults to
-    #   nil, which uses the first executable found in the user's search path.
-    def options
-      @options ||= {
-        :whiny             => true,
-        :image_magick_path => nil,
-        :command_path      => nil,
-        :log               => true,
-        :log_command       => true,
-        :swallow_stderr    => true
-      }
-    end
-
-    def configure
-      yield(self) if block_given?
-    end
-
-    def interpolates key, &block
-      Paperclip::Interpolations[key] = block
-    end
-
-    # The run method takes the name of a binary to run, the arguments to that binary
-    # and some options:
-    #
-    #   :command_path -> A $PATH-like variable that defines where to look for the binary
-    #                    on the filesystem. Colon-separated, just like $PATH.
-    #
-    #   :expected_outcodes -> An array of integers that defines the expected exit codes
-    #                         of the binary. Defaults to [0].
-    #
-    #   :log_command -> Log the command being run when set to true (defaults to false).
-    #                   This will only log if logging in general is set to true as well.
-    #
-    #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
-    #
-    def run(cmd, arguments = "", local_options = {})
-      command_path = options[:command_path]
-      Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path].flatten | [command_path] : command_path )
-      local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
-      Cocaine::CommandLine.new(cmd, arguments, local_options).run
-    end
-
-    def processor(name) #:nodoc:
-      @known_processors ||= {}
-      if @known_processors[name.to_s]
-        @known_processors[name.to_s]
-      else
-        name = name.to_s.camelize
-        load_processor(name) unless Paperclip.const_defined?(name)
-        processor = Paperclip.const_get(name)
-        @known_processors[name.to_s] = processor
-      end
-    end
-
-    def load_processor(name)
-      if defined?(Rails.root) && Rails.root
-        require File.expand_path(Rails.root.join("lib", "paperclip_processors", "#{name.underscore}.rb"))
-      end
-    end
-
-    def clear_processors!
-      @known_processors.try(:clear)
-    end
-
-    # You can add your own processor via the Paperclip configuration. Normally
-    # Paperclip will load all processors from the
-    # Rails.root/lib/paperclip_processors directory, but here you can add any
-    # existing class using this mechanism.
-    #
-    #   Paperclip.configure do |c|
-    #     c.register_processor :watermarker, WatermarkingProcessor.new
-    #   end
-    def register_processor(name, processor)
-      @known_processors ||= {}
-      @known_processors[name.to_s] = processor
-    end
-
-    # Find all instances of the given Active Record model +klass+ with attachment +name+.
-    # This method is used by the refresh rake tasks.
-    def each_instance_with_attachment(klass, name)
-      unscope_method = class_for(klass).respond_to?(:unscoped) ? :unscoped : :with_exclusive_scope
-      class_for(klass).send(unscope_method) do
-        class_for(klass).find_each(:conditions => "#{name}_file_name is not null") do |instance|
-          yield(instance)
-        end
-      end
-    end
-
-    # Log a paperclip-specific line. This will log to STDOUT
-    # by default. Set Paperclip.options[:log] to false to turn off.
-    def log message
-      logger.info("[paperclip] #{message}") if logging?
-    end
-
-    def logger #:nodoc:
-      @logger ||= options[:logger] || Logger.new(STDOUT)
-    end
-
-    def logger=(logger)
-      @logger = logger
-    end
-
-    def logging? #:nodoc:
-      options[:log]
-    end
-
-    def class_for(class_name)
-      # Ruby 1.9 introduces an inherit argument for Module#const_get and
-      # #const_defined? and changes their default behavior.
-      # https://github.com/rails/rails/blob/v3.0.9/activesupport/lib/active_support/inflector/methods.rb#L89
-      if Module.method(:const_get).arity == 1
-        class_name.split('::').inject(Object) do |klass, partial_class_name|
-          klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name) : klass.const_missing(partial_class_name)
-        end
-      else
-        class_name.split('::').inject(Object) do |klass, partial_class_name|
-          klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name, false) : klass.const_missing(partial_class_name)
-        end
-      end
-    end
-
-    def check_for_url_clash(name,url,klass)
-      @names_url ||= {}
-      default_url = url || Attachment.default_options[:url]
-      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass && @names_url[name][:url] !~ /:class/
-        log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
-      end
-      @names_url[name] = {:url => default_url, :class => klass}
-    end
-
-    def reset_duplicate_clash_check!
-      @names_url = nil
-    end
-  end
-
-  class PaperclipError < StandardError #:nodoc:
-  end
-
-  class StorageMethodNotFound < PaperclipError
-  end
-
-  class CommandNotFoundError < PaperclipError
-  end
-
-  class NotIdentifiedByImageMagickError < PaperclipError #:nodoc:
-  end
-
-  class InfiniteInterpolationError < PaperclipError #:nodoc:
+  # Provides configurability to Paperclip. The options available are:
+  # * whiny: Will raise an error if Paperclip cannot process thumbnails of
+  #   an uploaded image. Defaults to true.
+  # * log: Logs progress to the Rails log. Uses ActiveRecord's logger, so honors
+  #   log levels, etc. Defaults to true.
+  # * command_path: Defines the path at which to find the command line
+  #   programs if they are not visible to Rails the system's search path. Defaults to
+  #   nil, which uses the first executable found in the user's search path.
+  def self.options
+    @options ||= {
+      :whiny             => true,
+      :image_magick_path => nil,
+      :command_path      => nil,
+      :log               => true,
+      :log_command       => true,
+      :swallow_stderr    => true
+    }
   end
 
   module ClassMethods
@@ -287,7 +157,7 @@ module Paperclip
     #       "/assets/avatars/default_#{gender}.png"
     #     end
     #   end
-    def has_attached_file name, options = {}
+    def has_attached_file(name, options = {})
       include InstanceMethods
 
       if attachment_definitions.nil?
@@ -407,40 +277,4 @@ module Paperclip
       self.attachment_definitions
     end
   end
-
-  module InstanceMethods #:nodoc:
-    def attachment_for name
-      @_paperclip_attachments ||= {}
-      @_paperclip_attachments[name] ||= Attachment.new(name, self, self.class.attachment_definitions[name])
-    end
-
-    def each_attachment
-      self.class.attachment_definitions.each do |name, definition|
-        yield(name, attachment_for(name))
-      end
-    end
-
-    def save_attached_files
-      Paperclip.log("Saving attachments.")
-      each_attachment do |name, attachment|
-        attachment.send(:save)
-      end
-    end
-
-    def destroy_attached_files
-      Paperclip.log("Deleting attachments.")
-      each_attachment do |name, attachment|
-        attachment.send(:flush_deletes)
-      end
-    end
-
-    def prepare_for_destroy
-      Paperclip.log("Scheduling attachments for deletion.")
-      each_attachment do |name, attachment|
-        attachment.send(:queue_existing_for_delete)
-      end
-    end
-
-  end
-
 end

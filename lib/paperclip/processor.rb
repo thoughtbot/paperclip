@@ -34,6 +34,43 @@ module Paperclip
     end
   end
 
+  module ProcessorHelpers
+    def processor(name) #:nodoc:
+      @known_processors ||= {}
+      if @known_processors[name.to_s]
+        @known_processors[name.to_s]
+      else
+        name = name.to_s.camelize
+        load_processor(name) unless Paperclip.const_defined?(name)
+        processor = Paperclip.const_get(name)
+        @known_processors[name.to_s] = processor
+      end
+    end
+
+    def load_processor(name)
+      if defined?(Rails.root) && Rails.root
+        require File.expand_path(Rails.root.join("lib", "paperclip_processors", "#{name.underscore}.rb"))
+      end
+    end
+
+    def clear_processors!
+      @known_processors.try(:clear)
+    end
+
+    # You can add your own processor via the Paperclip configuration. Normally
+    # Paperclip will load all processors from the
+    # Rails.root/lib/paperclip_processors directory, but here you can add any
+    # existing class using this mechanism.
+    #
+    #   Paperclip.configure do |c|
+    #     c.register_processor :watermarker, WatermarkingProcessor.new
+    #   end
+    def register_processor(name, processor)
+      @known_processors ||= {}
+      @known_processors[name.to_s] = processor
+    end
+  end
+
   # Due to how ImageMagick handles its image format conversion and how Tempfile
   # handles its naming scheme, it is necessary to override how Tempfile makes
   # its names so as to allow for file extensions. Idea taken from the comments

@@ -155,7 +155,7 @@ class InterpolationsTest < Test::Unit::TestCase
         Paperclip::Interpolations.url(self, :style)
       end
     end
-    assert_raises(Paperclip::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
+    assert_raises(Paperclip::Errors::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
   end
 
   should "return the filename as basename.extension" do
