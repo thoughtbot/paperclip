@@ -78,7 +78,7 @@ module Paperclip
   # http://marsorange.com/archives/of-mogrify-ruby-tempfile-dynamic-class-definitions
   class Tempfile < ::Tempfile
     # This is Ruby 1.8.7's implementation.
-    if RUBY_VERSION <= "1.8.6" || RUBY_PLATFORM =~ /java/
+    if RUBY_PLATFORM =~ /java/
       def make_tmpname(basename, n)
         case basename
         when Array
