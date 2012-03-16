@@ -113,7 +113,7 @@ module Paperclip
         if @queued_for_write[style]
           @queued_for_write[style].rewind
           @queued_for_write[style]
-        else
+        elsif exists?(style)
           body      = directory.files.get(path(style)).body
           filename  = path(style)
           extname   = File.extname(filename)
