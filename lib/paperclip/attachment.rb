@@ -99,6 +99,7 @@ module Paperclip
       instance_write(:content_type,    file.content_type.to_s.strip)
       instance_write(:file_size,       file.size)
       instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
+      instance_write(:created_at,      Time.now) if stores_created_at and not @instance.send("#{name}_created_at".to_sym)
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -252,6 +253,15 @@ module Paperclip
     # in the <attachment>_content_type attribute of the model.
     def content_type
       instance_read(:content_type)
+    end
+
+    # Returns the creation time of the file as originally assigned, and
+    # lives in the <attachment>_created_at attribute of the model.
+    def created_at
+      if @instance.respond_to?("#{name}_created_at".to_sym)
+        time = instance_read(:created_at)
+        time && time.to_f.to_i
+      end
     end
 
     # Returns the last modified time of the file as originally assigned, and
@@ -429,6 +439,7 @@ module Paperclip
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
       instance_write(:fingerprint, nil)
+      instance_write(:created_at, nil) if @instance.respond_to?("#{name}_created_at".to_sym) and not @instance.send("#{name}_created_at".to_sym)
       instance_write(:updated_at, nil)
     end
 
