@@ -94,28 +94,12 @@ module Paperclip
       self.clear(*@options[:only_process])
       return nil if file.nil?
 
-<<<<<<< HEAD
       @queued_for_write[:original]   = file
       instance_write(:file_name,       cleanup_filename(file.original_filename))
       instance_write(:content_type,    file.content_type.to_s.strip)
       instance_write(:file_size,       file.size)
       instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
-      instance_write(:created_at,      Time.now) if created_at_enabled_and_not_set
-=======
-      uploaded_file.binmode if uploaded_file.respond_to? :binmode
-      self.clear
-
-      return nil if uploaded_file.nil?
-
-      uploaded_filename ||= uploaded_file.original_filename
-      stores_fingerprint             = @instance.respond_to?("#{name}_fingerprint".to_sym)
-      @queued_for_write[:original]   = to_tempfile(uploaded_file)
-      instance_write(:file_name,       cleanup_filename(uploaded_filename.strip))
-      instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
-      instance_write(:file_size,       uploaded_file.size.to_i)
-      instance_write(:fingerprint,     generate_fingerprint(uploaded_file)) if stores_fingerprint
       instance_write(:created_at,      Time.now) if has_enabled_but_unset_created_at?
->>>>>>> Refactored according to mike-burns advices
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
