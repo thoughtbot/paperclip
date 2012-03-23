@@ -24,7 +24,15 @@ The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
 Requirements
 ------------
 
-ImageMagick must be installed and Paperclip must have access to it. To ensure
+### Ruby and Rails
+
+Paperclip now requires Ruby version **>= 1.9.2** and Rails version **>= 3.0** (Only if you're going to use Paperclip with Ruby on Rails.)
+
+If you're still on Ruby 1.8.7 or Ruby on Rails 2.3.x, you can still use Paperclip 2.7.x with your project. Also, everything in this README might not apply to your version of Paperclip, and you should read [the README for version 2.7](http://rubydoc.info/gems/paperclip/2.7.0) instead.
+
+### Image Processor
+
+[ImageMagick](http://www.imagemagick.org) must be installed and Paperclip must have access to it. To ensure
 that it does, on your command line, run `which convert` (one of the ImageMagick
 utilities). This will give you the path where that utility is installed. For
 example, it might return `/usr/local/bin/convert`.
@@ -55,6 +63,10 @@ well with gems.
 
 Include the gem in your Gemfile:
 
+    gem "paperclip", "~> 3.0"
+
+If you're still using Rails 2.3.x, you should do this instead:
+
     gem "paperclip", "~> 2.7"
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
@@ -65,16 +77,6 @@ If you're trying to use features that don't seem to be in the latest released ge
 mentioned in this README, then you probably need to specify the master branch if you want to
 use them. This README is probably ahead of the latest released version, if you're reading it
 on GitHub.
-
-Anyway, if you don't use Bundler (though you probably should, even in Rails 2), with config.gem
-
-    # In config/environment.rb
-    ...
-    Rails::Initializer.run do |config|
-      ...
-      config.gem "paperclip", :version => "~> 2.7"
-      ...
-    end
 
 For Non-Rails usage:
 
@@ -153,11 +155,32 @@ validation.
 More information about the options to `has_attached_file` is available in the
 documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
 
-For validations, attachments can be validated with these Paperclip's validation methods:
+For validations, Paperclip introduces several validators to validate your attachment:
+
+* `AttachmentContentTypeValidator`
+* `AttachmentPresenceValidator`
+* `AttachmentSizeValidator`
+
+Example Usage:
+
+    validates :avatar, :attachment_presence => true
+    validates_with AttachmentPresenceValidator, :attributes => :avatar
+
+Validators can also be defined using the old helper style:
 
 * `validates_attachment_presence`
 * `validates_attachment_content_type`
 * `validates_attachment_size`
+
+Example Usage:
+
+    validates_attachment_presence :avatar
+
+Lastly, you can also define multiple validations on a single attachment using `validates_attachment`:
+
+    validates_attachment :avatar, :presence => true,
+      :content_type => { :content_type => "image/jpg" },
+      :size => { :in => 0..10.kilobytes }
 
 Storage
 -------
@@ -453,4 +476,3 @@ License
 -------
 
 Paperclip is Copyright © 2008-2011 thoughtbot. It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
-
