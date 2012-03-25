@@ -1101,6 +1101,36 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal File.size(@file), @dummy.avatar.size
     end
 
+    context "and avatar_created_at column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the creation time when sent #avatar_created_at" do
+        now = Time.now
+        Time.stubs(:now).returns(now)
+        @dummy.avatar = @file
+        assert_equal now.to_i, @dummy.avatar.created_at
+      end
+
+      should "return the creation time when sent #avatar_created_at and the entry has been updated" do
+        creation = 2.hours.ago
+        now = Time.now
+        Time.stubs(:now).returns(creation)
+        @dummy.avatar = @file
+        Time.stubs(:now).returns(now)
+        @dummy.avatar = @file
+        assert_equal creation.to_i, @dummy.avatar.created_at
+        assert_not_equal now.to_i, @dummy.avatar.created_at
+      end
+    end
+
     context "and avatar_updated_at column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
