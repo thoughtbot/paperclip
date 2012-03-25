@@ -82,6 +82,16 @@ module Paperclip
       initialize_storage
     end
 
+    # Check if attachment database table has a created_at field
+    def stores_created_at
+      @instance.respond_to?("#{name}_created_at".to_sym)
+    end
+
+    # Check if attachment database table has a created_at field and it is not set yet
+    def created_at_enabled_and_not_set
+      stores_created_at && !@instance.send("#{name}_created_at".to_sym)
+    end
+
     # What gets called when you call instance.attachment = File. It clears
     # errors, assigns attributes, and processes the file. It
     # also queues up the previous file for deletion, to be flushed away on
@@ -114,7 +124,7 @@ module Paperclip
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
       instance_write(:fingerprint,     generate_fingerprint(uploaded_file)) if stores_fingerprint
-      instance_write(:created_at,      Time.now) if stores_created_at and not @instance.send("#{name}_created_at".to_sym)
+      instance_write(:created_at,      Time.now) if created_at_enabled_and_not_set
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -462,7 +472,7 @@ module Paperclip
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
       instance_write(:fingerprint, nil)
-      instance_write(:created_at, nil) if @instance.respond_to?("#{name}_created_at".to_sym) and not @instance.send("#{name}_created_at".to_sym)
+      instance_write(:created_at, nil) if created_at_enabled_and_not_set
       instance_write(:updated_at, nil)
     end
 
