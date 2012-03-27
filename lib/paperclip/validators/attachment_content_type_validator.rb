@@ -6,12 +6,10 @@ module Paperclip
         value = record.send(:read_attribute_for_validation, attribute)
         allowed_types = [options[:content_type]].flatten
 
-        if value.present? 
-          unless allowed_types.any? { |type| type === value }
-            record.errors.add(attribute, :invalid, options.merge(
-              :types => allowed_types.join(', ')
-            ))
-          end
+        if value.present? && allowed_types.none? { |type| type === value }
+          record.errors.add(attribute, :invalid, options.merge(
+            :types => allowed_types.join(', ')
+          ))
         end
       end
 
