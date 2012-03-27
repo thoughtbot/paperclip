@@ -48,6 +48,18 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
         assert @dummy.errors[:avatar_content_type].blank?
       end
     end
+    
+    context "as a list" do
+      setup do
+        build_validator :content_type => ["image/png", "image/jpg", "image/jpeg"]
+        @dummy.stubs(:avatar_content_type => "image/jpg")
+        @validator.validate(@dummy)
+      end
+
+      should "not set an error message" do
+        assert @dummy.errors[:avatar_content_type].blank?
+      end
+    end
   end
 
   context "with a disallowed type" do
