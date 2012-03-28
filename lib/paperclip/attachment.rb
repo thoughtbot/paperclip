@@ -118,7 +118,6 @@ module Paperclip
 
       uploaded_filename ||= uploaded_file.original_filename
       stores_fingerprint             = @instance.respond_to?("#{name}_fingerprint".to_sym)
-      stores_created_at              = @instance.respond_to?("#{name}_created_at".to_sym)
       @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       cleanup_filename(uploaded_filename.strip))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
