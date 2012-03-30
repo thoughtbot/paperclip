@@ -77,7 +77,6 @@ module Paperclip
       def flush_writes
         for style, file in @queued_for_write do
           log("saving #{path(style)}")
-          file.rewind
           retried = false
           begin
             directory.files.create(fog_file.merge(

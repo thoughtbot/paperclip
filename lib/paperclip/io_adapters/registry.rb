@@ -1,6 +1,6 @@
 module Paperclip
   class AdapterRegistry
-    class NoHandlerError < PaperclipError; end
+    class NoHandlerError < Paperclip::Error; end
 
     attr_reader :registered_handlers
 

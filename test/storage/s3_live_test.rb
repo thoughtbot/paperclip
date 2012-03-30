@@ -1,8 +1,32 @@
 require './test/helper'
 require 'aws'
 
+
 unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
+
+    context "when assigning an S3 attachment directly to another model" do
+      setup do
+        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
+                      :storage => :s3,
+                      :bucket => ENV["S3_BUCKET"],
+                      :path => ":class/:attachment/:id/:style.:extension",
+                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+
+        @dummy = Dummy.new
+        @attachment = Dummy.new.avatar
+        @file = File.new(fixture_file("5k.png"))
+        @attachment.assign(@file)
+        @attachment.save
+
+        @attachment2 = Dummy.new.avatar
+        @attachment2.assign(@file)
+        @attachment2.save
+
+        binding.pry
+      end
+    end
+
 
     context "Generating an expiring url on a nonexistant attachment" do
       setup do

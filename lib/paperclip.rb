@@ -77,6 +77,14 @@ module Paperclip
     }
   end
 
+  def self.io_adapters=(new_registry)
+    @io_adapters = new_registry
+  end
+
+  def self.io_adapters
+    @io_adapters ||= Paperclip::AdapterRegistry.new
+  end
+
   module ClassMethods
     # +has_attached_file+ gives the class it is called on an attribute that maps to a file. This
     # is typically a file stored somewhere on the filesystem and has been uploaded by a user.

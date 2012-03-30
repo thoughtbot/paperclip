@@ -31,6 +31,11 @@ module Paperclip
       @tempfile.read(length, buffer)
     end
 
+    # We don't use this directly, but aws/sdk does.
+    def rewind
+      @tempfile.rewind
+    end
+
     def eof?
       @tempfile.eof?
     end

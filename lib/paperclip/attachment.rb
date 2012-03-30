@@ -269,16 +269,6 @@ module Paperclip
       OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get(@options[:hash_digest]).new, @options[:hash_secret], data)
     end
 
-    def generate_fingerprint(source)
-      if source.respond_to?(:path) && source.path && !source.path.blank?
-        Digest::MD5.file(source.path).to_s
-      else
-        data = source.read
-        source.rewind if source.respond_to?(:rewind)
-        Digest::MD5.hexdigest(data)
-      end
-    end
-
     # This method really shouldn't be called that often. It's expected use is
     # in the paperclip:refresh rake task and that's it. It will regenerate all
     # thumbnails forcefully, by reobtaining the original file and going through

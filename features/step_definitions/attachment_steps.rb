@@ -51,6 +51,13 @@ Then /^the attachment should have the same content type as the fixture "([^"]*)"
   end
 end
 
+Then /^the attachment should have the same file name as the fixture "([^"]*)"$/ do |filename|
+  in_current_dir do
+    attachment_file_name = `bundle exec #{runner_command} "puts User.last.attachment_file_name"`.strip
+    attachment_file_name.should == File.name(fixture_path(filename)).to_s
+  end
+end
+
 Then /^the attachment should have the same file size as the fixture "([^"]*)"$/ do |filename|
   in_current_dir do
     attachment_file_size = `bundle exec #{runner_command} "puts User.last.attachment_file_size"`.strip
