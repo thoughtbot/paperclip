@@ -11,6 +11,11 @@ module Paperclip
       @modifier = modifier
     end
 
+    # Returns the equality based on height, width, and modifier
+    def ==(other)
+      height == other.height && width == other.width && modifier == other.modifier
+    end
+
     # Uses ImageMagick to determing the dimensions of a file, passed in as either a
     # File or path.
     # NOTE: (race cond) Do not reassign the 'file' variable inside this method as it is likely to be

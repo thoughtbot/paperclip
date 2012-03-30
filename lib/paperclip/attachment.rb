@@ -319,6 +319,11 @@ module Paperclip
       instance.send(getter) if responds || attr.to_s == "file_name"
     end
 
+    # Returns a geometry object which you can get the image's dimension.
+    def geometry(style = :original)
+      Geometry.from_file(path(style))
+    end
+
     private
 
     def path_option
