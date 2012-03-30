@@ -5,19 +5,6 @@ class AttachmentOptionsTest < Test::Unit::TestCase
     assert_kind_of Hash, Paperclip::AttachmentOptions.new({})
   end
 
-  should "add a default empty validations" do
-    options = {:arbi => :trary}
-    expected = {:validations => []}.merge(options)
-    actual = Paperclip::AttachmentOptions.new(options).to_hash
-    assert_equal expected, actual
-  end
-
-  should "not override validations if passed to initializer" do
-    options = {:validations => "something"}
-    attachment_options = Paperclip::AttachmentOptions.new(options)
-    assert_equal "something", attachment_options[:validations]
-  end
-
   should "respond to []" do
     assert Paperclip::AttachmentOptions.new({}).respond_to?(:[])
   end
