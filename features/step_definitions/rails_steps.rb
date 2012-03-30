@@ -1,7 +1,3 @@
-When /^I print "([^\"]*)"$/ do |whatever|
-  puts whatever
-end
-
 Given /^I generate a new rails application$/ do
   steps %{
     When I run `bundle exec #{new_application_command} #{APP_NAME}`
