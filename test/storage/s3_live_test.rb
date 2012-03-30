@@ -22,8 +22,6 @@ unless ENV["S3_BUCKET"].blank?
         @attachment2 = Dummy.new.avatar
         @attachment2.assign(@file)
         @attachment2.save
-
-        binding.pry
       end
     end
 

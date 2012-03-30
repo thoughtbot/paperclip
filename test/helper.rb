@@ -15,7 +15,6 @@ require 'mime/types'
 require 'pathname'
 
 require 'pathname'
-require 'pry'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
