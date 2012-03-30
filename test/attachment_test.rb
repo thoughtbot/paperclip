@@ -1158,19 +1158,4 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "attachment's geometry" do
-    setup do
-      rebuild_model
-      @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
-      @dummy.avatar = @file
-      @dummy.save!
-      @attachment = @dummy.avatar
-      @geometry = Paperclip::Geometry.from_file(@file.path)
-    end
-
-    should "return a correct geometry object" do
-      assert_equal @geometry, @attachment.geometry
-    end
-  end
 end
