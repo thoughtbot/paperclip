@@ -40,12 +40,16 @@ class IntegrationTest < Test::Unit::TestCase
 
       should "not raise an error" do
         assert_nothing_raised do
-          @dummy.avatar.reprocess!
+          silence_stream(STDERR) do
+            @dummy.avatar.reprocess!
+          end
         end
       end
 
       should "return false" do
-        assert ! @dummy.avatar.reprocess!
+        silence_stream(STDERR) do
+          assert !@dummy.avatar.reprocess!
+        end
       end
 
       teardown { File.chmod(0644, @dummy.avatar.path) }

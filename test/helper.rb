@@ -28,13 +28,6 @@ end
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
-def silence_warnings
-  old_verbose, $VERBOSE = $VERBOSE, nil
-  yield
-ensure
-  $VERBOSE = old_verbose
-end
-
 class Test::Unit::TestCase
   def setup
     silence_warnings do
