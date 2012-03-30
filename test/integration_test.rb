@@ -449,6 +449,38 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
   end
+  
+  context "An attachment with an uploaded file that wraps a tempfile
+           (e.g. ActionDispatch::Http::UploadedFile)" do
+    setup do
+      @file = Object.new
+      @dummy = Dummy.new
+    end
+
+    context "when tempfile exists" do
+      setup do
+        @tempfile_path = File.join(ROOT, 'tmp', 'tempfile.test')
+        @file.stubs(:tempfile).returns(Tempfile.new(@tempfile_path))
+      end
+
+      should "cleanup tempfile after assignment" do
+        @dummy.avatar = @file
+        assert ! File.exists?(@tempfile_path)
+      end
+    end
+
+    context "when tempfile is nil" do
+      setup do
+        @file.stubs(:tempfile)
+      end
+
+      should "should not error when assigning" do
+        assert_nothing_raised do
+          @dummy.avatar = @file
+        end
+      end
+    end
+  end
 
   if ENV['S3_TEST_BUCKET']
     def s3_files_for attachment
