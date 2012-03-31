@@ -33,6 +33,21 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Calling Paperclip.log without options[:logger] set" do
+    setup do
+      @logger_backup = Paperclip.logger
+      Paperclip.logger = nil
+      Paperclip.options[:logger] = nil
+    end
+    teardown do
+      Paperclip.options[:logger] = @logger_backup
+    end
+    should "not raise an error when log is called" do
+      assert_nothing_raised do
+        Paperclip.log('something')
+      end
+    end
+  end
   context "Calling Paperclip.run with a logger" do
     should "pass the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
