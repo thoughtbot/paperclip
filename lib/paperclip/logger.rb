@@ -7,7 +7,7 @@ module Paperclip
     end
 
     def logger #:nodoc:
-      @logger ||= options[:logger] || Logger.new(STDOUT)
+      @logger ||= options[:logger] || ::Logger.new(STDOUT)
     end
 
     def logger=(logger)
