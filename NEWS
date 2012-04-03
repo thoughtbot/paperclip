@@ -1,12 +1,26 @@
+New in 3.0.1
+
+* Feature: Introduce Paperlip IO adapter.
+* Bug fix: Regression in AttachmentContentTypeValidator has been fixed.
+
+New in 3.0.0:
+
+* API CHANGE: Paperclip now requires at least Ruby on Rails version 3.0.0
 * API CHANGE: The default :url and :path have changed. The new scheme avoids
   filesystem conflicts and scales to handle larger numbers of uploads.
 
   The easiest way to upgrade is to add an explicit :url and :path to your
   has_attached_file calls:
-  
+
       has_attached_file :avatar,
         :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
         :url => "/system/:attachment/:id/:style/:filename"
+
+* Feature: Adding Rails 3 style validators, and adding `validates_attachment` method as a shorthand.
+* Bug fix: Paperclip's rake tasks now loading records in batch.
+* Bug fix: Attachment style name with leading number now not raising an error.
+* Bug fix: File given to S3 and Fog storage will now be rewinded after flush_write.
+* Feature: You can now pass addional parameter to S3 expiring URL, such as :content_type.
 
 New in 2.7.0:
 
