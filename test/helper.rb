@@ -13,8 +13,7 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'mime/types'
 require 'pathname'
-
-require 'pathname'
+require 'ostruct'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 

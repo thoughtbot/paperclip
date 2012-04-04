@@ -2,7 +2,12 @@ module Paperclip
   class UploadedFileAdapter
     def initialize(target)
       @target = target
-      @tempfile = copy_to_tempfile(@target.tempfile)
+
+      if @target.respond_to?(:tempfile)
+        @tempfile = copy_to_tempfile(@target.tempfile)
+      else
+        @tempfile = copy_to_tempfile(@target)
+      end
     end
 
     def original_filename
