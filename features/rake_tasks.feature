@@ -7,6 +7,7 @@ Feature: Rake tasks
     And I run a migration
     And I add this snippet to the User model:
       """
+      attr_accessible :name, :attachment
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename"
       """
 

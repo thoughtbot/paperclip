@@ -10,11 +10,13 @@ end
 World(AttachmentHelpers)
 
 When /^I modify my attachment definition to:$/ do |definition|
-  write_file "app/models/user.rb", <<-FILE
-    class User < ActiveRecord::Base
+  content = in_current_dir { File.read("app/models/user.rb") }
+  content.gsub!(/has_attached_file.+end/m, <<-FILE)
       #{definition}
     end
   FILE
+
+  write_file "app/models/user.rb", content
   in_current_dir { FileUtils.rm_rf ".rbx" }
 end
 
