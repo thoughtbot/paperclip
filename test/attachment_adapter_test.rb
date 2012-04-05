@@ -5,6 +5,8 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     rebuild_model :path => "tmp/:class/:attachment/:style/:filename"
     @attachment = Dummy.new.avatar
     @file = File.new(fixture_file("5k.png"))
+    @file.binmode
+
     @attachment.assign(@file)
     @attachment.save
     @subject = Paperclip.io_adapters.for(@attachment)

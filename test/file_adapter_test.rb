@@ -4,6 +4,7 @@ class FileAdapterTest < Test::Unit::TestCase
   context "a new instance" do
     setup do
       @file = File.new(fixture_file("5k.png"))
+      @file.binmode
       @subject = Paperclip.io_adapters.for(@file)
     end
 
