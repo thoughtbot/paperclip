@@ -16,6 +16,10 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     assert_equal "5k.png", @subject.original_filename
   end
 
+  should "force binmode on tempfile" do
+    assert @subject.instance_variable_get("@tempfile").binmode?
+  end
+
   should "get the content type" do
     assert_equal "image/png", @subject.content_type
   end
