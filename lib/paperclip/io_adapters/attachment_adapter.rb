@@ -49,6 +49,7 @@ module Paperclip
 
     def copy_to_tempfile(src)
       dest = Tempfile.new(src.original_filename)
+      dest.binmode
       FileUtils.cp(src.path(:original), dest.path)
       dest
     end
