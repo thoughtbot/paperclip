@@ -5,6 +5,8 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     rebuild_model :path => "tmp/:class/:attachment/:style/:filename"
     @attachment = Dummy.new.avatar
     @file = File.new(fixture_file("5k.png"))
+    @file.binmode
+
     @attachment.assign(@file)
     @attachment.save
     @subject = Paperclip.io_adapters.for(@attachment)
@@ -12,6 +14,10 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
   should "get the right filename" do
     assert_equal "5k.png", @subject.original_filename
+  end
+
+  should "force binmode on tempfile" do
+    assert @subject.instance_variable_get("@tempfile").binmode?
   end
 
   should "get the content type" do
