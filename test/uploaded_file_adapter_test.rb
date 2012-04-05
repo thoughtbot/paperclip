@@ -5,17 +5,24 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
     context "with UploadedFile responding to #tempfile" do
       setup do
         class UploadedFile < OpenStruct; end
+        tempfile = File.new(fixture_file("5k.png"))
+        tempfile.binmode
+
         @file = UploadedFile.new(
           :original_filename => "5k.png",
           :content_type => "image/png",
           :head => "",
-          :tempfile => File.new(fixture_file("5k.png"))
+          :tempfile => tempfile
         )
         @subject = Paperclip.io_adapters.for(@file)
       end
 
       should "get the right filename" do
         assert_equal "5k.png", @subject.original_filename
+      end
+
+      should "force binmode on tempfile" do
+        assert @subject.instance_variable_get("@tempfile").binmode?
       end
 
       should "get the content type" do
@@ -58,6 +65,10 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
         assert_equal "5k.png", @subject.original_filename
       end
 
+      should "force binmode on tempfile" do
+        assert @subject.instance_variable_get("@tempfile").binmode?
+      end
+
       should "get the content type" do
         assert_equal "image/png", @subject.content_type
       end
@@ -76,7 +87,9 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
       end
 
       should "read the contents of the file" do
-        expected = File.new(@file.path).read
+        expected_file = File.new(@file.path)
+        expected_file.binmode
+        expected = expected_file.read
         assert expected.length > 0
         assert_equal expected, @subject.read
       end

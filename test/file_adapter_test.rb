@@ -4,11 +4,16 @@ class FileAdapterTest < Test::Unit::TestCase
   context "a new instance" do
     setup do
       @file = File.new(fixture_file("5k.png"))
+      @file.binmode
       @subject = Paperclip.io_adapters.for(@file)
     end
 
     should "get the right filename" do
       assert_equal "5k.png", @subject.original_filename
+    end
+
+    should "force binmode on tempfile" do
+      assert @subject.instance_variable_get("@tempfile").binmode?
     end
 
     should "get the content type" do
