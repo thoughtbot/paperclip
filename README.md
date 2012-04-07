@@ -57,9 +57,7 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 Installation
 ------------
 
-Paperclip is distributed as a gem, which is how it should be used in your app. It's
-technically still installable as a plugin, but that's discouraged, as Rails plays
-well with gems.
+Paperclip is distributed as a gem, which is how it should be used in your app.
 
 Include the gem in your Gemfile:
 
