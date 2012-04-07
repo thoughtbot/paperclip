@@ -44,7 +44,7 @@ class PaperclipTest < Test::Unit::TestCase
     end
     should "not raise an error when log is called" do
       assert_nothing_raised do
-        Paperclip.log('something')
+        silence_stream(STDOUT) { Paperclip.log('something') }
       end
     end
   end
