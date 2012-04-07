@@ -96,14 +96,14 @@ In your model:
 
 In your migrations:
 
-    class AddAvatarColumnsToUser < ActiveRecord::Migration
-      def self.up
+    class AddAvatarColumnsToUsers < ActiveRecord::Migration
+      def up
         change_table :users do |t|
           t.has_attached_file :avatar
         end
       end
 
-      def self.down
+      def down
         drop_attached_file :users, :avatar
       end
     end
@@ -323,11 +323,11 @@ has an attribute named fingerprint.  Following the user model migration example
 above, the migration would look like the following.
 
     class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
-      def self.up
+      def up
         add_column :users, :avatar_fingerprint, :string
       end
 
-      def self.down
+      def down
         remove_column :users, :avatar_fingerprint
       end
     end
