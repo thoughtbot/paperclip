@@ -29,5 +29,4 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   def migration_class_name
     migration_name.camelize
   end
-
 end
