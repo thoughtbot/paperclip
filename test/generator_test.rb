@@ -14,8 +14,8 @@ class GeneratorTest < Rails::Generators::TestCase
       end
 
       should 'create a correct migration file' do
-        assert_migration 'db/migrate/add_attachment_avatar_to_user.rb' do |migration|
-          assert_match /class AddAttachmentAvatarToUser/, migration
+        assert_migration 'db/migrate/add_attachment_avatar_to_users.rb' do |migration|
+          assert_match /class AddAttachmentAvatarToUsers/, migration
 
           assert_class_method :up, migration do |up|
             assert_match /add_column :users, :avatar_file_name, :string/, up
@@ -40,8 +40,8 @@ class GeneratorTest < Rails::Generators::TestCase
       end
 
       should 'create a correct migration file' do
-        assert_migration 'db/migrate/add_attachment_avatar_photo_to_user.rb' do |migration|
-          assert_match /class AddAttachmentAvatarPhotoToUser/, migration
+        assert_migration 'db/migrate/add_attachment_avatar_photo_to_users.rb' do |migration|
+          assert_match /class AddAttachmentAvatarPhotoToUsers/, migration
 
           assert_class_method :up, migration do |up|
             assert_match /add_column :users, :avatar_file_name, :string/, up
@@ -71,7 +71,7 @@ class GeneratorTest < Rails::Generators::TestCase
     context 'without required arguments' do
       should 'not create the migration' do
         silence_stream(STDERR) { run_generator %w() }
-        assert_no_migration 'db/migrate/add_attachment_avatar_to_user.rb'
+        assert_no_migration 'db/migrate/add_attachment_avatar_to_users.rb'
       end
     end
   end
