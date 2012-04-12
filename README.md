@@ -240,7 +240,7 @@ geometry and a format, which the file will be converted to, like so:
 This will convert the "thumb" style to a 32x32 square in png format, regardless
 of what was uploaded. If the format is not specified, it is kept the same (i.e.
 jpgs will remain jpgs). For more information on the accepted style formats, see
-[http://www.imagemagick.org/script/command-line-processing.php#geometry](here).
+[here](http://www.imagemagick.org/script/command-line-processing.php#geometry).
 
 Multiple processors can be specified, and they will be invoked in the order
 they are defined in the :processors array. Each successive processor will
