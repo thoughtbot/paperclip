@@ -1,39 +1,59 @@
+require 'active_support/deprecation'
+
 module Paperclip
-  # Provides two helpers that can be used in migrations.
-  #
-  # In order to use this module, the target class should implement a
-  # +column+ method that takes the column name and type, both as symbols,
-  # as well as a +remove_column+ method that takes a table and column name,
-  # also both symbols.
+  # Provides helper methods that can be used in migrations.
   module Schema
-    @@columns = {:file_name    => :string,
-                 :content_type => :string,
-                 :file_size    => :integer,
-                 :updated_at   => :datetime}
+    COLUMNS = {:file_name    => :string,
+               :content_type => :string,
+               :file_size    => :integer,
+               :updated_at   => :datetime}
 
-    def has_attached_file(attachment_name)
-      with_columns_for(attachment_name) do |column_name, column_type|
-        column(column_name, column_type)
+    def self.included(base)
+      ActiveRecord::ConnectionAdapters::Table.send :include, TableDefinition
+      ActiveRecord::ConnectionAdapters::TableDefinition.send :include, TableDefinition
+      ActiveRecord::ConnectionAdapters::AbstractAdapter.send :include, Statements
+    end
+
+    module Statements
+      def add_attachment(table_name, *attachment_names)
+        raise ArgumentError, "Please specify attachment name in your add_attachment call in your migration." if attachment_names.empty?
+
+        attachment_names.each do |attachment_name|
+          COLUMNS.each_pair do |column_name, column_type|
+            add_column(table_name, "#{attachment_name}_#{column_name}", column_type)
+          end
+        end
+      end
+
+      def remove_attachment(table_name, *attachment_names)
+        raise ArgumentError, "Please specify attachment name in your remove_attachment call in your migration." if attachment_names.empty?
+
+        attachment_names.each do |attachment_name|
+          COLUMNS.each_pair do |column_name, column_type|
+            remove_column(table_name, "#{attachment_name}_#{column_name}", column_type)
+          end
+        end
+      end
+
+      def drop_attached_file(*args)
+        ActiveSupport::Deprecation.warn "Method `drop_attached_file` in the migration has been deprecated and will be replaced by `remove_attachment`."
+        remove_attachment(*args)
       end
     end
 
-    def drop_attached_file(table_name, attachment_name)
-      with_columns_for(attachment_name) do |column_name, column_type|
-        remove_column(table_name, column_name)
+    module TableDefinition
+      def attachment(*attachment_names)
+        attachment_names.each do |attachment_name|
+          COLUMNS.each_pair do |column_name, column_type|
+            column("#{attachment_name}_#{column_name}", column_type)
+          end
+        end
       end
-    end
 
-    protected
-
-    def with_columns_for(attachment_name)
-      @@columns.each do |suffix, column_type|
-        column_name = full_column_name(attachment_name, suffix)
-        yield column_name, column_type
+      def has_attached_file(*attachment_names)
+        ActiveSupport::Deprecation.warn "Method `t.has_attached_file` in the migration has been deprecated and will be replaced by `t.attachment`."
+        attachment(*attachment_names)
       end
-    end
-
-    def full_column_name(attachment_name, column_name)
-      "#{attachment_name}_#{column_name}".to_sym
     end
   end
 end
