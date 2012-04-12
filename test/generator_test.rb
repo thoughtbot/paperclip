@@ -18,17 +18,21 @@ class GeneratorTest < Rails::Generators::TestCase
           assert_match /class AddAttachmentAvatarToUsers/, migration
 
           assert_class_method :up, migration do |up|
-            assert_match /add_column :users, :avatar_file_name, :string/, up
-            assert_match /add_column :users, :avatar_content_type, :string/, up
-            assert_match /add_column :users, :avatar_file_size, :integer/, up
-            assert_match /add_column :users, :avatar_updated_at, :datetime/, up
+            expected = <<-migration
+              change_table :users do |t|
+                t.has_attached_file :avatar
+              end
+            migration
+
+            assert_equal expected.squish, up.squish
           end
 
           assert_class_method :down, migration do |down|
-            assert_match /remove_column :users, :avatar_file_name/, down
-            assert_match /remove_column :users, :avatar_content_type/, down
-            assert_match /remove_column :users, :avatar_file_size/, down
-            assert_match /remove_column :users, :avatar_updated_at/, down
+            expected = <<-migration
+              drop_attached_file :users, :avatar
+            migration
+
+            assert_equal expected.squish, down.squish
           end
         end
       end
@@ -44,25 +48,23 @@ class GeneratorTest < Rails::Generators::TestCase
           assert_match /class AddAttachmentAvatarPhotoToUsers/, migration
 
           assert_class_method :up, migration do |up|
-            assert_match /add_column :users, :avatar_file_name, :string/, up
-            assert_match /add_column :users, :avatar_content_type, :string/, up
-            assert_match /add_column :users, :avatar_file_size, :integer/, up
-            assert_match /add_column :users, :avatar_updated_at, :datetime/, up
-            assert_match /add_column :users, :photo_file_name, :string/, up
-            assert_match /add_column :users, :photo_content_type, :string/, up
-            assert_match /add_column :users, :photo_file_size, :integer/, up
-            assert_match /add_column :users, :photo_updated_at, :datetime/, up
+            expected = <<-migration
+              change_table :users do |t|
+                t.has_attached_file :avatar
+                t.has_attached_file :photo
+              end
+            migration
+
+            assert_equal expected.squish, up.squish
           end
 
           assert_class_method :down, migration do |down|
-            assert_match /remove_column :users, :avatar_file_name/, down
-            assert_match /remove_column :users, :avatar_content_type/, down
-            assert_match /remove_column :users, :avatar_file_size/, down
-            assert_match /remove_column :users, :avatar_updated_at/, down
-            assert_match /remove_column :users, :photo_file_name/, down
-            assert_match /remove_column :users, :photo_content_type/, down
-            assert_match /remove_column :users, :photo_file_size/, down
-            assert_match /remove_column :users, :photo_updated_at/, down
+            expected = <<-migration
+              drop_attached_file :users, :avatar
+              drop_attached_file :users, :photo
+            migration
+
+            assert_equal expected.squish, down.squish
           end
         end
       end
