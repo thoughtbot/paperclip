@@ -30,6 +30,16 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "things", Paperclip::Interpolations.class(attachment, :style)
   end
 
+  should "return the table_name of the instance" do
+    attachment = mock
+    klass = mock
+    attachment.expects(:instance).returns(attachment)
+    attachment.expects(:class).returns(klass)
+    klass.stubs(:to_s).returns("Namespaced::Thing")
+    klass.expects(:table_name).returns("namespaced_things")
+    assert_equal "namespaced_things", Paperclip::Interpolations.table_name(attachment, :style)
+  end
+
   should "return the basename of the file" do
     attachment = mock
     attachment.expects(:original_filename).returns("one.jpg").times(2)
@@ -178,7 +188,7 @@ class InterpolationsTest < Test::Unit::TestCase
     attachment.stubs(:original_filename).returns("one")
     assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
   end
-  
+
   should "return the basename when the extension contains regexp special characters" do
     attachment = mock
     attachment.stubs(:styles).returns({})

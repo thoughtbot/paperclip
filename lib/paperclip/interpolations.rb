@@ -84,6 +84,15 @@ module Paperclip
       attachment.instance.class.to_s.underscore.pluralize
     end
 
+    # Returns the table_name of the class.
+    #
+    # following Rails' defaults, this would be "users" for the User class or
+    # "admin_users" for the Admin::User class.  In the end, this is entirely
+    # up to the corresponding model, of course.
+    def table_name attachment = nil, style_name = nil
+      attachment.instance.class.table_name
+    end
+
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
       attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}$/, "")
