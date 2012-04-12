@@ -38,12 +38,14 @@ class PaperclipTest < Test::Unit::TestCase
       Paperclip.logger = nil
       Paperclip.options[:logger] = nil
     end
+
     teardown do
       Paperclip.options[:logger] = ActiveRecord::Base.logger
       Paperclip.logger = ActiveRecord::Base.logger
     end
+
     should "not raise an error when log is called" do
-      assert_nothing_raised do
+      silence_stream(STDOUT) do
         Paperclip.log('something')
       end
     end
