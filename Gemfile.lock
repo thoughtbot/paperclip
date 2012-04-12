@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paperclip (3.0.1)
+    paperclip (3.0.2)
       activemodel (>= 3.0.0)
       activerecord (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -11,15 +11,15 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.2.2)
-      activesupport (= 3.2.2)
+    activemodel (3.2.3)
+      activesupport (= 3.2.3)
       builder (~> 3.0.0)
-    activerecord (3.2.2)
-      activemodel (= 3.2.2)
-      activesupport (= 3.2.2)
+    activerecord (3.2.3)
+      activemodel (= 3.2.3)
+      activesupport (= 3.2.3)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activesupport (3.2.2)
+    activesupport (3.2.3)
       i18n (~> 0.6)
       multi_json (~> 1.0)
     addressable (2.2.7)
