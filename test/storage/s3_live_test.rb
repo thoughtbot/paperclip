@@ -1,7 +1,6 @@
 require './test/helper'
 require 'aws'
 
-
 unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
 
@@ -105,7 +104,11 @@ unless ENV["S3_BUCKET"].blank?
         assert_success_response @dummy.avatar.url
       end
 
-      should "be destoryable" do
+      should "be reprocessable" do
+        assert @dummy.avatar.reprocess!
+      end
+
+      should "be destroyable" do
         url = @dummy.avatar.url
         @dummy.destroy
         assert_not_found_response url

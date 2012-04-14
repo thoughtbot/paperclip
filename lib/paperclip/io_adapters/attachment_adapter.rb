@@ -30,6 +30,11 @@ module Paperclip
       @tempfile.read(length, buffer)
     end
 
+    # We don't use this directly, but aws/sdk does.
+    def rewind
+      @tempfile.rewind
+    end
+
     def eof?
       @tempfile.eof?
     end
@@ -50,7 +55,11 @@ module Paperclip
     def copy_to_tempfile(src)
       dest = Tempfile.new(src.original_filename)
       dest.binmode
-      FileUtils.cp(src.path(:original), dest.path)
+      if src.respond_to? :copy_to_local_file
+        src.copy_to_local_file(:original, dest.path)
+      else
+        FileUtils.cp(src.path(:original), dest.path)
+      end
       dest
     end
 
