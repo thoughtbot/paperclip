@@ -65,6 +65,14 @@ Given /^I add this snippet to the User model:$/ do |snippet|
   end
 end
 
+Given /^I add this snippet to config\/application.rb:$/ do |snippet|
+  file_name = "config/application.rb"
+  in_current_dir do
+    content = File.read(file_name)
+    File.open(file_name, 'w') {|f| f << content.sub(/class Application < Rails::Application.*$/, "class Application < Rails::Application\n#{snippet}\n")}
+  end
+end
+
 Given /^I start the rails application$/ do
   in_current_dir do
     require "./config/environment"
