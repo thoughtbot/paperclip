@@ -307,6 +307,17 @@ module Paperclip
         @queued_for_delete = []
       end
 
+      def copy_to_local_file(style, local_dest_path)
+        log("copying #{path(style)} to local file #{local_dest_path}")
+        local_file = ::File.open(local_dest_path, 'wb')
+        file = s3_object(style)
+        local_file.write(file.read)
+        local_file.close
+      rescue AWS::Errors::Base => e
+        warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
+        false
+      end
+
       def find_credentials creds
         case creds
         when File
