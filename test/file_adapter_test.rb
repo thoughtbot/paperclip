@@ -20,6 +20,13 @@ class FileAdapterTest < Test::Unit::TestCase
       assert_equal "image/png", @subject.content_type
     end
 
+    should "provide correct mime-type for empty file" do
+      @subject = Paperclip.io_adapters.for(Tempfile.new("file_adapter_test"))
+
+      # Content type contained '\n' at the end, for an empty file, on my Mac
+      assert_equal "application/x-empty", @subject.content_type
+    end
+
     should "get the file's size" do
       assert_equal 4456, @subject.size
     end
