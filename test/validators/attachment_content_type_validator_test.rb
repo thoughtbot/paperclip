@@ -24,6 +24,58 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
     end
   end
 
+  context "with :allow_nil option" do
+    context "as true" do
+      setup do
+        build_validator :content_type => "image/png", :allow_nil => true
+        @dummy.stubs(:avatar_content_type => nil)
+        @validator.validate(@dummy)
+      end
+
+      should "allow avatar_content_type as nil" do
+        assert @dummy.errors[:avatar_content_type].blank?
+      end
+    end
+
+    context "as false" do
+      setup do
+        build_validator :content_type => "image/png", :allow_nil => false
+        @dummy.stubs(:avatar_content_type => nil)
+        @validator.validate(@dummy)
+      end
+
+      should "not allow avatar_content_type as nil" do
+        assert @dummy.errors[:avatar_content_type].present?
+      end
+    end
+  end
+
+  context "with :allow_blank option" do
+    context "as true" do
+      setup do
+        build_validator :content_type => "image/png", :allow_blank => true
+        @dummy.stubs(:avatar_content_type => "")
+        @validator.validate(@dummy)
+      end
+
+      should "allow avatar_content_type as blank" do
+        assert @dummy.errors[:avatar_content_type].blank?
+      end
+    end
+
+    context "as false" do
+      setup do
+        build_validator :content_type => "image/png", :allow_blank => false
+        @dummy.stubs(:avatar_content_type => "")
+        @validator.validate(@dummy)
+      end
+
+      should "not allow avatar_content_type as blank" do
+        assert @dummy.errors[:avatar_content_type].present?
+      end
+    end
+  end
+
   context "with an allowed type" do
     context "as a string" do
       setup do
@@ -48,7 +100,7 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
         assert @dummy.errors[:avatar_content_type].blank?
       end
     end
-    
+
     context "as a list" do
       setup do
         build_validator :content_type => ["image/png", "image/jpg", "image/jpeg"]

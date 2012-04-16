@@ -1,12 +1,19 @@
 module Paperclip
   module Validators
     class AttachmentContentTypeValidator < ActiveModel::EachValidator
+      def initialize(options)
+        options[:allow_nil] = true unless options.has_key?(:allow_nil)
+        super
+      end
+
       def validate_each(record, attribute, value)
         attribute = "#{attribute}_content_type".to_sym
         value = record.send(:read_attribute_for_validation, attribute)
         allowed_types = [options[:content_type]].flatten
 
-        if value.present? && allowed_types.none? { |type| type === value }
+        return if (value.nil? && options[:allow_nil]) || (value.blank? && options[:allow_blank])
+
+        if allowed_types.none? { |type| type === value }
           record.errors.add(attribute, :invalid, options.merge(
             :types => allowed_types.join(', ')
           ))
