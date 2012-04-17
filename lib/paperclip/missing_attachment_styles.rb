@@ -1,7 +1,6 @@
 
 require 'set'
 module Paperclip
-
   class << self
     attr_accessor :classes_with_attachments
     attr_writer :registered_attachments_styles_path
@@ -11,7 +10,6 @@ module Paperclip
   end
 
   self.classes_with_attachments = Set.new
-
 
   # Get list of styles saved on previous deploy (running rake paperclip:refresh:missing_styles)
   def self.get_registered_attachments_styles
@@ -49,9 +47,9 @@ module Paperclip
             current_styles[klass_sym][attachment_name.to_sym] ||= Array.new
             current_styles[klass_sym][attachment_name.to_sym] << style_name.to_sym
             current_styles[klass_sym][attachment_name.to_sym].map!(&:to_s).sort!.map!(&:to_sym).uniq!
-          end  
-        end  
-      end  
+          end
+        end
+      end
     end
   end
   private_class_method :current_attachments_styles
@@ -71,7 +69,7 @@ module Paperclip
       current_styles.each do |klass, attachment_definitions|
         attachment_definitions.each do |attachment_name, styles|
           registered = registered_styles[klass][attachment_name] || [] rescue []
-          missed = styles - registered 
+          missed = styles - registered
           if missed.present?
             klass_sym = klass.to_s.to_sym
             missing_styles[klass_sym] ||= Hash.new
@@ -80,8 +78,7 @@ module Paperclip
             missing_styles[klass_sym][attachment_name.to_sym].map!(&:to_s).sort!.map!(&:to_sym).uniq!
           end
         end
-      end  
+      end
     end
   end
-
 end

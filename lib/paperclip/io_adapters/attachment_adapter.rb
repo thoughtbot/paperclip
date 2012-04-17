@@ -1,6 +1,5 @@
 module Paperclip
   class AttachmentAdapter
-
     def initialize(target)
       @target = target
       cache_current_values
@@ -62,7 +61,6 @@ module Paperclip
       end
       dest
     end
-
   end
 end
 

@@ -44,5 +44,4 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     assert_equal expected.length, actual.length
     assert_equal expected, actual
   end
-
 end

@@ -5,7 +5,6 @@ Fog.mock!
 
 class FogTest < Test::Unit::TestCase
   context "" do
-
     context "with credentials provided in a path string" do
       setup do
         rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },

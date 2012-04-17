@@ -3,7 +3,6 @@ require 'aws'
 
 unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
-
     context "when assigning an S3 attachment directly to another model" do
       setup do
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
