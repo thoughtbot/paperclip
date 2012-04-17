@@ -1120,6 +1120,8 @@ class AttachmentTest < Test::Unit::TestCase
       @path = @attachment.path
     end
 
+    teardown { @file.close }
+
     should "not delete the files from storage when attachment is destroyed" do
       @attachment.destroy
       assert File.exists?(@path)
@@ -1141,6 +1143,8 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment = @dummy.avatar
       @path = @attachment.path
     end
+
+    teardown { @file.close }
 
     should "not be deleted when the model fails to destroy" do
       @dummy.stubs(:destroy).raises(Exception)

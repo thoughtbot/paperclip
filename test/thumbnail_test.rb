@@ -7,6 +7,8 @@ class ThumbnailTest < Test::Unit::TestCase
       @tempfile = Paperclip::Tempfile.new(["file", ".jpg"])
     end
 
+    teardown { @tempfile.close }
+
     should "have its path contain a real extension" do
       assert_equal ".jpg", File.extname(@tempfile.path)
     end
@@ -20,6 +22,8 @@ class ThumbnailTest < Test::Unit::TestCase
     setup do
       @tempfile = Paperclip::Tempfile.new("file")
     end
+
+    teardown { @tempfile.close }
 
     should "not have an extension if not given one" do
       assert_equal "", File.extname(@tempfile.path)

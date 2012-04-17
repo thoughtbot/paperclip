@@ -12,9 +12,12 @@ class FogTest < Test::Unit::TestCase
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
                       :fog_credentials => fixture_file('fog.yml')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
-        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
+        @dummy.avatar = @file
       end
+
+      teardown { @file.close }
 
       should "have the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
@@ -28,9 +31,12 @@ class FogTest < Test::Unit::TestCase
                       :url => '/:attachment/:filename',
                       :fog_directory => "paperclip",
                       :fog_credentials => File.open(fixture_file('fog.yml'))
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
-        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
+        @dummy.avatar = @file
       end
+
+      teardown { @file.close }
 
       should "have the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
@@ -48,9 +54,13 @@ class FogTest < Test::Unit::TestCase
                         :aws_access_key_id => 'AWS_ID',
                         :aws_secret_access_key => 'AWS_SECRET'
                       }
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
-        @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
+        @dummy.avatar = @file
       end
+
+      teardown { @file.close }
+
       should "be able to interpolate the path without blowing up" do
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../public/avatars/5k.png")),
                      @dummy.avatar.path

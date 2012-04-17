@@ -67,6 +67,8 @@ class PaperclipTest < Test::Unit::TestCase
       @expected = [d1, d3]
     end
 
+    teardown { @file.close }
+
     should "yield every instance of a model that has an attachment" do
       actual = []
       Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|

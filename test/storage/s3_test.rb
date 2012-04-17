@@ -186,8 +186,10 @@ class S3Test < Test::Unit::TestCase
                       'secret_access_key' => "54321"
                     }
 
-      @dummy = Dummy.new
-      @dummy.avatar = File.new(fixture_file('5k.png'), 'rb')
+      File.open(fixture_file('5k.png'), 'rb') do |file|
+        @dummy = Dummy.new
+        @dummy.avatar = file
+      end
     end
 
     should "return a url containing the correct original file mime type" do
@@ -217,8 +219,10 @@ class S3Test < Test::Unit::TestCase
                       'secret_access_key' => "54321"
                     }
 
-      @dummy = Dummy.new
-      @dummy.avatar = File.new(fixture_file('spaced file.png'), 'rb')
+      File.open(fixture_file('spaced file.png'), 'rb') do |file|
+        @dummy = Dummy.new
+        @dummy.avatar = file
+      end
     end
 
     should "return a replaced version for path" do

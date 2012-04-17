@@ -12,6 +12,10 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     @subject = Paperclip.io_adapters.for(@attachment)
   end
 
+  def teardown
+    @file.close
+  end
+
   should "get the right filename" do
     assert_equal "5k.png", @subject.original_filename
   end

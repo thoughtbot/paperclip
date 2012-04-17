@@ -10,6 +10,8 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
 
+    teardown { @file.close }
+
     should "not exceed the open file limit" do
        assert_nothing_raised do
          dummies = Dummy.find(:all)
@@ -287,6 +289,7 @@ class IntegrationTest < Test::Unit::TestCase
 
       teardown do
         File.umask @umask
+        @file.close
       end
 
       should "respect the current umask" do
@@ -313,6 +316,8 @@ class IntegrationTest < Test::Unit::TestCase
       assert @dummy.valid?, @dummy.errors.full_messages.join(", ")
       assert @dummy.save
     end
+
+    teardown { [@file, @bad_file].each(&:close) }
 
     should "write and delete its files" do
       [["434x66", :original],
@@ -407,6 +412,8 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy2.save
       end
 
+      teardown { @file2.close }
+
       should "work when assigned a file" do
         assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                          `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
@@ -427,16 +434,13 @@ class IntegrationTest < Test::Unit::TestCase
         has_many :attachments, :class_name => 'Dummy'
       end
 
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
       @dummy = Dummy.new
-      @dummy.avatar = File.new(File.join(File.dirname(__FILE__),
-                               "fixtures",
-                               "5k.png"), 'rb')
+      @dummy.avatar = @file
     end
 
     should "should not error when saving" do
-      assert_nothing_raised do
-        @dummy.save!
-      end
+      @dummy.save!
     end
   end
 
@@ -480,6 +484,12 @@ class IntegrationTest < Test::Unit::TestCase
         assert @dummy.save
 
         @files_on_s3 = s3_files_for @dummy.avatar
+      end
+
+      teardown do
+        @file.close
+        @bad_file.close
+        @files_on_s3.values.each(&:close)
       end
 
       context 'assigning itself to a new model' do
