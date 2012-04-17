@@ -12,14 +12,26 @@ unless ENV["S3_BUCKET"].blank?
                       :path => ":class/:attachment/:id/:style.:extension",
                       :s3_credentials => @s3_credentials
 
-        @dummy = Dummy.new
-        @attachment = Dummy.new.avatar
         @file = File.new(fixture_file("5k.png"))
+      end
+
+      should "not raise any error" do
+        @attachment = Dummy.new.avatar
         @attachment.assign(@file)
         @attachment.save
 
         @attachment2 = Dummy.new.avatar
         @attachment2.assign(@file)
+        @attachment2.save
+      end
+
+      should "allow assignment from another S3 object" do
+        @attachment = Dummy.new.avatar
+        @attachment.assign(@file)
+        @attachment.save
+
+        @attachment2 = Dummy.new.avatar
+        @attachment2.assign(@attachment)
         @attachment2.save
       end
 
@@ -37,6 +49,7 @@ unless ENV["S3_BUCKET"].blank?
 
         @dummy = Dummy.new
       end
+
       should "return nil" do
         assert_nil @dummy.avatar.expiring_url
       end
