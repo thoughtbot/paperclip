@@ -23,6 +23,10 @@ class FileAdapterTest < Test::Unit::TestCase
         assert_equal "image/png", @subject.content_type
       end
 
+      should "return content type as a string" do
+        assert_kind_of String, @subject.content_type
+      end
+
       should "get the file's size" do
         assert_equal 4456, @subject.size
       end
@@ -40,6 +44,20 @@ class FileAdapterTest < Test::Unit::TestCase
         expected = @file.read
         assert expected.length > 0
         assert_equal expected, @subject.read
+      end
+
+      context "file with multiple possible content type" do
+        setup do
+          MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
+        end
+
+        should "prefer officially registered mime type" do
+          assert_equal "image/png", @subject.content_type
+        end
+
+        should "return content type as a string" do
+          assert_kind_of String, @subject.content_type
+        end
       end
     end
 

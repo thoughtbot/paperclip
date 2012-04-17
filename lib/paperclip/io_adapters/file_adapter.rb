@@ -63,7 +63,7 @@ module Paperclip
     end
 
     def best_content_type_option(types)
-      types.reject {|type| type.content_type.match(/\/x-/) }.first
+      types.reject {|type| type.content_type.match(/\/x-/) }.first.content_type
     end
 
     def type_from_file_command
