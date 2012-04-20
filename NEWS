@@ -1,4 +1,20 @@
-New in 3.0.1
+Unreleased:
+
+* Bug fix: AttachmentContentTypeValidator now allow you to specify :allow_blank/:allow_nil
+* Bug fix: Make sure content type always a String.
+* Bug fix: Fix attachment.reprocess! when using storage providers fog and s3.
+* Bug fix: Fix a problem with incorrect content_type detected with 'file' command for an empty file on Mac.
+
+New in 3.0.2:
+
+* API CHANGE: Generated migration class name is now plural (AddAttachmentToUsers instead of AddAttachmentToUser)
+* API CHANGE: Remove Rails plugin initialization code.
+* API CHANGE: Explicitly require Ruby 1.9.2 in the Gemfile.
+* Bug fix: Fixes AWS::S3::Errors::RequestTimeout on Model#save.
+* Bug fix: Fix a problem when there's no logger specified.
+* Bug fix: Fix a problem when attaching Rack::Test::UploadedFile instance.
+
+New in 3.0.1:
 
 * Feature: Introduce Paperlip IO adapter.
 * Bug fix: Regression in AttachmentContentTypeValidator has been fixed.
