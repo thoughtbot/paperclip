@@ -108,25 +108,24 @@ module Paperclip
 
       def public_url(style = default_style)
         if @options[:fog_host]
-          host = if @options[:fog_host].respond_to?(:call)
-            @options[:fog_host].call(self)
-          else
-            (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
-          end
-
-          "#{host}/#{path(style)}"
+          "#{dynamic_fog_host_for_style(style)}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'
-            if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-              "https://#{@options[:fog_directory]}.s3.amazonaws.com/#{path(style)}"
-            else
-              # directory is not a valid subdomain, so use path style for access
-              "https://s3.amazonaws.com/#{@options[:fog_directory]}/#{path(style)}"
-            end
+            "https://#{host_name_for_directory}/#{path(style)}"
           else
             directory.files.new(:key => path(style)).public_url
           end
         end
+      end
+      
+      def expiring_url(time = 3600, style = default_style)
+        expiring_url = directory.files.get_http_url(path(style), time)
+        
+        if @options[:fog_host]
+          expiring_url[host_name_for_directory] = dynamic_fog_host_for_style(style)
+        end
+        
+        return expiring_url
       end
 
       def parse_credentials(creds)
@@ -147,6 +146,22 @@ module Paperclip
       end
 
       private
+      
+      def dynamic_fog_host_for_style(style)
+        if @options[:fog_host].respond_to?(:call)
+          @options[:fog_host].call(self)
+        else
+          (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+        end
+      end
+      
+      def host_name_for_directory
+        if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
+          "#{@options[:fog_directory]}.s3.amazonaws.com"
+        else
+          "s3.amazonaws.com/#{@options[:fog_directory]}"
+        end
+      end
 
       def find_credentials(creds)
         case creds

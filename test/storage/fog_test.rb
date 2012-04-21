@@ -198,6 +198,10 @@ class FogTest < Test::Unit::TestCase
         should "provide an url in subdomain style" do
           assert_match /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
         end
+        
+        should "provide an url that expires in subdomain style" do
+          assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
+        end
       end
 
       context "with an invalid bucket name for a subdomain" do
@@ -217,6 +221,10 @@ class FogTest < Test::Unit::TestCase
 
         should "provide an url in folder style" do
           assert_match /^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+        end
+        
+        should "provide a url that expires in folder style" do
+          assert_match /^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
         end
 
       end
@@ -249,6 +257,38 @@ class FogTest < Test::Unit::TestCase
         should "provide a public url" do
           assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
         end
+        
+      end
+      
+      context "with a custom fog_host" do
+        setup do
+          rebuild_model(@options.merge(:fog_host => "http://dynamicfoghost.com"))
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+        
+        should "provide a public url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+        end
+        
+        should "provide an expiring url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+        end
+        
+        context "with an invalid bucket name for a subdomain" do
+          setup do
+            rebuild_model(@options.merge({:fog_directory => "this_is_invalid", :fog_host => "http://dynamicfoghost.com"}))
+            @dummy = Dummy.new
+            @dummy.avatar = @file
+            @dummy.save
+          end
+          
+          should "provide an expiring url" do
+            assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+          end
+        end
+        
       end
 
       context "with a proc for the fog_credentials evaluating a model method" do
