@@ -65,6 +65,9 @@ def reset_class class_name
     include Paperclip::Glue
   end
 
+  klass.reset_column_information
+  klass.connection_pool.clear_table_cache!(klass.table_name) if klass.connection_pool.respond_to?(:clear_table_cache!)
+  klass.connection.schema_cache.clear_table_cache!(klass.table_name) if klass.connection.respond_to?(:schema_cache)
   klass
 end
 
@@ -91,15 +94,10 @@ def rebuild_model options = {}
 end
 
 def rebuild_class options = {}
-  ActiveRecord::Base.send(:include, Paperclip::Glue)
-  Object.send(:remove_const, "Dummy") rescue nil
-  Object.const_set("Dummy", Class.new(ActiveRecord::Base))
-  Paperclip.reset_duplicate_clash_check!
-  Dummy.class_eval do
-    include Paperclip::Glue
-    has_attached_file :avatar, options
+  reset_class("Dummy").tap do |klass|
+    klass.has_attached_file :avatar, options
+    Paperclip.reset_duplicate_clash_check!
   end
-  Dummy.reset_column_information
 end
 
 class FakeModel
@@ -116,7 +114,6 @@ class FakeModel
 
   def run_paperclip_callbacks name, *args
   end
-
 end
 
 def attachment(options={})
