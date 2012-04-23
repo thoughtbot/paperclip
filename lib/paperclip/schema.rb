@@ -12,6 +12,10 @@ module Paperclip
       ActiveRecord::ConnectionAdapters::Table.send :include, TableDefinition
       ActiveRecord::ConnectionAdapters::TableDefinition.send :include, TableDefinition
       ActiveRecord::ConnectionAdapters::AbstractAdapter.send :include, Statements
+
+      if defined?(ActiveRecord::Migration::CommandRecorder) # Rails 3.1+
+        ActiveRecord::Migration::CommandRecorder.send :include, CommandRecorder
+      end
     end
 
     module Statements
@@ -53,6 +57,18 @@ module Paperclip
       def has_attached_file(*attachment_names)
         ActiveSupport::Deprecation.warn "Method `t.has_attached_file` in the migration has been deprecated and will be replaced by `t.attachment`."
         attachment(*attachment_names)
+      end
+    end
+
+    module CommandRecorder
+      def add_attachment(*args)
+        record(:add_attachment, args)
+      end
+
+      private
+
+      def invert_add_attachment(args)
+        [:remove_attachment, args]
       end
     end
   end
