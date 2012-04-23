@@ -29,7 +29,11 @@ Given /^I run a paperclip generator to add a paperclip "([^"]*)" to the "([^"]*)
 end
 
 Given /^I run a migration$/ do
-  step %[I successfully run `bundle exec rake db:migrate`]
+  step %[I successfully run `bundle exec rake db:migrate --trace`]
+end
+
+When /^I rollback a migration$/ do
+  step %[I successfully run `bundle exec rake db:rollback STEPS=1 --trace`]
 end
 
 Given /^I update my new user view to include the file upload field$/ do
