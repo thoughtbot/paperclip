@@ -2,15 +2,17 @@ require 'paperclip'
 require 'paperclip/schema'
 
 module Paperclip
-  require 'rails'
-  class Railtie < Rails::Railtie
-    initializer 'paperclip.insert_into_active_record' do
-      ActiveSupport.on_load :active_record do
-        Paperclip::Railtie.insert
+  if defined? Rails::Railtie
+    require 'rails'
+    class Railtie < Rails::Railtie
+      initializer 'paperclip.insert_into_active_record' do
+        ActiveSupport.on_load :active_record do
+          Paperclip::Railtie.insert
+        end
       end
-    end
-    rake_tasks do
-      load "tasks/paperclip.rake"
+      rake_tasks do
+        load "tasks/paperclip.rake"
+      end
     end
   end
 
