@@ -95,7 +95,7 @@ module Paperclip
 
       @queued_for_write[:original]   = file
       instance_write(:file_name,       cleanup_filename(file.original_filename))
-      instance_write(:content_type,    file.content_type)
+      instance_write(:content_type,    file.content_type.to_s.strip)
       instance_write(:file_size,       file.size)
       instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
       instance_write(:updated_at,      Time.now)

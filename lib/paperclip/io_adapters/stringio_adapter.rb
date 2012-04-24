@@ -16,7 +16,7 @@ module Paperclip
     def content_type
       @content_type ||= @target.content_type if @target.respond_to?(:content_type)
       @content_type ||= "text/plain"
-      @content_type.strip
+      @content_type
     end
 
     def size

@@ -691,6 +691,21 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "Assigning an attachment" do
+    setup do
+      rebuild_model :styles => { :something => "100x100#" }
+      @file = StringIO.new(".")
+      @file.stubs(:original_filename).returns("5k.png\n\n")
+      @file.stubs(:content_type).returns(MIME::Type.new("image/png"))
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+    end
+
+    should "make sure the content_type is a string" do
+      assert_equal "image/png", @dummy.avatar.instance.avatar_content_type
+    end
+  end
+
   context "Attachment with strange letters" do
     setup do
       rebuild_model
