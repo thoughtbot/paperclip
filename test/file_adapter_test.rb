@@ -59,6 +59,17 @@ class FileAdapterTest < Test::Unit::TestCase
           assert_kind_of String, @subject.content_type
         end
       end
+
+      context "file with content type derived from file command on *nix" do
+        setup do
+          MIME::Types.stubs(:type_for).returns([])
+          Paperclip.stubs(:run).returns("application/vnd.ms-office\n")
+        end
+
+        should "return content type without newline character" do
+          assert_equal "application/vnd.ms-office", @subject.content_type
+        end
+      end
     end
 
     context "empty file" do
