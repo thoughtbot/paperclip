@@ -90,7 +90,7 @@ module Paperclip
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
 
-      self.clear
+      self.clear(*@options[:only_process])
       return nil if file.nil?
 
       @queued_for_write[:original]   = file
@@ -202,10 +202,14 @@ module Paperclip
     # Clears out the attachment. Has the same effect as previously assigning
     # nil to the attachment. Does NOT save. If you wish to clear AND save,
     # use #destroy.
-    def clear
-      queue_existing_for_delete
-      @queued_for_write  = {}
-      @errors            = {}
+    def clear(*styles_to_clear)
+      if styles_to_clear.any?
+        queue_some_for_delete(*styles_to_clear)
+      else
+        queue_all_for_delete
+        @queued_for_write  = {}
+        @errors            = {}
+      end
     end
 
     # Destroys the attachment. Has the same effect as previously assigning
@@ -406,7 +410,13 @@ module Paperclip
       interpolator.interpolate(pattern, self, style_name)
     end
 
-    def queue_existing_for_delete #:nodoc:
+    def queue_some_for_delete(*styles)
+      @queued_for_delete += styles.uniq.map do |style|
+        path(style) if exists?(style)
+      end.compact
+    end
+
+    def queue_all_for_delete #:nodoc:
       return if @options[:preserve_files] || !file?
       @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
         path(style) if exists?(style)

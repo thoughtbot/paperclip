@@ -28,7 +28,7 @@ module Paperclip
     def prepare_for_destroy
       Paperclip.log("Scheduling attachments for deletion.")
       each_attachment do |name, attachment|
-        attachment.send(:queue_existing_for_delete)
+        attachment.send(:queue_all_for_delete)
       end
     end
   end

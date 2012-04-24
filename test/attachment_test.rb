@@ -19,6 +19,26 @@ class AttachmentTest < Test::Unit::TestCase
     file.close
   end
 
+  should "not delete styles that don't get reprocessed" do
+    file = File.new(File.join(File.dirname(__FILE__), "fixtures", "50x50.png"), 'rb')
+    rebuild_class :styles => { :small => '100x>',
+                               :large => '500x>',
+                               :original => '42x42#' }
+    dummy = Dummy.new
+    dummy.avatar = file
+    dummy.save
+
+    assert File.exists?(dummy.avatar.path(:small))
+    assert File.exists?(dummy.avatar.path(:large))
+    assert File.exists?(dummy.avatar.path(:original))
+
+    dummy.avatar.reprocess!(:small)
+
+    assert File.exists?(dummy.avatar.path(:small))
+    assert File.exists?(dummy.avatar.path(:large))
+    assert File.exists?(dummy.avatar.path(:original))
+  end
+
   should "handle a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
