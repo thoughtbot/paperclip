@@ -136,7 +136,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-jdbcsqlite3-adapter
-  appraisal (~> 0.4.0)
+  appraisal
   aruba
   aws-sdk
   bourne
