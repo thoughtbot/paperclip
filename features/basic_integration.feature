@@ -12,7 +12,8 @@ Feature: Rails integration
     Given I add this snippet to the User model:
       """
       attr_accessible :name, :attachment
-      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename"
+      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename",
+                                     :styles => { :square => "100x100#" }
       """
     And I start the rails application
     When I go to the new user page
@@ -30,7 +31,8 @@ Feature: Rails integration
       has_attached_file :attachment,
                         :storage => :s3,
                         :path => "/:attachment/:style/:filename",
-                        :s3_credentials => Rails.root.join("config/s3.yml")
+                        :s3_credentials => Rails.root.join("config/s3.yml"),
+                        :styles => { :square => "100x100#" }
       """
     And I write to "config/s3.yml" with:
       """
