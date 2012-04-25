@@ -1,4 +1,3 @@
-require 'rubygems'
 require './test/helper'
 
 class GeometryTest < Test::Unit::TestCase
