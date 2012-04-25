@@ -451,13 +451,13 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the mailing list[http://groups.google.com/group/paperclip-plugin], or
-   post a new GitHub Issue[http://github.com/thoughtbot/paperclip/issues].
+1. Ask on the [mailing list](http://groups.google.com/group/paperclip-plugin), or
+   post a new [GitHub Issue](http://github.com/thoughtbot/paperclip/issues).
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please ask the mailing list.
 
-Please see CONTRIBUTING.md for details.
+Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
 Credits
 -------
@@ -473,4 +473,5 @@ The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 License
 -------
 
-Paperclip is Copyright © 2008-2011 thoughtbot. It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
+Paperclip is Copyright © 2008-2011 thoughtbot. It is free software, and may be
+redistributed under the terms specified in the MIT-LICENSE file.
