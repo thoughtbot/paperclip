@@ -1,3 +1,4 @@
+require 'active_model'
 require 'active_support/concern'
 require 'paperclip/validators/attachment_content_type_validator'
 require 'paperclip/validators/attachment_presence_validator'
