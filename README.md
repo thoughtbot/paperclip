@@ -183,6 +183,19 @@ Lastly, you can also define multiple validations on a single attachment using `v
 Storage
 -------
 
+Paperclip ships with 3 storage adapters:
+
+* File Storage
+* S3 Storage (via `aws-sdk`)
+* Fog Storage
+
+If you would like to use Paperclip with another storage, you can install these
+gems along side with Paperclip:
+
+* [Windows Azure](https://github.com/gmontard/paperclip-azure-storage)
+
+### Understanding Storage
+
 The files that are assigned as attachments are, by default, placed in the
 directory specified by the `:path` option to `has_attached_file`. By default, this
 location is `:rails_root/public/system/:attachment/:id/:style/:filename`. This
@@ -191,7 +204,7 @@ location was chosen because on standard Capistrano deployments, the
 will survive between deployments. For example, using that `:path`, you may have a
 file at
 
-    /data/myapp/releases/20081229172410/public/system/avatars/13/small/my_pic.png
+    /data/myapp/releases/20081229172410/public/system/user/avatar/000/000/013/small/my_pic.png
 
 _**NOTE**: This is a change from previous versions of Paperclip, but is overall a
 safer choice for the default file store._
