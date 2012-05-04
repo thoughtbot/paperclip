@@ -161,11 +161,13 @@ module Paperclip
     end
 
     def styles
-      styling_option = @options[:styles]
-      if styling_option.respond_to?(:call) || !@normalized_styles
-        @normalized_styles = ActiveSupport::OrderedHash.new
-        (styling_option.respond_to?(:call) ? styling_option.call(self) : styling_option).each do |name, args|
-          @normalized_styles[name.to_sym] = Paperclip::Style.new(name.to_sym, args.dup, self)
+      if @options[:styles].respond_to?(:call) || @normalized_styles.nil?
+        styles = @options[:styles]
+        styles = styles.call(self) if styles.respond_to?(:call)
+
+        @normalized_styles = styles.dup
+        @normalized_styles.each_pair do |name, options|
+          @normalized_styles[name.to_sym] = Paperclip::Style.new(name.to_sym, options.dup, self)
         end
       end
       @normalized_styles

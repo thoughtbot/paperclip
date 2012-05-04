@@ -60,7 +60,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with style rules in various forms" do
     setup do
-      styles = ActiveSupport::OrderedHash.new
+      styles = {}
       styles[:aslist] = ["100x100", :png]
       styles[:ashash] = {:geometry => "100x100", :format => :png}
       styles[:asstring] = "100x100"
