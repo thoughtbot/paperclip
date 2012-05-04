@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require './test/helper'
 require 'open-uri'
 
@@ -634,6 +636,18 @@ class IntegrationTest < Test::Unit::TestCase
       should "have the right content type" do
         headers = s3_headers_for(@dummy.avatar, :original)
         assert_equal 'image/png', headers['content-type']
+      end
+
+      context "with non-english character in the file name" do
+        setup do
+
+          @file.stubs(:original_filename).returns("クリップ.png")
+          @dummy.avatar = @file
+        end
+
+        should "not raise any error" do
+          @dummy.save!
+        end
       end
     end
   end
