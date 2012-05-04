@@ -1,4 +1,5 @@
 require './test/helper'
+require 'open-uri'
 
 class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do
@@ -81,7 +82,7 @@ class IntegrationTest < Test::Unit::TestCase
 
   context "Attachment" do
     setup do
-      @thumb_path = "./test/../public/system/dummies/avatars/000/000/001/thumb/5k.png"
+      @thumb_path = "tmp/public/system/dummies/avatars/000/000/001/thumb/5k.png"
       File.delete(@thumb_path) if File.exists?(@thumb_path)
       rebuild_model :styles => { :thumb => "50x50#" }
       @dummy = Dummy.new
@@ -110,8 +111,8 @@ class IntegrationTest < Test::Unit::TestCase
 
   context "Attachment with no generated thumbnails" do
     setup do
-      @thumb_small_path = "./test/../public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
-      @thumb_large_path = "./test/../public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
+      @thumb_small_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
+      @thumb_large_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
       File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
       File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
       rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
@@ -483,7 +484,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
-  if ENV['S3_TEST_BUCKET']
+  if ENV['S3_BUCKET']
     def s3_files_for attachment
       [:thumb, :medium, :large, :original].inject({}) do |files, style|
         data = `curl "#{attachment.url(style)}" 2>/dev/null`.chomp
@@ -510,25 +511,27 @@ class IntegrationTest < Test::Unit::TestCase
                                    :medium => "100x100",
                                    :thumb => ["32x32#", :gif] },
                       :storage => :s3,
-                      :s3_credentials => File.new(File.join(File.dirname(__FILE__), "s3.yml")),
+                      :s3_credentials => File.new(fixture_file('s3.yml')),
+                      :s3_options => { :logger => Paperclip.logger },
                       :default_style => :medium,
-                      :bucket => ENV['S3_TEST_BUCKET'],
+                      :bucket => ENV['S3_BUCKET'],
                       :path => ":class/:attachment/:id/:style/:basename.:extension"
+
         @dummy     = Dummy.new
-        @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
-        @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"), 'rb')
+        @file      = File.new(fixture_file('5k.png'), 'rb')
+        @bad_file  = File.new(fixture_file('bad.png'), 'rb')
 
-        assert @dummy.avatar = @file
-        assert @dummy.valid?
-        assert @dummy.save
+        @dummy.avatar = @file
+        @dummy.valid?
+        @dummy.save!
 
-        @files_on_s3 = s3_files_for @dummy.avatar
+        @files_on_s3 = s3_files_for(@dummy.avatar)
       end
 
       teardown do
         @file.close
         @bad_file.close
-        @files_on_s3.values.each(&:close)
+        @files_on_s3.values.each(&:close) if @files_on_s3
       end
 
       context 'assigning itself to a new model' do
@@ -566,15 +569,6 @@ class IntegrationTest < Test::Unit::TestCase
           assert_equal geo, `#{cmd}`.chomp, cmd
         end
 
-        @dummy.avatar = "not a valid file but not nil"
-        assert_equal File.basename(@file.path), @dummy.avatar_file_name
-        assert @dummy.valid?
-        assert @dummy.save
-
-        [:thumb, :medium, :large, :original].each do |style|
-          assert @dummy.avatar.exists?(style)
-        end
-
         @dummy.avatar.clear
         assert_nil @dummy.avatar_file_name
         assert @dummy.valid?
@@ -592,11 +586,17 @@ class IntegrationTest < Test::Unit::TestCase
         @d2 = Dummy.find(@dummy.id)
 
         assert_equal @dummy.avatar_file_name, @d2.avatar_file_name
-        [:thumb, :medium, :large, :original].each do |style|
-          assert_equal @dummy.avatar.to_file(style).read, @d2.avatar.to_file(style).read
-        end
 
-        saved_keys = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.to_file(s) }
+        [:thumb, :medium, :large, :original].each do |style|
+          begin
+            first_file = open(@dummy.avatar.url(style))
+            second_file = open(@dummy.avatar.url(style))
+            assert_equal first_file.read, second_file.read
+          ensure
+            first_file.close if first_file
+            second_file.close if second_file
+          end
+        end
 
         @d2.avatar.clear
         assert @d2.save
@@ -606,12 +606,7 @@ class IntegrationTest < Test::Unit::TestCase
         end
       end
 
-      should "know the difference between good files, bad files, not files, and nil" do
-        expected = @dummy.avatar.to_file
-        @dummy.avatar = "not a file"
-        assert @dummy.valid?
-        assert_equal expected.read, @dummy.avatar.to_file.read
-
+      should "know the difference between good files, bad files, and nil" do
         @dummy.avatar = @bad_file
         assert ! @dummy.valid?
         @dummy.avatar = nil

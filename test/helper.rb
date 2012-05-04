@@ -30,7 +30,10 @@ ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 class Test::Unit::TestCase
   def setup
     silence_warnings do
-      Object.const_set(:Rails, stub('Rails', :root => ROOT, :env => 'test'))
+      Object.const_set(:Rails, stub('Rails'))
+      Rails.stubs(:root).returns(File.join(ROOT, 'tmp'))
+      Rails.stubs(:env).returns('test')
+      Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end
   end
 end
