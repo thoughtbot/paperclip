@@ -7,7 +7,7 @@ class Dummy; end
 class AttachmentTest < Test::Unit::TestCase
 
   should "process :original style first" do
-    file = File.new(File.join(File.dirname(__FILE__), "fixtures", "50x50.png"), 'rb')
+    file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
     dummy = Dummy.new
     dummy.avatar = file
@@ -20,7 +20,7 @@ class AttachmentTest < Test::Unit::TestCase
   end
 
   should "not delete styles that don't get reprocessed" do
-    file = File.new(File.join(File.dirname(__FILE__), "fixtures", "50x50.png"), 'rb')
+    file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class :styles => { :small => '100x>',
                                :large => '500x>',
                                :original => '42x42#' }
@@ -202,9 +202,7 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model :path => ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"
       @dummy = Dummy.new
       @dummy.stubs(:id).returns(1024)
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
@@ -418,9 +416,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model :path => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
 
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummyA = Dummy.new(:other => 'a')
       @dummyA.avatar = @file
       @dummyB = Dummy.new(:other => 'b')
@@ -815,7 +811,7 @@ class AttachmentTest < Test::Unit::TestCase
       @instance = Dummy.new
       @instance.stubs(:id).returns 123
 
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "uppercase.PNG"), 'rb')
+      @file = File.new(fixture_file("uppercase.PNG"), 'rb')
 
       styles = {:styles => { :large  => ["400x400", :jpg],
                              :medium => ["100x100", :jpg],
@@ -852,7 +848,7 @@ class AttachmentTest < Test::Unit::TestCase
       @instance = Dummy.new
       @instance.stubs(:id).returns 123
       @attachment = Paperclip::Attachment.new(:avatar, @instance)
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
     teardown do
@@ -1046,7 +1042,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
       rebuild_class
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
     teardown { @file.close }
@@ -1167,7 +1163,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model :preserve_files => true
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
       @dummy.save!
       @attachment = @dummy.avatar
@@ -1191,7 +1187,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
       @dummy.save!
       @attachment = @dummy.avatar

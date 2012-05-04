@@ -36,7 +36,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
   context "An image" do
     setup do
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
     teardown { @file.close }
@@ -296,7 +296,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
   context "A multipage PDF" do
     setup do
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "twopage.pdf"), 'rb')
+      @file = File.new(fixture_file("twopage.pdf"), 'rb')
     end
 
     teardown { @file.close }
@@ -329,7 +329,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
   context "An animated gif" do
     setup do
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "animated.gif"), 'rb')
+      @file = File.new(fixture_file("animated.gif"), 'rb')
     end
 
     teardown { @file.close }

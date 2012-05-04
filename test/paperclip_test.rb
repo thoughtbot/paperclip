@@ -60,7 +60,7 @@ class PaperclipTest < Test::Unit::TestCase
 
   context "Paperclip.each_instance_with_attachment" do
     setup do
-      @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       d1 = Dummy.create(:avatar => @file)
       d2 = Dummy.create
       d3 = Dummy.create(:avatar => @file)
@@ -131,7 +131,7 @@ class PaperclipTest < Test::Unit::TestCase
   context "An ActiveRecord model with an 'avatar' attachment" do
     setup do
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
-      @file = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
     teardown { @file.close }

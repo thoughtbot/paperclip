@@ -7,7 +7,7 @@ class IntegrationTest < Test::Unit::TestCase
   context "Many models at once" do
     setup do
       rebuild_model
-      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+      @file      = File.new(fixture_file("5k.png"), 'rb')
       300.times do |i|
         Dummy.create! :avatar => @file
       end
@@ -27,9 +27,7 @@ class IntegrationTest < Test::Unit::TestCase
     setup do
       rebuild_model :styles => { :thumb => "50x50#" }
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
       assert @dummy.save
     end
@@ -88,9 +86,7 @@ class IntegrationTest < Test::Unit::TestCase
       File.delete(@thumb_path) if File.exists?(@thumb_path)
       rebuild_model :styles => { :thumb => "50x50#" }
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
 
     end
 
@@ -119,9 +115,7 @@ class IntegrationTest < Test::Unit::TestCase
       File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
       rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
 
       @dummy.avatar.post_processing = false
       @dummy.avatar = @file
@@ -158,9 +152,7 @@ class IntegrationTest < Test::Unit::TestCase
     setup do
       rebuild_model :styles => { :original => "2x2#" }
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
@@ -177,9 +169,7 @@ class IntegrationTest < Test::Unit::TestCase
                                  :medium => "50x50" },
                     :path => ":rails_root/tmp/:id/:attachments/:style.:extension"
       @dummy = Dummy.new
-      @file = File.new(File.join(File.dirname(__FILE__),
-                                 "fixtures",
-                                 "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
@@ -286,7 +276,7 @@ class IntegrationTest < Test::Unit::TestCase
       setup do
         rebuild_model
         @dummy = Dummy.new
-        @file  = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
+        @file  = File.new(fixture_file("5k.png"), 'rb')
         @umask = File.umask(umask)
       end
 
@@ -312,8 +302,8 @@ class IntegrationTest < Test::Unit::TestCase
                     :url => "/:attachment/:class/:style/:id/:basename.:extension",
                     :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       @dummy     = Dummy.new
-      @file      = File.new(File.join(FIXTURES_DIR, "5k.png"), 'rb')
-      @bad_file  = File.new(File.join(FIXTURES_DIR, "bad.png"), 'rb')
+      @file      = File.new(fixture_file("5k.png"), 'rb')
+      @bad_file  = File.new(fixture_file("bad.png"), 'rb')
 
       assert @dummy.avatar = @file
       assert @dummy.valid?, @dummy.errors.full_messages.join(", ")
@@ -410,7 +400,7 @@ class IntegrationTest < Test::Unit::TestCase
     context "that is assigned its file from another Paperclip attachment" do
       setup do
         @dummy2 = Dummy.new
-        @file2  = File.new(File.join(FIXTURES_DIR, "12k.png"), 'rb')
+        @file2  = File.new(fixture_file("12k.png"), 'rb')
         assert  @dummy2.avatar = @file2
         @dummy2.save
       end
@@ -437,7 +427,7 @@ class IntegrationTest < Test::Unit::TestCase
         has_many :attachments, :class_name => 'Dummy'
       end
 
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy = Dummy.new
       @dummy.avatar = @file
     end
@@ -458,7 +448,7 @@ class IntegrationTest < Test::Unit::TestCase
 
       rebuild_model @settings
 
-      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy = Dummy.create! :avatar => @file
     end
 

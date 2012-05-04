@@ -101,7 +101,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file" do
-      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+      file = fixture_file("5k.png")
       file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
@@ -109,7 +109,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file path" do
-      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+      file = fixture_file("5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
       assert @geo.width > 0
@@ -141,7 +141,7 @@ class GeometryTest < Test::Unit::TestCase
       begin
         ENV['PATH'] = ''
         assert_raises(Paperclip::Errors::CommandNotFoundError) do
-          file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+          file = fixture_file("5k.png")
           @geo = Paperclip::Geometry.from_file(file)
         end
       ensure

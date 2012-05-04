@@ -670,7 +670,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -709,7 +709,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -748,7 +748,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -787,7 +787,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -826,7 +826,7 @@ class S3Test < Test::Unit::TestCase
 
     context "when assigned" do
       setup do
-        @file = File.new(File.join(File.dirname(__FILE__), '..', 'fixtures', '5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
       end

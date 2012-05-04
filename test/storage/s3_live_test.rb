@@ -5,7 +5,7 @@ unless ENV["S3_BUCKET"].blank?
   class S3LiveTest < Test::Unit::TestCase
     context "when assigning an S3 attachment directly to another model" do
       setup do
-        @s3_credentials = File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+        @s3_credentials = File.new(fixture_file("s3.yml"))
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_BUCKET"],
@@ -40,7 +40,7 @@ unless ENV["S3_BUCKET"].blank?
 
     context "Generating an expiring url on a nonexistant attachment" do
       setup do
-        @s3_credentials = File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+        @s3_credentials = File.new(fixture_file("s3.yml"))
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_BUCKET"],
@@ -57,7 +57,7 @@ unless ENV["S3_BUCKET"].blank?
 
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
-        @s3_credentials = File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+        @s3_credentials = File.new(fixture_file("s3.yml"))
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_BUCKET"],
@@ -99,7 +99,7 @@ unless ENV["S3_BUCKET"].blank?
 
     context "An attachment that uses S3 for storage and has spaces in file name" do
       setup do
-        @s3_credentials = File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+        @s3_credentials = File.new(fixture_file("s3.yml"))
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
           :storage => :s3,
           :bucket => ENV["S3_BUCKET"],
@@ -139,7 +139,7 @@ unless ENV["S3_BUCKET"].blank?
 
     context "An attachment that uses S3 for storage and uses AES256 encryption" do
       setup do
-        @s3_credentials = File.new(File.join(File.dirname(__FILE__), "..", "fixtures", "s3.yml"))
+        @s3_credentials = File.new(fixture_file("s3.yml"))
         rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
                       :storage => :s3,
                       :bucket => ENV["S3_BUCKET"],
