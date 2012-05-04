@@ -2,11 +2,11 @@ Unreleased:
 
 * Bug fix: Uploading file with unicode file name now won't raise an error when
   logging in the AWS is turned on.
-* Bug fix: Task "paperclip:refresh:missing_styles" now work correctly
-* Bug fix: Handle the case when :restricted_characters is nil
-* Bug fix: Don't delete all the existing styles if we reprocess
-* Bug fix: Content type is now ensured to not having a new line character
-* API CHANGE: Non-Rails usage should include Paperclip::Glue directly
+* Bug fix: Task "paperclip:refresh:missing_styles" now work correctly.
+* Bug fix: Handle the case when :restricted_characters is nil.
+* Bug fix: Don't delete all the existing styles if we reprocess.
+* Bug fix: Content type is now ensured to not having a new line character.
+* API CHANGE: Non-Rails usage should include Paperclip::Glue directly.
 
   `Paperclip::Railtie` was intended to be used with Ruby on Rails only. If you're
   using Paperclip without Rails, you should include `Paperclip::Glue` into
