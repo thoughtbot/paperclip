@@ -1,5 +1,7 @@
 Unreleased:
 
+* Bug fix: ThumbnailProcessor now correctly detects and preserve animated GIF.
+* Bug fix: File extension is now preserved in generated Tempfile from adapter.
 * Bug fix: Uploading file with unicode file name now won't raise an error when
   logging in the AWS is turned on.
 * Bug fix: Task "paperclip:refresh:missing_styles" now work correctly.

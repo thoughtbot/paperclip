@@ -52,7 +52,9 @@ module Paperclip
     end
 
     def copy_to_tempfile(src)
-      dest = Tempfile.new(src.original_filename)
+      extension = File.extname(src.original_filename)
+      basename = File.basename(src.original_filename, extension)
+      dest = Tempfile.new([basename, extension])
       dest.binmode
       if src.respond_to? :copy_to_local_file
         src.copy_to_local_file(:original, dest.path)

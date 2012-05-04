@@ -7,14 +7,16 @@ module Paperclip
     # taken from the comments on this blog post:
     # http://marsorange.com/archives/of-mogrify-ruby-tempfile-dynamic-class-definitions
     #
-    # This is Ruby 1.8.7's implementation.
-    def make_tmpname(basename, n)
+    # This is Ruby 1.9.3's implementation.
+    def make_tmpname(prefix_suffix, n)
       if RUBY_PLATFORM =~ /java/
-        case basename
+        case prefix_suffix
+        when String
+          prefix, suffix = prefix_suffix, ''
         when Array
-          prefix, suffix = *basename
+          prefix, suffix = *prefix_suffix
         else
-          prefix, suffix = basename, ''
+          raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
         end
 
         t = Time.now.strftime("%y%m%d")
