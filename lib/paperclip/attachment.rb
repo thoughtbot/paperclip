@@ -90,6 +90,7 @@ module Paperclip
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
 
+      @options[:only_process].map!(&:to_sym)
       self.clear(*@options[:only_process])
       return nil if file.nil?
 
@@ -164,7 +165,7 @@ module Paperclip
       if styling_option.respond_to?(:call) || !@normalized_styles
         @normalized_styles = ActiveSupport::OrderedHash.new
         (styling_option.respond_to?(:call) ? styling_option.call(self) : styling_option).each do |name, args|
-          @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
+          @normalized_styles[name.to_sym] = Paperclip::Style.new(name.to_sym, args.dup, self)
         end
       end
       @normalized_styles
@@ -375,6 +376,7 @@ module Paperclip
 
     def post_process(*style_args) #:nodoc:
       return if @queued_for_write[:original].nil?
+
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
           post_process_styles(*style_args)

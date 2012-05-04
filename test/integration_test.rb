@@ -439,8 +439,47 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy.avatar = @file
     end
 
+    teardown { @file.close }
+
     should "should not error when saving" do
       @dummy.save!
+    end
+  end
+
+  context "A model with an attachment with hash in file name" do
+    setup do
+      @settings = { :styles => { :thumb => "50x50#" },
+        :path => ":rails_root/public/system/:attachment/:id_partition/:style/:hash.:extension",
+        :url => "/system/:attachment/:id_partition/:style/:hash.:extension",
+        :hash_secret => "somesecret" }
+
+      rebuild_model @settings
+
+      @file = File.new(File.join(File.dirname(__FILE__), "fixtures", "5k.png"), 'rb')
+      @dummy = Dummy.create! :avatar => @file
+    end
+
+    teardown do
+      @file.close
+    end
+
+    should "be accessible" do
+      assert File.exists?(@dummy.avatar.path(:original))
+      assert File.exists?(@dummy.avatar.path(:thumb))
+    end
+
+    context "when new style is added" do
+      setup do
+        @dummy.avatar.options[:styles][:mini] = "25x25#"
+        @dummy.avatar.instance_variable_set :@normalized_styles, nil
+        @dummy.avatar.reprocess! 'mini'
+      end
+
+      should "make all the styles accessible" do
+        assert File.exists?(@dummy.avatar.path(:original))
+        assert File.exists?(@dummy.avatar.path(:thumb))
+        assert File.exists?(@dummy.avatar.path(:mini))
+      end
     end
   end
 
@@ -604,4 +643,3 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 end
-
