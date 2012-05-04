@@ -768,19 +768,38 @@ class AttachmentTest < Test::Unit::TestCase
     context "with specified regexp replacement" do
       setup do
         @old_defaults = Paperclip::Attachment.default_options.dup
-        Paperclip::Attachment.default_options.merge! :restricted_characters => /o/
-
-        @file.stubs(:original_filename).returns("goood.png")
-        @dummy = Dummy.new
-        @dummy.avatar = @file
       end
 
       teardown do
         Paperclip::Attachment.default_options.merge! @old_defaults
       end
 
-      should "match and convert that character" do
-        assert_equal "g___d.png", @dummy.avatar.original_filename
+      context 'as another regexp' do
+        setup do
+          Paperclip::Attachment.default_options.merge! :restricted_characters => /o/
+
+          @file.stubs(:original_filename).returns("goood.png")
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        should "match and convert that character" do
+          assert_equal "g___d.png", @dummy.avatar.original_filename
+        end
+      end
+
+      context 'as nil' do
+        setup do
+          Paperclip::Attachment.default_options.merge! :restricted_characters => nil
+
+          @file.stubs(:original_filename).returns("goood.png")
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        should "ignore and return the original file name" do
+          assert_equal "goood.png", @dummy.avatar.original_filename
+        end
       end
     end
   end
