@@ -31,7 +31,7 @@ class Test::Unit::TestCase
   def setup
     silence_warnings do
       Object.const_set(:Rails, stub('Rails'))
-      Rails.stubs(:root).returns(File.join(ROOT, 'tmp'))
+      Rails.stubs(:root).returns(Pathname.new(ROOT).join('tmp'))
       Rails.stubs(:env).returns('test')
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end

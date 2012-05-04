@@ -808,7 +808,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       @old_defaults = Paperclip::Attachment.default_options.dup
       Paperclip::Attachment.default_options.merge!({
-        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+        :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
       rebuild_model
@@ -845,7 +845,7 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       @old_defaults = Paperclip::Attachment.default_options.dup
       Paperclip::Attachment.default_options.merge!({
-        :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+        :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
       rebuild_model
@@ -893,12 +893,12 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "return the proper path when filename has a single .'s" do
-        assert_equal File.expand_path("./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.png"), File.expand_path(@attachment.path)
+        assert_equal File.expand_path("tmp/avatars/dummies/original/#{@instance.id}/5k.png"), File.expand_path(@attachment.path)
       end
 
       should "return the proper path when filename has multiple .'s" do
         @attachment.stubs(:instance_read).with(:file_name).returns("5k.old.png")
-        assert_equal File.expand_path("./test/../tmp/avatars/dummies/original/#{@instance.id}/5k.old.png"), File.expand_path(@attachment.path)
+        assert_equal File.expand_path("tmp/avatars/dummies/original/#{@instance.id}/5k.old.png"), File.expand_path(@attachment.path)
       end
 
       context "when expecting three styles" do

@@ -62,7 +62,7 @@ class FogTest < Test::Unit::TestCase
       teardown { @file.close }
 
       should "be able to interpolate the path without blowing up" do
-        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../public/avatars/5k.png")),
+        assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../tmp/public/avatars/5k.png")),
                      @dummy.avatar.path
       end
     end
