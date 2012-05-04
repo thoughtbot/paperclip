@@ -32,26 +32,14 @@ module Paperclip
     # Find all instances of the given Active Record model +klass+ with attachment +name+.
     # This method is used by the refresh rake tasks.
     def each_instance_with_attachment(klass, name)
-      unscope_method = class_for(klass).respond_to?(:unscoped) ? :unscoped : :with_exclusive_scope
-      class_for(klass).send(unscope_method) do
-        class_for(klass).find_each(:conditions => "#{name}_file_name is not null") do |instance|
-          yield(instance)
-        end
+      class_for(klass).unscoped.where("#{name}_file_name IS NOT NULL").find_each do |instance|
+        yield(instance)
       end
     end
 
     def class_for(class_name)
-      # Ruby 1.9 introduces an inherit argument for Module#const_get and
-      # #const_defined? and changes their default behavior.
-      # https://github.com/rails/rails/blob/v3.0.9/activesupport/lib/active_support/inflector/methods.rb#L89
-      if Module.method(:const_get).arity == 1
-        class_name.split('::').inject(Object) do |klass, partial_class_name|
-          klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name) : klass.const_missing(partial_class_name)
-        end
-      else
-        class_name.split('::').inject(Object) do |klass, partial_class_name|
-          klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name, false) : klass.const_missing(partial_class_name)
-        end
+      class_name.split('::').inject(Object) do |klass, partial_class_name|
+        klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name, false) : klass.const_missing(partial_class_name)
       end
     end
 
