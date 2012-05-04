@@ -85,25 +85,25 @@ module Paperclip
       def self.extended base
         begin
           require 'aws-sdk'
-
-          # Overriding AWS::Core::LogFormatter to make sure it return a UTF-8 string
-          if AWS::VERSION >= "1.3.9"
-            AWS::Core::LogFormatter.class_eval do
-              def summarize_hash(hash)
-                hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
-              end
-            end
-          else
-            AWS::Core::ClientLogging.class_eval do
-              def sanitize_hash(hash)
-                hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
-              end
-            end
-          end
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
         end unless defined?(AWS::Core)
+
+        # Overriding AWS::Core::LogFormatter to make sure it return a UTF-8 string
+        if AWS::VERSION >= "1.3.9"
+          AWS::Core::LogFormatter.class_eval do
+            def summarize_hash(hash)
+              hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+            end
+          end
+        else
+          AWS::Core::ClientLogging.class_eval do
+            def sanitize_hash(hash)
+              hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+            end
+          end
+        end
 
         base.instance_eval do
           @s3_options     = @options[:s3_options]     || {}
