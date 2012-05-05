@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    paperclip (3.0.2)
+    paperclip (3.0.3)
       activemodel (>= 3.0.0)
       activerecord (>= 3.0.0)
       activesupport (>= 3.0.0)

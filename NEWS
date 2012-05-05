@@ -1,4 +1,4 @@
-Unreleased:
+New in 3.0.3:
 
 * Bug fix: ThumbnailProcessor now correctly detects and preserve animated GIF.
 * Bug fix: File extension is now preserved in generated Tempfile from adapter.
