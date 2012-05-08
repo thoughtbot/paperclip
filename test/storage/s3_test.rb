@@ -564,6 +564,11 @@ class S3Test < Test::Unit::TestCase
         assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
+      should "rewind file in flush_writes when save" do
+        @dummy.avatar.queued_for_write.each { |style, file| file.expects(:rewind).with() }
+        @dummy.save
+      end
+
       context "and saved" do
         setup do
           object = stub
