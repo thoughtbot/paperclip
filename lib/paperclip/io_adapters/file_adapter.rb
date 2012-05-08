@@ -39,14 +39,6 @@ module Paperclip
     def read(length = nil, buffer = nil)
       @tempfile.read(length, buffer)
     end
-    
-    def readbyte
-      @tempfile.readbyte
-    end
-
-    def readchar
-      @tempfile.readchar
-    end
 
     # We don't use this directly, but aws/sdk does.
     def rewind
