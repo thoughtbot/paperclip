@@ -40,6 +40,16 @@ class FileAdapterTest < Test::Unit::TestCase
         assert_equal expected, @subject.fingerprint
       end
 
+      should "read a char of the file" do
+        expected = @file.readchar
+        assert_equal expected, @subject.readchar
+      end
+
+      should "read a byte of the file" do
+        expected = @file.readbyte
+        assert_equal expected, @subject.readbyte
+      end
+
       should "read the contents of the file" do
         expected = @file.read
         assert expected.length > 0

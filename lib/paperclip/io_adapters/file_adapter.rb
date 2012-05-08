@@ -40,6 +40,15 @@ module Paperclip
       @tempfile.read(length, buffer)
     end
 
+    # We don't use this directly, but some post-processors does.
+    def readchar
+      @tempfile.readchar
+    end
+
+    def readbyte
+      @tempfile.readbyte
+    end
+
     # We don't use this directly, but aws/sdk does.
     def rewind
       @tempfile.rewind
