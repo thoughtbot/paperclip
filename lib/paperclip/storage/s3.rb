@@ -94,13 +94,13 @@ module Paperclip
         if AWS::VERSION >= "1.3.9"
           AWS::Core::LogFormatter.class_eval do
             def summarize_hash(hash)
-              hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+              hash.map { |key, value| String.respond_to?(:force_encoding) ? ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') : ":#{key}=>#{summarize_value(value)}" }.sort.join(',')
             end
           end
         else
           AWS::Core::ClientLogging.class_eval do
             def sanitize_hash(hash)
-              hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+              hash.map { |key, value| String.respond_to?(:force_encoding) ? "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') : "#{sanitize_value(key)}=>#{sanitize_value(value)}" }.sort.join(',')
             end
           end
         end
