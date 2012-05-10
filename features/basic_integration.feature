@@ -8,22 +8,6 @@ Feature: Rails integration
     And I update my new user view to include the file upload field
     And I update my user view to include the attachment
 
-  Scenario: Filesystem integration test
-    Given I add this snippet to the User model:
-      """
-      attr_accessible :name, :attachment
-      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename",
-                                     :styles => { :square => "100x100#" }
-      """
-    And I start the rails application
-    When I go to the new user page
-    And I fill in "Name" with "something"
-    And I attach the file "test/fixtures/5k.png" to "Attachment"
-    And I press "Submit"
-    Then I should see "Name: something"
-    And I should see an image with a path of "/system/attachments/original/5k.png"
-    And the file at "/system/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
-
   Scenario: Configure defaults for all attachments through Railtie
     Given I add this snippet to config/application.rb:
       """
@@ -42,6 +26,21 @@ Feature: Rails integration
     Then I should see "Name: something"
     And I should see an image with a path of "/paperclip/custom/attachments/original/5k.png"
     And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
+
+  Scenario: Filesystem integration test
+    Given I add this snippet to the User model:
+      """
+      attr_accessible :name, :attachment
+      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename"
+      """
+    And I start the rails application
+    When I go to the new user page
+    And I fill in "Name" with "something"
+    And I attach the file "test/fixtures/5k.png" to "Attachment"
+    And I press "Submit"
+    Then I should see "Name: something"
+    And I should see an image with a path of "/system/attachments/original/5k.png"
+    And the file at "/system/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
 
   Scenario: S3 Integration test
     Given I add this snippet to the User model:
