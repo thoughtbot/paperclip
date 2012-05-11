@@ -62,6 +62,9 @@ module Paperclip
     #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
     #   
     #   Notes:
+    #   * The value of this option is a string, not a symbol.
+    #     <b>right:</b> <tt>":s3_domain_url"</tt>
+    #     <b>wrong:</b> <tt>:s3_domain_url</tt>
     #   * If you use a CNAME for use with CloudFront, you can NOT specify https as your
     #     :s3_protocol;
     #     This is *not supported* by S3/CloudFront. Finally, when using the host
