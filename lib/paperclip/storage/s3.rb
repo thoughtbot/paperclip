@@ -60,12 +60,16 @@ module Paperclip
     #   Normally, this won't matter in the slightest and you can leave the default (which is
     #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
     #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
-    #   NOTE: If you use a CNAME for use with CloudFront, you can NOT specify https as your
-    #   :s3_protocol; This is *not supported* by S3/CloudFront. Finally, when using the host
-    #   alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
-    #   by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
-    #   asset_host settings. NOTE: To get the full url from a paperclip'd object, use the
-    #   image_path helper; this is what image_tag uses to generate the url for an img tag.
+    #   
+    #   Notes:
+    #   * If you use a CNAME for use with CloudFront, you can NOT specify https as your
+    #     :s3_protocol;
+    #     This is *not supported* by S3/CloudFront. Finally, when using the host
+    #     alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
+    #     by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
+    #     asset_host settings.
+    #   * To get the full url from a paperclip'd object, use the
+    #     image_path helper; this is what image_tag uses to generate the url for an img tag.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
