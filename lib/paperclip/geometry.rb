@@ -13,18 +13,22 @@ module Paperclip
 
     # Uses ImageMagick to determing the dimensions of a file, passed in as either a
     # File or path.
+    # NOTE: (race cond) Do not reassign the 'file' variable inside this method as it is likely to be
+    # a Tempfile object, which would be eligible for file deletion when no longer referenced.
     def self.from_file file
-      file = file.path if file.respond_to? "path"
-      raise(Paperclip::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file.blank?
+      file_path = file.respond_to?(:path) ? file.path : file
+      raise(Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file_path.blank?
       geometry = begin
-                   Paperclip.run("identify", "-format %wx%h :file", :file => "#{file}[0]")
+                   silence_stream(STDERR) do
+                     Paperclip.run("identify", "-format %wx%h :file", :file => "#{file_path}[0]")
+                   end
                  rescue Cocaine::ExitStatusError
                    ""
                  rescue Cocaine::CommandNotFoundError => e
-                   raise Paperclip::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
+                   raise Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
                  end
       parse(geometry) ||
-        raise(NotIdentifiedByImageMagickError.new("#{file} is not recognized by the 'identify' command."))
+        raise(Errors::NotIdentifiedByImageMagickError.new("#{file_path} is not recognized by the 'identify' command."))
     end
 
     # Parses a "WxH" formatted string, where W is the width and H is the height.

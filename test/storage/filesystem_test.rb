@@ -2,33 +2,30 @@ require './test/helper'
 
 class FileSystemTest < Test::Unit::TestCase
   context "Filesystem" do
-    setup do
-      rebuild_model :styles => { :thumbnail => "25x25#" }
-      @dummy = Dummy.create!
+    context "normal file" do
+      setup do
+        rebuild_model :styles => { :thumbnail => "25x25#" }
+        @dummy = Dummy.create!
 
-      @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "..", "fixtures", "5k.png"))
-    end
+        @file = File.open(fixture_file('5k.png'))
+        @dummy.avatar = @file
+      end
 
-    should "allow file assignment" do
-      assert @dummy.save
-    end
+      teardown { @file.close }
 
-    should "store the original" do
-      @dummy.save
-      assert File.exists?(@dummy.avatar.path)
-    end
+      should "allow file assignment" do
+        assert @dummy.save
+      end
 
-    should "store the thumbnail" do
-      @dummy.save
-      assert File.exists?(@dummy.avatar.path(:thumbnail))
-    end
+      should "store the original" do
+        @dummy.save
+        assert File.exists?(@dummy.avatar.path)
+      end
 
-    should "clean up file objects" do
-      File.stubs(:exist?).returns(true)
-      Paperclip::Tempfile.any_instance.expects(:close).at_least_once()
-      Paperclip::Tempfile.any_instance.expects(:unlink).at_least_once()
-
-      @dummy.save!
+      should "store the thumbnail" do
+        @dummy.save
+        assert File.exists?(@dummy.avatar.path(:thumbnail))
+      end
     end
 
     context "with file that has space in file name" do
@@ -36,16 +33,23 @@ class FileSystemTest < Test::Unit::TestCase
         rebuild_model :styles => { :thumbnail => "25x25#" }
         @dummy = Dummy.create!
 
-        @dummy.avatar = File.open(File.join(File.dirname(__FILE__), "..", "fixtures", "spaced file.png"))
+        @file = File.open(fixture_file('spaced file.png'))
+        @dummy.avatar = @file
         @dummy.save
       end
+
+      teardown { @file.close }
 
       should "store the file" do
         assert File.exists?(@dummy.avatar.path)
       end
 
-      should "return an escaped version of URL" do
-        assert_match /\/spaced%20file\.png/, @dummy.avatar.url
+      should "return a replaced version for path" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
+      end
+
+      should "return a replaced version for url" do
+        assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
     end
   end

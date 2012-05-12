@@ -1,0 +1,106 @@
+New in 3.0.3:
+
+* Bug fix: ThumbnailProcessor now correctly detects and preserve animated GIF.
+* Bug fix: File extension is now preserved in generated Tempfile from adapter.
+* Bug fix: Uploading file with unicode file name now won't raise an error when
+  logging in the AWS is turned on.
+* Bug fix: Task "paperclip:refresh:missing_styles" now work correctly.
+* Bug fix: Handle the case when :restricted_characters is nil.
+* Bug fix: Don't delete all the existing styles if we reprocess.
+* Bug fix: Content type is now ensured to not having a new line character.
+* API CHANGE: Non-Rails usage should include Paperclip::Glue directly.
+
+  `Paperclip::Railtie` was intended to be used with Ruby on Rails only. If you're
+  using Paperclip without Rails, you should include `Paperclip::Glue` into
+  `ActiveRecord::Base` instead of requiring `paperclip/railtie`:
+
+      ActiveRecord::Base.send :include, Paperclip::Glue
+
+* Bug fix: AttachmentContentTypeValidator now allow you to specify :allow_blank/:allow_nil
+* Bug fix: Make sure content type always a String.
+* Bug fix: Fix attachment.reprocess! when using storage providers fog and s3.
+* Bug fix: Fix a problem with incorrect content_type detected with 'file' command for an empty file on Mac.
+
+New in 3.0.2:
+
+* API CHANGE: Generated migration class name is now plural (AddAttachmentToUsers instead of AddAttachmentToUser)
+* API CHANGE: Remove Rails plugin initialization code.
+* API CHANGE: Explicitly require Ruby 1.9.2 in the Gemfile.
+* Bug fix: Fixes AWS::S3::Errors::RequestTimeout on Model#save.
+* Bug fix: Fix a problem when there's no logger specified.
+* Bug fix: Fix a problem when attaching Rack::Test::UploadedFile instance.
+
+New in 3.0.1:
+
+* Feature: Introduce Paperlip IO adapter.
+* Bug fix: Regression in AttachmentContentTypeValidator has been fixed.
+
+New in 3.0.0:
+
+* API CHANGE: Paperclip now requires at least Ruby on Rails version 3.0.0
+* API CHANGE: The default :url and :path have changed. The new scheme avoids
+  filesystem conflicts and scales to handle larger numbers of uploads.
+
+  The easiest way to upgrade is to add an explicit :url and :path to your
+  has_attached_file calls:
+
+      has_attached_file :avatar,
+        :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
+        :url => "/system/:attachment/:id/:style/:filename"
+
+* Feature: Adding Rails 3 style validators, and adding `validates_attachment` method as a shorthand.
+* Bug fix: Paperclip's rake tasks now loading records in batch.
+* Bug fix: Attachment style name with leading number now not raising an error.
+* Bug fix: File given to S3 and Fog storage will now be rewinded after flush_write.
+* Feature: You can now pass addional parameter to S3 expiring URL, such as :content_type.
+
+New in 2.7.0:
+
+* Bug fix: Checking the existence of a file on S3 handles all AWS errors.
+* Bug fix: Clear the fingerprint when removing an attachment.
+* Bug fix: Attachment size validation message reads more nicely now.
+* Feature: Style names can be either symbols or strings.
+* Compatibility: Support for ActiveSupport < 2.3.12.
+* Compatibility: Support for Rails 3.2.
+
+New in 2.6.0:
+
+* Bug fix: Files are re-wound after reading.
+* Feature: Remove Rails dependency from specs that need Paperclip.
+* Feature: Validation matchers support conditionals.
+
+New in 2.5.2:
+
+* Bug fix: Can be installed on Windows.
+* Feature: The Fog bucket name, authentication, and host can be determined at runtime via Proc.
+* Feature: Special characters are replaced with underscores in #url and #path.
+
+New in 2.5.1:
+
+* Feature: After we've computed the content type, pass it to Fog.
+* Feature: S3 encryption with the new :s3_server_side_encryption option.
+* Feature: Works without ActiveRecord, allowing for e.g. mongo backends.
+
+New in 2.5.0:
+
+* Performance: Only connect to S3 when absolutely needed.
+* Bug fix: STI with cached classes respect new options.
+* Bug fix: conditional validations broke, and now work again.
+* Feature: URL generation is now parameterized and can be changed with plugins or custom code.
+* Feature: :convert_options and :source_file_options to control the ImageMagick processing.
+* Performance: String geometry specifications now parse more quickly.
+* Bug fix: Handle files with question marks in the filename.
+* Bug fix: Don't raise an error when generating an expiring URL on an unassigned attachment.
+* Bug fix: The rake task runs over all instances of an ActiveRecord model, ignoring default scopes.
+* Feature: DB migration has_attached_file and drop_attached_file methods.
+* Bug fix: Switch from AWS::S3 to AWS::SDK for the S3 backend.
+* Bug fix: URL generator uses '?' in the URL unless it already appears and there is no prior '='.
+* Bug fix: Always convert the content type to a string before stripping blanks.
+* Feature: The :keep_old_files option preserves the files in storage even when the attachment is cleared or changed.
+* Performance: Optimize Fog's public_url access by avoiding it when possible.
+* Bug fix: Avoid a runtime error when generating the ID partition for an unsaved attachment.
+* Performance: Do not calculate the fingerprint if it is never persisted.
+* Bug fix: Process the :original style before all others, in case of a dependency.
+* Feature: S3 headers can be set at runtime by passing a proc object as the value.
+* Bug fix: Generating missing attachment styles for a model which has had its attachment changed should not raise.
+* Bug fix: Do not collide with the built-in Ruby hashing method.

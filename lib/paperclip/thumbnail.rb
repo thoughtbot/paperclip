@@ -44,7 +44,6 @@ module Paperclip
 
       @current_format      = File.extname(@file.path)
       @basename            = File.basename(@file.path, @current_format)
-
     end
 
     # Returns true if the +target_geometry+ is meant to crop.
@@ -76,9 +75,9 @@ module Paperclip
 
         success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
       rescue Cocaine::ExitStatusError => e
-        raise PaperclipError, "There was an error processing the thumbnail for #{@basename}" if @whiny
+        raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
       rescue Cocaine::CommandNotFoundError => e
-        raise Paperclip::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
+        raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
 
       dst

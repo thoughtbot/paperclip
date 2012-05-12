@@ -1,16 +1,18 @@
 Given /^I generate a new rails application$/ do
   steps %{
-    When I run `bundle exec #{new_application_command} #{APP_NAME}`
+    When I run `bundle exec #{new_application_command} #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
     And I turn off class caching
     And I write to "Gemfile" with:
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3"
+      gem "sqlite3", :platform => :ruby
+      gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
+      gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
-      gem "aws-s3"
+      gem "aws-sdk"
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
@@ -19,45 +21,30 @@ Given /^I generate a new rails application$/ do
 end
 
 Given /^I run a rails generator to generate a "([^"]*)" scaffold with "([^"]*)"$/ do |model_name, attributes|
-  Given %[I successfully run `bundle exec #{generator_command} scaffold #{model_name} #{attributes}`]
+  step %[I successfully run `bundle exec #{generator_command} scaffold #{model_name} #{attributes}`]
 end
 
 Given /^I run a paperclip generator to add a paperclip "([^"]*)" to the "([^"]*)" model$/ do |attachment_name, model_name|
-  Given %[I successfully run `bundle exec #{generator_command} paperclip #{model_name} #{attachment_name}`]
+  step %[I successfully run `bundle exec #{generator_command} paperclip #{model_name} #{attachment_name}`]
 end
 
 Given /^I run a migration$/ do
-  Given %[I successfully run `bundle exec rake db:migrate`]
+  step %[I successfully run `bundle exec rake db:migrate`]
 end
 
 Given /^I update my new user view to include the file upload field$/ do
-  if framework_version?("3")
-    steps %{
-      Given I overwrite "app/views/users/new.html.erb" with:
-        """
-        <%= form_for @user, :html => { :multipart => true } do |f| %>
-          <%= f.label :name %>
-          <%= f.text_field :name %>
-          <%= f.label :attachment %>
-          <%= f.file_field :attachment %>
-          <%= submit_tag "Submit" %>
-        <% end %>
-        """
-    }
-  else
-    steps %{
-      Given I overwrite "app/views/users/new.html.erb" with:
-        """
-        <% form_for @user, :html => { :multipart => true } do |f| %>
-          <%= f.label :name %>
-          <%= f.text_field :name %>
-          <%= f.label :attachment %>
-          <%= f.file_field :attachment %>
-          <%= submit_tag "Submit" %>
-        <% end %>
-        """
-    }
-  end
+  steps %{
+    Given I overwrite "app/views/users/new.html.erb" with:
+      """
+      <%= form_for @user, :html => { :multipart => true } do |f| %>
+        <%= f.label :name %>
+        <%= f.text_field :name %>
+        <%= f.label :attachment %>
+        <%= f.file_field :attachment %>
+        <%= submit_tag "Submit" %>
+      <% end %>
+      """
+  }
 end
 
 Given /^I update my user view to include the attachment$/ do
@@ -89,27 +76,13 @@ Given /^I reload my application$/ do
   Rails::Application.reload!
 end
 
-When %r{I turn off class caching} do
+When /^I turn off class caching$/ do
   in_current_dir do
     file = "config/environments/test.rb"
     config = IO.read(file)
     config.gsub!(%r{^\s*config.cache_classes.*$},
                  "config.cache_classes = false")
     File.open(file, "w"){|f| f.write(config) }
-  end
-end
-
-Given /^I update my application to use Bundler$/ do
-  if framework_version?("2")
-    boot_config_template = File.read('features/support/fixtures/boot_config.txt')
-    preinitializer_template = File.read('features/support/fixtures/preinitializer.txt')
-    gemfile_template = File.read('features/support/fixtures/gemfile.txt')
-    in_current_dir do
-      content = File.read("config/boot.rb").sub(/Rails\.boot!/, boot_config_template)
-      File.open("config/boot.rb", "w") { |file| file.write(content) }
-      File.open("config/preinitializer.rb", "w") { |file| file.write(preinitializer_template) }
-      File.open("Gemfile", "w") { |file| file.write(gemfile_template.sub(/RAILS_VERSION/, framework_version)) }
-    end
   end
 end
 
@@ -145,28 +118,3 @@ end
 When /^I comment out the gem "([^"]*)" from the Gemfile$/ do |gemname|
   comment_out_gem_in_gemfile gemname
 end
-
-module FileHelpers
-  def append_to(path, contents)
-    in_current_dir do
-      File.open(path, "a") do |file|
-        file.puts
-        file.puts contents
-      end
-    end
-  end
-
-  def append_to_gemfile(contents)
-    append_to('Gemfile', contents)
-  end
-
-  def comment_out_gem_in_gemfile(gemname)
-    in_current_dir do
-      gemfile = File.read("Gemfile")
-      gemfile.sub!(/^(\s*)(gem\s*['"]#{gemname})/, "\\1# \\2")
-      File.open("Gemfile", 'w'){ |file| file.write(gemfile) }
-    end
-  end
-end
-
-World(FileHelpers)

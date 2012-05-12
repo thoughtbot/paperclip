@@ -32,11 +32,15 @@ module RailsCommandHelpers
   end
 
   def new_application_command
-    framework_version?("3") ? "rails new" : "rails"
+    "rails new"
   end
 
   def generator_command
-    framework_version?("3") ? "script/rails generate" : "script/generate"
+    "script/rails generate"
+  end
+
+  def runner_command
+    "script/rails runner"
   end
 end
 World(RailsCommandHelpers)

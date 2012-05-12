@@ -101,7 +101,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file" do
-      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+      file = fixture_file("5k.png")
       file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
@@ -109,7 +109,7 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "be generated from a file path" do
-      file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+      file = fixture_file("5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert @geo.height > 0
       assert @geo.width > 0
@@ -117,31 +117,31 @@ class GeometryTest < Test::Unit::TestCase
 
     should "not generate from a bad file" do
       file = "/home/This File Does Not Exist.omg"
-      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+      assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
     should "not generate from a blank filename" do
       file = ""
-      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+      assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
     should "not generate from a nil file" do
       file = nil
-      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+      assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
     should "not generate from a file with no path" do
       file = mock("file", :path => "")
-      file.stubs(:respond_to?).with("path").returns(true)
-      assert_raise(Paperclip::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
+      file.stubs(:respond_to?).with(:path).returns(true)
+      assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
     should "let us know when a command isn't found versus a processing error" do
       old_path = ENV['PATH']
       begin
         ENV['PATH'] = ''
-        assert_raises(Paperclip::CommandNotFoundError) do
-          file = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+        assert_raises(Paperclip::Errors::CommandNotFoundError) do
+          file = fixture_file("5k.png")
           @geo = Paperclip::Geometry.from_file(file)
         end
       ensure

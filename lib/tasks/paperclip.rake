@@ -10,7 +10,7 @@ module Paperclip
       klass = Paperclip.class_for(klass.to_s)
       name = ENV['ATTACHMENT'] || ENV['attachment']
       raise "Class #{klass.name} has no attachments specified" unless klass.respond_to?(:attachment_definitions)
-      if !name.blank? && klass.attachment_definitions.keys.include?(name)
+      if !name.blank? && klass.attachment_definitions.keys.map(&:to_s).include?(name.to_s)
         [ name ]
       else
         klass.attachment_definitions.keys
@@ -45,15 +45,11 @@ namespace :paperclip do
       names = Paperclip::Task.obtain_attachments(klass)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
-          if file = instance.send(name).to_file(:original)
+          if file = Paperclip.io_adapters.for(instance.send(name))
             instance.send("#{name}_file_name=", instance.send("#{name}_file_name").strip)
-            instance.send("#{name}_content_type=", file.content_type.strip)
+            instance.send("#{name}_content_type=", file.content_type.to_s.strip)
             instance.send("#{name}_file_size=", file.size) if instance.respond_to?("#{name}_file_size")
-            if Rails.version >= "3.0.0"
-              instance.save(:validate => false)
-            else
-              instance.save(false)
-            end
+            instance.save(:validate => false)
           else
             true
           end
@@ -73,7 +69,7 @@ namespace :paperclip do
           ENV['STYLES'] = missing_styles.join(',')
           Rake::Task['paperclip:refresh:thumbnails'].execute
         end
-      end  
+      end
       Paperclip.save_current_attachments_styles!
     end
   end
@@ -84,12 +80,12 @@ namespace :paperclip do
     names = Paperclip::Task.obtain_attachments(klass)
     names.each do |name|
       Paperclip.each_instance_with_attachment(klass, name) do |instance|
-        instance.send(name).send(:validate)
-        if instance.send(name).valid?
-          true
-        else
-          instance.send("#{name}=", nil)
-          instance.save
+        unless instance.valid?
+          attributes = %w(file_size file_name content_type).map{ |suffix| "#{name}_#{suffix}".to_sym }
+          if attributes.any?{ |attribute| instance.errors[attribute].present? }
+            instance.send("#{name}=", nil)
+            instance.save(:validate => false)
+          end
         end
       end
     end

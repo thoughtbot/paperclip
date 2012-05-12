@@ -19,7 +19,7 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   protected
 
   def migration_name
-    "add_attachment_#{attachment_names.join("_")}_to_#{name.underscore}"
+    "add_attachment_#{attachment_names.join("_")}_to_#{name.underscore.pluralize}"
   end
 
   def migration_file_name
@@ -29,5 +29,4 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   def migration_class_name
     migration_name.camelize
   end
-
 end
