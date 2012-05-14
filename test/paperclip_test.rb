@@ -33,6 +33,30 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Calling Paperclip.convert" do
+    should "run the convert command with Cocaine" do
+      Paperclip.options[:log_command] = false
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
+      Paperclip.convert("stuff")
+    end
+  end
+
+  context "Calling Paperclip.identify" do
+    should "run the identify command with Cocaine" do
+      Paperclip.options[:log_command] = false
+      Cocaine::CommandLine.expects(:new).with("identify", "stuff", {}).returns(stub(:run))
+      Paperclip.identify("stuff")
+    end
+  end
+
+  context "Calling Paperclip.file" do
+    should "run the file command with Cocaine" do
+      Paperclip.options[:log_command] = false
+      Cocaine::CommandLine.expects(:new).with("file", "stuff", {}).returns(stub(:run))
+      Paperclip.file("stuff")
+    end
+  end
+
   context "Calling Paperclip.log without options[:logger] set" do
     setup do
       Paperclip.logger = nil
