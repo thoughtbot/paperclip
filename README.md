@@ -244,7 +244,7 @@ This would load the hypothetical class Paperclip::Ocr, which would have the
 hash "{ :quality => :better }" passed to it along with the uploaded file. For
 more information about defining processors, see Paperclip::Processor.
 
-The default processor is Paperclip::Thumbnail. For backwards compatability
+The default processor is Paperclip::Thumbnail. For backwards compatibility
 reasons, you can pass a single geometry string or an array containing a
 geometry and a format, which the file will be converted to, like so:
 
@@ -400,10 +400,10 @@ processors, where a defined `watermark` processor is invoked after the
       attr_accessor :watermark
     end
 
-Deploy
-------
+Deployment
+----------
 
-Paperclip is aware of new attachment styles you have added in previous deploy. The only thing you should do after each deployment is to call
+Paperclip is aware of new attachment styles you have added in previous deploys. The only thing you should do after each deployment is to call
 `rake paperclip:refresh:missing_styles`.  It will store current attachment styles in `RAILS_ROOT/public/system/paperclip_attachments.yml`
 by default. You can change it by:
 
@@ -420,11 +420,11 @@ Here is an example for Capistrano:
 
     after("deploy:update_code", "deploy:build_missing_paperclip_styles")
 
-Now you don't have to remember to refresh thumbnails in production everytime you add new style.
+Now you don't have to remember to refresh thumbnails in production every time you add a new style.
 Unfortunately it does not work with dynamic styles - it just ignores them.
 
-If you already have working app and don't want `rake paperclip:refresh:missing_styles` to refresh old pictures, you need to tell
-Paperclip about existing styles. Simply create paperclip\_attachments.yml file by hand. For example:
+If you already have a working app and don't want `rake paperclip:refresh:missing_styles` to refresh old pictures, you need to tell
+Paperclip about existing styles. Simply create a `paperclip_attachments.yml` file by hand. For example:
 
     class User < ActiveRecord::Base
       has_attached_file :avatar, :styles => {:thumb => 'x100', :croppable => '600x600>', :big => '1000x1000>'}
