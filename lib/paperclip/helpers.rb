@@ -8,6 +8,24 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
+    # The convert method runs the convert binary with the provided arguments.
+    # See Paperclip.run for the available options.
+    def convert(arguments = "", local_options = {})
+      run('convert', arguments, local_options)
+    end
+
+    # The identify method runs the identify binary with the provided arguments.
+    # See Paperclip.run for the available options.
+    def identify(arguments = "", local_options = {})
+      run('identify', arguments, local_options)
+    end
+
+    # The file method runs the file binary with the provided arguments.
+    # See Paperclip.run for the available options.
+    def file(arguments = "", local_options = {})
+      run('file', arguments, local_options)
+    end
+
     # The run method takes the name of a binary to run, the arguments to that binary
     # and some options:
     #
