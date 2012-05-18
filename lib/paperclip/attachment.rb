@@ -359,12 +359,34 @@ module Paperclip
     end
 
     def extra_options_for(style) #:nodoc:
-      all_options   = @options[:convert_options][:all]
-      all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
+      all_options   = convert_options[:all]
+      all_options   = all_options.call(instance)   if all_options.respond_to?(:call)     
       style_options = @options[:convert_options][style]
       style_options = style_options.call(instance) if style_options.respond_to?(:call)
 
       [ style_options, all_options ].compact.join(" ")
+    end
+
+    # Convert options should be the same as the style options, which can be a lambda at run time
+    # Enabling this functionality allows us to do things like the following
+    # the :convert_options now takes a lambda that can be evaluate at run time
+    # for example
+    #   has_attached_file :image, :styles => STYLES_LAMBDA,
+    #                              :path => "#{paper_clip_settings[:path_prefix]}/:attachment/:style/:id.:extension",
+    #                              :url => "#{paper_clip_settings[:url_prefix]}/:attachment/:style/:id.:extension"
+    #                              :convert_options => lambda do {|attachment| attachment.instance.cuts.inject({}){options, cut| cut.paperclip(attachment)}}
+    #
+    # This allows us to set extra convert options, particularly for JPEG images, that allows "-quality 75", or "-define jpeg:extent=file_size" for
+    # individual styles
+    def convert_options
+      converting_option = @options[:convert_options]
+      if converting_option.respond_to?(:call) || !@normalized_convert_options
+        @normalized_convert_options = ActiveSupport::OrderedHash.new
+        (converting_option.respond_to?(:call) ? converting_option.call(self) : converting_option).each do |name, args|
+          @normalized_convert_options[name] = args
+        end
+      end
+      @normalized_convert_options
     end
 
     def extra_source_file_options_for(style) #:nodoc:
