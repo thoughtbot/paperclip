@@ -234,6 +234,17 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
 
+    context "being thumbnailed with default animated option (true)" do
+      should "call identify to check for animated images when sent #make" do
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
+        thumb.expects(:identify).at_least_once.with do |*arg|
+          arg[0] == '-format %m :file' &&
+          arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
+        end
+        thumb.make
+      end
+    end
+
     context "passing a custom file geometry parser" do
       teardown do
         self.class.send(:remove_const, :GeoParser)
@@ -373,6 +384,40 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with unidentified source format" do
+      setup do
+        @unidentified_file = File.new(fixture_file("animated.unknown"), 'rb')
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "60x60")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "60x60"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with no source format" do
+      setup do
+        @unidentified_file = File.new(fixture_file("animated"), 'rb')
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "70x70")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "70x70"*12, `#{cmd}`.chomp
       end
 
       should "use the -coalesce option" do
