@@ -98,7 +98,14 @@ module Paperclip
 
     # Return true if the format is animated
     def animated?
-      @animated && ANIMATED_FORMATS.include?(@current_format[1..-1]) && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)
+      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)  && identified_as_animated?
+    end
+
+    # Return true if ImageMagick's +identify+ returns an animated format
+    def identified_as_animated?
+      ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").downcase.strip
+    rescue
+      false
     end
   end
 end
