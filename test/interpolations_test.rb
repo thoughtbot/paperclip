@@ -56,6 +56,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the extension of the file based on the content type" do
     attachment = mock
     attachment.expects(:content_type).returns('image/jpeg')
+    attachment.expects(:styles).returns({})
     interpolations = Paperclip::Interpolations
     interpolations.expects(:extension).returns('random')
     assert_equal "jpeg", interpolations.content_type_extension(attachment, :style)
@@ -64,6 +65,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the original extension of the file if it matches a content type extension" do
     attachment = mock
     attachment.expects(:content_type).returns('image/jpeg')
+    attachment.expects(:styles).returns({})
     interpolations = Paperclip::Interpolations
     interpolations.expects(:extension).returns('jpe')
     assert_equal "jpe", interpolations.content_type_extension(attachment, :style)
@@ -72,9 +74,19 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the latter half of the content type of the extension if no match found" do
     attachment = mock
     attachment.expects(:content_type).at_least_once().returns('not/found')
+    attachment.expects(:styles).returns({})
     interpolations = Paperclip::Interpolations
     interpolations.expects(:extension).returns('random')
     assert_equal "found", interpolations.content_type_extension(attachment, :style)
+  end
+
+  should "return the format if defined in the style, ignoring the content type" do
+    attachment = mock
+    attachment.expects(:content_type).returns('image/jpeg')
+    attachment.expects(:styles).returns({:style => {:format => "png"}})
+    interpolations = Paperclip::Interpolations
+    interpolations.expects(:extension).returns('random')
+    assert_equal "png", interpolations.content_type_extension(attachment, :style)
   end
 
   should "be able to handle numeric style names" do
