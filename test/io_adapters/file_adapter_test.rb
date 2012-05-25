@@ -65,7 +65,7 @@ class FileAdapterTest < Test::Unit::TestCase
           MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-mp4'), MIME::Type.new('image/x-video')])
         end
 
-        should "return the last" do
+        should "return the first" do
           assert_equal "image/x-mp4", @subject.content_type
         end
       end
