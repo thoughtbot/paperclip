@@ -60,6 +60,16 @@ class FileAdapterTest < Test::Unit::TestCase
         end
       end
 
+      context "file with multiple possible x-types but no official type" do
+        setup do
+          MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-mp4'), MIME::Type.new('image/x-video')])
+        end
+
+        should "return the last" do
+          assert_equal "image/x-mp4", @subject.content_type
+        end
+      end
+
       context "file with content type derived from file command on *nix" do
         setup do
           MIME::Types.stubs(:type_for).returns([])
