@@ -32,7 +32,7 @@ module Paperclip
       if @attachment.original_filename.nil?
         default_url
       else
-        @attachment_options[:url]
+        (@attachment_options[:url].is_a?(Proc)) ? @attachment_options[:url].call(@attachment) : @attachment_options[:url]
       end
     end
 
