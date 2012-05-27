@@ -28,10 +28,10 @@ module Paperclip
     # You can pass a method name on your record as a symbol, which should turn
     # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
-      pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
-      all.reverse.inject(pattern) do |result, tag|
-        result.gsub(/:#{tag}/) do |match|
-          send( tag, *args )
+      tags = pattern.scan(/:[^\/.]+/)
+      tags.inject( pattern.dup ) do |result, tag|
+        result.gsub(/#{tag}/) do |match|
+          send( tag[1..-1], *args )
         end
       end
     end
