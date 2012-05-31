@@ -81,7 +81,7 @@ class FileAdapterTest < Test::Unit::TestCase
       teardown { @file.close }
 
       should "provide correct mime-type" do
-        assert_equal "application/x-empty", @subject.content_type
+        assert_equal "inode/x-empty", @subject.content_type
       end
     end
   end
