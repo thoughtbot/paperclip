@@ -9,6 +9,6 @@ appraise "3.1" do
 end
 
 appraise "3.2" do
-  gem "rails", "~> 3.2.2"
+  gem "rails", "~> 3.2.3"
   gem "paperclip", :path => "../"
 end

@@ -39,8 +39,9 @@ module Paperclip
     #     :s3_permissions => :private
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
-    #   default), and 'https' when your :s3_permissions are anything else.
+    #   'http', 'https', or an empty string to generate scheme-less URLs. Defaults to 'http'
+    #   when your :s3_permissions are :public_read (the default), and 'https' when your
+    #   :s3_permissions are anything else.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
     #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
     #   runtime. Paperclip will call that Proc with attachment as the only argument.
@@ -60,12 +61,19 @@ module Paperclip
     #   Normally, this won't matter in the slightest and you can leave the default (which is
     #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
     #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
-    #   NOTE: If you use a CNAME for use with CloudFront, you can NOT specify https as your
-    #   :s3_protocol; This is *not supported* by S3/CloudFront. Finally, when using the host
-    #   alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
-    #   by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
-    #   asset_host settings. NOTE: To get the full url from a paperclip'd object, use the
-    #   image_path helper; this is what image_tag uses to generate the url for an img tag.
+    #   
+    #   Notes:
+    #   * The value of this option is a string, not a symbol.
+    #     <b>right:</b> <tt>":s3_domain_url"</tt>
+    #     <b>wrong:</b> <tt>:s3_domain_url</tt>
+    #   * If you use a CNAME for use with CloudFront, you can NOT specify https as your
+    #     :s3_protocol;
+    #     This is *not supported* by S3/CloudFront. Finally, when using the host
+    #     alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
+    #     by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
+    #     asset_host settings.
+    #   * To get the full url from a paperclip'd object, use the
+    #     image_path helper; this is what image_tag uses to generate the url for an img tag.
     # * +path+: This is the key under the bucket in which the file will be stored. The
     #   URL will be constructed from the bucket and the path. This is what you will want
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
@@ -140,14 +148,15 @@ module Paperclip
 
           @http_proxy = @options[:http_proxy] || nil
         end
+
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -272,11 +281,14 @@ module Paperclip
       end
 
       def s3_protocol(style = default_style)
-        if @s3_protocol.is_a?(Proc)
+        protocol = if @s3_protocol.is_a?(Proc)
           @s3_protocol.call(style, self)
         else
           @s3_protocol
         end
+
+        protocol = protocol.split(":").first + ":" unless protocol.empty?
+        protocol
       end
 
       def create_bucket
@@ -348,7 +360,7 @@ module Paperclip
       private :find_credentials
 
       def use_secure_protocol?(style_name)
-        s3_protocol(style_name) == "https"
+        s3_protocol(style_name) == "https:"
       end
       private :use_secure_protocol?
     end
