@@ -80,16 +80,6 @@ module Paperclip
       initialize_storage
     end
 
-    # Check if attachment database table has a created_at field
-    def stores_created_at
-      @instance.respond_to?("#{name}_created_at".to_sym)
-    end
-
-    # Check if attachment database table has a created_at field and it is not set yet
-    def created_at_enabled_and_not_set
-      stores_created_at && !@instance.send("#{name}_created_at".to_sym)
-    end
-
     # What gets called when you call instance.attachment = File. It clears
     # errors, assigns attributes, and processes the file. It
     # also queues up the previous file for deletion, to be flushed away on
