@@ -39,18 +39,24 @@ module Paperclip
         end
 
         def failure_message
-          "".tap do |str|
-            str << "Content types #{@allowed_types.join(", ")} should be accepted" if @allowed_types.present?
-            str << "\n" if @allowed_types.present? && @rejected_types.present?
-            str << "Content types #{@rejected_types.join(", ")} should be rejected by #{@attachment_name}" if @rejected_types.present?
-          end
-        end
-
-        def negative_failure_message
-          "".tap do |str|
-            str << "Content types #{@allowed_types.join(", ")} should be rejected" if @allowed_types.present?
-            str << "\n" if @allowed_types.present? && @rejected_types.present?
-            str << "Content types #{@rejected_types.join(", ")} should be accepted by #{@attachment_name}" if @rejected_types.present?
+          "#{@attachment_name} expected:\n".tap do |str|
+            if @allowed_types.present?
+              str << "Accept content types: #{@allowed_types.join(", ")}\n"
+              if @missing_allowed_types.any?
+                str << "  #{@missing_allowed_types.join(", ")} were rejected."
+              else
+                str << "  All were accepted successfully."
+              end
+            end
+            str << "\n\n" if @allowed_types.present? && @rejected_types.present?
+            if @rejected_types.present?
+              str << "Reject content types: #{@rejected_types.join(", ")}"
+              if @missing_allowed_types.any?
+                str << "  #{@missing_rejected_types.join(", ")} were accepted."
+              else
+                str << "  All were rejected successfully."
+              end
+            end
           end
         end
 
@@ -61,19 +67,19 @@ module Paperclip
         protected
 
         def type_allowed?(type)
-          file = Paperclip.io_adapters.for(StringIO.new("."))
-          file.content_type = type
-          @subject.attachment_for(@attachment_name).assign(file)
+          @subject.send("#{@attachment_name}_content_type=", type)
           @subject.valid?
           @subject.errors[:"#{@attachment_name}_content_type"].blank?
         end
 
         def allowed_types_allowed?
-          @allowed_types.all? { |type| type_allowed?(type) }
+          @missing_allowed_types ||= @allowed_types.reject { |type| type_allowed?(type) }
+          @missing_allowed_types.none?
         end
 
         def rejected_types_rejected?
-          !@rejected_types.any? { |type| type_allowed?(type) }
+          @missing_rejected_types ||= @rejected_types.select { |type| type_allowed?(type) }
+          @missing_rejected_types.none?
         end
       end
     end
