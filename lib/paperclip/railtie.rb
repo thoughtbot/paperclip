@@ -9,7 +9,10 @@ module Paperclip
       ActiveSupport.on_load :active_record do
         Paperclip::Railtie.insert
       end
-      Paperclip::Attachment.default_options.merge!(app.config.paperclip_defaults) if app.config.respond_to?(:paperclip_defaults)
+
+      if app.config.respond_to?(:paperclip_defaults)
+        Paperclip::Attachment.default_options.merge!(app.config.paperclip_defaults)
+      end
     end
 
     rake_tasks { load "tasks/paperclip.rake" }
