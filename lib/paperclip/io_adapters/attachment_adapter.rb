@@ -1,7 +1,13 @@
 module Paperclip
   class AttachmentAdapter
     def initialize(target)
-      @target = target
+      @target, @style = case target
+      when Paperclip::Attachment
+        [target, :original]
+      when Paperclip::Style
+        [target.attachment, target.name]
+      end
+
       cache_current_values
     end
 
@@ -57,9 +63,9 @@ module Paperclip
       dest = Tempfile.new([basename, extension])
       dest.binmode
       if src.respond_to? :copy_to_local_file
-        src.copy_to_local_file(:original, dest.path)
+        src.copy_to_local_file(@style, dest.path)
       else
-        FileUtils.cp(src.path(:original), dest.path)
+        FileUtils.cp(src.path(@style), dest.path)
       end
       dest
     end
@@ -67,5 +73,5 @@ module Paperclip
 end
 
 Paperclip.io_adapters.register Paperclip::AttachmentAdapter do |target|
-  Paperclip::Attachment === target
+  Paperclip::Attachment === target || Paperclip::Style === target
 end
