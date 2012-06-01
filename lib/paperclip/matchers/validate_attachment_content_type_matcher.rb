@@ -39,24 +39,10 @@ module Paperclip
         end
 
         def failure_message
-          "#{@attachment_name} expected:\n".tap do |str|
-            if @allowed_types.present?
-              str << "Accept content types: #{@allowed_types.join(", ")}\n"
-              if @missing_allowed_types.any?
-                str << "  #{@missing_allowed_types.join(", ")} were rejected."
-              else
-                str << "  All were accepted successfully."
-              end
-            end
-            str << "\n\n" if @allowed_types.present? && @rejected_types.present?
-            if @rejected_types.present?
-              str << "Reject content types: #{@rejected_types.join(", ")}"
-              if @missing_allowed_types.any?
-                str << "  #{@missing_rejected_types.join(", ")} were accepted."
-              else
-                str << "  All were rejected successfully."
-              end
-            end
+          "#{expected_attachment}\n".tap do |message|
+            message << accepted_types_and_failures
+            message << "\n\n" if @allowed_types.present? && @rejected_types.present?
+            message << rejected_types_and_failures
           end
         end
 
@@ -65,6 +51,33 @@ module Paperclip
         end
 
         protected
+        
+        def accepted_types_and_failures
+          if @allowed_types.present?
+            "Accept content types: #{@allowed_types.join(", ")}\n".tap do |message|
+              if @missing_allowed_types.any?
+                message << "  #{@missing_allowed_types.join(", ")} were rejected."
+              else
+                message << "  All were accepted successfully."
+              end
+            end
+          end            
+        end
+        def rejected_types_and_failures
+          if @rejected_types.present?
+            "Reject content types: #{@rejected_types.join(", ")}\n".tap do |message|
+              if @missing_allowed_types.any?
+                message << "  #{@missing_rejected_types.join(", ")} were accepted."
+              else
+                message << "  All were rejected successfully."
+              end
+            end
+          end
+        end
+        
+        def expected_attachment
+          "Expected #{@attachment_name}:\n"
+        end        
 
         def type_allowed?(type)
           @subject.send("#{@attachment_name}_content_type=", type)
