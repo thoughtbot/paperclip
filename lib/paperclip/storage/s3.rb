@@ -297,6 +297,7 @@ module Paperclip
       end
 
       def flush_writes #:nodoc:
+        retries = 0
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
@@ -315,6 +316,10 @@ module Paperclip
           rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
             retry
+          rescue => e
+            log("retrying save #{path(style)}")
+            retries += 1
+            retry if retries <= 3
           end
         end
 
