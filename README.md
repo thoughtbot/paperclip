@@ -53,6 +53,12 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 
     brew install gs
 
+### Filetype Detection
+
+This assumes the `file` command version 5.08 or higher. This primarily
+affects unknown file types and empty files; these report different
+values before and after 5.08. Download the latest `file` command from
+the [official file Web site](http://darwinsys.com/file/).
 
 Installation
 ------------
