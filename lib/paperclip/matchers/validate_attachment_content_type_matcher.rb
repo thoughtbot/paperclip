@@ -66,7 +66,7 @@ module Paperclip
         def rejected_types_and_failures
           if @rejected_types.present?
             "Reject content types: #{@rejected_types.join(", ")}\n".tap do |message|
-              if @missing_allowed_types.any?
+              if @missing_rejected_types.any?
                 message << "  #{@missing_rejected_types.join(", ")} were accepted."
               else
                 message << "  All were rejected successfully."
