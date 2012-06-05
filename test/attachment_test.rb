@@ -742,21 +742,53 @@ class AttachmentTest < Test::Unit::TestCase
   context "Attachment with reserved filename" do
     setup do
       rebuild_model
-      @file = Paperclip.io_adapters.for(StringIO.new("."))
+      @file = Tempfile.new(["filename","png"])
+    end
+    
+    teardown do
+      @file.unlink
     end
 
     context "with default configuration" do
       "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
         context "with character #{character}" do
-          setup do
-            @file.original_filename = "file#{character}name.png"
-            @dummy = Dummy.new
-            @dummy.avatar = @file
+          
+          context "at beginning of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("#{character}filename.png")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "_filename.png", @dummy.avatar.original_filename
+            end 
+          end
+          
+          context "at end of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("filename.png#{character}")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "filename.png_", @dummy.avatar.original_filename
+            end
+          end
+          
+          context "in the middle of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("file#{character}name.png")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "file_name.png", @dummy.avatar.original_filename
+            end
           end
 
-          should "convert special character into underscore" do
-            assert_equal "file_name.png", @dummy.avatar.original_filename
-          end
         end
       end
     end
