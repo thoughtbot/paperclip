@@ -15,7 +15,14 @@ module Paperclip
     end
 
     def content_type
-      @target.content_type
+      types = MIME::Types.type_for(original_filename)
+      if types.length == 0
+        type_from_file_command(@target.content_type)
+      elsif types.length == 1
+        types.first.content_type
+      else
+        best_content_type_option(types)
+      end
     end
 
     def fingerprint
@@ -56,6 +63,17 @@ module Paperclip
       dest.binmode
       FileUtils.cp(src.path, dest.path)
       dest
+    end
+
+    def best_content_type_option(types)
+      types.reject {|type| type.content_type.match(/\/x-/) }.first.content_type
+    end
+
+    def type_from_file_command(fallback)
+      # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
+      mime_type = (Paperclip.run("file", "-b --mime :file", :file => self.path).split(/[:;\s]+/)[0] rescue fallback)
+      mime_type = fallback if mime_type == 'application/octet-stream' or mime_type.match(/\(.*?\)/)
+      mime_type
     end
   end
 end

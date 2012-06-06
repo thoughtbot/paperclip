@@ -148,7 +148,8 @@ friendly front end. These attributes are:
 
 By default, only `<attachment>_file_name` is required for paperclip to operate.
 You'll need to add `<attachment>_content_type` in case you want to use content type
-validation.
+validation. `<attachment>_updated_at` is required for hashing (only if the
+hash interpolation uses `:updated_at`, but the default one does).
 
 More information about the options to `has_attached_file` is available in the
 documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
@@ -350,6 +351,10 @@ The `:hash` interpolation will be replaced with a unique hash made up of whateve
 is specified in `:hash_data`. The default value for `:hash_data` is `":class/:attachment/:id/:style/:updated_at"`.
 
 `:hash_secret` is required, an exception will be raised if `:hash` is used without `:hash_secret` present.
+
+_NOTE: If you use `:updated_at` in the interpolation (and it's used by default), your attachment **must**
+have an `<attachment>_updated_at` attribute (datetime format, see Usage). Otherwise, the calculated hash changes after saving
+and the resulting URL will be wrong._
 
 For more on this feature read the author's own explanation. [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
 
