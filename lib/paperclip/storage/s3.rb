@@ -140,6 +140,7 @@ module Paperclip
 
           @s3_server_side_encryption = @options[:s3_server_side_encryption]
 
+          @options[:url] = @options[:url].call(self) if @options[:url].is_a?(Proc)
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
             @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
@@ -296,6 +297,7 @@ module Paperclip
       end
 
       def flush_writes #:nodoc:
+        retries = 0
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
@@ -314,6 +316,10 @@ module Paperclip
           rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
             retry
+          rescue => e
+            log("retrying save #{path(style)}")
+            retries += 1
+            retry if retries <= 3
           end
         end
 
