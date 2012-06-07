@@ -24,10 +24,12 @@ module Paperclip
     end
 
     def fingerprint
-      rewind # start reading from the beginning
-      finger = Digest::MD5.hexdigest(read)
-      rewind
-      finger
+     if (@cached_fingerprint.nil?)
+       rewind # start reading from the beginning
+       @cached_fingerprint = Digest::MD5.hexdigest(read)
+       rewind # for later read()
+     end
+     @cached_fingerprint
     end
 
     def read(length = nil, buffer = nil)
