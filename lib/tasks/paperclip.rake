@@ -33,6 +33,7 @@ namespace :paperclip do
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
           instance.send(name).reprocess!(*styles)
+          instance.save
           errors << [instance.id, instance.errors] unless instance.errors.blank?
         end
       end
