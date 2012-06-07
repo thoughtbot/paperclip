@@ -34,10 +34,14 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_equal Digest::MD5.hexdigest(@contents), @subject.fingerprint
     end
 
+    should "generate correct fingerprint after read" do
+      fingerprint = Digest::MD5.hexdigest(@subject.read)
+      assert_equal fingerprint, @subject.fingerprint
+    end
+
     should "generate same fingerprint" do
       assert_equal @subject.fingerprint, @subject.fingerprint
     end
-
 
     should "return the data contained in the StringIO" do
       assert_equal "abc123", @subject.read
