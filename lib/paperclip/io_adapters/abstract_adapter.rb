@@ -1,19 +1,9 @@
 module Paperclip
   class AbstractAdapter
-    ILLEGAL_FILENAME_CHARACTERS = /^~/
-
     private
 
     def destination
-      if @destination.nil?
-        extension = File.extname(original_filename)
-        basename = File.basename(original_filename, extension)
-        basename = basename.gsub(ILLEGAL_FILENAME_CHARACTERS, '_')
-        dest = Tempfile.new([basename, extension])
-        dest.binmode
-        @destination = dest
-      end
-      @destination
+      @destination ||= TempfileFactory.new.generate(original_filename)
     end
 
     def copy_to_tempfile(src)
