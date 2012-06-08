@@ -27,6 +27,5 @@ module Paperclip
       mime_type = "application/x-#{type}" if mime_type.match(/\(.*?\)/)
       mime_type
     end
-
   end
 end
