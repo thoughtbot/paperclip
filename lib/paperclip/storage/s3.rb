@@ -249,9 +249,8 @@ module Paperclip
       end
 
       def set_permissions permissions
-        permissions = { :default => permissions } unless permissions.respond_to?(:merge)
-        permissions[:default] ||= :public_read
-        permissions
+        permissions = { :default => permissions } unless permissions.respond_to?(:reverse_merge)
+        permissions.reverse_merge :default => :public_read
       end
 
       def parse_credentials creds
