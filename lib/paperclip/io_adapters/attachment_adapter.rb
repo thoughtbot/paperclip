@@ -1,5 +1,5 @@
 module Paperclip
-  class AttachmentAdapter
+  class AttachmentAdapter < AbstractAdapter
     def initialize(target)
       @target, @style = case target
       when Paperclip::Attachment
@@ -51,23 +51,19 @@ module Paperclip
     private
 
     def cache_current_values
-      @tempfile = copy_to_tempfile(@target)
       @original_filename = @target.original_filename
       @content_type = @target.content_type
+      @tempfile = copy_to_tempfile(@target)
       @size = @tempfile.size || @target.size
     end
 
     def copy_to_tempfile(src)
-      extension = File.extname(src.original_filename)
-      basename = File.basename(src.original_filename, extension)
-      dest = Tempfile.new([basename, extension])
-      dest.binmode
       if src.respond_to? :copy_to_local_file
-        src.copy_to_local_file(@style, dest.path)
+        src.copy_to_local_file(@style, destination.path)
       else
-        FileUtils.cp(src.path(@style), dest.path)
+        FileUtils.cp(src.path(@style), destination.path)
       end
-      dest
+      destination
     end
   end
 end

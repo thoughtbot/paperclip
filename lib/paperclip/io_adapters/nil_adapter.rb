@@ -1,5 +1,5 @@
 module Paperclip
-  class NilAdapter
+  class NilAdapter < AbstractAdapter
     def initialize(target)
     end
 

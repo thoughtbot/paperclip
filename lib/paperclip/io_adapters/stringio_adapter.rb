@@ -1,5 +1,5 @@
 module Paperclip
-  class StringioAdapter
+  class StringioAdapter < AbstractAdapter
     def initialize(target)
       @target = target
       @tempfile = copy_to_tempfile(@target)
@@ -47,15 +47,11 @@ module Paperclip
     private
 
     def copy_to_tempfile(src)
-      extension = File.extname(original_filename)
-      basename = File.basename(original_filename, extension)
-      dest = Tempfile.new([basename, extension])
-      dest.binmode
       while data = src.read(16*1024)
-        dest.write(data)
+        destination.write(data)
       end
-      dest.rewind
-      dest
+      destination.rewind
+      destination
     end
 
   end

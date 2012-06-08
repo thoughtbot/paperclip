@@ -214,6 +214,7 @@ end
 
 # This stuff needs to be run after Paperclip is defined.
 require 'paperclip/io_adapters/registry'
+require 'paperclip/io_adapters/abstract_adapter'
 require 'paperclip/io_adapters/identity_adapter'
 require 'paperclip/io_adapters/file_adapter'
 require 'paperclip/io_adapters/stringio_adapter'

@@ -1,5 +1,5 @@
 module Paperclip
-  class FileAdapter
+  class FileAdapter < AbstractAdapter
     def initialize(target)
       @target = target
       @tempfile = copy_to_tempfile(@target)
@@ -51,34 +51,6 @@ module Paperclip
 
     def path
       @tempfile.path
-    end
-
-    private
-
-    def copy_to_tempfile(src)
-      extension = File.extname(original_filename)
-      basename = File.basename(original_filename, extension)
-      dest = Tempfile.new([basename, extension])
-      dest.binmode
-      FileUtils.cp(src.path, dest.path)
-      dest
-    end
-
-    def best_content_type_option(types)
-      best = types.reject {|type| type.content_type.match(/\/x-/) }
-      if best.size == 0
-        types.first.content_type
-      else
-        best.first.content_type
-      end
-    end
-
-    def type_from_file_command
-      # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-      type = (self.original_filename.match(/\.(\w+)$/)[1] rescue "octet-stream").downcase
-      mime_type = (Paperclip.run("file", "-b --mime :file", :file => self.path).split(/[:;\s]+/)[0] rescue "application/x-#{type}")
-      mime_type = "application/x-#{type}" if mime_type.match(/\(.*?\)/)
-      mime_type
     end
   end
 end

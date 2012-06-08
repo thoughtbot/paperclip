@@ -1,5 +1,5 @@
 module Paperclip
-  class UploadedFileAdapter
+  class UploadedFileAdapter < AbstractAdapter
     def initialize(target)
       @target = target
 
@@ -45,17 +45,6 @@ module Paperclip
 
     def path
       @tempfile.path
-    end
-
-    private
-
-    def copy_to_tempfile(src)
-      extension = File.extname(original_filename)
-      basename = File.basename(original_filename, extension)
-      dest = Tempfile.new([basename, extension])
-      dest.binmode
-      FileUtils.cp(src.path, dest.path)
-      dest
     end
   end
 end
