@@ -119,12 +119,12 @@ module Paperclip
           @s3_protocol    = @options[:s3_protocol]    ||
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
-              permission  = permission.call(attachment, style) if permission.is_a?(Proc)
+              permission  = permission.call(attachment, style) if permission.respond_to?(:call)
               (permission == :public_read) ? 'http' : 'https'
             end
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = @options[:s3_headers] || {}
-          @s3_headers = @s3_headers.call(instance) if @s3_headers.is_a?(Proc)
+          @s3_headers = @s3_headers.call(instance) if @s3_headers.respond_to?(:call)
           @s3_headers = (@s3_headers).inject({}) do |headers,(name,value)|
             case name.to_s
             when /^x-amz-meta-(.*)/i
@@ -180,19 +180,19 @@ module Paperclip
 
       def s3_host_alias
         @s3_host_alias = @options[:s3_host_alias]
-        @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.is_a?(Proc)
+        @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.respond_to?(:call)
         @s3_host_alias
       end
 
       def s3_url_options
         s3_url_options = @options[:s3_url_options] || {}
-        s3_url_options = s3_url_options.call(instance) if s3_url_options.is_a?(Proc)
+        s3_url_options = s3_url_options.call(instance) if s3_url_options.respond_to?(:call)
         s3_url_options
       end
 
       def bucket_name
         @bucket = @options[:bucket] || s3_credentials[:bucket]
-        @bucket = @bucket.call(self) if @bucket.is_a?(Proc)
+        @bucket = @bucket.call(self) if @bucket.respond_to?(:call)
         @bucket or raise ArgumentError, "missing required :bucket option"
       end
 
@@ -249,11 +249,8 @@ module Paperclip
       end
 
       def set_permissions permissions
-        if permissions.is_a?(Hash)
-          permissions[:default] = permissions[:default] || :public_read
-        else
-          permissions = { :default => permissions || :public_read }
-        end
+        permissions = { :default => permissions } unless permissions.respond_to?(:merge)
+        permissions[:default] ||= :public_read
         permissions
       end
 
@@ -276,12 +273,12 @@ module Paperclip
 
       def s3_permissions(style = default_style)
         s3_permissions = @s3_permissions[style] || @s3_permissions[:default]
-        s3_permissions = s3_permissions.call(self, style) if s3_permissions.is_a?(Proc)
+        s3_permissions = s3_permissions.call(self, style) if s3_permissions.respond_to?(:call)
         s3_permissions
       end
 
       def s3_protocol(style = default_style)
-        protocol = if @s3_protocol.is_a?(Proc)
+        protocol = if @s3_protocol.respond_to?(:call)
           @s3_protocol.call(style, self)
         else
           @s3_protocol
