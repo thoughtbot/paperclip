@@ -466,7 +466,7 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy.avatar.options[:styles][:mini] = "25x25#"
         @dummy.avatar.instance_variable_set :@normalized_styles, nil
         Time.stubs(:now => Time.now + 10)
-        @dummy.avatar.reprocess! 'mini'
+        @dummy.avatar.reprocess!
         @dummy.reload
       end
 

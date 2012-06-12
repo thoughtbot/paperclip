@@ -285,6 +285,7 @@ module Paperclip
       begin
         assign(self)
         save
+        instance.save
       rescue Errno::EACCES => e
         warn "#{e} - skipping file."
         false
