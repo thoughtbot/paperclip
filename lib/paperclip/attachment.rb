@@ -321,19 +321,22 @@ module Paperclip
     # "avatar_file_name" field (assuming the attachment is called avatar).
     def instance_write(attr, value)
       setter = :"#{name}_#{attr}="
-      responds = instance.respond_to?(setter)
-      self.instance_variable_set("@_#{setter.to_s.chop}", value)
-      instance.send(setter, value) if responds || attr.to_s == "file_name"
+      if instance.respond_to?(setter)
+        instance.send(setter, value)
+      else
+        self.instance_variable_set("@_#{setter.to_s.chop}", value)
+      end
     end
 
     # Reads the attachment-specific attribute on the instance. See instance_write
     # for more details.
     def instance_read(attr)
       getter = :"#{name}_#{attr}"
-      responds = instance.respond_to?(getter)
-      cached = self.instance_variable_get("@_#{getter}")
-      return cached if cached
-      instance.send(getter) if responds || attr.to_s == "file_name"
+      if instance.respond_to?(getter)
+        instance.send(getter)
+      else
+        self.instance_variable_get("@_#{getter}")
+      end
     end
 
     private
