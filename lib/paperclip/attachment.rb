@@ -294,6 +294,7 @@ module Paperclip
       saved_only_process, @options[:only_process] = @options[:only_process], style_args
       begin
         assign(self)
+        save
         instance.save
       rescue Errno::EACCES => e
         warn "#{e} - skipping file."
