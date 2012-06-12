@@ -1091,6 +1091,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     should "return nil when reloaded and sent #avatar_updated_at" do
+      @dummy.avatar = @file
       @dummy.save
       @dummy.reload
       assert_nil @dummy.avatar.updated_at
