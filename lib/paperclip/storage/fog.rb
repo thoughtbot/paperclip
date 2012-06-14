@@ -122,7 +122,7 @@ module Paperclip
         expiring_url = directory.files.get_http_url(path(style), time)
         
         if @options[:fog_host]
-          expiring_url[host_name_for_directory] = dynamic_fog_host_for_style(style)
+          expiring_url.gsub!(/#{host_name_for_directory}/, dynamic_fog_host_for_style(style))
         end
         
         return expiring_url
@@ -157,7 +157,12 @@ module Paperclip
       
       def host_name_for_directory
         if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-          "#{@options[:fog_directory]}.s3.amazonaws.com"
+          # This:
+          "#{@options[:fog_directory]}."
+          
+          # Should be modified to this:
+          # "#{@options[:fog_directory]}.s3.amazonaws.com"
+          # When fog with https://github.com/fog/fog/pull/857 gets released
         else
           "s3.amazonaws.com/#{@options[:fog_directory]}"
         end
