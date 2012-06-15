@@ -19,12 +19,12 @@ class FileSystemTest < Test::Unit::TestCase
 
       should "store the original" do
         @dummy.save
-        assert File.exists?(@dummy.avatar.path)
+        assert_file_exists(@dummy.avatar.path)
       end
 
       should "store the thumbnail" do
         @dummy.save
-        assert File.exists?(@dummy.avatar.path(:thumbnail))
+        assert_file_exists(@dummy.avatar.path(:thumbnail))
       end
     end
 
@@ -41,7 +41,7 @@ class FileSystemTest < Test::Unit::TestCase
       teardown { @file.close }
 
       should "store the file" do
-        assert File.exists?(@dummy.avatar.path)
+        assert_file_exists(@dummy.avatar.path)
       end
 
       should "return a replaced version for path" do

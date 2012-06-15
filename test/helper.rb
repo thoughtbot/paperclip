@@ -177,3 +177,11 @@ def assert_not_found_response(url)
       "Expected HTTP response code 404, got #{response.code}"
   end
 end
+
+def assert_file_exists(path)
+  assert File.exists?(path), %(Expect "#{path}" to be exists.)
+end
+
+def assert_file_not_exists(path)
+  assert !File.exists?(path), %(Expect "#{path}" to not exists.)
+end
