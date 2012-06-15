@@ -2,7 +2,7 @@ require './test/helper'
 
 class AbstractAdapterTest < Test::Unit::TestCase
   class TestAdapter < Paperclip::AbstractAdapter
-    attr_accessor :path, :original_file_name, :tempfile
+    attr_accessor :original_file_name, :tempfile
 
     def content_type
       type_from_file_command
@@ -11,11 +11,19 @@ class AbstractAdapterTest < Test::Unit::TestCase
 
   context "content type from file command" do
     setup do
+      @adapter = TestAdapter.new
+      @adapter.stubs(:path)
       Paperclip.stubs(:run).returns("image/png\n")
     end
 
     should "return the content type without newline" do
-      assert_equal "image/png", TestAdapter.new.content_type
+      assert_equal "image/png", @adapter.content_type
+    end
+  end
+
+  context "nil?" do
+    should "return false" do
+      assert !TestAdapter.new.nil?
     end
   end
 
@@ -25,19 +33,11 @@ class AbstractAdapterTest < Test::Unit::TestCase
       @adapter.tempfile = stub("Tempfile")
     end
 
-    context "close" do
-      should "delegate to tempfile" do
-        @adapter.tempfile.stubs(:close)
-        @adapter.close
-        assert_received @adapter.tempfile, :close
-      end
-    end
-
-    context "closed?" do
-      should "delegate to tempfile" do
-        @adapter.tempfile.stubs(:closed?)
-        @adapter.closed?
-        assert_received @adapter.tempfile, :closed?
+    [:close, :closed?, :eof?, :path, :rewind].each do |method|
+      should "delegate #{method} to @tempfile" do
+        @adapter.tempfile.stubs(method)
+        @adapter.public_send(method)
+        assert_received @adapter.tempfile, method
       end
     end
   end

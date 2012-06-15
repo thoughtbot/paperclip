@@ -1,49 +1,16 @@
+require 'active_support/core_ext/module/delegation'
+
 module Paperclip
   class AbstractAdapter
-
-    def original_filename
-      @original_filename
-    end
-
-    def content_type
-      @content_type
-    end
-
-    def size
-      @size
-    end
+    attr_reader :content_type, :original_filename, :size
+    delegate :close, :closed?, :eof?, :path, :rewind, :to => :@tempfile
 
     def fingerprint
       @fingerprint ||= Digest::MD5.file(path).to_s
     end
 
-    def nil?
-      false
-    end
-
     def read(length = nil, buffer = nil)
       @tempfile.read(length, buffer)
-    end
-
-    # We don't use this directly, but aws/sdk does.
-    def rewind
-      @tempfile.rewind
-    end
-
-    def eof?
-      @tempfile.eof?
-    end
-
-    def path
-      @tempfile.path
-    end
-
-    def close
-      @tempfile.close
-    end
-
-    def closed?
-      @tempfile.closed?
     end
 
     private
