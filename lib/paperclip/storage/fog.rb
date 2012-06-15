@@ -90,6 +90,8 @@ module Paperclip
             retried = true
             directory.save
             retry
+          ensure
+            file.rewind
           end
         end
 

@@ -111,6 +111,12 @@ class FogTest < Test::Unit::TestCase
         directory.destroy
       end
 
+      should "be rewinded after flush_writes" do
+        files = @dummy.avatar.queued_for_write.map{ |style, file| file }
+        @dummy.save
+        assert files.none?(&:eof?), "Expect all the files to be rewinded."
+      end
+
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]

@@ -310,6 +310,8 @@ module Paperclip
           rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
             retry
+          ensure
+            file.rewind
           end
         end
 
