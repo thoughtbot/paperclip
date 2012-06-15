@@ -111,6 +111,11 @@ class FogTest < Test::Unit::TestCase
         directory.destroy
       end
 
+      should "rewind file in flush_writes" do
+        @dummy.avatar.queued_for_write.each { |style, file| file.expects(:rewind).with() }
+        @dummy.save
+      end
+
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]
