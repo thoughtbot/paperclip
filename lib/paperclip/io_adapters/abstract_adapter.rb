@@ -38,6 +38,14 @@ module Paperclip
       @tempfile.path
     end
 
+    def close
+      @tempfile.close
+    end
+
+    def closed?
+      @tempfile.closed?
+    end
+
     private
 
     def destination
