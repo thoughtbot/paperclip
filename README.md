@@ -94,15 +94,13 @@ In your model:
 
 In your migrations:
 
-    class AddAvatarColumnsToUser < ActiveRecord::Migration
+    class AddAvatarColumnsToUsers < ActiveRecord::Migration
       def self.up
-        change_table :users do |t|
-          t.has_attached_file :avatar
-        end
+        add_attachment :users, :avatar
       end
 
       def self.down
-        drop_attached_file :users, :avatar
+        remove_attachment :users, :avatar
       end
     end
 
@@ -184,7 +182,7 @@ Defaults
 --------
 Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
 
-If you're using Rails you can define a Hash with default options in config/application.rb or in any of the config/environments/*.rb files on config.paperclip_defaults, these well get merged into Paperclip::Attachment.default_options as your Rails app boots. An example: 
+If you're using Rails you can define a Hash with default options in config/application.rb or in any of the config/environments/*.rb files on config.paperclip_defaults, these well get merged into Paperclip::Attachment.default_options as your Rails app boots. An example:
 
 ```ruby
 module YourApp
@@ -206,6 +204,57 @@ Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local",
 Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"}
 ```
+
+Migrations
+----------
+
+Paperclip defines several migration methods which can be used to create necessary columns in your
+model. There are two types of method:
+
+### Table Definition
+
+    class AddAttachmentToUsers < ActiveRecord::Migration
+      def self.up
+        create_table :users do |t|
+          t.attachment :avatar
+        end
+      end
+    end
+
+If you're using Rails 3.2 or newer, this method works in `change` method as well:
+
+    class AddAttachmentToUsers < ActiveRecord::Migration
+      def change
+        create_table :users do |t|
+          t.attachment :avatar
+        end
+      end
+    end
+
+### Schema Definition
+
+    class AddAttachmentToUsers < ActiveRecord::Migration
+      def self.up
+        add_attachment :users, :avatar
+      end
+
+      def self.down
+        remove_attachment :users, :avatar
+      end
+    end
+
+If you're using Rails 3.2 or newer, you only need `add_attachment` in your `change` method:
+
+    class AddAttachmentToUsers < ActiveRecord::Migration
+      def change
+        add_attachment :users, :avatar
+      end
+    end
+
+### Vintage syntax
+
+Vintage syntax (such as `t.has_attached_file` and `drop_attaached_file`) are still supported in
+Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
 
 Storage
 -------
