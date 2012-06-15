@@ -144,6 +144,22 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context ":s3_protocol => :https" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :s3_protocol => :https,
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension"
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on an S3 path" do
+      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+    end
+  end
+
   context ":s3_protocol => ''" do
     setup do
       rebuild_model :storage => :s3,

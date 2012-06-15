@@ -278,9 +278,9 @@ module Paperclip
 
       def s3_protocol(style = default_style)
         protocol = if @s3_protocol.respond_to?(:call)
-          @s3_protocol.call(style, self)
+          @s3_protocol.call(style, self).to_s
         else
-          @s3_protocol
+          @s3_protocol.to_s
         end
 
         protocol = protocol.split(":").first + ":" unless protocol.empty?
