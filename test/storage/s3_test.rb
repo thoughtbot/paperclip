@@ -276,8 +276,13 @@ class S3Test < Test::Unit::TestCase
                       'secret_access_key' => "54321"
                     }
 
-      file = Paperclip.io_adapters.for(StringIO.new("."))
-      file.original_filename = "question?mark.png"
+      stringio = StringIO.new(".")
+      class << stringio
+        def original_filename
+          "question?mark.png"
+        end
+      end
+      file = Paperclip.io_adapters.for(stringio)
       @dummy = Dummy.new
       @dummy.avatar = file
       @dummy.save

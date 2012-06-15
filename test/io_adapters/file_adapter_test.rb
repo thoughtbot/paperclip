@@ -63,6 +63,7 @@ class FileAdapterTest < Test::Unit::TestCase
       context "file with multiple possible x-types but no official type" do
         setup do
           MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-mp4'), MIME::Type.new('image/x-video')])
+          @subject = Paperclip.io_adapters.for(@file)
         end
 
         should "return the first" do
@@ -74,6 +75,7 @@ class FileAdapterTest < Test::Unit::TestCase
         setup do
           MIME::Types.stubs(:type_for).returns([])
           Paperclip.stubs(:run).returns("application/vnd.ms-office\n")
+          @subject = Paperclip.io_adapters.for(@file)
         end
 
         should "return content type without newline character" do

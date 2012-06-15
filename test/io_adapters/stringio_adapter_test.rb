@@ -12,18 +12,8 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_equal "stringio.txt", @subject.original_filename
     end
 
-    should "allow us to set a name" do
-      @subject.original_filename = "data.txt"
-      assert_equal "data.txt", @subject.original_filename
-    end
-
     should "return a content type" do
       assert_equal "text/plain", @subject.content_type
-    end
-
-    should "allow us to set a content type" do
-      @subject.content_type = "image/jpg"
-      assert_equal "image/jpg", @subject.content_type
     end
 
     should "return the size of the data" do

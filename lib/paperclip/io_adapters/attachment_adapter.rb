@@ -11,43 +11,6 @@ module Paperclip
       cache_current_values
     end
 
-    def original_filename
-      @original_filename
-    end
-
-    def content_type
-      @content_type
-    end
-
-    def size
-      @size
-    end
-
-    def nil?
-      false
-    end
-
-    def fingerprint
-      @fingerprint ||= Digest::MD5.file(path).to_s
-    end
-
-    def read(length = nil, buffer = nil)
-      @tempfile.read(length, buffer)
-    end
-
-    # We don't use this directly, but aws/sdk does.
-    def rewind
-      @tempfile.rewind
-    end
-
-    def eof?
-      @tempfile.eof?
-    end
-
-    def path
-      @tempfile.path
-    end
-
     private
 
     def cache_current_values

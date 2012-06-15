@@ -12,7 +12,8 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
           :original_filename => "5k.png",
           :content_type => "image/png",
           :head => "",
-          :tempfile => tempfile
+          :tempfile => tempfile,
+          :path => tempfile.path
         )
         @subject = Paperclip.io_adapters.for(@file)
       end

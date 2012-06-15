@@ -2,18 +2,20 @@ module Paperclip
   class FileAdapter < AbstractAdapter
     def initialize(target)
       @target = target
+      cache_current_values
+    end
+
+    private
+
+    def cache_current_values
+      @original_filename = @target.original_filename if @target.respond_to?(:original_filename)
+      @original_filename ||= File.basename(@target.path)
       @tempfile = copy_to_tempfile(@target)
+      @content_type = calculate_content_type
+      @size = File.size(@target)
     end
 
-    def original_filename
-      if @target.respond_to?(:original_filename)
-        @target.original_filename
-      else
-        File.basename(@target.path)
-      end
-    end
-
-    def content_type
+    def calculate_content_type
       types = MIME::Types.type_for(original_filename)
       if types.length == 0
         type_from_file_command
@@ -22,35 +24,6 @@ module Paperclip
       else
         best_content_type_option(types)
       end
-    end
-
-    def fingerprint
-      @fingerprint ||= Digest::MD5.file(path).to_s
-    end
-
-    def size
-      File.size(@tempfile)
-    end
-
-    def nil?
-      @target.nil?
-    end
-
-    def read(length = nil, buffer = nil)
-      @tempfile.read(length, buffer)
-    end
-
-    # We don't use this directly, but aws/sdk does.
-    def rewind
-      @tempfile.rewind
-    end
-
-    def eof?
-      @tempfile.eof?
-    end
-
-    def path
-      @tempfile.path
     end
   end
 end
