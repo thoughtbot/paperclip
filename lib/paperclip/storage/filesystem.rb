@@ -36,6 +36,7 @@ module Paperclip
             end
           end
           FileUtils.chmod(0666&~File.umask, path(style_name))
+          file.rewind
         end
 
         after_flush_writes # allows attachment to clean up temp files

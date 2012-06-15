@@ -26,6 +26,12 @@ class FileSystemTest < Test::Unit::TestCase
         @dummy.save
         assert_file_exists(@dummy.avatar.path(:thumbnail))
       end
+
+      should "be rewinded after flush_writes" do
+        files = @dummy.avatar.queued_for_write.map{ |style, file| file }
+        @dummy.save
+        assert files.none?(&:eof?), "Expect all the files to be rewinded."
+      end
     end
 
     context "with file that has space in file name" do
