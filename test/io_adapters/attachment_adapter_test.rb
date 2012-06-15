@@ -63,7 +63,8 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
       @attachment.assign(@file)
     
-      @thumb = @attachment.queued_for_write[:thumb]
+      @thumb = Tempfile.new("thumbnail").tap(&:binmode)
+      FileUtils.cp @attachment.queued_for_write[:thumb].path, @thumb.path
     
       @attachment.save
       @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb])
@@ -71,6 +72,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
     teardown do
       @file.close
+      @thumb.close
     end
 
     should "get the original filename" do

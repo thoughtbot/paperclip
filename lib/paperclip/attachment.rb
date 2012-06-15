@@ -440,6 +440,10 @@ module Paperclip
 
     # called by storage after the writes are flushed and before @queued_for_writes is cleared
     def after_flush_writes
+       @queued_for_write.each do |style, file|
+         file.close unless file.closed?
+         file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
+       end
     end
 
     def cleanup_filename(filename)

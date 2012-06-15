@@ -586,9 +586,18 @@ class S3Test < Test::Unit::TestCase
       end
 
       should "be rewinded after flush_writes" do
-        files = @dummy.avatar.queued_for_write.map{ |style, file| file.tap(&:read) }
+        @dummy.avatar.instance_eval "def after_flush_writes; end"
+
+        files = @dummy.avatar.queued_for_write.values.each(&:read)
         @dummy.save
         assert files.none?(&:eof?), "Expect all the files to be rewinded."
+      end
+
+      should "be removed after after_flush_writes" do
+        paths = @dummy.avatar.queued_for_write.values.map(&:path)
+        @dummy.save
+        assert paths.none?{ |path| File.exists?(path) },
+          "Expect all the files to be deleted."
       end
 
       context "and saved" do
