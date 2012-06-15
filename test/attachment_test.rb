@@ -744,7 +744,7 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model
       @file = Tempfile.new(["filename","png"])
     end
-    
+
     teardown do
       @file.unlink
     end
@@ -752,7 +752,7 @@ class AttachmentTest < Test::Unit::TestCase
     context "with default configuration" do
       "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
         context "with character #{character}" do
-          
+
           context "at beginning of filename" do
             setup do
               @file.stubs(:original_filename).returns("#{character}filename.png")
@@ -762,9 +762,9 @@ class AttachmentTest < Test::Unit::TestCase
 
             should "convert special character into underscore" do
               assert_equal "_filename.png", @dummy.avatar.original_filename
-            end 
+            end
           end
-          
+
           context "at end of filename" do
             setup do
               @file.stubs(:original_filename).returns("filename.png#{character}")
@@ -776,7 +776,7 @@ class AttachmentTest < Test::Unit::TestCase
               assert_equal "filename.png_", @dummy.avatar.original_filename
             end
           end
-          
+
           context "in the middle of filename" do
             setup do
               @file.stubs(:original_filename).returns("file#{character}name.png")

@@ -197,7 +197,7 @@ module Paperclip
         else
           @options[:fog_directory]
         end
-        
+
         @directory ||= connection.directories.new(:key => dir)
       end
     end

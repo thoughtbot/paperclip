@@ -51,7 +51,7 @@ module Paperclip
         end
 
         protected
-        
+
         def accepted_types_and_failures
           if @allowed_types.present?
             "Accept content types: #{@allowed_types.join(", ")}\n".tap do |message|
@@ -61,7 +61,7 @@ module Paperclip
                 message << "  All were accepted successfully."
               end
             end
-          end            
+          end
         end
         def rejected_types_and_failures
           if @rejected_types.present?
@@ -74,10 +74,10 @@ module Paperclip
             end
           end
         end
-        
+
         def expected_attachment
           "Expected #{@attachment_name}:\n"
-        end        
+        end
 
         def type_allowed?(type)
           @subject.send("#{@attachment_name}_content_type=", type)

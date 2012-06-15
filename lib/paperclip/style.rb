@@ -52,12 +52,12 @@ module Paperclip
     end
 
     def convert_options
-      @convert_options.respond_to?(:call) ? @convert_options.call(attachment.instance) : 
+      @convert_options.respond_to?(:call) ? @convert_options.call(attachment.instance) :
         (@convert_options || attachment.send(:extra_options_for, name))
     end
 
     def source_file_options
-      @source_file_options.respond_to?(:call) ? @source_file_options.call(attachment.instance) : 
+      @source_file_options.respond_to?(:call) ? @source_file_options.call(attachment.instance) :
         (@source_file_options || attachment.send(:extra_source_file_options_for, name))
     end
 

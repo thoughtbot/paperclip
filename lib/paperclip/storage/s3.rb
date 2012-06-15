@@ -61,7 +61,7 @@ module Paperclip
     #   Normally, this won't matter in the slightest and you can leave the default (which is
     #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
     #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
-    #   
+    #
     #   Notes:
     #   * The value of this option is a string, not a symbol.
     #     <b>right:</b> <tt>":s3_domain_url"</tt>
