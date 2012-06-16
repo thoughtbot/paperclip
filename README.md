@@ -253,7 +253,7 @@ If you're using Rails 3.2 or newer, you only need `add_attachment` in your `chan
 
 ### Vintage syntax
 
-Vintage syntax (such as `t.has_attached_file` and `drop_attaached_file`) are still supported in
+Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) are still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
 
 Storage
