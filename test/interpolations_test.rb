@@ -219,7 +219,6 @@ class InterpolationsTest < Test::Unit::TestCase
   should "call all expected interpolations with the given arguments" do
     Paperclip::Interpolations.expects(:id).with(:attachment, :style).returns(1234)
     Paperclip::Interpolations.expects(:attachment).with(:attachment, :style).returns("attachments")
-    Paperclip::Interpolations.expects(:notreal).never
     value = Paperclip::Interpolations.interpolate(":notreal/:id/:attachment", :attachment, :style)
     assert_equal ":notreal/1234/attachments", value
   end
