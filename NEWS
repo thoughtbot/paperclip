@@ -1,3 +1,7 @@
+New in 3.1.1:
+
+* Bug fix: Paperclip will only load Paperclip::Schema only when Active Record is available.
+
 New in 3.1.0:
 
 * Feature: Paperclip now support new migration syntax (sexy migration) that reads better:
