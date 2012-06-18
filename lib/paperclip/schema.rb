@@ -34,7 +34,7 @@ module Paperclip
 
         attachment_names.each do |attachment_name|
           COLUMNS.each_pair do |column_name, column_type|
-            remove_column(table_name, "#{attachment_name}_#{column_name}", column_type)
+            remove_column(table_name, "#{attachment_name}_#{column_name}")
           end
         end
       end
