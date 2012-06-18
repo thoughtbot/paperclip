@@ -1,3 +1,9 @@
+New in 3.1.2:
+
+* Bug fix: #remove_attachment on 3.1.0 and 3.1.1 mistakenly trying to remove the column that has
+  the same name as data type (such as :string, :datetime, :interger.) You're advised to update to
+  Paperclip 3.1.2 as soon as possible.
+
 New in 3.1.1:
 
 * Bug fix: Paperclip will only load Paperclip::Schema only when Active Record is available.
