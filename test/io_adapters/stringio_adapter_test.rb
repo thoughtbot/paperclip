@@ -36,6 +36,16 @@ class StringioFileProxyTest < Test::Unit::TestCase
     should "return the data contained in the StringIO" do
       assert_equal "abc123", @subject.read
     end
-
+    
+    should 'accept a content_type' do
+      @subject.content_type = 'image/png'
+      assert_equal 'image/png', @subject.content_type
+    end
+    
+    should 'accept an orgiginal_filename' do
+      @subject.original_filename = 'image.png'
+      assert_equal 'image.png', @subject.original_filename
+    end
+    
   end
 end
