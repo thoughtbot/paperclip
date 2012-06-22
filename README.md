@@ -95,11 +95,11 @@ In your model:
 In your migrations:
 
     class AddAvatarColumnsToUsers < ActiveRecord::Migration
-      def self.up
+      def up
         add_attachment :users, :avatar
       end
 
-      def self.down
+      def down
         remove_attachment :users, :avatar
       end
     end
