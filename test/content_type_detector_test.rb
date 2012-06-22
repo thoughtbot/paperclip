@@ -31,16 +31,8 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
     end
 
-    should 'let errors raise if something blows up' do
-      Paperclip.stubs(:run).raises(Cocaine::CommandLineError.new)
-      @filename = "/path/to/something"
-      assert_raises(Cocaine::CommandLineError) do
-        Paperclip::ContentTypeDetector.new(@filename).detect
-      end
-    end
-
     should 'return a sensible default when the file command is missing' do
-      Paperclip.stubs(:run).raises(Cocaine::CommandNotFoundError.new)
+      Paperclip.stubs(:run).raises(Cocaine::CommandLineError.new)
       @filename = "/path/to/something"
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
     end
