@@ -1,11 +1,18 @@
 module Paperclip
   class ContentTypeDetector
+    EMPTY_TYPE = "inode/x-empty"
+    SENSIBLE_DEFAULT = "application/octet-stream"
+
     def initialize(filename)
       @filename = filename
     end
 
     def detect
-      if !match?
+      if blank?
+        SENSIBLE_DEFAULT
+      elsif empty?
+        EMPTY_TYPE
+      elsif !match?
         type_from_file_command
       elsif !multiple?
         possible_types.first
@@ -15,6 +22,14 @@ module Paperclip
     end
 
     private
+
+    def empty?
+      File.exists?(@filename) && File.size(@filename) == 0
+    end
+
+    def blank?
+      @filename.nil? || @filename.empty?
+    end
 
     def possible_types
       @possible_types ||= MIME::Types.type_for(@filename)
@@ -37,7 +52,7 @@ module Paperclip
       # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
       type = Paperclip.run("file", "-b --mime :file", :file => @filename)
       if type.match(/\(.*?\)/)
-        type = "application/octet-stream"
+        type = SENSIBLE_DEFAULT
       end
       type.split(/[:;\s]+/)[0]
     end

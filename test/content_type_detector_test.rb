@@ -15,6 +15,17 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
       assert_equal "text/plain", Paperclip::ContentTypeDetector.new(tempfile.path).detect
     end
 
+    should 'return an empty content type if the file is empty' do
+      tempfile = Tempfile.new("something")
+      tempfile.rewind
+
+      assert_equal "inode/x-empty", Paperclip::ContentTypeDetector.new(tempfile.path).detect
+    end
+
+    should 'return a sensible default if no filename is supplied' do
+      assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new('').detect
+    end
+
     should 'return a sensible default if something goes wrong' do
       @filename = "/path/to/something"
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
