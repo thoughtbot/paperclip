@@ -104,10 +104,11 @@ module Paperclip
             def summarize_hash(hash)
               hash.map { |key, value|
                 begin
-                  ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8')
+                  summarized_value = summarize_value(value)
                 rescue
-                  ":#{key}=>#{value.to_s}".force_encoding('UTF-8')
+                  summarized_value = value.to_s
                 end
+                ":#{key}=>#{summarized_value}".force_encoding('UTF-8')
               }.sort.join(',')
             end
           end
@@ -116,10 +117,11 @@ module Paperclip
             def sanitize_hash(hash)
               hash.map { |key, value|
                 begin
-                  "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8')
+                  sanitized_value = sanitize_value(value)
                 rescue
-                  "#{key.to_s}=>#{value.to_s}".force_encoding('UTF-8')
+                  sanitized_value = value.to_s
                 end
+                "#{sanitize_value(key)}=>#{sanitized_value}".force_encoding('UTF-8')
               }.sort.join(',')
             end
           end
