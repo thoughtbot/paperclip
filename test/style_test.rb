@@ -5,7 +5,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":basename_:style.:extension",
                                :styles => { :foo => {:geometry => "100x100#", :format => :png} },
                                :whiny => true
       @style = @attachment.styles[:foo]
@@ -33,9 +33,18 @@ class StyleTest < Test::Unit::TestCase
     end
   end
 
+  context "A path not containing a style rule" do
+    should "generate a warning when a :style token isn't found" do
+      assert_raises(Paperclip::Errors::StyleTokenNotFound) do
+        @attachment = attachment :path => ":basename_:extension",
+                                 :styles => { :foo => {:geometry => "100x100#", :format => :png} }
+      end
+    end
+  end
+
   context "A style rule with properties supplied as procs" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :whiny_thumbnails => true,
                                :processors => lambda {|a| [:test]},
                                :styles => {
@@ -64,7 +73,7 @@ class StyleTest < Test::Unit::TestCase
       styles[:aslist] = ["100x100", :png]
       styles[:ashash] = {:geometry => "100x100", :format => :png}
       styles[:asstring] = "100x100"
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => styles
     end
     should "have the right number of styles" do
@@ -97,7 +106,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :convert_options" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
       @style = @attachment.styles[:thumb]
@@ -117,7 +126,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :source_file_options" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
       @style = @attachment.styles[:thumb]
@@ -137,7 +146,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule with its own :processors" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => {
                                  :foo => {
                                    :geometry => "100x100#",
@@ -162,7 +171,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule with :processors supplied as procs" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => {
                                  :foo => {
                                    :geometry => "100x100#",
@@ -184,7 +193,7 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :convert_options and :source_file_options in :styles" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
+      @attachment = attachment :path => ":style_:basename.:extension",
                                :styles => {
                                  :thumb => "100x100",
                                  :large => {:geometry => "400x400",

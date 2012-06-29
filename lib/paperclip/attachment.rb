@@ -77,6 +77,7 @@ module Paperclip
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
 
+      initialize_path
       initialize_storage
     end
 
@@ -356,6 +357,17 @@ module Paperclip
 
     def valid_assignment? file #:nodoc:
       file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
+    end
+
+    def initialize_path
+      if style_not_in_custom_path?
+        raise(Paperclip::Errors::StyleTokenNotFound)
+      end
+    end
+
+    def style_not_in_custom_path?
+      @options[:path] != Paperclip::Attachment.default_options[:path] &&
+        @options[:styles].present? && !@options[:path].include?(':style')
     end
 
     def initialize_storage #:nodoc:
