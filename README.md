@@ -276,8 +276,8 @@ gems along side with Paperclip:
 
 The files that are assigned as attachments are, by default, placed in the
 directory specified by the `:path` option to `has_attached_file`. By default, this
-location is `:rails_root/public/system/:attachment/:id/:style/:filename`. This
-location was chosen because on standard Capistrano deployments, the
+location is `:rails_root/public/system/:class/:attachment/:id_partition/:style/:filename`.
+This location was chosen because on standard Capistrano deployments, the
 `public/system` directory is symlinked to the app's shared directory, meaning it
 will survive between deployments. For example, using that `:path`, you may have a
 file at
