@@ -89,6 +89,7 @@ Quick Start
 In your model:
 
     class User < ActiveRecord::Base
+      attr_accessible :avatar
       has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }
     end
 
@@ -110,7 +111,7 @@ In your migrations:
 
 In your edit and new views:
 
-    <%= form_for :user, @user, :url => user_path, :html => { :multipart => true } do |form| %>
+    <%= form_for @user, :url => user_path, :html => { :multipart => true } do |form| %>
       <%= form.file_field :avatar %>
     <% end %>
 
