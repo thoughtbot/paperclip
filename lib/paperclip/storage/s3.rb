@@ -343,6 +343,8 @@ module Paperclip
         false
       end
 
+      private
+
       def find_credentials creds
         case creds
         when File
@@ -355,12 +357,10 @@ module Paperclip
           raise ArgumentError, "Credentials are not a path, file, proc, or hash."
         end
       end
-      private :find_credentials
 
       def use_secure_protocol?(style_name)
         s3_protocol(style_name) == "https:"
       end
-      private :use_secure_protocol?
     end
   end
 end

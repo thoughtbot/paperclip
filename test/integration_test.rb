@@ -630,7 +630,6 @@ class IntegrationTest < Test::Unit::TestCase
 
       context "with non-english character in the file name" do
         setup do
-
           @file.stubs(:original_filename).returns("クリップ.png")
           @dummy.avatar = @file
         end
