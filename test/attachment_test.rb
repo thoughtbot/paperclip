@@ -1101,11 +1101,6 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal File.size(@file), @dummy.avatar.size
     end
 
-    should "return the right value when sent #avatar_file_size" do
-      @dummy.avatar = @file
-      assert_equal File.size(@file), @dummy.avatar.size
-    end
-
     context "and avatar_created_at column" do
       setup do
         ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
