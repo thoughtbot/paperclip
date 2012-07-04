@@ -103,7 +103,7 @@ module Paperclip
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash *must* be included manually for
     #   absolute paths. The default value is
-    #   "/system/:attachment/:id/:style/:filename". See
+    #   "/system/:class/:attachment/:id_partition/:style/:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:class/:attachment/:id/:style_:filename"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
