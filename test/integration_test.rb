@@ -640,4 +640,21 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
   end
+
+  context "Copying attachment between models" do
+    setup do
+      rebuild_model
+      @file = File.new(fixture_file("5k.png"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    should "should succeed when attachment is empty" do
+      original = Dummy.create!
+      copy = Dummy.new
+      copy.avatar = original.avatar
+      copy.save
+      assert !copy.avatar.present?
+    end
+  end
 end
