@@ -125,7 +125,22 @@ class S3Test < Test::Unit::TestCase
     should "use the correct key" do
       assert_equal "avatars/stringio.txt", @dummy.avatar.s3_object.key
     end
+  end
 
+  context "s3_protocol" do
+    ["http", :http, ""].each do |protocol|
+      context "as #{protocol.inspect}" do
+        setup do
+          rebuild_model :storage => :s3, :s3_protocol => protocol
+
+          @dummy = Dummy.new
+        end
+
+        should "return the s3_protocol in string" do
+          assert_equal protocol.to_s, @dummy.avatar.s3_protocol
+        end
+      end
+    end
   end
 
   context ":s3_protocol => 'https'" do

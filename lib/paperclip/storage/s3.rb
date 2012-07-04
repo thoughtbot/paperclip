@@ -150,13 +150,13 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
@@ -276,15 +276,15 @@ module Paperclip
         s3_permissions
       end
 
-      def s3_protocol(style = default_style)
-        protocol = if @s3_protocol.respond_to?(:call)
-          @s3_protocol.call(style, self).to_s
-        else
-          @s3_protocol.to_s
-        end
+      def s3_protocol(style = default_style, with_colon = false)
+        protocol = @s3_protocol
+        protocol = protocol.call(style, self) if protocol.respond_to?(:call)
 
-        protocol = protocol.split(":").first + ":" unless protocol.empty?
-        protocol
+        if with_colon && !protocol.empty?
+          "#{protocol}:"
+        else
+          protocol.to_s
+        end
       end
 
       def create_bucket
@@ -359,7 +359,7 @@ module Paperclip
       end
 
       def use_secure_protocol?(style_name)
-        s3_protocol(style_name) == "https:"
+        s3_protocol(style_name) == "https"
       end
     end
   end
