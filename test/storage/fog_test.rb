@@ -66,6 +66,29 @@ class FogTest < Test::Unit::TestCase
                      @dummy.avatar.path
       end
     end
+    
+    context "with no path or url given and using defaults" do
+      setup do
+        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                      :storage => :fog,
+                      :fog_directory => "paperclip",
+                      :fog_credentials => {
+                        :provider => 'AWS',
+                        :aws_access_key_id => 'AWS_ID',
+                        :aws_secret_access_key => 'AWS_SECRET'
+                      }
+        @file = File.new(fixture_file('5k.png'), 'rb')
+        @dummy = Dummy.new
+        @dummy.id = 1
+        @dummy.avatar = @file
+      end
+      
+      teardown { @file.close }
+      
+      should "have correct path and url from interpolated defaults" do
+        assert_equal "dummies/avatars/000/000/001/original/5k.png", @dummy.avatar.path
+      end
+    end
 
     setup do
       @fog_directory = 'papercliptests'
