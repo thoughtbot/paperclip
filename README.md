@@ -283,7 +283,7 @@ This location was chosen because on standard Capistrano deployments, the
 will survive between deployments. For example, using that `:path`, you may have a
 file at
 
-    /data/myapp/releases/20081229172410/public/system/user/avatar/000/000/013/small/my_pic.png
+    /data/myapp/releases/20081229172410/public/system/users/avatar/000/000/013/small/my_pic.png
 
 _**NOTE**: This is a change from previous versions of Paperclip, but is overall a
 safer choice for the default file store._
