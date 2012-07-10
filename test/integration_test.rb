@@ -641,7 +641,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
-  context "Copying attachment between models" do
+  context "Copying attachments between models" do
     setup do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
@@ -649,11 +649,28 @@ class IntegrationTest < Test::Unit::TestCase
 
     teardown { @file.close }
 
-    should "should succeed when attachment is empty" do
-      original = Dummy.create!
+    should "succeed when original attachment is a file" do
+      original = Dummy.new
+      original.avatar = @file
+      assert original.save
+
       copy = Dummy.new
       copy.avatar = original.avatar
-      copy.save
+      assert copy.save
+
+      assert copy.avatar.present?
+    end
+
+    should "succeed when original attachment is empty" do
+      original = Dummy.create!
+
+      copy = Dummy.new
+      copy.avatar = @file
+      assert copy.save
+      assert copy.avatar.present?
+
+      copy.avatar = original.avatar
+      assert copy.save
       assert !copy.avatar.present?
     end
   end
