@@ -450,7 +450,7 @@ allowing custom styles and processors to be applied for specific model
 instances, rather than applying defined styles and processors across all
 instances.
 
-Dynamic Styles:
+### Dynamic Styles:
 
 Imagine a user model that had different styles based on the role of the user.
 Perhaps some users are bosses (e.g. a User model instance responds to #boss?)
@@ -463,7 +463,7 @@ look as follows where a boss will receive a `300x300` thumbnail otherwise a
       has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") }
     end
 
-Dynamic Processors:
+### Dynamic Processors:
 
 Another contrived example is a user model that is aware of which file processors
 should be applied to it (beyond the implied `thumbnail` processor invoked when
