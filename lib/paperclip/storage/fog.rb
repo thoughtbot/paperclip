@@ -142,7 +142,7 @@ module Paperclip
         file = directory.files.get(path(style))
         local_file.write(file.body)
         local_file.close
-      rescue Fog::Errors::Error => e
+      rescue ::Fog::Errors::Error => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
