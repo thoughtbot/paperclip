@@ -13,6 +13,10 @@ module Paperclip
       @tempfile.read(length, buffer)
     end
 
+    def inspect
+      "#{self.class}: #{self.original_filename}"
+    end
+
     private
 
     def destination
