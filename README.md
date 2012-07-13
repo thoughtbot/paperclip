@@ -96,14 +96,12 @@ In your model:
 In your migrations:
 
     class AddAvatarColumnsToUsers < ActiveRecord::Migration
-      def up
-        change_table :users do |t|
-          t.has_attached_file :avatar
-        end
+      def self.up
+        add_attachment :users, :avatar
       end
 
-      def down
-        drop_attached_file :users, :avatar
+      def self.down
+        remove_attachment :users, :avatar
       end
     end
 
