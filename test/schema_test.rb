@@ -64,7 +64,7 @@ class SchemaTest < Test::Unit::TestCase
       Dummy.connection.create_table :dummies, :force => true
     end
 
-    context "migrating up" do
+    context '#add_attachment' do
       context "with single attachment" do
         setup do
           Dummy.connection.add_attachment :dummies, :avatar
@@ -111,7 +111,7 @@ class SchemaTest < Test::Unit::TestCase
       end
     end
 
-    context "migrating down" do
+    context "#remove_attachment" do
       setup do
         Dummy.connection.change_table :dummies do |t|
           t.column :avatar_file_name, :string
@@ -195,6 +195,20 @@ class SchemaTest < Test::Unit::TestCase
           end
         end
       end
+    end
+
+    context '#add_style' do
+      should 'process the specific style'
+
+      should 'raise if the style is missing' do
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :dummies, :avatar, missing_style: '24x24'
+        end
+      end
+
+      should 'raise if the attachment is missing'
+
+      should 'raise if the model is missing'
     end
   end
 end
