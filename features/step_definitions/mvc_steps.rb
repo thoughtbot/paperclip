@@ -46,7 +46,7 @@ Then /^I see a missing large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="([^"]+)?.*"}
+  page.source =~ %r{img alt="5k" src="/([^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
@@ -68,7 +68,7 @@ When /^I run the up database migration$/ do
 end
 
 When /^I run the down database migration$/ do
-  migration_filename = Dir[Rails.root.join('db', 'migrate', '*')].last
+  migration_filename = Dir[Rails.root.join('db', 'migrate', '*')].sort.last
   migration_filename =~ %r{.*/(\d+)_[^/]+.rb}
   version = $1
   version.should_not be_blank
@@ -80,7 +80,7 @@ Then /^I see the large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="([^"]+)?.*"}
+  page.source =~ %r{img alt="5k" src="/([^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 

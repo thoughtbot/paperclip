@@ -199,7 +199,10 @@ class SchemaTest < Test::Unit::TestCase
 
     context '#add_style' do
       should 'process the specific style' do
-        rebuild_class thumbnail: '24x24', large: '124x124', processors: [:recording]
+        rebuild_model style: { thumbnail: '24x24', large: '124x124' }, processors: [:recording]
+        dummy = Dummy.new
+        dummy.avatar = File.new(fixture_file("50x50.png"), 'rb')
+        dummy.save
 
         Dummy.connection.add_style :dummies, :avatar, large: '124x124'
 

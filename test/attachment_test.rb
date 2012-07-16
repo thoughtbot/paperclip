@@ -30,6 +30,7 @@ class AttachmentTest < Test::Unit::TestCase
   end
 
   should "process :original style first" do
+    rebuild_model
     file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
     dummy = Dummy.new
@@ -43,6 +44,7 @@ class AttachmentTest < Test::Unit::TestCase
   end
 
   should "not delete styles that don't get reprocessed" do
+    rebuild_model
     file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class :styles => { :small => '100x>',
                                :large => '500x>',
@@ -1364,5 +1366,4 @@ class AttachmentTest < Test::Unit::TestCase
       assert_file_not_exists(@path)
     end
   end
-
 end
