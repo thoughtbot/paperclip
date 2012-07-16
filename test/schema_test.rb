@@ -198,7 +198,14 @@ class SchemaTest < Test::Unit::TestCase
     end
 
     context '#add_style' do
-      should 'process the specific style'
+      should 'process the specific style' do
+        rebuild_class thumbnail: '24x24', large: '124x124', processors: [:recording]
+
+        Dummy.connection.add_style :dummies, :avatar, large: '124x124'
+
+        assert RecordingProcessor.has_processed?(large: '124x124')
+        assert !RecordingProcessor.has_processed?(thumbnail: '24x24')
+      end
 
       should 'raise if the style is missing' do
         assert_raise ArgumentError do
@@ -206,9 +213,17 @@ class SchemaTest < Test::Unit::TestCase
         end
       end
 
-      should 'raise if the attachment is missing'
+      should 'raise if the attachment is missing' do
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :dummies, :missng_attachment, thumbnail: '24x24'
+        end
+      end
 
-      should 'raise if the model is missing'
+      should 'raise if the model is missing' do
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :missing_model, :avatar, thumbnail: '24x24'
+        end
+      end
     end
   end
 end
