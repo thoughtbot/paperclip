@@ -12,15 +12,13 @@ class StyleAdder
   end
 
   def run
-    p @model_class
-    p @model_class.all
     @model_class.find_each do |model|
-      attachment = model.send(@attachment_name)
+      attachment = attachment_for(model)
 
       file = Paperclip.io_adapters.for(attachment)
       attachment.instance_variable_set('@queued_for_write', {:original => file})
 
-      attachment.send(:post_process, *@styles.keys)
+      attachment.send(:post_process, *styles_for(attachment))
 
       model.save
     end
@@ -33,8 +31,28 @@ class StyleAdder
     begin
       model_class_name.constantize
     rescue NameError
-      p "here"
       raise ArgumentError, "found no model named #{model_class_name}"
     end
+  end
+
+  def attachment_for(model)
+    begin
+      model.send(@attachment_name)
+    rescue NoMethodError
+      raise ArgumentError, "found no attachment named #{@attachment_name} on #{model}"
+    end
+  end
+
+  def styles_for(attachment)
+    expected_styles = attachment.send(:styles).keys
+    if subset?(@styles.keys, expected_styles)
+      @styles.keys
+    else
+      raise ArgumentError, "unsupported styles; excepted any of #{expected_styles}"
+    end
+  end
+
+  def subset?(smaller, larger)
+    (smaller - larger).empty?
   end
 end

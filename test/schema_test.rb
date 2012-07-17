@@ -6,10 +6,12 @@ class SchemaTest < Test::Unit::TestCase
   include ActiveSupport::Testing::Deprecation
 
   def setup
+    super
     rebuild_class
   end
 
   def teardown
+    super
     Dummy.connection.drop_table :dummies rescue nil
   end
 
@@ -199,10 +201,7 @@ class SchemaTest < Test::Unit::TestCase
 
     context '#add_style' do
       should 'process the specific style' do
-        rebuild_model style: { thumbnail: '24x24', large: '124x124' }, processors: [:recording]
-        dummy = Dummy.new
-        dummy.avatar = File.new(fixture_file("50x50.png"), 'rb')
-        dummy.save
+        dummy_with_avatar(thumbnail: '24x24', large: '124x124')
 
         Dummy.connection.add_style :dummies, :avatar, large: '124x124'
 
@@ -211,12 +210,16 @@ class SchemaTest < Test::Unit::TestCase
       end
 
       should 'raise if the style is missing' do
+        dummy_with_avatar(thumbnail: '24x24')
+
         assert_raise ArgumentError do
           Dummy.connection.add_style :dummies, :avatar, missing_style: '24x24'
         end
       end
 
       should 'raise if the attachment is missing' do
+        dummy_with_avatar(thumbnail: '24x24')
+
         assert_raise ArgumentError do
           Dummy.connection.add_style :dummies, :missng_attachment, thumbnail: '24x24'
         end
@@ -228,5 +231,17 @@ class SchemaTest < Test::Unit::TestCase
         end
       end
     end
+  end
+
+  def dummy_with_avatar(styles)
+    rebuild_model styles: styles, processors: [:recording]
+
+    file = File.new(fixture_file("50x50.png"), 'rb')
+    dummy = Dummy.new
+    dummy.avatar = file
+    dummy.save
+    file.close
+
+    RecordingProcessor.clear
   end
 end
