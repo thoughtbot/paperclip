@@ -231,6 +231,19 @@ class SchemaTest < Test::Unit::TestCase
         end
       end
     end
+
+    context '#remove_style' do
+      should 'remove files for the specific style' do
+        dummy_with_avatar(large: '24x24')
+        large_path = Dummy.first.avatar.path(:large)
+        original_path = Dummy.first.avatar.path(:original)
+
+        Dummy.connection.remove_style :dummy, :avatar, :large
+
+        assert !File.exist?(large_path)
+        assert File.exist?(original_path)
+      end
+    end
   end
 
   def dummy_with_avatar(styles)

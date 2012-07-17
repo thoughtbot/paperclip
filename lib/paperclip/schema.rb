@@ -1,5 +1,6 @@
 require 'active_support/deprecation'
 require 'paperclip/style_adder'
+require 'paperclip/style_remover'
 
 module Paperclip
   # Provides helper methods that can be used in migrations.
@@ -47,6 +48,10 @@ module Paperclip
 
       def add_style(table_name, attachment_name, styles)
         StyleAdder.run(table_name, attachment_name, styles)
+      end
+
+      def remove_style(table_name, attachment_name, style_name)
+        StyleRemover.run(table_name, attachment_name, style_name)
       end
     end
 

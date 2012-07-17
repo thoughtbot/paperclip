@@ -15,7 +15,7 @@ class StyleAdderTest < Test::Unit::TestCase
 
     RecordingProcessor.clear
 
-    StyleAdder.run :dummies, :avatar, large: '124x124'
+    Paperclip::StyleAdder.run :dummies, :avatar, large: '124x124'
 
     assert RecordingProcessor.has_processed?(large: '124x124')
     assert !RecordingProcessor.has_processed?(thumbnail: '24x24')
