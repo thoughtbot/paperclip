@@ -149,7 +149,7 @@ module Paperclip
     # scale to the requested geometry and preserve the aspect ratio
     def scale_to(new_geometry)
       scale = [new_geometry.width.to_f / self.width.to_f , new_geometry.height.to_f / self.height.to_f].min
-      Paperclip::Geometry.new (self.width * scale).round, (self.height * scale).round
+      Paperclip::Geometry.new((self.width * scale).round, (self.height * scale).round)
     end
   end
 end
