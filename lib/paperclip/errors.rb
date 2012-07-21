@@ -9,11 +9,6 @@ module Paperclip
     class StorageMethodNotFound < Paperclip::Error
     end
 
-    # Will be thrown when there are custom styles and those styles aren't
-    # included in the path
-    class StyleTokenNotFound < Paperclip::Error
-    end
-
     # Will be thrown when a command or executable is not found.
     class CommandNotFoundError < Paperclip::Error
     end
