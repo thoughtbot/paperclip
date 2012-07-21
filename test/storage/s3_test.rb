@@ -243,7 +243,7 @@ class S3Test < Test::Unit::TestCase
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
                     :storage => :s3,
                     :bucket  => "bucket",
-                    :path => ":attachment/:basename.:extension",
+                    :path => ":attachment/:style/:basename.:extension",
                     :s3_credentials => {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
