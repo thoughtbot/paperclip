@@ -8,6 +8,7 @@ class SchemaTest < Test::Unit::TestCase
   def setup
     super
     rebuild_class
+    register_recording_processor
   end
 
   def teardown

@@ -1,4 +1,8 @@
 Given /^I generate a new rails application$/ do
+  in_current_dir do
+    FileUtils.rm_rf(APP_NAME)
+  end
+
   steps %{
     When I run `bundle exec #{new_application_command} #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"

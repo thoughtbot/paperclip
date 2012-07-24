@@ -17,6 +17,8 @@ class RecordingProcessor
   end
 end
 
-Paperclip.configure do |c|
-  c.register_processor :recording, RecordingProcessor
+def register_recording_processor
+  Paperclip.configure do |c|
+    c.register_processor :recording, RecordingProcessor
+  end
 end

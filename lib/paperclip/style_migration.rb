@@ -11,7 +11,7 @@ module Paperclip
       @attachment_name = attachment_name
     end
 
-    private
+    protected
 
     def self.model_class(table_name)
       model_class_name = table_name.to_s.singularize.camelize
