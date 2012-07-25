@@ -24,6 +24,10 @@ Given /^I upload an avatar to the user model$/ do
   visit '/users/new'
   attach_file('Avatar', File.expand_path('test/fixtures/5k.png'))
   click_button 'Submit'
+
+  in_current_dir do
+    puts `find public -type f`
+  end
 end
 
 When /^I add the following style to the user avatar:$/ do |string|
@@ -46,10 +50,16 @@ Then /^I see a missing large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="/([^"]+)\?.*"}
+  page.source =~ %r{img alt="5k" src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
+  in_current_dir do
+    puts `find public -type f`
+  end
+
+  p Rails.root.join('public',image_path)
+  puts `ls -l #{Rails.root.join('public',image_path)}`
   File.should_not be_exist(Rails.root.join('public',image_path))
 end
 
@@ -80,9 +90,13 @@ Then /^I see the large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="/([^"]+)\?.*"}
+  page.source =~ %r{img alt="5k" src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
+
+  in_current_dir do
+    puts `find public -type f`
+  end
 
   File.should be_exist(Rails.root.join('public',image_path))
 end

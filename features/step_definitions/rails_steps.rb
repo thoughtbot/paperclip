@@ -1,6 +1,6 @@
 Given /^I generate a new rails application$/ do
-  in_current_dir do
-    FileUtils.rm_rf(APP_NAME)
+  if defined?(Paperclip::Attachment)
+    Paperclip::Attachment.reset
   end
 
   steps %{
