@@ -6,9 +6,11 @@ class StyleRemoverTest < Test::Unit::TestCase
     register_recording_processor
 
     Dummy = rebuild_model styles: { large: '24x24' }, processors: [:recording]
+    file = File.new(fixture_file("50x50.png"), 'rb')
     dummy = Dummy.new
-    dummy.avatar = File.new(fixture_file("50x50.png"), 'rb')
+    dummy.avatar = file
     dummy.save
+    file.close
 
     large_path = dummy.avatar.path(:large)
     original_path = dummy.avatar.path(:original)

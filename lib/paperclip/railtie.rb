@@ -14,8 +14,6 @@ module Paperclip
         Paperclip::Attachment.default_options.merge!(app.config.paperclip_defaults)
       end
     end
-
-    rake_tasks { load "tasks/paperclip.rake" }
   end
 
   class Railtie

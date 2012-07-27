@@ -6,9 +6,11 @@ class StyleAdderTest < Test::Unit::TestCase
     register_recording_processor
 
     Dummy = rebuild_model styles: { thumbnail: '24x24' }, processors: [:recording]
+    file = File.new(fixture_file("50x50.png"), 'rb')
     dummy = Dummy.new
-    dummy.avatar = File.new(fixture_file("50x50.png"), 'rb')
+    dummy.avatar = file
     dummy.save
+    file.close
 
     Dummy.class_eval do
       has_attached_file :avatar, styles: { thumbnail: '24x24', large: '124x124' }, processors: [:recording]
