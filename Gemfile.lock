@@ -60,6 +60,9 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 0.1.4)
+    capybara-webkit (0.11.0)
+      capybara (>= 1.0.0, < 1.2)
+      json
     childprocess (0.3.2)
       ffi (~> 1.0.6)
     climate_control (0.0.3)
@@ -193,6 +196,8 @@ DEPENDENCIES
   bourne
   bundler
   capybara
+  capybara-webkit
+  cocaine (~> 0.2)
   cucumber (~> 1.2.1)
   fakeweb
   fog (>= 1.4.0, < 1.7.0)

@@ -1,4 +1,8 @@
 Given /^I generate a new rails application$/ do
+  in_current_dir do
+    FileUtils.rm_rf(APP_NAME)
+  end
+
   steps %{
     When I run `bundle exec #{new_application_command} #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
@@ -14,6 +18,7 @@ Given /^I generate a new rails application$/ do
       gem "gherkin"
       gem "aws-sdk"
       gem 'thin'
+      gem 'jquery-rails'
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable

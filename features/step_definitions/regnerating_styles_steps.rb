@@ -26,12 +26,14 @@ Given /^I upload an avatar to the user model$/ do
   FakeWeb.allow_net_connect = true
   in_current_dir { RailsServer.start_unless_started(ENV['PORT'], ENV['DEBUG']) }
 
-  Capybara.current_driver = :selenium
+  require 'capybara/webkit'
+  Capybara.current_driver = :webkit
   Capybara.app_host = RailsServer.app_host
 
   visit '/users/new'
   attach_file('Avatar', File.expand_path('test/fixtures/5k.png'))
   click_button 'Submit'
+  sleep 1
 end
 
 When /^I add the following style to the user avatar:$/ do |string|
@@ -53,7 +55,7 @@ Then /^I see a missing large avatar on the user show page$/ do
   visit '/users'
   click_link 'Show'
 
-  page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
+  page.source =~ %r{img.*src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
@@ -92,7 +94,7 @@ Then /^I see the large avatar on the user show page$/ do
   visit '/users'
   click_link 'Show'
 
-  page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
+  page.source =~ %r{img.*src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
