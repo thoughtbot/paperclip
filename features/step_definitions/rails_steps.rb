@@ -1,8 +1,4 @@
 Given /^I generate a new rails application$/ do
-  if defined?(Paperclip::Attachment)
-    Paperclip::Attachment.reset
-  end
-
   steps %{
     When I run `bundle exec #{new_application_command} #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
@@ -17,6 +13,7 @@ Given /^I generate a new rails application$/ do
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
+      gem 'thin'
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
@@ -60,7 +57,7 @@ Given /^I update my user view to include the attachment$/ do
     Given I overwrite "app/views/users/show.html.erb" with:
       """
       <p>Name: <%= @user.name %></p>
-      <p>Attachment: <%= image_tag @user.attachment.url %></p>
+      <p>Default attachment: <%= image_tag @user.attachment.url %></p>
       """
   }
 end
@@ -86,10 +83,6 @@ Given /^I start the rails application$/ do
     require "./config/environment"
     require "capybara/rails"
   end
-end
-
-Given /^I reload my application$/ do
-  Rails::Application.reload!
 end
 
 When /^I turn off class caching$/ do

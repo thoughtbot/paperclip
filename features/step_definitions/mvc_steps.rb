@@ -10,7 +10,7 @@ Given /^I have made a simple avatar on the user model$/ do
     <% end %>
   VIEW
   write_file('app/views/users/show.html.erb', <<-VIEW)
-    <p>Attachment: <%= image_tag @user.avatar.url(:thumbnail) %></p>
+    <p>Thumbnail attachment: <%= image_tag @user.avatar.url(:thumbnail) %></p>
   VIEW
   write_file('app/models/user.rb', <<-MODEL)
     class User < ActiveRecord::Base
@@ -21,13 +21,15 @@ Given /^I have made a simple avatar on the user model$/ do
 end
 
 Given /^I upload an avatar to the user model$/ do
+  FakeWeb.allow_net_connect = true
+  in_current_dir { RailsServer.start_unless_started(ENV['PORT'], ENV['DEBUG']) }
+
+  Capybara.current_driver = :selenium
+  Capybara.app_host = RailsServer.app_host
+
   visit '/users/new'
   attach_file('Avatar', File.expand_path('test/fixtures/5k.png'))
   click_button 'Submit'
-
-  in_current_dir do
-    puts `find public -type f`
-  end
 end
 
 When /^I add the following style to the user avatar:$/ do |string|
@@ -41,7 +43,7 @@ end
 
 When /^I change the user show page to show the large avatar$/ do
   write_file('app/views/users/show.html.erb', <<-VIEW)
-    <p>Attachment: <%= image_tag @user.avatar.url(:large) %></p>
+    <p>Large attachment: <%= image_tag @user.avatar.url(:large) %></p>
   VIEW
 end
 
@@ -50,16 +52,10 @@ Then /^I see a missing large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="/([^"]+large[^"]+)\?.*"}
+  page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
-  in_current_dir do
-    puts `find public -type f`
-  end
-
-  p Rails.root.join('public',image_path)
-  puts `ls -l #{Rails.root.join('public',image_path)}`
   File.should_not be_exist(Rails.root.join('public',image_path))
 end
 
@@ -90,13 +86,9 @@ Then /^I see the large avatar on the user show page$/ do
   user.should_not be_nil
   visit "/users/#{user.to_param}"
 
-  page.source =~ %r{img alt="5k" src="/([^"]+large[^"]+)\?.*"}
+  page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
-
-  in_current_dir do
-    puts `find public -type f`
-  end
 
   File.should be_exist(Rails.root.join('public',image_path))
 end
