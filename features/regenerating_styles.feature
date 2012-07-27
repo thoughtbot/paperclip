@@ -3,7 +3,6 @@ Feature: Regenerating styles
   Scenario: Adding a new style
     Given I generate a new rails application
     And I have made a simple avatar on the user model
-    And I start the rails application
     And I upload an avatar to the user model
     When I add the following style to the user avatar:
     """

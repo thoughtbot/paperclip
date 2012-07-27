@@ -1,3 +1,5 @@
+require 'active_support/core_ext/string'
+
 Given /^I have made a simple avatar on the user model$/ do
   run_simple(%{bundle exec #{generator_command} scaffold user})
   run_simple(%{bundle exec #{generator_command} paperclip user avatar})
@@ -48,20 +50,23 @@ When /^I change the user show page to show the large avatar$/ do
 end
 
 Then /^I see a missing large avatar on the user show page$/ do
-  user = User.last
-  user.should_not be_nil
-  visit "/users/#{user.to_param}"
+  visit '/users'
+  click_link 'Show'
 
   page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
-  File.should_not be_exist(Rails.root.join('public',image_path))
+  in_current_dir do
+    File.should_not be_exist(File.join('public',image_path))
+  end
 end
 
 When /^I generate the "(.*?)" migration as follows:$/ do |migration_name, code|
   run_simple(%{bundle exec ./script/rails generate migration #{migration_name}})
-  migration_filename = Dir[Rails.root.join('db', 'migrate', "*#{migration_name}.rb")].first
+  migration_filename = in_current_dir do
+    Dir[File.join('db', 'migrate', "*#{migration_name}.rb")].first
+  end
   write_file(migration_filename, <<-MIGRATION)
     class #{migration_name.classify} < ActiveRecord::Migration
       #{code}
@@ -74,7 +79,9 @@ When /^I run the up database migration$/ do
 end
 
 When /^I run the down database migration$/ do
-  migration_filename = Dir[Rails.root.join('db', 'migrate', '*')].sort.last
+  migration_filename = in_current_dir do
+    Dir[File.join('db', 'migrate', '*')].sort.last
+  end
   migration_filename =~ %r{.*/(\d+)_[^/]+.rb}
   version = $1
   version.should_not be_blank
@@ -82,13 +89,14 @@ When /^I run the down database migration$/ do
 end
 
 Then /^I see the large avatar on the user show page$/ do
-  user = User.last
-  user.should_not be_nil
-  visit "/users/#{user.to_param}"
+  visit '/users'
+  click_link 'Show'
 
   page.source =~ %r{img src="/([^"]+large[^"]+)\?.*"}
   image_path = $1
   image_path.should_not be_blank
 
-  File.should be_exist(Rails.root.join('public',image_path))
+  in_current_dir do
+    File.should be_exist(File.join('public',image_path))
+  end
 end
