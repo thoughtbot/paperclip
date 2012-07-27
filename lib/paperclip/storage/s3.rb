@@ -137,8 +137,10 @@ module Paperclip
           end
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
-          @s3_headers['x-amz-server-side-encryption'] = @options[:s3_server_side_encryption].to_s.upcase if
-            @options[:s3_server_side_encryption]
+
+          if @options[:s3_server_side_encryption] && @options[:s3_server_side_encryption] != ''
+            @s3_headers['x-amz-server-side-encryption'] = @options[:s3_server_side_encryption].to_s.upcase
+          end
 
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
             @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
