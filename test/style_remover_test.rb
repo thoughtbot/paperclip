@@ -14,8 +14,9 @@ class StyleRemoverTest < Test::Unit::TestCase
 
     large_path = dummy.avatar.path(:large)
     original_path = dummy.avatar.path(:original)
+    dummy_enumerator = Dummy.all
 
-    Paperclip::StyleRemover.run(:dummy, :avatar, :large)
+    Paperclip::StyleRemover.run dummy_enumerator, :avatar, :large
 
     assert !File.exist?(large_path)
     assert File.exist?(original_path)

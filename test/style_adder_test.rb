@@ -17,9 +17,11 @@ class StyleAdderTest < Test::Unit::TestCase
       Paperclip.reset_duplicate_clash_check!
     end
 
+    dummy_enumerator = Dummy.all
+
     RecordingProcessor.clear
 
-    Paperclip::StyleAdder.run :dummies, :avatar, large: '124x124'
+    Paperclip::StyleAdder.run dummy_enumerator, :avatar, large: '124x124'
 
     assert RecordingProcessor.has_processed?(large: '124x124')
     assert !RecordingProcessor.has_processed?(thumbnail: '24x24')
