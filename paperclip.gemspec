@@ -43,9 +43,11 @@ Gem::Specification.new do |s|
   s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
   s.add_development_dependency('cocaine', '~> 0.2')
-  s.add_development_dependency('fog', '1.3.1')
+  s.add_development_dependency('fog', '~> 1.4.0')
   s.add_development_dependency('pry')
   s.add_development_dependency('launchy')
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
+  s.add_development_dependency('railties')
+  s.add_development_dependency('actionmailer')
 end

@@ -120,7 +120,7 @@ module Paperclip
         end
       end
 
-      def expiring_url(time = 3600, style = default_style)
+      def expiring_url(time = (Time.now + 3600), style = default_style)
         expiring_url = directory.files.get_http_url(path(style), time)
 
         if @options[:fog_host]
@@ -142,7 +142,7 @@ module Paperclip
         file = directory.files.get(path(style))
         local_file.write(file.body)
         local_file.close
-      rescue Fog::Errors::Error => e
+      rescue ::Fog::Errors::Error => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
@@ -159,12 +159,7 @@ module Paperclip
 
       def host_name_for_directory
         if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-          # This:
-          "#{@options[:fog_directory]}."
-
-          # Should be modified to this:
-          # "#{@options[:fog_directory]}.s3.amazonaws.com"
-          # When fog with https://github.com/fog/fog/pull/857 gets released
+          "#{@options[:fog_directory]}.s3.amazonaws.com"
         else
           "s3.amazonaws.com/#{@options[:fog_directory]}"
         end

@@ -1,12 +1,12 @@
 require './test/helper'
 
 class AttachmentAdapterTest < Test::Unit::TestCase
-  
+
   def setup
     rebuild_model :path => "tmp/:class/:attachment/:style/:filename", :styles => {:thumb => '50x50'}
     @attachment = Dummy.new.avatar
   end
-  
+
   context "for an attachment" do
     setup do
       @file = File.new(fixture_file("5k.png"))
@@ -53,19 +53,19 @@ class AttachmentAdapterTest < Test::Unit::TestCase
       assert_equal expected.length, actual.length
       assert_equal expected, actual
     end
-    
+
   end
-  
+
   context "for a style" do
     setup do
       @file = File.new(fixture_file("5k.png"))
       @file.binmode
 
       @attachment.assign(@file)
-    
+
       @thumb = Tempfile.new("thumbnail").tap(&:binmode)
       FileUtils.cp @attachment.queued_for_write[:thumb].path, @thumb.path
-    
+
       @attachment.save
       @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb])
     end
@@ -108,6 +108,6 @@ class AttachmentAdapterTest < Test::Unit::TestCase
       assert_equal expected.length, actual.length
       assert_equal expected, actual
     end
-    
+
   end
 end

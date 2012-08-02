@@ -1,3 +1,22 @@
+New in 3.1.4:
+
+* Bug fix: Allow user to be able to set path without `:style` attribute and not raising an error.
+  This is a regression introduced in 3.1.3, and that feature will be postponed to another minor
+  release instead.
+* Feature: Allow for URI Adapter as an optional paperclip io adapter.
+
+New in 3.1.3:
+
+* Bug fix: Copy empty attachment between instances is now working.
+* Bug fix: Correctly rescue Fog error.
+* Bug fix: Using default path and url options in Fog storage now work as expected.
+* Bug fix: `Attachment#s3_protocol` now returns a protocol without colon suffix.
+* Feature: Paperclip will now raise an error if multiple styles are defined but no `:style`
+  interpolation exists in `:path`.
+* Feature: Add support for `#{attachment}_created_at` field
+* Bug fix: Paperclip now gracefully handles msising file command.
+* Bug fix: `StringIOAdapter` now accepts content type.
+
 New in 3.1.2:
 
 * Bug fix: #remove_attachment on 3.1.0 and 3.1.1 mistakenly trying to remove the column that has

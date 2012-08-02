@@ -234,19 +234,11 @@ class FogTest < Test::Unit::TestCase
 
       context "with a valid bucket name for a subdomain" do
         should "provide an url in subdomain style" do
-          # The following line is the correct one when this pull request in Fog is released:
-          # https://github.com/fog/fog/pull/857
-          # assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
-          # For now, use this passing one:
-          assert_match /^https:\/\/papercliptests.\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+          assert_match @dummy.avatar.url, /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/
         end
 
         should "provide an url that expires in subdomain style" do
-          # The following line is the correct one when this pull request in Fog is released:
-          # https://github.com/fog/fog/pull/857
-          # assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
-          # For now, use this passing one:
-          assert_match /^http:\/\/papercliptests.\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
+          assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
         end
       end
 

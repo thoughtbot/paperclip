@@ -96,14 +96,12 @@ In your model:
 In your migrations:
 
     class AddAvatarColumnsToUsers < ActiveRecord::Migration
-      def up
-        change_table :users do |t|
-          t.has_attached_file :avatar
-        end
+      def self.up
+        add_attachment :users, :avatar
       end
 
-      def down
-        drop_attached_file :users, :avatar
+      def self.down
+        remove_attachment :users, :avatar
       end
     end
 
@@ -111,7 +109,7 @@ In your migrations:
 
 In your edit and new views:
 
-    <%= form_for @user, :url => user_path, :html => { :multipart => true } do |form| %>
+    <%= form_for @user, :url => users_path, :html => { :multipart => true } do |form| %>
       <%= form.file_field :avatar %>
     <% end %>
 
@@ -205,7 +203,7 @@ An example Rails initializer would look something like this:
 Paperclip::Attachment.default_options[:storage] = :fog
 Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local", :local_root => "#{Rails.root}/public"}
 Paperclip::Attachment.default_options[:fog_directory] = ""
-Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"}
+Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
 ```
 
 Migrations

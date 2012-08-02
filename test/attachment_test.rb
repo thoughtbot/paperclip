@@ -309,7 +309,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment with a default style and an extension interpolation" do
     setup do
-      @attachment = attachment :path => ":style_:basename.:extension",
+      @attachment = attachment :path => ":basename.:extension",
                                :styles => { :default => ["100x100", :png] },
                                :default_style => :default
       @file = StringIO.new("...")
@@ -317,7 +317,7 @@ class AttachmentTest < Test::Unit::TestCase
     end
     should "return the right extension for the path" do
       @attachment.assign(@file)
-      assert_equal "default_file.png", @attachment.path
+      assert_equal "file.png", @attachment.path
     end
   end
 
