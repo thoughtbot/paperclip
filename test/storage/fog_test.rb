@@ -232,6 +232,36 @@ class FogTest < Test::Unit::TestCase
         end
       end
 
+      context "with styles set and fog_public set to false" do
+        setup do
+          rebuild_model(@options.merge(:fog_public => false, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should 'set the @fog_public for a perticular style to false' do
+          assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
+          assert_equal false, @dummy.avatar.fog_public(:thumb)
+        end
+      end
+
+      context "with styles set and fog_public set per-style" do
+        setup do
+          rebuild_model(@options.merge(:fog_public => { :medium => false, :thumb => true}, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should 'set the fog_public for a perticular style to correct value' do
+          assert_equal false, @dummy.avatar.fog_public(:medium)
+          assert_equal true, @dummy.avatar.fog_public(:thumb)
+        end
+      end
+
       context "with a valid bucket name for a subdomain" do
         should "provide an url in subdomain style" do
           assert_match @dummy.avatar.url, /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/
