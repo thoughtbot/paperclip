@@ -109,8 +109,14 @@ if defined?(ActionController::Integration::Session)
   end
 end
 
-class Factory
-  include Paperclip::Shoulda  #:nodoc:
+if defined?(FactoryGirl::Factory)
+  class FactoryGirl::Factory
+    include Paperclip::Shoulda  #:nodoc:
+  end
+else
+  class Factory
+    include Paperclip::Shoulda  #:nodoc:
+  end
 end
 
 class Test::Unit::TestCase #:nodoc:

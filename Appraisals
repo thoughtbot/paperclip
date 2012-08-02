@@ -1,11 +1,14 @@
-appraise "rails2" do
-  gem "rails", "~>2.3.0"
+appraise "3.0" do
+  gem "rails", "~> 3.0.15"
+  gem "paperclip", :path => "../"
 end
 
-appraise "rails3" do
-  gem "rails", "~>3.0.0"
+appraise "3.1" do
+  gem "rails", "~> 3.1.6"
+  gem "paperclip", :path => "../"
 end
 
-appraise "rails3_1" do
-  gem "rails", "~>3.1.0.rc1"
+appraise "3.2" do
+  gem "rails", "~> 3.2.6"
+  gem "paperclip", :path => "../"
 end

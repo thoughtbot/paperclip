@@ -25,8 +25,11 @@ module Paperclip
 
     # Perform the actual interpolation. Takes the pattern to interpolate
     # and the arguments to pass, which are the attachment and style name.
+    # You can pass a method name on your record as a symbol, which should turn
+    # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
-      all.reverse.inject( pattern.dup ) do |result, tag|
+      pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
+      all.reverse.inject(pattern) do |result, tag|
         result.gsub(/:#{tag}/) do |match|
           send( tag, *args )
         end
@@ -43,8 +46,8 @@ module Paperclip
     # is used in the default :path to ease default specifications.
     RIGHT_HERE = "#{__FILE__.gsub(%r{^\./}, "")}:#{__LINE__ + 3}"
     def url attachment, style_name
-      raise InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
-      attachment.url(style_name, false)
+      raise Errors::InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
+      attachment.url(style_name, :timestamp => false, :escape => false)
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field
@@ -83,15 +86,46 @@ module Paperclip
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{File.extname(attachment.original_filename)}$/, "")
+      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}$/, "")
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
     # If the style has a format defined, it will return the format instead
     # of the actual extension.
     def extension attachment, style_name
-      ((style = attachment.styles[style_name]) && style[:format]) ||
+      ((style = attachment.styles[style_name.to_s.to_sym]) && style[:format]) ||
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
+    end
+
+    # Returns an extension based on the content type. e.g. "jpeg" for
+    # "image/jpeg". If the style has a specified format, it will override the
+    # content-type detection.
+    #
+    # Each mime type generally has multiple extensions associated with it, so
+    # if the extension from the original filename is one of these extensions,
+    # that extension is used, otherwise, the first in the list is used.
+    def content_type_extension attachment, style_name
+      mime_type = MIME::Types[attachment.content_type]
+      extensions_for_mime_type = unless mime_type.empty?
+        mime_type.first.extensions
+      else
+        []
+      end
+
+      original_extension = extension(attachment, style_name)
+      style = attachment.styles[style_name.to_s.to_sym]
+      if style && style[:format]
+        style[:format].to_s
+      elsif extensions_for_mime_type.include? original_extension
+        original_extension
+      elsif !extensions_for_mime_type.empty?
+        extensions_for_mime_type.first
+      else
+        # It's possible, though unlikely, that the mime type is not in the
+        # database, so just use the part after the '/' in the mime type as the
+        # extension.
+        %r{/([^/]*)$}.match(attachment.content_type)[1]
+      end
     end
 
     # Returns the id of the instance.
@@ -109,16 +143,27 @@ module Paperclip
       attachment.fingerprint
     end
 
-    # Returns a the attachment hash.  See Paperclip::Attachment#hash for
+    # Returns a the attachment hash.  See Paperclip::Attachment#hash_key for
     # more details.
-    def hash attachment, style_name
-      attachment.hash(style_name)
+    def hash attachment=nil, style_name=nil
+      if attachment && style_name
+        attachment.hash_key(style_name)
+      else
+        super()
+      end
     end
 
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name
-      ("%09d" % attachment.instance.id).scan(/\d{3}/).join("/")
+      case id = attachment.instance.id
+      when Integer
+        ("%09d" % id).scan(/\d{3}/).join("/")
+      when String
+        id.scan(/.{3}/).first(3).join("/")
+      else
+        nil
+      end
     end
 
     # Returns the pluralized form of the attachment name. e.g.

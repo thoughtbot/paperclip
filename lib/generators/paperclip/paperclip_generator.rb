@@ -1,7 +1,9 @@
 require 'rails/generators/active_record'
 
 class PaperclipGenerator < ActiveRecord::Generators::Base
-  desc "Create a migration to add paperclip-specific fields to your model."
+  desc "Create a migration to add paperclip-specific fields to your model. " +
+       "The NAME argument is the name of your model, and the following " +
+       "arguments are the name of the attachments"
 
   argument :attachment_names, :required => true, :type => :array, :desc => "The names of the attachment(s) to add.",
            :banner => "attachment_one attachment_two attachment_three ..."
@@ -17,7 +19,7 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   protected
 
   def migration_name
-    "add_attachment_#{attachment_names.join("_")}_to_#{name.underscore}"
+    "add_attachment_#{attachment_names.join("_")}_to_#{name.underscore.pluralize}"
   end
 
   def migration_file_name
@@ -27,5 +29,4 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   def migration_class_name
     migration_name.camelize
   end
-
 end
