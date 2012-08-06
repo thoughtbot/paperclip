@@ -33,7 +33,8 @@ namespace :paperclip do
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
           instance.send(name).reprocess!(*styles)
           unless instance.errors.blank?
-            puts "#{instance.id}: #{instance.errors.full_messages.inspect}"
+            puts "errors while processing #{klass} ID #{instance.id}:"
+            puts " " + instance.errors.full_messages.join("\n ") + "\n"
           end
         end
       end
