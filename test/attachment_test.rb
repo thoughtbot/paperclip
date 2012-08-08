@@ -869,6 +869,26 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context 'Attachment with filename extension containing special characters' do
+    setup do
+      @old_defaults = Paperclip::Attachment.default_options.dup
+      Paperclip::Attachment.default_options.merge!({
+        :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
+      })
+      FileUtils.rm_rf("tmp")
+      rebuild_model
+      @instance = Dummy.new
+      @instance.stubs(:id).returns 123
+      @attachment = Paperclip::Attachment.new(:avatar, @instance)
+      @file = File.new(fixture_file("5k.png:large"), 'rb')
+    end
+
+    should 'rename file the extension' do
+      @attachment.assign(@file)
+      assert_match @attachment.queued_for_write[:original].path, /png_large/
+    end
+  end
+
   context "An attachment" do
     setup do
       @old_defaults = Paperclip::Attachment.default_options.dup
