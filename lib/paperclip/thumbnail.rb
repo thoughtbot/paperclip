@@ -3,7 +3,7 @@ module Paperclip
   class Thumbnail < Processor
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated
+                  :source_file_options, :animated, :auto_orient
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
@@ -38,6 +38,7 @@ module Paperclip
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
       @animated            = options[:animated].nil? ? true : options[:animated]
+      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
@@ -89,6 +90,7 @@ module Paperclip
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
       trans = []
       trans << "-coalesce" if animated?
+      trans << "-auto-orient" if auto_orient
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
       trans
