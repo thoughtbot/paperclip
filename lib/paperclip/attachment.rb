@@ -167,7 +167,7 @@ module Paperclip
         styles = styles.call(self) if styles.respond_to?(:call)
 
         @normalized_styles = styles.dup
-        @normalized_styles.each_pair do |name, options|
+        styles.each_pair do |name, options|
           @normalized_styles[name.to_sym] = Paperclip::Style.new(name.to_sym, options.dup, self)
         end
       end
