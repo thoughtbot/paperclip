@@ -138,7 +138,10 @@ module Paperclip
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
 
-          if @options[:s3_server_side_encryption] && @options[:s3_server_side_encryption] != ''
+          if @options[:s3_server_side_encryption].blank?
+            @options[:s3_server_side_encryption] = false
+          end
+          if @options[:s3_server_side_encryption]
             @s3_headers['x-amz-server-side-encryption'] = @options[:s3_server_side_encryption].to_s.upcase
           end
 
