@@ -12,6 +12,7 @@ Feature: Rails integration
     Given I add this snippet to config/application.rb:
       """
       config.paperclip_defaults = {:url => "/paperclip/custom/:attachment/:style/:filename"}
+      config.paperclip_validator = {:size => { :in => 0..10240 }}
       """
     Given I add this snippet to the User model:
       """
@@ -26,6 +27,13 @@ Feature: Rails integration
     Then I should see "Name: something"
     And I should see an image with a path of "/paperclip/custom/attachments/original/5k.png"
     And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
+
+    When I go to the new user page
+    And I fill in "Name" with "something2"
+    And I attach the file "test/fixtures/12k.png" to "Attachment"
+    And I press "Submit"
+    Then I should not see "Name: something2"
+    And I should not see an image with a path of "/paperclip/custom/attachments/original/12k.png"
 
   Scenario: Filesystem integration test
     Given I add this snippet to the User model:

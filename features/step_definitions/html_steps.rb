@@ -2,6 +2,10 @@ Then %r{I should see an image with a path of "([^"]*)"} do |path|
   page.should have_css("img[src^='#{path}']")
 end
 
+Then %r{I should not see an image with a path of "([^"]*)"} do |path|
+  page.should_not have_css("img[src^='#{path}']")
+end
+
 Then %r{^the file at "([^"]*)" is the same as "([^"]*)"$} do |web_file, path|
   expected = IO.read(path)
   actual = if web_file.match %r{^https?://}

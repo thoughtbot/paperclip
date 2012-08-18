@@ -204,6 +204,8 @@ module Paperclip
         attachment = record.attachment_for(name)
         attachment.send(:flush_errors)
       end
+
+      validates_attachment name, Paperclip::Attachment.default_validator if Paperclip::Attachment.default_validator
     end
 
     # Returns the attachment definitions defined by each call to
