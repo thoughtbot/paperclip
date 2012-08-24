@@ -69,9 +69,16 @@ module Paperclip
         @fog_file ||= @options[:fog_file] || {}
       end
 
-      def fog_public
-        return @fog_public if defined?(@fog_public)
-        @fog_public = defined?(@options[:fog_public]) ? @options[:fog_public] : true
+      def fog_public(style = default_style)
+        if defined?(@options[:fog_public])
+          if defined?(@options[:fog_public][style])
+            return @options[:fog_public][style]
+          else
+            return @options[:fog_public]
+          end
+        else
+          return true
+        end
       end
 
       def flush_writes
@@ -82,7 +89,7 @@ module Paperclip
             directory.files.create(fog_file.merge(
               :body         => file,
               :key          => path(style),
-              :public       => fog_public,
+              :public       => fog_public(style),
               :content_type => file.content_type
             ))
           rescue Excon::Errors::NotFound
