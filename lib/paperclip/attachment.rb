@@ -31,6 +31,8 @@ module Paperclip
       }
     end
 
+    cattr_accessor :default_validator
+
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
                 :options, :interpolator, :source_file_options, :whiny
     attr_accessor :post_processing

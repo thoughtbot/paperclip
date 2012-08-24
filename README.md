@@ -206,6 +206,32 @@ Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
 ```
 
+### Default validator
+Global validator for all your paperclip attachments can be defined by changing the `Paperclip::Attachment.default_validator`.
+This can be useful if you want to define max attachment size per application.
+
+If you're using Rails you can define a Hash with validation options in `config/application.rb` or in any of the `config/environments/*.rb` files on `config.paperclip_validator`. An example:
+
+```ruby
+module YourApp
+  class Application < Rails::Application
+    # Other code...
+
+    config.paperclip_validator = {:size => { :in => 0..10240 }}
+  end
+end
+```
+
+Another option is to directly modify the `Paperclip::Attachment.default_validator` Hash, this method works for non-Rails applications or is an option if you prefer to place the Paperclip default settings in an initializer.
+
+An example Rails initializer would look something like this:
+
+```ruby
+Paperclip::Attachment.default_validator = {:size => { :in => 0..10240 }}
+```
+
+Any options used in `validates_attachment` can also be used in `default_validator`.
+
 Migrations
 ----------
 
