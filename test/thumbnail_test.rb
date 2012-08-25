@@ -114,7 +114,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "send the right command to convert when sent #make" do
         @thumb.expects(:convert).with do |*arg|
-          arg[0] == ':source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
@@ -139,7 +139,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "send the right command to convert when sent #make" do
         @thumb.expects(:convert).with do |*arg|
-          arg[0] == '-strip :source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[0] == '-strip :source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
@@ -180,7 +180,7 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "send the right command to convert when sent #make" do
         @thumb.expects(:convert).with do |*arg|
-          arg[0] == ':source -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
+          arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
@@ -298,6 +298,62 @@ class ThumbnailTest < Test::Unit::TestCase
 
         assert transformation_command.include?('"151x167"'),
           %{expected #{transformation_command.inspect} to include '151x167'}
+      end
+    end
+  end
+
+  context "An image with exif orientation" do
+    setup do
+      @file = File.new(fixture_file("rotated.jpg"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    context "With :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50", :auto_orient => false)
+      end
+
+      should "send the right command to convert when sent #make" do
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -resize "100x50" :dest' &&
+              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /75x50/, `identify "#{dst.path}"`
+      end
+
+      should "not touch the orientation information" do
+        dst = @thumb.make
+        assert_match /exif:Orientation=6/, `identify -format "%[EXIF:*]" "#{dst.path}"`
+      end
+    end
+
+    context "Without :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50")
+      end
+
+      should "send the right command to convert when sent #make" do
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -auto-orient -resize "100x50" :dest' &&
+              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /33x50/, `identify "#{dst.path}"`
+      end
+
+      should "remove the orientation information" do
+        dst = @thumb.make
+        assert_match /exif:Orientation=1/, `identify -format "%[EXIF:*]" "#{dst.path}"`
       end
     end
   end
