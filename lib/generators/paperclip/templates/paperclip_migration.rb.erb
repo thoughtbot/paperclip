@@ -1,7 +1,7 @@
 class <%= migration_class_name %> < ActiveRecord::Migration
   def change
   <% attachment_names.each do |attachment| -%>
-    add_attachment :p<%= table_name %>, :<%= attachment %> 
+    add_attachment :<%= table_name %>, :<%= attachment %> 
   <% end -%>
   end
 end
