@@ -103,6 +103,13 @@ def rebuild_class options = {}
   end
 end
 
+def rebuild_meta_class_of obj, options = {}
+  (class << obj; self; end).tap do |metaklass|
+    metaklass.has_attached_file :avatar, options
+    Paperclip.reset_duplicate_clash_check!
+  end
+end
+
 class FakeModel
   attr_accessor :avatar_file_name,
                 :avatar_file_size,
