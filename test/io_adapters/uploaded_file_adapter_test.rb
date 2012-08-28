@@ -10,7 +10,7 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
         @file = UploadedFile.new(
           :original_filename => "5k.png",
-          :content_type => "image/png",
+          :content_type => "image/png\r",
           :head => "",
           :tempfile => tempfile,
           :path => tempfile.path
