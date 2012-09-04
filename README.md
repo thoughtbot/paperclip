@@ -269,7 +269,8 @@ Paperclip ships with 3 storage adapters:
 If you would like to use Paperclip with another storage, you can install these
 gems along side with Paperclip:
 
-* [Windows Azure](https://github.com/gmontard/paperclip-azure-storage)
+* [paperclip-azure-storage](https://github.com/gmontard/paperclip-azure-storage)
+* [paperclip-dropbox](https://github.com/janko-m/paperclip-dropbox)
 
 ### Understanding Storage
 
