@@ -1,3 +1,12 @@
+New in 3.2.0:
+
+* Bug fix: Use the new correct Amazon S3 encryption header.
+* Bug fix: The rake task respects the updated_at column.
+* Bug fix: Strip newline from content type.
+* Feature: Fog file visibility can be specified per style.
+* Feature: Autonatically rotate images.
+* Feature: Reduce class-oriented programming of the attachment definitions.
+
 New in 3.1.4:
 
 * Bug fix: Allow user to be able to set path without `:style` attribute and not raising an error.
