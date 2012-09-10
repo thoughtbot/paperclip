@@ -385,6 +385,25 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :only_process that is a proc" do
+    setup do
+      rebuild_model :styles => {
+                      :thumb => "100x100",
+                      :large => "400x400"
+                    },
+                    :only_process => lambda { |attachment| [:thumb] }
+
+      @file = StringIO.new("...")
+      @attachment = Dummy.new.avatar
+    end
+
+    should "only process the provided style" do
+      @attachment.expects(:post_process).with(:thumb)
+      @attachment.expects(:post_process).with(:large).never
+      @attachment.assign(@file)
+    end
+  end
+
   context "An attachment with :convert_options that is a proc" do
     setup do
       rebuild_model :styles => {
