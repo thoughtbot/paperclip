@@ -90,8 +90,11 @@ module Paperclip
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
 
-      @options[:only_process].map!(&:to_sym)
-      self.clear(*@options[:only_process])
+      only_process = @options[:only_process].dup
+      only_process = only_process.call(self) if only_process.respond_to?(:call)
+      only_process.map!(&:to_sym)
+
+      self.clear(*only_process)
       return nil if file.nil?
 
       @queued_for_write[:original]   = file
@@ -104,7 +107,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process(*@options[:only_process]) if post_processing
+      post_process(*only_process) if post_processing
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)
