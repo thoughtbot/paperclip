@@ -616,5 +616,5 @@ The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 License
 -------
 
-Paperclip is Copyright © 2008-2011 thoughtbot. It is free software, and may be
+Paperclip is Copyright © 2008-2012 thoughtbot. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
