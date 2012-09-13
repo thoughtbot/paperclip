@@ -8,21 +8,41 @@ module Paperclip
 
       def validate_each(record, attribute, value)
         attribute = "#{attribute}_content_type".to_sym
-        value = record.send(:read_attribute_for_validation, attribute)
-        allowed_types = [options[:content_type]].flatten
+        value = record.send :read_attribute_for_validation, attribute
 
         return if (value.nil? && options[:allow_nil]) || (value.blank? && options[:allow_blank])
 
-        if allowed_types.none? { |type| type === value }
-          record.errors.add(attribute, :invalid, options.merge(
-            :types => allowed_types.join(', ')
-          ))
+        validate_whitelist(record, attribute, value)
+        validate_blacklist(record, attribute, value)
+      end
+
+      def validate_whitelist(record, attribute, value)
+        if allowed_types.present? && allowed_types.none? { |type| type === value }
+          mark_invalid record, attribute, allowed_types
         end
       end
 
+      def validate_blacklist(record, attribute, value)
+        if forbidden_types.present? && forbidden_types.any? { |type| type === value }
+          mark_invalid record, attribute, forbidden_types
+        end
+      end
+
+      def mark_invalid(record, attribute, types)
+        record.errors.add attribute, :invalid, options.merge(:types => types.join(', '))
+      end
+
+      def allowed_types
+        [options[:content_type]].flatten.compact
+      end
+
+      def forbidden_types
+        [options[:not]].flatten.compact
+      end
+
       def check_validity!
-        unless options.has_key?(:content_type)
-          raise ArgumentError, "You must pass in :content_type to the validator"
+        unless options.has_key?(:content_type) || options.has_key?(:not)
+          raise ArgumentError, "You must pass in either :content_type or :not to the validator"
         end
       end
     end
@@ -36,6 +56,7 @@ module Paperclip
       #   may not expect. For example, JPEG images are given image/pjpeg and
       #   PNGs are image/x-png, so keep that in mind when determining how you
       #   match.  Allows all by default.
+      # * +not+: Forbidden content types.
       # * +message+: The message to display when the uploaded file has an invalid
       #   content type.
       # * +if+: A lambda or name of an instance method. Validation will only
