@@ -1083,16 +1083,8 @@ class AttachmentTest < Test::Unit::TestCase
       assert_nothing_raised { @dummy.avatar = @file }
     end
 
-    should "return the time when sent #avatar_updated_at" do
-      now = Time.now
-      Time.stubs(:now).returns(now)
+    should "not return the time when sent #avatar_updated_at" do
       @dummy.avatar = @file
-      assert_equal now.to_i, @dummy.avatar.updated_at.to_i
-    end
-
-    should "return nil when reloaded and sent #avatar_updated_at" do
-      @dummy.save
-      @dummy.reload
       assert_nil @dummy.avatar.updated_at
     end
 

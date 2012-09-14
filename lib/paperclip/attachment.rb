@@ -324,8 +324,6 @@ module Paperclip
       setter = :"#{name}_#{attr}="
       if instance.respond_to?(setter)
         instance.send(setter, value)
-      else
-        self.instance_variable_set("@_#{setter.to_s.chop}", value)
       end
     end
 
@@ -335,8 +333,6 @@ module Paperclip
       getter = :"#{name}_#{attr}"
       if instance.respond_to?(getter)
         instance.send(getter)
-      else
-        self.instance_variable_get("@_#{getter}")
       end
     end
 
