@@ -1090,12 +1090,6 @@ class AttachmentTest < Test::Unit::TestCase
       assert_equal now.to_i, @dummy.avatar.updated_at.to_i
     end
 
-    should "return nil when reloaded and sent #avatar_updated_at" do
-      @dummy.save
-      @dummy.reload
-      assert_nil @dummy.avatar.updated_at
-    end
-
     should "return the right value when sent #avatar_file_size" do
       @dummy.avatar = @file
       assert_equal File.size(@file), @dummy.avatar.size
