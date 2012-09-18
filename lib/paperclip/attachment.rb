@@ -157,6 +157,10 @@ module Paperclip
       url(style_name)
     end
 
+    def as_json(options = nil)
+      to_s((options && options[:style]) || default_style)
+    end
+
     def default_style
       @options[:default_style]
     end

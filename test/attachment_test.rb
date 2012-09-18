@@ -115,6 +115,17 @@ class AttachmentTest < Test::Unit::TestCase
     assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
   end
 
+  should "render JSON as default style" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :default_style => 'default style',
+                                           :url_generator => mock_url_generator_builder)
+
+    attachment_json = attachment.as_json
+    assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
+  end
+
   should "return the path based on the url by default" do
     @attachment = attachment :url => "/:class/:id/:basename"
     @model = @attachment.instance
@@ -130,6 +141,24 @@ class AttachmentTest < Test::Unit::TestCase
     model.avatar_file_name = "fake.jpg"
     expected_path = "#{Rails.root}/public/system/fake_models/avatars/000/001/234/original/fake.jpg"
     assert_equal expected_path, avatar_attachment.path
+  end
+
+  should "render JSON as the URL to the attachment" do
+    avatar_attachment = attachment
+    model = avatar_attachment.instance
+    model.id = 1234
+    model.avatar_file_name = "fake.jpg"
+    assert_equal attachment.url, attachment.as_json
+  end
+
+  should "render JSON from the model when requested by :methods" do
+    rebuild_model
+    dummy = Dummy.new
+    dummy.id = 1234
+    dummy.avatar_file_name = "fake.jpg"
+    expected_string = '{"dummy":{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}}'
+    # active_model pre-3.2 checks only by calling any? on it, thus it doesn't work if it is empty
+    assert_equal expected_string, dummy.to_json(:only => [:dummy_key_for_old_active_model], :methods => [:avatar])
   end
 
   context "Attachment default_options" do
