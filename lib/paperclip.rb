@@ -191,14 +191,15 @@ module Paperclip
       end
     end
 
-    def check_for_url_clash(name,url,klass)
-      @names_url ||= {}
-      default_url = url || Attachment.default_options[:url]
-      if @names_url[name] && @names_url[name][:url] == default_url && @names_url[name][:class] != klass && @names_url[name][:url] !~ /:class/
-        log("Duplicate URL for #{name} with #{default_url}. This will clash with attachment defined in #{@names_url[name][:class]} class")
+    def check_for_path_clash(name,path,klass)
+      @names_path ||= {}
+      default_path = path || Attachment.default_options[:path]
+      if @names_path[name] && @names_path[name][:path] == default_path && @names_path[name][:class] != klass && @names_path[name][:path] !~ /:class/
+        log("Duplicate path for #{name} with #{default_path}. This will clash with attachment defined in #{@names_path[name][:class]} class")
       end
-      @names_url[name] = {:url => default_url, :class => klass}
+      @names_path[name] = {:path => default_path, :class => klass}
     end
+
 
     def reset_duplicate_clash_check!
       @names_url = nil
@@ -332,7 +333,7 @@ module Paperclip
 
       attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
-      Paperclip.check_for_url_clash(name,attachment_definitions[name][:url],self.name)
+      Paperclip.check_for_path_clash(name,attachment_definitions[name][:path],self.name)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy
