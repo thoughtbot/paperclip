@@ -106,24 +106,34 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
-    should "generate warning if attachment is redefined with the same url string" do
-      expected_log_msg = "Duplicate URL for blah with /system/:id/:style/:filename. This will clash with attachment defined in Dummy class"
+    should "generate warning if attachment is redefined with the same path string" do
+      expected_log_msg = "Duplicate path for blah with /system/:id/:style/:filename. This will clash with attachment defined in Dummy class"
       Paperclip.expects(:log).with(expected_log_msg)
       Dummy.class_eval do
-        has_attached_file :blah, :url => '/system/:id/:style/:filename'
+        has_attached_file :blah, :path => '/system/:id/:style/:filename'
       end
       Dummy2.class_eval do
-        has_attached_file :blah, :url => '/system/:id/:style/:filename'
+        has_attached_file :blah, :path => '/system/:id/:style/:filename'
       end
     end
 
-    should "not generate warning if attachment is redifined with the same url string but has :class in it" do
+    should "not generate warning if attachment is redefined with the same path string but has :class in it" do
       Paperclip.expects(:log).never
       Dummy.class_eval do
-        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+        has_attached_file :blah, :path => "/system/:class/:attachment/:id/:style/:filename"
       end
       Dummy2.class_eval do
-        has_attached_file :blah, :url => "/system/:class/:attachment/:id/:style/:filename"
+        has_attached_file :blah, :path => "/system/:class/:attachment/:id/:style/:filename"
+      end
+    end
+
+    should "not generate warning if attachment is defined with the same URL string" do
+      Paperclip.expects(:log).never
+      Dummy.class_eval do
+        has_attached_file :blah, :path => "/system/:class/:attachment/:id/:style/:filename", :url => ":s3_alias_url"
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah, :path => "/system/:class/:attachment/:id/:style/:filename", :url => ":s3_alias_url"
       end
     end
   end
