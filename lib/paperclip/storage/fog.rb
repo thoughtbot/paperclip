@@ -147,6 +147,10 @@ module Paperclip
         log("copying #{path(style)} to local file #{local_dest_path}")
         local_file = ::File.open(local_dest_path, 'wb')
         file = directory.files.get(path(style))
+        if file.nil?
+          warn("#{path(style)} does not exist")
+          return false
+        end
         local_file.write(file.body)
         local_file.close
       rescue ::Fog::Errors::Error => e
