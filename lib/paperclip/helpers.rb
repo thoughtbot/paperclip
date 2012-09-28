@@ -24,7 +24,7 @@ module Paperclip
     #
     def run(cmd, arguments = "", local_options = {})
       command_path = options[:command_path]
-      Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path].flatten | [command_path] : command_path )
+      Cocaine::CommandLine.path = [Cocaine::CommandLine.path, command_path].flatten.compact.uniq
       local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
       Cocaine::CommandLine.new(cmd, arguments, local_options).run
     end

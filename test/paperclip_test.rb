@@ -33,6 +33,14 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  should 'not raise errors when doing a lot of running' do
+    Paperclip.options[:command_path] = ["/usr/local/bin"] * 1024
+    Cocaine::CommandLine.path = "/something/else"
+    100.times do |x|
+      Paperclip.run("echo", x.to_s)
+    end
+  end
+
   context "Calling Paperclip.log without options[:logger] set" do
     setup do
       Paperclip.logger = nil
