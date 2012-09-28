@@ -80,6 +80,8 @@ class ThumbnailTest < Test::Unit::TestCase
       should "let us know when a command isn't found versus a processing error" do
         old_path = ENV['PATH']
         begin
+          Cocaine::CommandLine.path = ''
+          Paperclip.options[:command_path] = ''
           ENV['PATH'] = ''
           assert_raises(Paperclip::Errors::CommandNotFoundError) do
             silence_stream(STDERR) do
@@ -209,6 +211,8 @@ class ThumbnailTest < Test::Unit::TestCase
         should "let us know when a command isn't found versus a processing error" do
           old_path = ENV['PATH']
           begin
+            Cocaine::CommandLine.path = ''
+            Paperclip.options[:command_path] = ''
             ENV['PATH'] = ''
             assert_raises(Paperclip::Errors::CommandNotFoundError) do
               silence_stream(STDERR) do
