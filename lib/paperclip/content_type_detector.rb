@@ -57,7 +57,7 @@ module Paperclip
         SENSIBLE_DEFAULT
       end
 
-      if type.match(/\(.*?\)/)
+      if type.nil? || type.match(/\(.*?\)/)
         type = SENSIBLE_DEFAULT
       end
       type.split(/[:;\s]+/)[0]
