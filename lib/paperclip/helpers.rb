@@ -22,13 +22,13 @@ module Paperclip
     #
     #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
     #
-    def run(cmd, arguments = "", local_options = {})
+    def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
       command_path = options[:command_path]
       Cocaine::CommandLine.path = [Cocaine::CommandLine.path, command_path].flatten.compact.uniq
       if logging? && (options[:log_command] || local_options[:log_command])
         local_options = local_options.merge(:logger => logger)
       end
-      Cocaine::CommandLine.new(cmd, arguments, local_options).run(local_options)
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
     end
 
     # Find all instances of the given Active Record model +klass+ with attachment +name+.
