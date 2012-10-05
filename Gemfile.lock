@@ -5,7 +5,7 @@ PATH
       activemodel (>= 3.0.0)
       activerecord (>= 3.0.0)
       activesupport (>= 3.0.0)
-      cocaine (>= 0.0.2)
+      cocaine (~> 0.4.0)
       mime-types
 
 GEM
@@ -62,7 +62,7 @@ GEM
       xpath (~> 0.1.4)
     childprocess (0.3.2)
       ffi (~> 1.0.6)
-    cocaine (0.2.1)
+    cocaine (0.4.0)
     coderay (1.0.6)
     cucumber (1.2.1)
       builder (>= 2.1.2)
