@@ -77,6 +77,8 @@ class ThumbnailTest < Test::Unit::TestCase
         old_path = ENV['PATH']
         begin
           ENV['PATH'] = ''
+          Cocaine::CommandLine.path = ''
+          Paperclip.options[:command_path] = ''
           assert_raises(Paperclip::CommandNotFoundError) do
             @thumb.make
           end

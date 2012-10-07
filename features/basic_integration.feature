@@ -12,6 +12,7 @@ Feature: Rails integration
     Given I add this snippet to the User model:
       """
       has_attached_file :attachment
+      attr_protected
       """
     And I start the rails application
     When I go to the new user page
@@ -29,6 +30,7 @@ Feature: Rails integration
                         :storage => :s3,
                         :path => "/:attachment/:id/:style/:filename",
                         :s3_credentials => Rails.root.join("config/s3.yml")
+      attr_protected
       """
     And I write to "config/s3.yml" with:
       """

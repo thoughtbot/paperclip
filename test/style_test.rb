@@ -96,40 +96,46 @@ class StyleTest < Test::Unit::TestCase
   end
 
   context "An attachment with :convert_options" do
-    setup do
+    should "not have called extra_options_for(:thumb/:large) on initialization" do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {:thumb => "100x100", :large => "400x400"},
+                               :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
+      @attachment.expects(:extra_options_for).never
+      @style = @attachment.styles[:thumb]
+      @file = StringIO.new("...")
+      @file.stubs(:original_filename).returns("file.jpg")
+    end
+
+    should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment = attachment :path => ":basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
-    end
-
-    before_should "not have called extra_options_for(:thumb/:large) on initialization" do
-      @attachment.expects(:extra_options_for).never
-    end
-
-    should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_options_for).with(:thumb)
       @attachment.styles[:thumb].convert_options
     end
   end
 
   context "An attachment with :source_file_options" do
-    setup do
+    should "not have called extra_source_file_options_for(:thumb/:large) on initialization" do
+      @attachment = attachment :path => ":basename.:extension",
+                               :styles => {:thumb => "100x100", :large => "400x400"},
+                               :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
+      @attachment.expects(:extra_source_file_options_for).never
+      @style = @attachment.styles[:thumb]
+      @file = StringIO.new("...")
+      @file.stubs(:original_filename).returns("file.jpg")
+    end
+
+    should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment = attachment :path => ":basename.:extension",
                                :styles => {:thumb => "100x100", :large => "400x400"},
                                :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
-    end
-
-    before_should "not have called extra_source_file_options_for(:thumb/:large) on initialization" do
-      @attachment.expects(:extra_source_file_options_for).never
-    end
-
-    should "call extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment.expects(:extra_source_file_options_for).with(:thumb)
       @attachment.styles[:thumb].source_file_options
     end

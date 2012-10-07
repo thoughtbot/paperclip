@@ -92,14 +92,14 @@ module Paperclip
     #
     #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
     #
-    def run(cmd, arguments = "", local_options = {})
+    def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
       if options[:image_magick_path]
         Paperclip.log("[DEPRECATION] :image_magick_path is deprecated and will be removed. Use :command_path instead")
       end
       command_path = options[:command_path] || options[:image_magick_path]
       Cocaine::CommandLine.path = [Cocaine::CommandLine.path, command_path].flatten.compact.uniq
       local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
-      Cocaine::CommandLine.new(cmd, arguments, local_options).run
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
     end
 
     def processor(name) #:nodoc:

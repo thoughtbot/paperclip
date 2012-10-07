@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('aruba')
   s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
-  s.add_development_dependency('cocaine', '~> 0.2')
+  s.add_development_dependency('cocaine', '~> 0.4.0')
   s.add_development_dependency('fog')
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
