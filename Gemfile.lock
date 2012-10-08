@@ -62,7 +62,7 @@ GEM
       xpath (~> 0.1.4)
     childprocess (0.3.2)
       ffi (~> 1.0.6)
-    cocaine (0.2.1)
+    cocaine (0.3.2)
     coderay (1.0.6)
     cucumber (1.2.1)
       builder (>= 2.1.2)
@@ -184,7 +184,7 @@ DEPENDENCIES
   bourne
   bundler
   capybara
-  cocaine (~> 0.2)
+  cocaine (~> 0.3.2)
   cucumber (~> 1.2.1)
   fakeweb
   fog (~> 1.4.0)
