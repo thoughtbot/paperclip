@@ -293,6 +293,35 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  [0666,0664,0640].each do |perms|
+    context "when the perms are #{perms}" do
+      setup do
+        rebuild_model :override_file_permissions => perms
+        @dummy = Dummy.new
+        @file  = File.new(fixture_file("5k.png"), 'rb')
+      end
+
+      teardown do
+        @file.close
+      end
+
+      should "respect the current perms" do
+        @dummy.avatar = @file
+        @dummy.save
+        assert_equal perms, File.stat(@dummy.avatar.path).mode & 0777
+      end
+    end
+  end
+
+  should "skip chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
+    FileUtils.expects(:chmod).never
+
+    rebuild_model :override_file_permissions => false
+    dummy = Dummy.create!
+    dummy.avatar = @file
+    dummy.save
+  end
+
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",

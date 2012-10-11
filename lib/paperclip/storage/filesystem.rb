@@ -35,7 +35,10 @@ module Paperclip
               new_file.write(chunk)
             end
           end
-          FileUtils.chmod(0666&~File.umask, path(style_name))
+          unless @options[:override_file_permissions] == false
+            resolved_chmod = (@options[:override_file_permissions]&~0111) || (0666&~File.umask)
+            FileUtils.chmod( resolved_chmod, path(style_name) )
+          end
           file.rewind
         end
 
