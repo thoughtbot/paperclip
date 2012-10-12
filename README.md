@@ -42,7 +42,9 @@ directory to its path.
 
 In development mode, you might add this line to `config/environments/development.rb)`:
 
-    Paperclip.options[:command_path] = "/usr/local/bin/"
+```ruby
+Paperclip.options[:command_path] = "/usr/local/bin/"
+```
 
 If you're on Mac OS X, you'll want to run the following with Homebrew:
 
@@ -61,15 +63,21 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 
 Include the gem in your Gemfile:
 
-    gem "paperclip", "~> 3.0"
+```ruby
+gem "paperclip", "~> 3.0"
+```
 
 If you're still using Rails 2.3.x, you should do this instead:
 
-    gem "paperclip", "~> 2.7"
+```ruby
+gem "paperclip", "~> 2.7"
+```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
-    gem "paperclip", :git => "git://github.com/thoughtbot/paperclip.git"
+```ruby
+gem "paperclip", :git => "git://github.com/thoughtbot/paperclip.git"
+```
 
 If you're trying to use features that don't seem to be in the latest released gem, but are
 mentioned in this README, then you probably need to specify the master branch if you want to
@@ -567,18 +575,20 @@ end
 
 Then in `RAILS_ROOT/public/system/paperclip_attachments.yml`:
 
-    ---
-    :User:
-      :avatar:
-      - :thumb
-      - :croppable
-      - :big
-    :Book:
-      :cover:
-      - :small
-      - :large
-      :sample:
-      - :thumb
+```yml
+---
+:User:
+  :avatar:
+  - :thumb
+  - :croppable
+  - :big
+:Book:
+  :cover:
+  - :small
+  - :large
+  :sample:
+  - :thumb
+```
 
 Testing
 -------
