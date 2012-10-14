@@ -360,6 +360,28 @@ class ThumbnailTest < Test::Unit::TestCase
         assert_match /exif:Orientation=1/, `identify -format "%[EXIF:*]" "#{dst.path}"`
       end
     end
+
+    context "Being cropped with :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50#", :auto_orient => false)
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /50x50/, `identify "#{dst.path}"`
+      end
+    end
+
+    context "Being cropped without :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50#")
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /50x50/, `identify "#{dst.path}"`
+      end
+    end
   end
 
   context "A multipage PDF" do
