@@ -2,7 +2,7 @@ require './test/helper'
 
 class AbstractAdapterTest < Test::Unit::TestCase
   class TestAdapter < Paperclip::AbstractAdapter
-    attr_accessor :original_file_name, :tempfile
+    attr_accessor :tempfile
 
     def content_type
       Paperclip::ContentTypeDetector.new(path).detect
@@ -39,5 +39,12 @@ class AbstractAdapterTest < Test::Unit::TestCase
         assert_received @adapter.tempfile, method
       end
     end
+  end
+
+  should 'get rid of slashes and colons in filenames' do
+    @adapter = TestAdapter.new
+    @adapter.original_filename = "awesome/file:name.png"
+
+    assert_equal "awesome_file_name.png", @adapter.original_filename
   end
 end

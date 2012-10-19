@@ -2,6 +2,8 @@ require 'active_support/core_ext/module/delegation'
 
 module Paperclip
   class AbstractAdapter
+    OS_RESTRICTED_CHARACTERS = %r{[/:]}
+
     attr_reader :content_type, :original_filename, :size
     delegate :close, :closed?, :eof?, :path, :rewind, :unlink, :to => :@tempfile
 
@@ -15,6 +17,10 @@ module Paperclip
 
     def inspect
       "#{self.class}: #{self.original_filename}"
+    end
+
+    def original_filename=(new_filename)
+      @original_filename = new_filename.gsub(OS_RESTRICTED_CHARACTERS, "_")
     end
 
     private

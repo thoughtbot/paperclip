@@ -6,7 +6,8 @@ module Paperclip
       @tempfile = copy_to_tempfile(@target)
     end
 
-    attr_writer :original_filename, :content_type
+    attr_writer :content_type
+
     private
 
     def cache_current_values
