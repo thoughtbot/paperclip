@@ -5,9 +5,7 @@ module Paperclip
 
     def generate(name)
       @name = name
-      file = Tempfile.new([basename, extension])
-      file.binmode
-      file
+      Tempfile.new([basename, extension]).tap &:binmode
     end
 
     def extension
@@ -15,7 +13,7 @@ module Paperclip
     end
 
     def basename
-      File.basename(@name, extension).gsub(ILLEGAL_FILENAME_CHARACTERS, '_')
+      SecureRandom.hex(16).encode('UTF-8')
     end
   end
 end
