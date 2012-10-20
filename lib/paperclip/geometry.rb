@@ -21,13 +21,14 @@ module Paperclip
       raise(Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file_path.blank?
       geometry = begin
                    format = silence_stream(STDERR) do
-                     Paperclip.run("identify", "-format \"%wx%h,%[exif:orientation]\" :file", :file => "#{file_path}[0]")
+                     format_option = "%wx%h"
+                     format_option << ",%[exif:orientation]" if auto_orient
+                     Paperclip.run("identify", "-format #{format_option} :file", :file => "#{file_path}[0]")
                    end
-                   geom, orientation = format.strip.split(/,/)
-                   if auto_orient && %w(5 6 7 8).include?(orientation) && geom =~ /(\d+)x(\d+)/
-                     "#{$2}x#{$1}"
+                   if auto_orient && format =~ /(\d+)x(\d+),(\d+)/
+                     %w(5 6 7 8).include?($3) ? "#{$2}x#{$1}" : "#{$1}x#{$2}"
                    else
-                     geom
+                     format
                    end
                  rescue Cocaine::ExitStatusError
                    ""
