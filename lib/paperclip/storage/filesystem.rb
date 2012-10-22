@@ -35,7 +35,7 @@ module Paperclip
               new_file.write(chunk)
             end
           end
-          FileUtils.chmod(0666&~File.umask, path(style_name))
+          FileUtils.chmod(0666&~File.umask, path(style_name)) unless @options[:filesystem_cifs]==true
           file.rewind
         end
 

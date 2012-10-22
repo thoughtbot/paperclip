@@ -67,5 +67,31 @@ class FileSystemTest < Test::Unit::TestCase
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
     end
+
+    context "is sensible to cifs shares" do
+      setup do
+        @file = File.open(fixture_file('5k.png'))
+      end
+
+      teardown { @file.close }
+
+      should "skip chmod operation, when cifs is ON" do
+        FileUtils.expects(:chmod).never
+
+        rebuild_model :filesystem_cifs => true
+        dummy = Dummy.create!
+        dummy.avatar = @file
+        dummy.save
+      end
+
+      should "run normally, when cifs is OFF or not set" do
+        FileUtils.expects(:chmod).once
+
+        rebuild_model
+        dummy = Dummy.create!
+        dummy.avatar = @file
+        dummy.save
+      end
+    end
   end
 end
