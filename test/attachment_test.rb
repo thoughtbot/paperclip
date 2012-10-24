@@ -149,6 +149,28 @@ class AttachmentTest < Test::Unit::TestCase
     assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
   end
 
+  should "pass the option :escape => true if :escape_url is true and :escape is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :escape_url => true)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true)
+  end
+
+  should "pass the option :escape => false if :escape_url is false and :escape is not passed" do
+    mock_url_generator_builder = MockUrlGeneratorBuilder.new
+    attachment = Paperclip::Attachment.new(:name,
+                                           :instance,
+                                           :url_generator => mock_url_generator_builder,
+                                           :escape_url => false)
+
+    attachment.url(:style_name)
+    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => false)
+  end
+
   should "return the path based on the url by default" do
     @attachment = attachment :url => "/:class/:id/:basename"
     @model = @attachment.instance

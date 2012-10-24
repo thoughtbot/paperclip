@@ -12,6 +12,7 @@ module Paperclip
         :convert_options       => {},
         :default_style         => :original,
         :default_url           => "/:attachment/:style/missing.png",
+        :escape_url            => true,
         :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
         :hash_data             => ":class/:attachment/:id/:style/:updated_at",
         :hash_digest           => "SHA1",
@@ -60,6 +61,7 @@ module Paperclip
     # +preserve_files+ - whether to keep files on the filesystem when deleting or clearing the attachment. Defaults to false
     # +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
+    # +escape_url+ - Perform URI escaping to URLs. Defaults to true
     def initialize(name, instance, options = {})
       @name              = name
       @instance          = instance
@@ -133,7 +135,7 @@ module Paperclip
     # +#new(Paperclip::Attachment, options_hash)+
     # +#for(style_name, options_hash)+
     def url(style_name = default_style, options = {})
-      default_options = {:timestamp => @options[:use_timestamp], :escape => true}
+      default_options = {:timestamp => @options[:use_timestamp], :escape => @options[:escape_url]}
 
       if options == true || options == false # Backwards compatibility.
         @url_generator.for(style_name, default_options.merge(:timestamp => options))
