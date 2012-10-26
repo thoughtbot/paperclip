@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    paperclip (2.7.2)
+    paperclip (2.7.3)
       activerecord (>= 2.3.0)
       activesupport (>= 2.3.2)
-      cocaine (>= 0.0.2)
+      cocaine (~> 0.3.0)
       mime-types
 
 GEM
