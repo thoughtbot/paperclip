@@ -6,6 +6,7 @@ Feature: Rake tasks
     And I run a paperclip generator to add a paperclip "attachment" to the "User" model
     And I run a migration
     And I add the paperclip rake task to a Rails 2.3 application
+    And I add attr_accessible to a Rails 3.2 application
     And I add this snippet to the User model:
       """
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename"
@@ -17,6 +18,7 @@ Feature: Rake tasks
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename",
                                      :styles => { :medium => "200x200#" }
       """
+    And I add attr_accessible to a Rails 3.2 application
     And I upload the fixture "5k.png"
     Then the attachment "medium/5k.png" should have a dimension of 200x200
     When I modify my attachment definition to:
@@ -24,6 +26,7 @@ Feature: Rake tasks
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename",
                                      :styles => { :medium => "100x100#" }
       """
+    And I add attr_accessible to a Rails 3.2 application
     When I successfully run `bundle exec rake paperclip:refresh:thumbnails CLASS=User --trace`
     Then the attachment "original/5k.png" should exist
     And the attachment "medium/5k.png" should have a dimension of 100x100
@@ -44,6 +47,7 @@ Feature: Rake tasks
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename",
                                      :styles => { :medium => "200x200#" }
       """
+    And I add attr_accessible to a Rails 3.2 application
     When I successfully run `bundle exec rake paperclip:refresh:missing_styles --trace`
     Then the attachment file "original/5k.png" should exist
     And the attachment file "medium/5k.png" should exist
@@ -58,6 +62,7 @@ Feature: Rake tasks
       has_attached_file :attachment, :path => ":rails_root/public/system/:attachment/:style/:filename"
       validates_attachment_size :attachment, :less_than => 10.kilobytes
       """
+    And I add attr_accessible to a Rails 3.2 application
     And I successfully run `bundle exec rake paperclip:clean CLASS=User --trace`
     Then the attachment file "original/5k.png" should exist
     But the attachment file "original/12k.png" should not exist

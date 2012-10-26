@@ -13,6 +13,7 @@ Feature: Rails integration
       """
       has_attached_file :attachment
       """
+    And I add attr_accessible to a Rails 3.2 application
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
@@ -30,6 +31,7 @@ Feature: Rails integration
                         :path => "/:attachment/:id/:style/:filename",
                         :s3_credentials => Rails.root.join("config/s3.yml")
       """
+    And I add attr_accessible to a Rails 3.2 application
     And I write to "config/s3.yml" with:
       """
       bucket: paperclip

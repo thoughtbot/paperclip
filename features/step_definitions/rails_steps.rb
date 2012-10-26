@@ -71,11 +71,7 @@ Given /^I update my user view to include the attachment$/ do
 end
 
 Given /^I add this snippet to the User model:$/ do |snippet|
-  file_name = "app/models/user.rb"
-  in_current_dir do
-    content = File.read(file_name)
-    File.open(file_name, 'w') { |f| f << content.sub(/end\Z/, "#{snippet}\nend") }
-  end
+  insert_snippet_into_file("app/models/user.rb", snippet)
 end
 
 Given /^I start the rails application$/ do
@@ -110,6 +106,12 @@ Given /^I update my application to use Bundler$/ do
       File.open("config/preinitializer.rb", "w") { |file| file.write(preinitializer_template) }
       File.open("Gemfile", "w") { |file| file.write(gemfile_template.sub(/RAILS_VERSION/, framework_version)) }
     end
+  end
+end
+
+Given /^I add attr_accessible to a Rails 3.2 application$/ do
+  if framework_version?("3.2")
+    insert_snippet_into_file("app/models/user.rb", "attr_accessible :attachment\n")
   end
 end
 
@@ -157,6 +159,14 @@ When /^I comment out the gem "([^"]*)" from the Gemfile$/ do |gemname|
 end
 
 module FileHelpers
+  def insert_snippet_into_file(file_name, snippet)
+    in_current_dir do
+      content = File.read(file_name)
+      File.open(file_name, 'w') { |f| f << content.sub(/end\Z/, "#{snippet}\nend") }
+      content = File.read(file_name)
+    end
+  end
+
   def append_to(path, contents)
     in_current_dir do
       File.open(path, "a") do |file|
