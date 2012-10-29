@@ -313,6 +313,15 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
+  should "skip chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
+    FileUtils.expects(:chmod).never
+
+    rebuild_model :fs_permissions => false
+    dummy = Dummy.create!
+    dummy.avatar = @file
+    dummy.save
+  end
+
   context "A model with a filesystem attachment" do
     setup do
       rebuild_model :styles => { :large => "300x300>",
