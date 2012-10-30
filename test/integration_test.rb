@@ -296,7 +296,7 @@ class IntegrationTest < Test::Unit::TestCase
   [0666,0664,0640].each do |perms|
     context "when the perms are #{perms}" do
       setup do
-        rebuild_model :fs_permissions => perms
+        rebuild_model :override_file_permissions => perms
         @dummy = Dummy.new
         @file  = File.new(fixture_file("5k.png"), 'rb')
       end
@@ -316,7 +316,7 @@ class IntegrationTest < Test::Unit::TestCase
   should "skip chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
     FileUtils.expects(:chmod).never
 
-    rebuild_model :fs_permissions => false
+    rebuild_model :override_file_permissions => false
     dummy = Dummy.create!
     dummy.avatar = @file
     dummy.save
