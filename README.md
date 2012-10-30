@@ -226,6 +226,8 @@ end
 
 Another option is to directly modify the Paperclip::Attachment.default_options Hash, this method works for non-Rails applications or is an option if you prefer to place the Paperclip default settings in an initializer.
 
+Modules like the UploadedFileAdapter which is responsible for processing HTTP file uploads can have their own options, too.
+
 An example Rails initializer would look something like this:
 
 ```ruby
@@ -233,6 +235,8 @@ Paperclip::Attachment.default_options[:storage] = :fog
 Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local", :local_root => "#{Rails.root}/public"}
 Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
+
+Paperclip::UploadedFileAdapter.options[:trust_mime_type] = false
 ```
 
 Migrations
