@@ -101,6 +101,33 @@ module Paperclip
       [ scale_geometry, crop_geometry ]
     end
 
+    # resize to a new geometry
+    # @param geometry [String] the Paperclip geometry definition to resize to
+    # @example
+    #   Paperclip::Geometry.new(150, 150).resize_to('50x50!')
+    #   #=> Paperclip::Geometry(50, 50)
+    def resize_to(geometry)
+      new_geometry = Paperclip::Geometry.parse geometry
+      case new_geometry.modifier
+      when '!', '#'
+        new_geometry
+      when '>'
+        if new_geometry.width >= self.width && new_geometry.height >= self.height
+          self
+        else
+          scale_to new_geometry
+        end
+      when '<'
+        if new_geometry.width <= self.width || new_geometry.height <= self.height
+          self
+        else
+          scale_to new_geometry
+        end
+      else
+        scale_to new_geometry
+      end
+    end
+
     private
 
     def scaling dst, ratio
@@ -117,6 +144,12 @@ module Paperclip
       else
         "%dx%d+%d+%d" % [ dst.width, dst.height, (self.width * scale - dst.width) / 2, 0 ]
       end
+    end
+
+    # scale to the requested geometry and preserve the aspect ratio
+    def scale_to(new_geometry)
+      scale = [new_geometry.width.to_f / self.width.to_f , new_geometry.height.to_f / self.height.to_f].min
+      Paperclip::Geometry.new((self.width * scale).round, (self.height * scale).round)
     end
   end
 end

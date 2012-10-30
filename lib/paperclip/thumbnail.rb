@@ -3,7 +3,7 @@ module Paperclip
   class Thumbnail < Processor
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated
+                  :source_file_options, :animated, :auto_orient
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
@@ -38,6 +38,7 @@ module Paperclip
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
       @animated            = options[:animated].nil? ? true : options[:animated]
+      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
@@ -73,7 +74,7 @@ module Paperclip
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
-        success = Paperclip.run("convert", parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
+        success = convert(parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
       rescue Cocaine::ExitStatusError => e
         raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
       rescue Cocaine::CommandNotFoundError => e
@@ -89,6 +90,7 @@ module Paperclip
       scale, crop = @current_geometry.transformation_to(@target_geometry, crop?)
       trans = []
       trans << "-coalesce" if animated?
+      trans << "-auto-orient" if auto_orient
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
       trans
@@ -98,7 +100,16 @@ module Paperclip
 
     # Return true if the format is animated
     def animated?
-      @animated && ANIMATED_FORMATS.include?(@current_format[1..-1]) && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)
+      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)  && identified_as_animated?
+    end
+
+    # Return true if ImageMagick's +identify+ returns an animated format
+    def identified_as_animated?
+      ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+    rescue Cocaine::ExitStatusError => e
+      raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
+    rescue Cocaine::CommandNotFoundError => e
+      raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
     end
   end
 end

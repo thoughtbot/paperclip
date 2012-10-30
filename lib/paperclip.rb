@@ -34,11 +34,13 @@ require 'paperclip/processor'
 require 'paperclip/tempfile'
 require 'paperclip/thumbnail'
 require 'paperclip/interpolations'
+require 'paperclip/tempfile_factory'
 require 'paperclip/style'
 require 'paperclip/attachment'
 require 'paperclip/attachment_options'
 require 'paperclip/storage'
 require 'paperclip/callbacks'
+require 'paperclip/content_type_detector'
 require 'paperclip/glue'
 require 'paperclip/errors'
 require 'paperclip/missing_attachment_styles'
@@ -101,7 +103,7 @@ module Paperclip
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash *must* be included manually for
     #   absolute paths. The default value is
-    #   "/system/:attachment/:id/:style/:filename". See
+    #   "/system/:class/:attachment/:id_partition/:style/:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:class/:attachment/:id/:style_:filename"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
@@ -214,9 +216,11 @@ end
 
 # This stuff needs to be run after Paperclip is defined.
 require 'paperclip/io_adapters/registry'
+require 'paperclip/io_adapters/abstract_adapter'
 require 'paperclip/io_adapters/identity_adapter'
 require 'paperclip/io_adapters/file_adapter'
 require 'paperclip/io_adapters/stringio_adapter'
 require 'paperclip/io_adapters/nil_adapter'
 require 'paperclip/io_adapters/attachment_adapter'
 require 'paperclip/io_adapters/uploaded_file_adapter'
+require 'paperclip/io_adapters/uri_adapter'

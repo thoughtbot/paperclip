@@ -28,15 +28,15 @@ class AttachmentTest < Test::Unit::TestCase
     dummy.avatar = file
     dummy.save
 
-    assert File.exists?(dummy.avatar.path(:small))
-    assert File.exists?(dummy.avatar.path(:large))
-    assert File.exists?(dummy.avatar.path(:original))
+    assert_file_exists(dummy.avatar.path(:small))
+    assert_file_exists(dummy.avatar.path(:large))
+    assert_file_exists(dummy.avatar.path(:original))
 
     dummy.avatar.reprocess!(:small)
 
-    assert File.exists?(dummy.avatar.path(:small))
-    assert File.exists?(dummy.avatar.path(:large))
-    assert File.exists?(dummy.avatar.path(:original))
+    assert_file_exists(dummy.avatar.path(:small))
+    assert_file_exists(dummy.avatar.path(:large))
+    assert_file_exists(dummy.avatar.path(:original))
   end
 
   should "handle a boolean second argument to #url" do
@@ -742,21 +742,53 @@ class AttachmentTest < Test::Unit::TestCase
   context "Attachment with reserved filename" do
     setup do
       rebuild_model
-      @file = Paperclip.io_adapters.for(StringIO.new("."))
+      @file = Tempfile.new(["filename","png"])
+    end
+
+    teardown do
+      @file.unlink
     end
 
     context "with default configuration" do
       "&$+,/:;=?@<>[]{}|\^~%# ".split(//).each do |character|
         context "with character #{character}" do
-          setup do
-            @file.original_filename = "file#{character}name.png"
-            @dummy = Dummy.new
-            @dummy.avatar = @file
+
+          context "at beginning of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("#{character}filename.png")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "_filename.png", @dummy.avatar.original_filename
+            end
           end
 
-          should "convert special character into underscore" do
-            assert_equal "file_name.png", @dummy.avatar.original_filename
+          context "at end of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("filename.png#{character}")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "filename.png_", @dummy.avatar.original_filename
+            end
           end
+
+          context "in the middle of filename" do
+            setup do
+              @file.stubs(:original_filename).returns("file#{character}name.png")
+              @dummy = Dummy.new
+              @dummy.avatar = @file
+            end
+
+            should "convert special character into underscore" do
+              assert_equal "file_name.png", @dummy.avatar.original_filename
+            end
+          end
+
         end
       end
     end
@@ -925,7 +957,7 @@ class AttachmentTest < Test::Unit::TestCase
 
             should "commit the files to disk" do
               [:large, :medium, :small].each do |style|
-                assert File.exists?(@attachment.path(style))
+                assert_file_exists(@attachment.path(style))
               end
             end
 
@@ -957,7 +989,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
-                @existing_names.each{|f| assert ! File.exists?(f) }
+                @existing_names.each{|f| assert_file_not_exists(f) }
               end
 
               should "delete the files when you call #clear and #save" do
@@ -968,7 +1000,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.clear
                 @attachment.save
-                @existing_names.each{|f| assert ! File.exists?(f) }
+                @existing_names.each{|f| assert_file_not_exists(f) }
               end
 
               should "delete the files when you call #delete" do
@@ -978,7 +1010,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:fingerprint, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.destroy
-                @existing_names.each{|f| assert ! File.exists?(f) }
+                @existing_names.each{|f| assert_file_not_exists(f) }
               end
 
               context "when keeping old files" do
@@ -994,7 +1026,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.assign nil
                   @attachment.save
-                  @existing_names.each{|f| assert File.exists?(f) }
+                  @existing_names.each{|f| assert_file_exists(f) }
                 end
 
                 should "keep the files when you call #clear and #save" do
@@ -1005,7 +1037,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.clear
                   @attachment.save
-                  @existing_names.each{|f| assert File.exists?(f) }
+                  @existing_names.each{|f| assert_file_exists(f) }
                 end
 
                 should "keep the files when you call #delete" do
@@ -1015,7 +1047,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:fingerprint, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.destroy
-                  @existing_names.each{|f| assert File.exists?(f) }
+                  @existing_names.each{|f| assert_file_exists(f) }
                 end
               end
             end
@@ -1051,22 +1083,44 @@ class AttachmentTest < Test::Unit::TestCase
       assert_nothing_raised { @dummy.avatar = @file }
     end
 
-    should "return the time when sent #avatar_updated_at" do
-      now = Time.now
-      Time.stubs(:now).returns(now)
+    should "not return the time when sent #avatar_updated_at" do
       @dummy.avatar = @file
-      assert_equal now.to_i, @dummy.avatar.updated_at.to_i
-    end
-
-    should "return nil when reloaded and sent #avatar_updated_at" do
-      @dummy.save
-      @dummy.reload
       assert_nil @dummy.avatar.updated_at
     end
 
     should "return the right value when sent #avatar_file_size" do
       @dummy.avatar = @file
       assert_equal File.size(@file), @dummy.avatar.size
+    end
+
+    context "and avatar_created_at column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the creation time when sent #avatar_created_at" do
+        now = Time.now
+        Time.stubs(:now).returns(now)
+        @dummy.avatar = @file
+        assert_equal now.to_i, @dummy.avatar.created_at
+      end
+
+      should "return the creation time when sent #avatar_created_at and the entry has been updated" do
+        creation = 2.hours.ago
+        now = Time.now
+        Time.stubs(:now).returns(creation)
+        @dummy.avatar = @file
+        Time.stubs(:now).returns(now)
+        @dummy.avatar = @file
+        assert_equal creation.to_i, @dummy.avatar.created_at
+        assert_not_equal now.to_i, @dummy.avatar.created_at
+      end
     end
 
     context "and avatar_updated_at column" do
@@ -1174,12 +1228,12 @@ class AttachmentTest < Test::Unit::TestCase
 
     should "not delete the files from storage when attachment is destroyed" do
       @attachment.destroy
-      assert File.exists?(@path)
+      assert_file_exists(@path)
     end
 
     should "not delete the file when model is destroyed" do
       @dummy.destroy
-      assert File.exists?(@path)
+      assert_file_exists(@path)
     end
   end
 
@@ -1203,12 +1257,12 @@ class AttachmentTest < Test::Unit::TestCase
         @dummy.destroy
       end
 
-      assert File.exists?(@path), "#{@path} does not exist."
+      assert_file_exists(@path)
     end
 
     should "be deleted when the model is destroyed" do
       @dummy.destroy
-      assert ! File.exists?(@path), "#{@path} does not exist."
+      assert_file_not_exists(@path)
     end
   end
 

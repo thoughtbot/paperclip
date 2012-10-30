@@ -1,5 +1,5 @@
 module Paperclip
-  class NilAdapter
+  class NilAdapter < AbstractAdapter
     def initialize(target)
     end
 
@@ -30,5 +30,5 @@ module Paperclip
 end
 
 Paperclip.io_adapters.register Paperclip::NilAdapter do |target|
-  target.nil?
+  target.nil? || ( (Paperclip::Attachment === target) && !target.present? )
 end

@@ -14,6 +14,7 @@ require 'active_support/core_ext'
 require 'mime/types'
 require 'pathname'
 require 'ostruct'
+require 'pry'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
@@ -103,6 +104,13 @@ def rebuild_class options = {}
   end
 end
 
+def rebuild_meta_class_of obj, options = {}
+  (class << obj; self; end).tap do |metaklass|
+    metaklass.has_attached_file :avatar, options
+    Paperclip.reset_duplicate_clash_check!
+  end
+end
+
 class FakeModel
   attr_accessor :avatar_file_name,
                 :avatar_file_size,
@@ -176,4 +184,12 @@ def assert_not_found_response(url)
     assert_equal "404", response.code,
       "Expected HTTP response code 404, got #{response.code}"
   end
+end
+
+def assert_file_exists(path)
+  assert File.exists?(path), %(Expect "#{path}" to be exists.)
+end
+
+def assert_file_not_exists(path)
+  assert !File.exists?(path), %(Expect "#{path}" to not exists.)
 end

@@ -1,98 +1,200 @@
 require './test/helper'
 require 'paperclip/schema'
-
-class MockSchema
-  include Paperclip::Schema
-
-  def initialize(table_name = nil)
-    @table_name = table_name
-    @columns = {}
-    @deleted_columns = []
-  end
-
-  def column(name, type)
-    @columns[name] = type
-  end
-
-  def remove_column(table_name, column_name)
-    return if @table_name && @table_name != table_name
-    @columns.delete(column_name)
-    @deleted_columns.push(column_name)
-  end
-
-  def has_column?(column_name)
-    @columns.key?(column_name)
-  end
-
-  def deleted_column?(column_name)
-    @deleted_columns.include?(column_name)
-  end
-
-  def type_of(column_name)
-    @columns[column_name]
-  end
-end
+require 'active_support/testing/deprecation'
 
 class SchemaTest < Test::Unit::TestCase
-  context "Migrating up" do
-    setup do
-      @schema = MockSchema.new
-      @schema.has_attached_file :avatar
+  include ActiveSupport::Testing::Deprecation
+
+  def setup
+    rebuild_class
+  end
+
+  def teardown
+    Dummy.connection.drop_table :dummies rescue nil
+  end
+
+  context "within table definition" do
+    context "using #has_attached_file" do
+      should "create attachment columns" do
+        Dummy.connection.create_table :dummies, :force => true do |t|
+          ActiveSupport::Deprecation.silence do
+            t.has_attached_file :avatar
+          end
+        end
+        rebuild_class
+
+        columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+        assert_includes columns, ['avatar_file_name', :string]
+        assert_includes columns, ['avatar_content_type', :string]
+        assert_includes columns, ['avatar_file_size', :integer]
+        assert_includes columns, ['avatar_updated_at', :datetime]
+      end
+
+      should "display deprecation warning" do
+        Dummy.connection.create_table :dummies, :force => true do |t|
+          assert_deprecated do
+            t.has_attached_file :avatar
+          end
+        end
+      end
     end
 
-    should "create the file_name column" do
-      assert @schema.has_column?(:avatar_file_name)
-    end
+    context "using #attachment" do
+      setup do
+        Dummy.connection.create_table :dummies, :force => true do |t|
+          t.attachment :avatar
+        end
+        rebuild_class
+      end
 
-    should "create the content_type column" do
-      assert @schema.has_column?(:avatar_content_type)
-    end
+      should "create attachment columns" do
+        columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-    should "create the file_size column" do
-      assert @schema.has_column?(:avatar_file_size)
-    end
-
-    should "create the updated_at column" do
-      assert @schema.has_column?(:avatar_updated_at)
-    end
-
-    should "make the file_name column a string" do
-      assert_equal :string, @schema.type_of(:avatar_file_name)
-    end
-
-    should "make the content_type column a string" do
-      assert_equal :string, @schema.type_of(:avatar_content_type)
-    end
-
-    should "make the file_size column an integer" do
-      assert_equal :integer, @schema.type_of(:avatar_file_size)
-    end
-
-    should "make the updated_at column a datetime" do
-      assert_equal :datetime, @schema.type_of(:avatar_updated_at)
+        assert_includes columns, ['avatar_file_name', :string]
+        assert_includes columns, ['avatar_content_type', :string]
+        assert_includes columns, ['avatar_file_size', :integer]
+        assert_includes columns, ['avatar_updated_at', :datetime]
+      end
     end
   end
 
-  context "Migrating down" do
+  context "within schema statement" do
     setup do
-      @schema = MockSchema.new(:users)
-      @schema.drop_attached_file :users, :avatar
+      Dummy.connection.create_table :dummies, :force => true
     end
 
-    should "remove the file_name column" do
-      assert @schema.deleted_column?(:avatar_file_name)
+    context "migrating up" do
+      context "with single attachment" do
+        setup do
+          Dummy.connection.add_attachment :dummies, :avatar
+          rebuild_class
+        end
+
+        should "create attachment columns" do
+          columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+          assert_includes columns, ['avatar_file_name', :string]
+          assert_includes columns, ['avatar_content_type', :string]
+          assert_includes columns, ['avatar_file_size', :integer]
+          assert_includes columns, ['avatar_updated_at', :datetime]
+        end
+      end
+
+      context "with multiple attachments" do
+        setup do
+          Dummy.connection.add_attachment :dummies, :avatar, :photo
+          rebuild_class
+        end
+
+        should "create attachment columns" do
+          columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+          assert_includes columns, ['avatar_file_name', :string]
+          assert_includes columns, ['avatar_content_type', :string]
+          assert_includes columns, ['avatar_file_size', :integer]
+          assert_includes columns, ['avatar_updated_at', :datetime]
+          assert_includes columns, ['photo_file_name', :string]
+          assert_includes columns, ['photo_content_type', :string]
+          assert_includes columns, ['photo_file_size', :integer]
+          assert_includes columns, ['photo_updated_at', :datetime]
+        end
+      end
+
+      context "with no attachment" do
+        should "raise an error" do
+          assert_raise ArgumentError do
+            Dummy.connection.add_attachment :dummies
+          rebuild_class
+          end
+        end
+      end
     end
 
-    should "remove the content_type column" do
-      assert @schema.deleted_column?(:avatar_content_type)
-    end
+    context "migrating down" do
+      setup do
+        Dummy.connection.change_table :dummies do |t|
+          t.column :avatar_file_name, :string
+          t.column :avatar_content_type, :string
+          t.column :avatar_file_size, :integer
+          t.column :avatar_updated_at, :datetime
+        end
+      end
 
-    should "remove the file_size column" do
-      assert @schema.deleted_column?(:avatar_file_size)
-    end
+      context "using #drop_attached_file" do
+        should "remove the attachment columns" do
+          ActiveSupport::Deprecation.silence do
+            Dummy.connection.drop_attached_file :dummies, :avatar
+          end
+          rebuild_class
 
-    should "remove the updated_at column" do
-      assert @schema.deleted_column?(:avatar_updated_at)
+          columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+          assert_not_includes columns, ['avatar_file_name', :string]
+          assert_not_includes columns, ['avatar_content_type', :string]
+          assert_not_includes columns, ['avatar_file_size', :integer]
+          assert_not_includes columns, ['avatar_updated_at', :datetime]
+        end
+
+        should "display a deprecation warning" do
+          assert_deprecated do
+            Dummy.connection.drop_attached_file :dummies, :avatar
+          end
+        end
+      end
+
+      context "using #remove_attachment" do
+        context "with single attachment" do
+          setup do
+            Dummy.connection.remove_attachment :dummies, :avatar
+            rebuild_class
+          end
+
+          should "remove the attachment columns" do
+            columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+            assert_not_includes columns, ['avatar_file_name', :string]
+            assert_not_includes columns, ['avatar_content_type', :string]
+            assert_not_includes columns, ['avatar_file_size', :integer]
+            assert_not_includes columns, ['avatar_updated_at', :datetime]
+          end
+        end
+
+        context "with multiple attachments" do
+          setup do
+            Dummy.connection.change_table :dummies do |t|
+              t.column :photo_file_name, :string
+              t.column :photo_content_type, :string
+              t.column :photo_file_size, :integer
+              t.column :photo_updated_at, :datetime
+            end
+
+            Dummy.connection.remove_attachment :dummies, :avatar, :photo
+            rebuild_class
+          end
+
+          should "remove the attachment columns" do
+            columns = Dummy.columns.map{ |column| [column.name, column.type] }
+
+            assert_not_includes columns, ['avatar_file_name', :string]
+            assert_not_includes columns, ['avatar_content_type', :string]
+            assert_not_includes columns, ['avatar_file_size', :integer]
+            assert_not_includes columns, ['avatar_updated_at', :datetime]
+            assert_not_includes columns, ['photo_file_name', :string]
+            assert_not_includes columns, ['photo_content_type', :string]
+            assert_not_includes columns, ['photo_file_size', :integer]
+            assert_not_includes columns, ['photo_updated_at', :datetime]
+          end
+        end
+
+        context "with no attachment" do
+          should "raise an error" do
+            assert_raise ArgumentError do
+              Dummy.connection.remove_attachment :dummies
+            end
+          end
+        end
+      end
     end
   end
 end

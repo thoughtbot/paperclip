@@ -80,6 +80,8 @@ class ThumbnailTest < Test::Unit::TestCase
       should "let us know when a command isn't found versus a processing error" do
         old_path = ENV['PATH']
         begin
+          Cocaine::CommandLine.path = ''
+          Paperclip.options[:command_path] = ''
           ENV['PATH'] = ''
           assert_raises(Paperclip::Errors::CommandNotFoundError) do
             silence_stream(STDERR) do
@@ -113,10 +115,9 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |*arg|
-          arg[0] == 'convert' &&
-          arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
-          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -139,10 +140,9 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |*arg|
-          arg[0] == 'convert' &&
-          arg[1] == '-strip :source -resize "x50" -crop "100x50+114+0" +repage :dest' &&
-          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == '-strip :source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
+          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -181,10 +181,9 @@ class ThumbnailTest < Test::Unit::TestCase
       end
 
       should "send the right command to convert when sent #make" do
-        Paperclip.expects(:run).with do |*arg|
-          arg[0] == 'convert' &&
-          arg[1] == ':source -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
-          arg[2][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
+          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -212,6 +211,8 @@ class ThumbnailTest < Test::Unit::TestCase
         should "let us know when a command isn't found versus a processing error" do
           old_path = ENV['PATH']
           begin
+            Cocaine::CommandLine.path = ''
+            Paperclip.options[:command_path] = ''
             ENV['PATH'] = ''
             assert_raises(Paperclip::Errors::CommandNotFoundError) do
               silence_stream(STDERR) do
@@ -234,6 +235,17 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "not get resized by default" do
         assert !@thumb.transformation_command.include?("-resize")
+      end
+    end
+
+    context "being thumbnailed with default animated option (true)" do
+      should "call identify to check for animated images when sent #make" do
+        thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
+        thumb.expects(:identify).at_least_once.with do |*arg|
+          arg[0] == '-format %m :file' &&
+          arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
+        end
+        thumb.make
       end
     end
 
@@ -290,6 +302,62 @@ class ThumbnailTest < Test::Unit::TestCase
 
         assert transformation_command.include?('"151x167"'),
           %{expected #{transformation_command.inspect} to include '151x167'}
+      end
+    end
+  end
+
+  context "An image with exif orientation" do
+    setup do
+      @file = File.new(fixture_file("rotated.jpg"), 'rb')
+    end
+
+    teardown { @file.close }
+
+    context "With :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50", :auto_orient => false)
+      end
+
+      should "send the right command to convert when sent #make" do
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -resize "100x50" :dest' &&
+              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /75x50/, `identify "#{dst.path}"`
+      end
+
+      should "not touch the orientation information" do
+        dst = @thumb.make
+        assert_match /exif:Orientation=6/, `identify -format "%[EXIF:*]" "#{dst.path}"`
+      end
+    end
+
+    context "Without :auto_orient => false" do
+      setup do
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50")
+      end
+
+      should "send the right command to convert when sent #make" do
+        @thumb.expects(:convert).with do |*arg|
+          arg[0] == ':source -auto-orient -resize "100x50" :dest' &&
+              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+        end
+        @thumb.make
+      end
+
+      should "create the thumbnail when sent #make" do
+        dst = @thumb.make
+        assert_match /33x50/, `identify "#{dst.path}"`
+      end
+
+      should "remove the orientation information" do
+        dst = @thumb.make
+        assert_match /exif:Orientation=1/, `identify -format "%[EXIF:*]" "#{dst.path}"`
       end
     end
   end
@@ -376,6 +444,40 @@ class ThumbnailTest < Test::Unit::TestCase
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with unidentified source format" do
+      setup do
+        @unidentified_file = File.new(fixture_file("animated.unknown"), 'rb')
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "60x60")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "60x60"*12, `#{cmd}`.chomp
+      end
+
+      should "use the -coalesce option" do
+        assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+    end
+
+    context "with no source format" do
+      setup do
+        @unidentified_file = File.new(fixture_file("animated"), 'rb')
+        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "70x70")
+      end
+
+      should "create the 12 frames thumbnail when sent #make" do
+        dst = @thumb.make
+        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        assert_equal "70x70"*12, `#{cmd}`.chomp
       end
 
       should "use the -coalesce option" do

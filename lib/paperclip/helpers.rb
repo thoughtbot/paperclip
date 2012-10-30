@@ -22,11 +22,13 @@ module Paperclip
     #
     #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
     #
-    def run(cmd, arguments = "", local_options = {})
+    def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
       command_path = options[:command_path]
-      Cocaine::CommandLine.path = ( Cocaine::CommandLine.path ? [Cocaine::CommandLine.path].flatten | [command_path] : command_path )
-      local_options = local_options.merge(:logger => logger) if logging? && (options[:log_command] || local_options[:log_command])
-      Cocaine::CommandLine.new(cmd, arguments, local_options).run
+      Cocaine::CommandLine.path = [Cocaine::CommandLine.path, command_path].flatten.compact.uniq
+      if logging? && (options[:log_command] || local_options[:log_command])
+        local_options = local_options.merge(:logger => logger)
+      end
+      Cocaine::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
     end
 
     # Find all instances of the given Active Record model +klass+ with attachment +name+.
@@ -39,7 +41,11 @@ module Paperclip
 
     def class_for(class_name)
       class_name.split('::').inject(Object) do |klass, partial_class_name|
-        klass.const_defined?(partial_class_name) ? klass.const_get(partial_class_name, false) : klass.const_missing(partial_class_name)
+        if klass.const_defined?(partial_class_name)
+          klass.const_get(partial_class_name, false)
+        else
+          klass.const_missing(partial_class_name)
+        end
       end
     end
 

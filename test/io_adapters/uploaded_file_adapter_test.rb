@@ -10,19 +10,12 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
         @file = UploadedFile.new(
           :original_filename => "5k.png",
-          :content_type => "image/png-but-browser-sent-crap",
+          :content_type => "image/png\r",
           :head => "",
-          :tempfile => tempfile
+          :tempfile => tempfile,
+          :path => tempfile.path
         )
         @subject = Paperclip.io_adapters.for(@file)
-
-		@file_unknown_type = UploadedFile.new(
-          :original_filename => "unknown.type",
-          :content_type => "application/x-my-unknown-type",		# used as fallback
-          :head => "",
-          :tempfile => File.new(fixture_file('unknown.type'))
-		)
-        @subject_unknown_type = Paperclip.io_adapters.for(@file_unknown_type)
       end
 
       should "get the right filename" do
@@ -35,7 +28,6 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
       should "get the content type" do
         assert_equal "image/png", @subject.content_type
-        assert_equal "application/x-my-unknown-type", @subject_unknown_type.content_type
       end
 
       should "get the file's size" do

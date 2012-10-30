@@ -1,5 +1,5 @@
 module Paperclip
-  class IdentityAdapter
+  class IdentityAdapter < AbstractAdapter
     def new(adapter)
       adapter
     end

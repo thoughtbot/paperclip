@@ -1,3 +1,84 @@
+New in 3.2.0:
+
+* Bug fix: Use the new correct Amazon S3 encryption header.
+* Bug fix: The rake task respects the updated_at column.
+* Bug fix: Strip newline from content type.
+* Feature: Fog file visibility can be specified per style.
+* Feature: Automatically rotate images.
+* Feature: Reduce class-oriented programming of the attachment definitions.
+
+New in 3.1.4:
+
+* Bug fix: Allow user to be able to set path without `:style` attribute and not raising an error.
+  This is a regression introduced in 3.1.3, and that feature will be postponed to another minor
+  release instead.
+* Feature: Allow for URI Adapter as an optional paperclip io adapter.
+
+New in 3.1.3:
+
+* Bug fix: Copy empty attachment between instances is now working.
+* Bug fix: Correctly rescue Fog error.
+* Bug fix: Using default path and url options in Fog storage now work as expected.
+* Bug fix: `Attachment#s3_protocol` now returns a protocol without colon suffix.
+* Feature: Paperclip will now raise an error if multiple styles are defined but no `:style`
+  interpolation exists in `:path`.
+* Feature: Add support for `#{attachment}_created_at` field
+* Bug fix: Paperclip now gracefully handles msising file command.
+* Bug fix: `StringIOAdapter` now accepts content type.
+
+New in 3.1.2:
+
+* Bug fix: #remove_attachment on 3.1.0 and 3.1.1 mistakenly trying to remove the column that has
+  the same name as data type (such as :string, :datetime, :interger.) You're advised to update to
+  Paperclip 3.1.2 as soon as possible.
+
+New in 3.1.1:
+
+* Bug fix: Paperclip will only load Paperclip::Schema only when Active Record is available.
+
+New in 3.1.0:
+
+* Feature: Paperclip now support new migration syntax (sexy migration) that reads better:
+
+      class AddAttachmentToUsers < ActiveRecord::Migration
+        def self.up
+          create_table :users do |t|
+            t.attachment :avatar
+          end
+        end
+      end
+
+  Also, schema-definition level syntax has been added:
+
+      add_attachment :users, :avatar
+      remove_attachment :users, :avatar
+
+* Feature: Migration now support Rails 3.2+ `change` method.
+* API CHANGE: Old `t.has_attached_file` and `drop_attached_file` are now deprecated. You're advised
+  to update your migration file before the next MAJOR version.
+* Bug fix: Tempfile now rewinded before generating fingerprint
+* API CHANGE: Tempfiles are now unlinked after `after_flush_writes`
+
+  If you need to interact with the generated tempfiles, please define an `after_flush_writes` method
+  in your model. You'll be able to access files via `@queue_for_write` instance variable.
+
+* Bug fix: `:s3_protocol` can now be defined as either String or Symbol
+* Bug fix: Tempfiles are now rewinded before get passed into `after_flush_writes`
+* Feature: Added expiring_url method to Fog Storage
+* API CHANGE: Paperclip now tested against AWS::SDK 1.5.2 onward
+* Bug fix: Improved the output of the content_type validator so the actual failure is displayed
+* Feature: Animated formats now identified using ImageMagick.
+* Feature: AttachmentAdapter now support fetching attachment with specific style.
+* Feature: Paperclip default options can now be configured in Rails.configuration.
+* Feature: add Geometry#resize_to to calculate dimensions of new source.
+* Bug fix: Fixed a bug whereby a file type with multiple mime types but no official type would cause
+  the best_content_type to throw an error on trying nil.content_type.
+* Bug fix: Fix problem when the gem cannot be installed on the system that has Asepsis installed.
+
+New in 3.0.4:
+
+* Feature: Adds support for S3 scheme-less URL generation.
+
 New in 3.0.3:
 
 * Bug fix: ThumbnailProcessor now correctly detects and preserve animated GIF.

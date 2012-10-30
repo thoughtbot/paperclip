@@ -202,5 +202,24 @@ class GeometryTest < Test::Unit::TestCase
         end
       end
     end
+
+    [['256x256', '150x150!' => [150, 150], '150x150#' => [150, 150], '150x150>' => [150, 150], '150x150<' => [256, 256], '150x150' => [150, 150]],
+     ['256x256', '512x512!' => [512, 512], '512x512#' => [512, 512], '512x512>' => [256, 256], '512x512<' => [512, 512], '512x512' => [512, 512]],
+     ['600x400', '512x512!' => [512, 512], '512x512#' => [512, 512], '512x512>' => [512, 341], '512x512<' => [600, 400], '512x512' => [512, 341]]].each do |original_size, options|
+      options.each_pair do |size, dimensions|
+        context "#{original_size} resize_to #{size}" do
+          setup do
+            @source = Paperclip::Geometry.parse original_size
+            @new_geometry = @source.resize_to size
+          end
+          should "have #{dimensions.first} width" do
+            assert_equal dimensions.first, @new_geometry.width
+          end
+          should "have #{dimensions.last} height" do
+            assert_equal dimensions.last, @new_geometry.height
+          end
+        end
+      end
+    end
   end
 end

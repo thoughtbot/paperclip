@@ -72,3 +72,31 @@ Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, not_exi
     check_file_presence([attachment_path(filename)], !not_exist)
   end
 end
+
+Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
+  in_current_dir do
+    columns = eval(`bundle exec #{runner_command} "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    expect_columns = [
+      ["#{attachment_name}_file_name", :string],
+      ["#{attachment_name}_content_type", :string],
+      ["#{attachment_name}_file_size", :integer],
+      ["#{attachment_name}_updated_at", :datetime]
+    ]
+
+    expect_columns.all?{ |column| columns.include? column }.should be_true
+  end
+end
+
+Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
+  in_current_dir do
+    columns = eval(`bundle exec #{runner_command} "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    expect_columns = [
+      ["#{attachment_name}_file_name", :string],
+      ["#{attachment_name}_content_type", :string],
+      ["#{attachment_name}_file_size", :integer],
+      ["#{attachment_name}_updated_at", :datetime]
+    ]
+
+    expect_columns.none?{ |column| columns.include? column }.should be_true
+  end
+end

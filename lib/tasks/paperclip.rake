@@ -26,17 +26,18 @@ namespace :paperclip do
   namespace :refresh do
     desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT and STYLES splitted by comma)."
     task :thumbnails => :environment do
-      errors = []
       klass = Paperclip::Task.obtain_class
       names = Paperclip::Task.obtain_attachments(klass)
       styles = (ENV['STYLES'] || ENV['styles'] || '').split(',').map(&:to_sym)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
           instance.send(name).reprocess!(*styles)
-          errors << [instance.id, instance.errors] unless instance.errors.blank?
+          unless instance.errors.blank?
+            puts "errors while processing #{klass} ID #{instance.id}:"
+            puts " " + instance.errors.full_messages.join("\n ") + "\n"
+          end
         end
       end
-      errors.each{|e| puts "#{e.first}: #{e.last.full_messages.inspect}" }
     end
 
     desc "Regenerates content_type/size metadata for a given CLASS (and optional ATTACHMENT)."

@@ -46,7 +46,7 @@ module Paperclip
     # +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
     # +only_process+ - style args to be run through the post-processor. This defaults to the empty list
     # +default_url+ - a URL for the missing image
-    # +default_style+ - the style to use when don't specify an argument to e.g. #url, #path
+    # +default_style+ - the style to use when an argument is not specified e.g. #url, #path
     # +storage+ - the storage mechanism. Defaults to :filesystem
     # +use_timestamp+ - whether to append an anti-caching timestamp to image URLs. Defaults to true
     # +whiny+, +whiny_thumbnails+ - whether to raise when thumbnailing fails
@@ -57,7 +57,7 @@ module Paperclip
     # +convert_options+ - flags passed to the +convert+ command for processing
     # +source_file_options+ - flags passed to the +convert+ command that controls how the file is read
     # +processors+ - classes that transform the attachment. Defaults to [:thumbnail]
-    # +preserve_files+ - whether to keep files on the filesystem when deleting to clearing the attachment. Defaults to false
+    # +preserve_files+ - whether to keep files on the filesystem when deleting or clearing the attachment. Defaults to false
     # +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
     def initialize(name, instance, options = {})
@@ -99,6 +99,7 @@ module Paperclip
       instance_write(:content_type,    file.content_type.to_s.strip)
       instance_write(:file_size,       file.size)
       instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
+      instance_write(:created_at,      Time.now) if has_enabled_but_unset_created_at?
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -243,7 +244,7 @@ module Paperclip
     end
 
     # Returns the fingerprint of the file, if one's defined. The fingerprint is
-    # stored in the <attachment>_fingerpring attribute of the model.
+    # stored in the <attachment>_fingerprint attribute of the model.
     def fingerprint
       instance_read(:fingerprint)
     end
@@ -252,6 +253,15 @@ module Paperclip
     # in the <attachment>_content_type attribute of the model.
     def content_type
       instance_read(:content_type)
+    end
+
+    # Returns the creation time of the file as originally assigned, and
+    # lives in the <attachment>_created_at attribute of the model.
+    def created_at
+      if able_to_store_created_at?
+        time = instance_read(:created_at)
+        time && time.to_f.to_i
+      end
     end
 
     # Returns the last modified time of the file as originally assigned, and
@@ -285,6 +295,7 @@ module Paperclip
       begin
         assign(self)
         save
+        instance.save
       rescue Errno::EACCES => e
         warn "#{e} - skipping file."
         false
@@ -311,19 +322,18 @@ module Paperclip
     # "avatar_file_name" field (assuming the attachment is called avatar).
     def instance_write(attr, value)
       setter = :"#{name}_#{attr}="
-      responds = instance.respond_to?(setter)
-      self.instance_variable_set("@_#{setter.to_s.chop}", value)
-      instance.send(setter, value) if responds || attr.to_s == "file_name"
+      if instance.respond_to?(setter)
+        instance.send(setter, value)
+      end
     end
 
     # Reads the attachment-specific attribute on the instance. See instance_write
     # for more details.
     def instance_read(attr)
       getter = :"#{name}_#{attr}"
-      responds = instance.respond_to?(getter)
-      cached = self.instance_variable_get("@_#{getter}")
-      return cached if cached
-      instance.send(getter) if responds || attr.to_s == "file_name"
+      if instance.respond_to?(getter)
+        instance.send(getter)
+      end
     end
 
     private
@@ -429,6 +439,7 @@ module Paperclip
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
       instance_write(:fingerprint, nil)
+      instance_write(:created_at, nil) if has_enabled_but_unset_created_at?
       instance_write(:updated_at, nil)
     end
 
@@ -440,6 +451,10 @@ module Paperclip
 
     # called by storage after the writes are flushed and before @queued_for_writes is cleared
     def after_flush_writes
+       @queued_for_write.each do |style, file|
+         file.close unless file.closed?
+         file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
+       end
     end
 
     def cleanup_filename(filename)
@@ -448,6 +463,16 @@ module Paperclip
       else
         filename
       end
+    end
+
+    # Check if attachment database table has a created_at field
+    def able_to_store_created_at?
+      @instance.respond_to?("#{name}_created_at".to_sym)
+    end
+
+    # Check if attachment database table has a created_at field which is not yet set
+    def has_enabled_but_unset_created_at?
+      able_to_store_created_at? && !instance_read(:created_at)
     end
   end
 end

@@ -97,9 +97,12 @@ module Paperclip
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
 
-    # Returns an extension based on the content type. e.g. "jpeg" for "image/jpeg".
+    # Returns an extension based on the content type. e.g. "jpeg" for
+    # "image/jpeg". If the style has a specified format, it will override the
+    # content-type detection.
+    #
     # Each mime type generally has multiple extensions associated with it, so
-    # if the extension from teh original filename is one of these extensions,
+    # if the extension from the original filename is one of these extensions,
     # that extension is used, otherwise, the first in the list is used.
     def content_type_extension attachment, style_name
       mime_type = MIME::Types[attachment.content_type]
@@ -110,7 +113,10 @@ module Paperclip
       end
 
       original_extension = extension(attachment, style_name)
-      if extensions_for_mime_type.include? original_extension
+      style = attachment.styles[style_name.to_s.to_sym]
+      if style && style[:format]
+        style[:format].to_s
+      elsif extensions_for_mime_type.include? original_extension
         original_extension
       elsif !extensions_for_mime_type.empty?
         extensions_for_mime_type.first

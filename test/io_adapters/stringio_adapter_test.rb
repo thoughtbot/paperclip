@@ -12,18 +12,8 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_equal "stringio.txt", @subject.original_filename
     end
 
-    should "allow us to set a name" do
-      @subject.original_filename = "data.txt"
-      assert_equal "data.txt", @subject.original_filename
-    end
-
     should "return a content type" do
       assert_equal "text/plain", @subject.content_type
-    end
-
-    should "allow us to set a content type" do
-      @subject.content_type = "image/jpg"
-      assert_equal "image/jpg", @subject.content_type
     end
 
     should "return the size of the data" do
@@ -34,8 +24,27 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_equal Digest::MD5.hexdigest(@contents), @subject.fingerprint
     end
 
+    should "generate correct fingerprint after read" do
+      fingerprint = Digest::MD5.hexdigest(@subject.read)
+      assert_equal fingerprint, @subject.fingerprint
+    end
+
+    should "generate same fingerprint" do
+      assert_equal @subject.fingerprint, @subject.fingerprint
+    end
+
     should "return the data contained in the StringIO" do
       assert_equal "abc123", @subject.read
+    end
+
+    should 'accept a content_type' do
+      @subject.content_type = 'image/png'
+      assert_equal 'image/png', @subject.content_type
+    end
+
+    should 'accept an orgiginal_filename' do
+      @subject.original_filename = 'image.png'
+      assert_equal 'image.png', @subject.original_filename
     end
 
   end

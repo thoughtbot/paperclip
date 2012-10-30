@@ -66,6 +66,29 @@ class FogTest < Test::Unit::TestCase
                      @dummy.avatar.path
       end
     end
+    
+    context "with no path or url given and using defaults" do
+      setup do
+        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                      :storage => :fog,
+                      :fog_directory => "paperclip",
+                      :fog_credentials => {
+                        :provider => 'AWS',
+                        :aws_access_key_id => 'AWS_ID',
+                        :aws_secret_access_key => 'AWS_SECRET'
+                      }
+        @file = File.new(fixture_file('5k.png'), 'rb')
+        @dummy = Dummy.new
+        @dummy.id = 1
+        @dummy.avatar = @file
+      end
+      
+      teardown { @file.close }
+      
+      should "have correct path and url from interpolated defaults" do
+        assert_equal "dummies/avatars/000/000/001/original/5k.png", @dummy.avatar.path
+      end
+    end
 
     setup do
       @fog_directory = 'papercliptests'
@@ -109,6 +132,21 @@ class FogTest < Test::Unit::TestCase
         directory = @connection.directories.new(:key => @fog_directory)
         directory.files.each {|file| file.destroy}
         directory.destroy
+      end
+
+      should "be rewinded after flush_writes" do
+        @dummy.avatar.instance_eval "def after_flush_writes; end"
+
+        files = @dummy.avatar.queued_for_write.values
+        @dummy.save
+        assert files.none?(&:eof?), "Expect all the files to be rewinded."
+      end
+
+      should "be removed after after_flush_writes" do
+        paths = @dummy.avatar.queued_for_write.values.map(&:path)
+        @dummy.save
+        assert paths.none?{ |path| File.exists?(path) },
+          "Expect all the files to be deleted."
       end
 
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
@@ -194,9 +232,43 @@ class FogTest < Test::Unit::TestCase
         end
       end
 
+      context "with styles set and fog_public set to false" do
+        setup do
+          rebuild_model(@options.merge(:fog_public => false, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should 'set the @fog_public for a perticular style to false' do
+          assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
+          assert_equal false, @dummy.avatar.fog_public(:thumb)
+        end
+      end
+
+      context "with styles set and fog_public set per-style" do
+        setup do
+          rebuild_model(@options.merge(:fog_public => { :medium => false, :thumb => true}, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should 'set the fog_public for a perticular style to correct value' do
+          assert_equal false, @dummy.avatar.fog_public(:medium)
+          assert_equal true, @dummy.avatar.fog_public(:thumb)
+        end
+      end
+
       context "with a valid bucket name for a subdomain" do
         should "provide an url in subdomain style" do
-          assert_match /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+          assert_match @dummy.avatar.url, /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/
+        end
+
+        should "provide an url that expires in subdomain style" do
+          assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
         end
       end
 
@@ -217,6 +289,10 @@ class FogTest < Test::Unit::TestCase
 
         should "provide an url in folder style" do
           assert_match /^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+        end
+
+        should "provide a url that expires in folder style" do
+          assert_match /^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
         end
 
       end
@@ -249,6 +325,38 @@ class FogTest < Test::Unit::TestCase
         should "provide a public url" do
           assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
         end
+
+      end
+
+      context "with a custom fog_host" do
+        setup do
+          rebuild_model(@options.merge(:fog_host => "http://dynamicfoghost.com"))
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        should "provide a public url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+        end
+
+        should "provide an expiring url" do
+          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+        end
+
+        context "with an invalid bucket name for a subdomain" do
+          setup do
+            rebuild_model(@options.merge({:fog_directory => "this_is_invalid", :fog_host => "http://dynamicfoghost.com"}))
+            @dummy = Dummy.new
+            @dummy.avatar = @file
+            @dummy.save
+          end
+
+          should "provide an expiring url" do
+            assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+          end
+        end
+
       end
 
       context "with a proc for the fog_credentials evaluating a model method" do

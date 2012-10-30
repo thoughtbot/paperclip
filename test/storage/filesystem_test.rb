@@ -19,12 +19,27 @@ class FileSystemTest < Test::Unit::TestCase
 
       should "store the original" do
         @dummy.save
-        assert File.exists?(@dummy.avatar.path)
+        assert_file_exists(@dummy.avatar.path)
       end
 
       should "store the thumbnail" do
         @dummy.save
-        assert File.exists?(@dummy.avatar.path(:thumbnail))
+        assert_file_exists(@dummy.avatar.path(:thumbnail))
+      end
+
+      should "be rewinded after flush_writes" do
+        @dummy.avatar.instance_eval "def after_flush_writes; end"
+
+        files = @dummy.avatar.queued_for_write.values
+        @dummy.save
+        assert files.none?(&:eof?), "Expect all the files to be rewinded."
+      end
+
+      should "be removed after after_flush_writes" do
+        paths = @dummy.avatar.queued_for_write.values.map(&:path)
+        @dummy.save
+        assert paths.none?{ |path| File.exists?(path) },
+          "Expect all the files to be deleted."
       end
     end
 
@@ -41,7 +56,7 @@ class FileSystemTest < Test::Unit::TestCase
       teardown { @file.close }
 
       should "store the file" do
-        assert File.exists?(@dummy.avatar.path)
+        assert_file_exists(@dummy.avatar.path)
       end
 
       should "return a replaced version for path" do
