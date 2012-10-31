@@ -41,6 +41,14 @@ class FileSystemTest < Test::Unit::TestCase
         assert paths.none?{ |path| File.exists?(path) },
           "Expect all the files to be deleted."
       end
+
+      should 'copy the file to a known location with copy_to_local_file' do
+        tempfile = Tempfile.new("known_location")
+        @dummy.avatar.copy_to_local_file(:original, tempfile.path)
+        tempfile.rewind
+        assert_equal @file.read, tempfile.read
+        tempfile.close
+      end
     end
 
     context "with file that has space in file name" do

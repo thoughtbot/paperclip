@@ -149,6 +149,17 @@ class FogTest < Test::Unit::TestCase
           "Expect all the files to be deleted."
       end
 
+      should 'be able to be copied to a local file' do
+        @dummy.save
+        tempfile = Tempfile.new("known_location")
+        tempfile.binmode
+        @dummy.avatar.copy_to_local_file(:original, tempfile.path)
+        tempfile.rewind
+        assert_equal @connection.directories.get(@fog_directory).files.get(@dummy.avatar.path).body,
+                     tempfile.read
+        tempfile.close
+      end
+
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]

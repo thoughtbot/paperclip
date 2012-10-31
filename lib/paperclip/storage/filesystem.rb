@@ -67,10 +67,10 @@ module Paperclip
         end
         @queued_for_delete = []
       end
-    end
 
-    def copy_to_local_file(style, local_dest_path)
-      FileUtils.cp(path(style), local_dest_path)
+      def copy_to_local_file(style, local_dest_path)
+        FileUtils.cp(path(style), local_dest_path)
+      end
     end
 
   end
