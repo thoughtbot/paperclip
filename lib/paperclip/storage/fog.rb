@@ -70,14 +70,14 @@ module Paperclip
       end
 
       def fog_public(style = default_style)
-        if defined?(@options[:fog_public])
-          if defined?(@options[:fog_public][style])
-            return @options[:fog_public][style]
+        if @options.has_key?(:fog_public)
+          if @options[:fog_public].respond_to?(:has_key?) && @options[:fog_public].has_key?(style)
+            @options[:fog_public][style]
           else
-            return @options[:fog_public]
+            @options[:fog_public]
           end
         else
-          return true
+          true
         end
       end
 
