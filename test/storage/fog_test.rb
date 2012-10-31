@@ -252,7 +252,7 @@ class FogTest < Test::Unit::TestCase
           @dummy.save
         end
 
-        should 'set the @fog_public for a perticular style to false' do
+        should 'set the @fog_public for a particular style to false' do
           assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
           assert_equal false, @dummy.avatar.fog_public(:thumb)
         end
@@ -267,9 +267,22 @@ class FogTest < Test::Unit::TestCase
           @dummy.save
         end
 
-        should 'set the fog_public for a perticular style to correct value' do
+        should 'set the fog_public for a particular style to correct value' do
           assert_equal false, @dummy.avatar.fog_public(:medium)
           assert_equal true, @dummy.avatar.fog_public(:thumb)
+        end
+      end
+
+      context "with fog_public not set" do
+        setup do
+          rebuild_model(@options)
+          @dummy = Dummy.new
+          @dummy.avatar = StringIO.new('.')
+          @dummy.save
+        end
+
+        should "default fog_public to true" do
+          assert_equal true, @dummy.avatar.fog_public
         end
       end
 
