@@ -1,3 +1,11 @@
+New In 3.3.1:
+
+* Bug fix: Moved Filesystem's copy_to_local_file to the right place.
+
+New in 3.3.0:
+
+* Improvement: Upgrade cocaine to 0.4
+
 New in 3.2.0:
 
 * Bug fix: Use the new correct Amazon S3 encryption header.
