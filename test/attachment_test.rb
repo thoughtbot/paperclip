@@ -6,6 +6,29 @@ class Dummy; end
 
 class AttachmentTest < Test::Unit::TestCase
 
+  context "presence" do
+    setup do
+      rebuild_class
+      @dummy = Dummy.new
+    end
+
+    context "when file not set" do
+      should "not be present" do
+        assert @dummy.avatar.blank?
+        refute @dummy.avatar.present?
+      end
+    end
+
+    context "when file set" do
+      setup { @dummy.avatar = File.new(fixture_file("50x50.png"), "rb") }
+
+      should "be present" do
+        refute @dummy.avatar.blank?
+        assert @dummy.avatar.present?
+      end
+    end
+  end
+
   should "process :original style first" do
     file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
