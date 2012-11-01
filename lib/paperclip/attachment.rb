@@ -310,6 +310,10 @@ module Paperclip
 
     alias :present? :file?
 
+    def blank?
+      not present?
+    end
+
     # Determines whether the instance responds to this attribute. Used to prevent
     # calculations on fields we won't even store.
     def instance_respond_to?(attr)
