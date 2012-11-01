@@ -90,10 +90,6 @@ module Paperclip
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
 
-      only_process = @options[:only_process].dup
-      only_process = only_process.call(self) if only_process.respond_to?(:call)
-      only_process.map!(&:to_sym)
-
       self.clear(*only_process)
       return nil if file.nil?
 
@@ -175,6 +171,12 @@ module Paperclip
         end
       end
       @normalized_styles
+    end
+
+    def only_process
+      only_process = @options[:only_process].dup
+      only_process = only_process.call(self) if only_process.respond_to?(:call)
+      only_process.map(&:to_sym)
     end
 
     def processors
