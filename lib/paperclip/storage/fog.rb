@@ -128,7 +128,7 @@ module Paperclip
       end
 
       def expiring_url(time = (Time.now + 3600), style = default_style)
-        if fog_credentials[:provider] == 'AWS'
+        if directory.files.respond_to?(:get_http_url)
           expiring_url = directory.files.get_http_url(path(style), time)
 
           if @options[:fog_host]
