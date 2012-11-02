@@ -37,4 +37,10 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
     end
   end
+
+  should 'return a sensible default on the odd change that run returns nil' do
+    Paperclip.stubs(:run).returns(nil)
+    assert_equal "application/octet-stream",
+                 Paperclip::ContentTypeDetector.new("windows").detect
+  end
 end
