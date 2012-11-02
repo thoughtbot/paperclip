@@ -3,7 +3,7 @@ module Paperclip
     # The default place to store attachments is in the filesystem. Files on the local
     # filesystem can be very easily served by Apache without requiring a hit to your app.
     # They also can be processed more easily after they've been saved, as they're just
-    # normal files. There is one Filesystem-specific option for has_attached_file.
+    # normal files. There are two Filesystem-specific options for has_attached_file:
     # * +path+: The location of the repository of attachments on disk. This can (and, in
     #   almost all cases, should) be coordinated with the value of the +url+ option to
     #   allow files to be saved into a place where Apache can serve them without
@@ -15,6 +15,12 @@ module Paperclip
     #   public directory.
     #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :path => "/var/app/attachments/:class/:id/:style/:basename.:extension"
+    # * +override_file_permissions+: This allows you to override the file permissions for files
+    #   saved by paperclip. If you set this to an explicit octal value (0755, 0644, etc) then
+    #   that value will be used to set the permissions for an uploaded file. The default is 0666.
+    #   If you set :override_file_permissions to false, the chmod will be skipped. This allows
+    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the 
+    #   added benefit of using the storage directories default umask on those that do.
     module Filesystem
       def self.extended base
       end
@@ -36,7 +42,7 @@ module Paperclip
             end
           end
           unless @options[:override_file_permissions] == false
-            resolved_chmod = (@options[:override_file_permissions]&~0111) || (0666&~File.umask)
+            resolved_chmod = (@options[:override_file_permissions] &~ 0111) || (0666 &~ File.umask)
             FileUtils.chmod( resolved_chmod, path(style_name) )
           end
           file.rewind
