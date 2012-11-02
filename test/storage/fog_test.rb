@@ -1,10 +1,10 @@
 require './test/helper'
 require 'fog'
 
-Fog.mock!
-
 class FogTest < Test::Unit::TestCase
   context "" do
+    setup { Fog.mock! }
+
     context "with credentials provided in a path string" do
       setup do
         rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
@@ -403,5 +403,30 @@ class FogTest < Test::Unit::TestCase
       end
     end
 
+  end
+
+  context "when using local storage" do
+    setup do
+      Fog.unmock!
+      rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
+                    :storage => :fog,
+                    :url => '/:attachment/:filename',
+                    :fog_directory => "paperclip",
+                    :fog_credentials => { :provider => :local, :local_root => "." },
+                    :fog_host => 'localhost'
+
+      @file = File.new(fixture_file('5k.png'), 'rb')
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+    end
+
+    teardown do
+      @file.close
+      Fog.mock!
+    end
+
+    should "return the public url in place of the expiring url" do
+      assert_match @dummy.avatar.public_url, @dummy.avatar.expiring_url
+    end
   end
 end
