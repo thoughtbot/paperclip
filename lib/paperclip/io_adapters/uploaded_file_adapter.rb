@@ -11,12 +11,28 @@ module Paperclip
       end
     end
 
+    class << self
+      attr_accessor :content_type_detector
+    end
+
     private
 
     def cache_current_values
       @original_filename = @target.original_filename
-      @content_type = @target.content_type.to_s.strip
+      @content_type = determine_content_type
       @size = File.size(@target.path)
+    end
+
+    def content_type_detector
+      self.class.content_type_detector
+    end
+
+    def determine_content_type
+      content_type = @target.content_type.to_s.strip
+      if content_type_detector
+        content_type = content_type_detector.new(@target.path).detect
+      end
+      content_type
     end
   end
 end

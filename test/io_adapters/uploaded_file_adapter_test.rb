@@ -4,13 +4,15 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
   context "a new instance" do
     context "with UploadedFile responding to #tempfile" do
       setup do
+        Paperclip::UploadedFileAdapter.content_type_detector = nil
+
         class UploadedFile < OpenStruct; end
         tempfile = File.new(fixture_file("5k.png"))
         tempfile.binmode
 
         @file = UploadedFile.new(
           :original_filename => "5k.png",
-          :content_type => "image/png\r",
+          :content_type => "image/x-png-by-browser\r",
           :head => "",
           :tempfile => tempfile,
           :path => tempfile.path
@@ -27,7 +29,7 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
       end
 
       should "get the content type" do
-        assert_equal "image/png", @subject.content_type
+        assert_equal "image/x-png-by-browser", @subject.content_type
       end
 
       should "get the file's size" do
@@ -52,10 +54,12 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
     context "with UploadFile responding to #path" do
       setup do
+        Paperclip::UploadedFileAdapter.content_type_detector = nil
+
         class UploadedFile < OpenStruct; end
         @file = UploadedFile.new(
           :original_filename => "5k.png",
-          :content_type => "image/png",
+          :content_type => "image/x-png-by-browser",
           :head => "",
           :path => fixture_file("5k.png")
         )
@@ -71,7 +75,7 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
       end
 
       should "get the content type" do
-        assert_equal "image/png", @subject.content_type
+        assert_equal "image/x-png-by-browser", @subject.content_type
       end
 
       should "get the file's size" do
@@ -93,6 +97,26 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
         expected = expected_file.read
         assert expected.length > 0
         assert_equal expected, @subject.read
+      end
+
+      context "don't trust client-given MIME type" do
+        setup do
+          Paperclip::UploadedFileAdapter.content_type_detector =
+            Paperclip::FileCommandContentTypeDetector
+
+          class UploadedFile < OpenStruct; end
+          @file = UploadedFile.new(
+            :original_filename => "5k.png",
+            :content_type => "image/x-png-by-browser",
+            :head => "",
+            :path => fixture_file("5k.png")
+          )
+          @subject = Paperclip.io_adapters.for(@file)
+        end
+
+        should "get the content type" do
+          assert_equal "image/png", @subject.content_type
+        end
       end
     end
   end
