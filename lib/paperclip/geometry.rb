@@ -13,14 +13,22 @@ module Paperclip
 
     # Uses ImageMagick to determing the dimensions of a file, passed in as either a
     # File or path.
+    # When auto_orient is set to true, it considers EXIF Orientation Tag to detect rotated image.
     # NOTE: (race cond) Do not reassign the 'file' variable inside this method as it is likely to be
     # a Tempfile object, which would be eligible for file deletion when no longer referenced.
-    def self.from_file file
+    def self.from_file file, auto_orient = true
       file_path = file.respond_to?(:path) ? file.path : file
       raise(Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file_path.blank?
       geometry = begin
-                   silence_stream(STDERR) do
-                     Paperclip.run("identify", "-format %wx%h :file", :file => "#{file_path}[0]")
+                   format = silence_stream(STDERR) do
+                     format_option = "%wx%h"
+                     format_option << ",%[exif:orientation]" if auto_orient
+                     Paperclip.run("identify", "-format #{format_option} :file", :file => "#{file_path}[0]")
+                   end
+                   if auto_orient && format =~ /(\d+)x(\d+),(\d+)/
+                     %w(5 6 7 8).include?($3) ? "#{$2}x#{$1}" : "#{$1}x#{$2}"
+                   else
+                     format
                    end
                  rescue Cocaine::ExitStatusError
                    ""

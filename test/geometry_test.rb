@@ -136,6 +136,20 @@ class GeometryTest < Test::Unit::TestCase
       assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }
     end
 
+    should "be generated from a rotated file with automatic orientation" do
+      file = fixture_file("rotated.jpg")
+      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file, true) }
+      assert_equal 300, @geo.height
+      assert_equal 200, @geo.width
+    end
+
+    should "be generated from a rotated file without automatic orientation" do
+      file = fixture_file("rotated.jpg")
+      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file, false) }
+      assert_equal 200, @geo.height
+      assert_equal 300, @geo.width
+    end
+
     should "let us know when a command isn't found versus a processing error" do
       old_path = ENV['PATH']
       begin

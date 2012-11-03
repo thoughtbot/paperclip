@@ -18,7 +18,7 @@ module Paperclip
     # Options include:
     #
     #   +geometry+ - the desired width and height of the thumbnail (required)
-    #   +file_geometry_parser+ - an object with a method named +from_file+ that takes an image file and produces its geometry and a +transformation_to+. Defaults to Paperclip::Geometry
+    #   +file_geometry_parser+ - an object with a method named +from_file+ that takes an image file and an optional auto_orient value, and produces its geometry and a +transformation_to+. Defaults to Paperclip::Geometry
     #   +string_geometry_parser+ - an object with a method named +parse+ that takes a string and produces an object with +width+, +height+, and +to_s+ accessors. Defaults to Paperclip::Geometry
     #   +source_file_options+ - flags passed to the +convert+ command that influence how the source file is read
     #   +convert_options+ - flags passed to the +convert+ command that influence how the image is processed
@@ -31,14 +31,19 @@ module Paperclip
       geometry             = options[:geometry] # this is not an option
       @file                = file
       @crop                = geometry[-1,1] == '#'
+      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
       @target_geometry     = (options[:string_geometry_parser] || Geometry).parse(geometry)
-      @current_geometry    = (options[:file_geometry_parser] || Geometry).from_file(@file)
+      file_geometry_parser = (options[:file_geometry_parser] || Geometry)
+      if file_geometry_parser.method(:from_file).arity == 1
+        @current_geometry  = file_geometry_parser.from_file(@file)
+      else
+        @current_geometry  = file_geometry_parser.from_file(@file, @auto_orient)
+      end
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
       @animated            = options[:animated].nil? ? true : options[:animated]
-      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
