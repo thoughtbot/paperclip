@@ -123,18 +123,9 @@ module Paperclip
               (permission == :public_read) ? 'http' : 'https'
             end
           @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = @options[:s3_headers] || {}
-          @s3_headers = @s3_headers.call(instance) if @s3_headers.respond_to?(:call)
-          @s3_headers = (@s3_headers).inject({}) do |headers,(name,value)|
-            case name.to_s
-            when /^x-amz-meta-(.*)/i
-              @s3_metadata[$1.downcase] = value
-            else
-              name = name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym
-              headers[name] = value
-            end
-            headers
-          end
+
+          @s3_headers, new_s3_metadata = convert_headers_to_s3_format(@options[:s3_headers])
+          @s3_metadata.merge!(new_s3_metadata)
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
 
@@ -315,8 +306,21 @@ module Paperclip
             if @s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
             end
+
+            if @options[:styles][style].is_a?(Hash) && @options[:styles][style].has_key?(:s3_headers)
+              style_specific_s3_headers, style_specific_s3_meta = convert_headers_to_s3_format(@options[:styles][style][:s3_headers])
+              @s3_headers.merge!(style_specific_s3_headers)
+              @s3_metadata.merge!(style_specific_s3_meta)  # Merge with meta values found in :s3_headers
+            end
+
+            if @options[:styles][style].is_a?(Hash) && @options[:styles][style].has_key?(:s3_metadata)
+              # Merge with style-specific :s3_metadata
+              @s3_metadata.merge!(@options[:styles][style][:s3_metadata])
+            end
+
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
+
             s3_object(style).write(file, write_options)
           rescue AWS::S3::Errors::NoSuchBucket => e
             create_bucket
@@ -371,6 +375,27 @@ module Paperclip
 
       def use_secure_protocol?(style_name)
         s3_protocol(style_name) == "https"
+      end
+
+      # Converts http-style headers to the format needed by the aws-sdk's S3Object#write method
+      # Returns two hashes - s3_headers and s3_metadata
+      # If amazon meta data headers (x-amz-meta-*) are found in http_headers, they are passed back in the second return value
+      def convert_headers_to_s3_format(http_headers)
+        s3_headers = http_headers || {}
+        s3_metadata = {}
+
+        s3_headers = s3_headers.call(instance) if s3_headers.respond_to?(:call)
+        s3_headers = (s3_headers).inject({}) do |headers,(name,value)|
+          case name.to_s
+          when /^x-amz-meta-(.*)/i
+            s3_metadata[$1.downcase] = value
+          else
+            name = name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym
+            headers[name] = value
+          end
+          headers
+        end
+        return s3_headers, s3_metadata
       end
     end
   end
