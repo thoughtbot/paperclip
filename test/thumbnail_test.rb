@@ -128,6 +128,16 @@ class ThumbnailTest < Test::Unit::TestCase
       end
     end
 
+    should 'properly crop a EXIF-rotated image' do
+      file = File.new(fixture_file('rotated.jpg'))
+      thumb = Paperclip::Thumbnail.new(file, :geometry => "50x50#")
+
+      output_file = thumb.make
+
+      command = Cocaine::CommandLine.new("identify", "-format %wx%h :file")
+      assert_equal "50x50", command.run(:file => output_file.path).strip
+    end
+
     context "being thumbnailed with source file options set" do
       setup do
         @thumb = Paperclip::Thumbnail.new(@file,
@@ -302,62 +312,6 @@ class ThumbnailTest < Test::Unit::TestCase
 
         assert transformation_command.include?('"151x167"'),
           %{expected #{transformation_command.inspect} to include '151x167'}
-      end
-    end
-  end
-
-  context "An image with exif orientation" do
-    setup do
-      @file = File.new(fixture_file("rotated.jpg"), 'rb')
-    end
-
-    teardown { @file.close }
-
-    context "With :auto_orient => false" do
-      setup do
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50", :auto_orient => false)
-      end
-
-      should "send the right command to convert when sent #make" do
-        @thumb.expects(:convert).with do |*arg|
-          arg[0] == ':source -resize "100x50" :dest' &&
-              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
-        end
-        @thumb.make
-      end
-
-      should "create the thumbnail when sent #make" do
-        dst = @thumb.make
-        assert_match /75x50/, `identify "#{dst.path}"`
-      end
-
-      should "not touch the orientation information" do
-        dst = @thumb.make
-        assert_match /exif:Orientation=6/, `identify -format "%[EXIF:*]" "#{dst.path}"`
-      end
-    end
-
-    context "Without :auto_orient => false" do
-      setup do
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50")
-      end
-
-      should "send the right command to convert when sent #make" do
-        @thumb.expects(:convert).with do |*arg|
-          arg[0] == ':source -auto-orient -resize "100x50" :dest' &&
-              arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
-        end
-        @thumb.make
-      end
-
-      should "create the thumbnail when sent #make" do
-        dst = @thumb.make
-        assert_match /33x50/, `identify "#{dst.path}"`
-      end
-
-      should "remove the orientation information" do
-        dst = @thumb.make
-        assert_match /exif:Orientation=1/, `identify -format "%[EXIF:*]" "#{dst.path}"`
       end
     end
   end

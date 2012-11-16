@@ -17,7 +17,7 @@ module Paperclip
     #   :expected_outcodes -> An array of integers that defines the expected exit codes
     #                         of the binary. Defaults to [0].
     #
-    #   :log_command -> Log the command being run when set to true (defaults to false).
+    #   :log_command -> Log the command being run when set to true (defaults to true).
     #                   This will only log if logging in general is set to true as well.
     #
     #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.

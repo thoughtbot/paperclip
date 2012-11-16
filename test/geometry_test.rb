@@ -139,6 +139,14 @@ class GeometryTest < Test::Unit::TestCase
       assert_equal 434, @geo.width
     end
 
+    should 'calculate an EXIF-rotated image dimensions from a path' do
+      file = fixture_file("rotated.jpg")
+      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
+      @geo.auto_orient
+      assert_equal 300, @geo.height
+      assert_equal 200, @geo.width
+    end
+
     should "not generate from a bad file" do
       file = "/home/This File Does Not Exist.omg"
       assert_raise(Paperclip::Errors::NotIdentifiedByImageMagickError){ @geo = Paperclip::Geometry.from_file(file) }

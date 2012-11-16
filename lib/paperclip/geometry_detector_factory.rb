@@ -6,8 +6,8 @@ module Paperclip
     end
 
     def make
-      GeometryParser.new(geometry_string.strip).make ||
-        raise(Errors::NotIdentifiedByImageMagickError.new)
+      geometry = GeometryParser.new(geometry_string.strip).make
+      geometry || raise(Errors::NotIdentifiedByImageMagickError.new)
     end
 
     private
