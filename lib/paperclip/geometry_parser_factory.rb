@@ -1,5 +1,5 @@
 module Paperclip
-  class GeometryParserFactory
+  class GeometryParser
     FORMAT = /\b(\d*)x?(\d*)\b(?:,(\d?))?([\>\<\#\@\%^!])?/i
     def initialize(string)
       @string = string

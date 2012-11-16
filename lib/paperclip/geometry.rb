@@ -2,7 +2,7 @@ module Paperclip
 
   # Defines the geometry of an image.
   class Geometry
-    attr_accessor :height, :width, :modifier, :orientation
+    attr_accessor :height, :width, :modifier
 
     EXIF_ROTATED_ORIENTATION_VALUES = [5, 6, 7, 8]
 
@@ -23,14 +23,14 @@ module Paperclip
 
     # Extracts the Geometry from a file (or path to a file)
     def self.from_file(file)
-      GeometryDetectorFactory.new(file).make
+      GeometryDetector.new(file).make
     end
 
     # Extracts the Geometry from a "WxH,O" string
     # Where W is the width, H is the height,
     # and O is the EXIF orientation
     def self.parse(string)
-      GeometryParserFactory.new(string).make
+      GeometryParser.new(string).make
     end
 
     # Swaps the height and width if necessary

@@ -1,6 +1,6 @@
 require './test/helper'
 
-class GeometryParserFactoryTest < Test::Unit::TestCase
+class GeometryParserTest < Test::Unit::TestCase
   should 'identify an image and extract its dimensions with no orientation' do
     Paperclip::Geometry.stubs(:new).with(
       :height => '73',
@@ -8,7 +8,7 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
       :modifier => nil,
       :orientation => nil
     ).returns(:correct)
-    factory = Paperclip::GeometryParserFactory.new("434x73")
+    factory = Paperclip::GeometryParser.new("434x73")
 
     output = factory.make
 
@@ -22,7 +22,7 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
       :modifier => nil,
       :orientation => ''
     ).returns(:correct)
-    factory = Paperclip::GeometryParserFactory.new("434x73,")
+    factory = Paperclip::GeometryParser.new("434x73,")
 
     output = factory.make
 
@@ -36,7 +36,7 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
       :modifier => nil,
       :orientation => '6'
     ).returns(:correct)
-    factory = Paperclip::GeometryParserFactory.new("300x200,6")
+    factory = Paperclip::GeometryParser.new("300x200,6")
 
     output = factory.make
 
@@ -50,7 +50,7 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
       :modifier => '#',
       :orientation => nil
     ).returns(:correct)
-    factory = Paperclip::GeometryParserFactory.new("64x64#")
+    factory = Paperclip::GeometryParser.new("64x64#")
 
     output = factory.make
 
@@ -64,7 +64,7 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
       :modifier => '>',
       :orientation => '7'
     ).returns(:correct)
-    factory = Paperclip::GeometryParserFactory.new("100x50,7>")
+    factory = Paperclip::GeometryParser.new("100x50,7>")
 
     output = factory.make
 

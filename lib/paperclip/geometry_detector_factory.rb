@@ -1,12 +1,12 @@
 module Paperclip
-  class GeometryDetectorFactory
+  class GeometryDetector
     def initialize(file)
       @file = file
       raise_if_blank_file
     end
 
     def make
-      GeometryParserFactory.new(geometry_string.strip).make ||
+      GeometryParser.new(geometry_string.strip).make ||
         raise(Errors::NotIdentifiedByImageMagickError.new)
     end
 
