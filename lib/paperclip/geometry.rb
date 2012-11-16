@@ -2,39 +2,41 @@ module Paperclip
 
   # Defines the geometry of an image.
   class Geometry
-    attr_accessor :height, :width, :modifier
+    attr_accessor :height, :width, :modifier, :orientation
 
     # Gives a Geometry representing the given height and width
-    def initialize width = nil, height = nil, modifier = nil
-      @height = height.to_f
-      @width  = width.to_f
-      @modifier = modifier
+    def initialize(width = nil, height = nil, modifier = nil)
+      if width.is_a?(Hash)
+        options = width
+        @height = options[:height].to_f
+        @width = options[:width].to_f
+        @modifier = options[:modifier]
+        @orientation = options[:orientation].to_i
+      else
+        @height = height.to_f
+        @width  = width.to_f
+        @modifier = modifier
+      end
     end
 
     # Uses ImageMagick to determing the dimensions of a file, passed in as either a
     # File or path.
     # NOTE: (race cond) Do not reassign the 'file' variable inside this method as it is likely to be
     # a Tempfile object, which would be eligible for file deletion when no longer referenced.
-    def self.from_file file
-      file_path = file.respond_to?(:path) ? file.path : file
-      raise(Errors::NotIdentifiedByImageMagickError.new("Cannot find the geometry of a file with a blank name")) if file_path.blank?
-      geometry = begin
-                   silence_stream(STDERR) do
-                     Paperclip.run("identify", "-format %wx%h :file", :file => "#{file_path}[0]")
-                   end
-                 rescue Cocaine::ExitStatusError
-                   ""
-                 rescue Cocaine::CommandNotFoundError => e
-                   raise Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
-                 end
-      parse(geometry) ||
-        raise(Errors::NotIdentifiedByImageMagickError.new("#{file_path} is not recognized by the 'identify' command."))
+    def self.from_file(file)
+      GeometryDetectorFactory.new(file).make
     end
 
     # Parses a "WxH" formatted string, where W is the width and H is the height.
-    def self.parse string
-      if match = (string && string.match(/\b(\d*)x?(\d*)\b([\>\<\#\@\%^!])?/i))
-        Geometry.new(*match[1,3])
+    def self.parse(string)
+      GeometryParserFactory.new(string).make
+    end
+
+    # Swaps the height and width if necessary
+    def auto_orient
+      if [5, 6, 7, 8].include?(@orientation)
+        @height, @width = @width, @height
+        @orientation -= 4
       end
     end
 

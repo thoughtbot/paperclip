@@ -784,9 +784,7 @@ class AttachmentTest < Test::Unit::TestCase
   context "Assigning an attachment" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }
-      @file = StringIO.new(".")
-      @file.stubs(:original_filename).returns("5k.png\n\n")
-      @file.stubs(:content_type).returns("image/png\n\n")
+      @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
       @dummy.avatar = @file
     end
@@ -803,9 +801,7 @@ class AttachmentTest < Test::Unit::TestCase
   context "Assigning an attachment" do
     setup do
       rebuild_model :styles => { :something => "100x100#" }
-      @file = StringIO.new(".")
-      @file.stubs(:original_filename).returns("5k.png\n\n")
-      @file.stubs(:content_type).returns(MIME::Type.new("image/png"))
+      @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
       @dummy.avatar = @file
     end
@@ -818,11 +814,8 @@ class AttachmentTest < Test::Unit::TestCase
   context "Attachment with strange letters" do
     setup do
       rebuild_model
-
-      @file  = StringIO.new(".")
-      @file.stubs(:original_filename).returns("sheep_say_bæ.png\r\n")
-      @file.stubs(:content_type).returns("image/png\r\n")
-
+      @file = File.new(fixture_file("5k.png"), "rb")
+      @file.stubs(:original_filename).returns("sheep_say_bæ.png")
       @dummy = Dummy.new
       @dummy.avatar = @file
     end

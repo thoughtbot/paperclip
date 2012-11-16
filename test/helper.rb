@@ -169,7 +169,7 @@ def with_exitstatus_returning(code)
 end
 
 def fixture_file(filename)
- File.join(File.dirname(__FILE__), 'fixtures', filename)
+  File.join(File.dirname(__FILE__), 'fixtures', filename)
 end
 
 def assert_success_response(url)

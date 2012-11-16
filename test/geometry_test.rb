@@ -49,6 +49,29 @@ class GeometryTest < Test::Unit::TestCase
       assert_nil @geo.modifier
     end
 
+    should "recognize an EXIF orientation and not rotate with auto_orient if not necessary" do
+      assert @geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 1)
+      assert_equal 1024, @geo.width
+      assert_equal 768, @geo.height
+
+      @geo.auto_orient
+
+      assert_equal 1024, @geo.width
+      assert_equal 768, @geo.height
+    end
+
+    should "recognize an EXIF orientation and rotate with auto_orient if necessary" do
+      assert @geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 6)
+      assert_equal 1024, @geo.width
+      assert_equal 768, @geo.height
+
+      @geo.auto_orient
+
+      assert_equal 768, @geo.width
+      assert_equal 1024, @geo.height
+      assert_equal 2, @geo.orientation
+    end
+
     should "treat x and X the same in geometries" do
       @lower = Paperclip::Geometry.parse("123x456")
       @upper = Paperclip::Geometry.parse("123X456")
@@ -104,15 +127,15 @@ class GeometryTest < Test::Unit::TestCase
       file = fixture_file("5k.png")
       file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
-      assert @geo.height > 0
-      assert @geo.width > 0
+      assert_equal 73, @geo.height
+      assert_equal 434, @geo.width
     end
 
     should "be generated from a file path" do
       file = fixture_file("5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
-      assert @geo.height > 0
-      assert @geo.width > 0
+      assert_equal 73, @geo.height
+      assert_equal 434, @geo.width
     end
 
     should "not generate from a bad file" do
