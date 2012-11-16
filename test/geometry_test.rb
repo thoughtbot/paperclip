@@ -129,14 +129,14 @@ class GeometryTest < Test::Unit::TestCase
       file = fixture_file("5k.png")
       file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
-      assert_equal 73, @geo.height
+      assert_equal 66, @geo.height
       assert_equal 434, @geo.width
     end
 
     should "be generated from a file path" do
       file = fixture_file("5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
-      assert_equal 73, @geo.height
+      assert_equal 66, @geo.height
       assert_equal 434, @geo.width
     end
 
