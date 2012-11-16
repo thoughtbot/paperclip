@@ -5,8 +5,9 @@
 tmp
 .DS_Store
 
+*.log
+
 test/s3.yml
-test/debug.log
 test/paperclip.db
 test/doc
 test/pkg
