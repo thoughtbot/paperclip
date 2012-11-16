@@ -71,7 +71,6 @@ class GeometryTest < Test::Unit::TestCase
 
       assert_equal 768, geo.width
       assert_equal 1024, geo.height
-      assert_equal 2, geo.orientation
     end
 
     should "treat x and X the same in geometries" do
