@@ -12,10 +12,6 @@ module Paperclip
 
     private
 
-    def path
-      @file.respond_to?(:path) ? @file.path : @file
-    end
-
     def geometry_string
       begin
         silence_stream(STDERR) do
@@ -26,6 +22,10 @@ module Paperclip
       rescue Cocaine::CommandNotFoundError => e
         raise_because_imagemagick_missing
       end
+    end
+
+    def path
+      @file.respond_to?(:path) ? @file.path : @file
     end
 
     def raise_if_blank_file

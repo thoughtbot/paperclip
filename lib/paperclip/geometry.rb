@@ -4,6 +4,8 @@ module Paperclip
   class Geometry
     attr_accessor :height, :width, :modifier, :orientation
 
+    EXIF_ROTATED_ORIENTATION_VALUES = [5, 6, 7, 8]
+
     # Gives a Geometry representing the given height and width
     def initialize(width = nil, height = nil, modifier = nil)
       if width.is_a?(Hash)
@@ -19,22 +21,21 @@ module Paperclip
       end
     end
 
-    # Uses ImageMagick to determing the dimensions of a file, passed in as either a
-    # File or path.
-    # NOTE: (race cond) Do not reassign the 'file' variable inside this method as it is likely to be
-    # a Tempfile object, which would be eligible for file deletion when no longer referenced.
+    # Extracts the Geometry from a file (or path to a file)
     def self.from_file(file)
       GeometryDetectorFactory.new(file).make
     end
 
-    # Parses a "WxH" formatted string, where W is the width and H is the height.
+    # Extracts the Geometry from a "WxH,O" string
+    # Where W is the width, H is the height,
+    # and O is the EXIF orientation
     def self.parse(string)
       GeometryParserFactory.new(string).make
     end
 
     # Swaps the height and width if necessary
     def auto_orient
-      if [5, 6, 7, 8].include?(@orientation)
+      if EXIF_ROTATED_ORIENTATION_VALUES.include?(@orientation)
         @height, @width = @width, @height
         @orientation -= 4
       end

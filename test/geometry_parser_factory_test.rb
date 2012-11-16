@@ -71,5 +71,3 @@ class GeometryParserFactoryTest < Test::Unit::TestCase
     assert_equal :correct, output
   end
 end
-
-

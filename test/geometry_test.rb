@@ -50,26 +50,28 @@ class GeometryTest < Test::Unit::TestCase
     end
 
     should "recognize an EXIF orientation and not rotate with auto_orient if not necessary" do
-      assert @geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 1)
-      assert_equal 1024, @geo.width
-      assert_equal 768, @geo.height
+      geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 1)
+      assert geo
+      assert_equal 1024, geo.width
+      assert_equal 768, geo.height
 
-      @geo.auto_orient
+      geo.auto_orient
 
-      assert_equal 1024, @geo.width
-      assert_equal 768, @geo.height
+      assert_equal 1024, geo.width
+      assert_equal 768, geo.height
     end
 
     should "recognize an EXIF orientation and rotate with auto_orient if necessary" do
-      assert @geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 6)
-      assert_equal 1024, @geo.width
-      assert_equal 768, @geo.height
+      geo = Paperclip::Geometry.new(:width => 1024, :height => 768, :orientation => 6)
+      assert geo
+      assert_equal 1024, geo.width
+      assert_equal 768, geo.height
 
-      @geo.auto_orient
+      geo.auto_orient
 
-      assert_equal 768, @geo.width
-      assert_equal 1024, @geo.height
-      assert_equal 2, @geo.orientation
+      assert_equal 768, geo.width
+      assert_equal 1024, geo.height
+      assert_equal 2, geo.orientation
     end
 
     should "treat x and X the same in geometries" do

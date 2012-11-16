@@ -19,10 +19,6 @@ module Paperclip
     private
 
     def match
-      @height = nil
-      @width = nil
-      @modifier = nil
-      @orientation = nil
       if actual_match = @string && @string.match(FORMAT)
         @width = actual_match[1]
         @height = actual_match[2]
