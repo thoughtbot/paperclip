@@ -364,6 +364,7 @@ module Paperclip
       end
 
       def merge_s3_headers(http_headers, s3_headers, s3_metadata)
+        return if http_headers.nil?
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
         http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
