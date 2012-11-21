@@ -66,7 +66,16 @@ module Paperclip
       end
 
       def fog_file
-        @fog_file ||= @options[:fog_file] || {}
+        @fog_file ||= begin
+          value = @options[:fog_file]
+          if !value
+            {}
+          elsif value.respond_to?(:call)
+            value.call(self)
+          else
+            value
+          end
+        end
       end
 
       def fog_public(style = default_style)
