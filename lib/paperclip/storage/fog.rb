@@ -18,6 +18,8 @@ module Paperclip
     #   store your files.  Remember that the bucket must be unique across
     #   all of Amazon S3. If the bucket does not exist, Paperclip will
     #   attempt to create it.
+    # * +fog_file*: This can be hash or lambda returning hash. The
+    #   value is used as base properties for new uploaded file.
     # * +path+: This is the key under the bucket in which the file will
     #   be stored. The URL will be constructed from the bucket and the
     #   path. This is what you will want to interpolate. Keys should be
