@@ -123,6 +123,7 @@ New in 3.0.1:
 
 * Feature: Introduce Paperlip IO adapter.
 * Bug fix: Regression in AttachmentContentTypeValidator has been fixed.
+* API CHANGE: #to_file has been removed. Use the #copy_to_local_file method instead.
 
 New in 3.0.0:
 
