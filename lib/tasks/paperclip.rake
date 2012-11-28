@@ -17,7 +17,7 @@ module Paperclip
       end
     end
 
-    # Ripe for refactoring, but I'd rather not open Hash
+    # Better here than opening Hash and potentially fighting others
     def self.recursively_symbolize_keys!(hsh)
       hsh.symbolize_keys!
       hsh.each do |k, v|
@@ -34,26 +34,8 @@ namespace :paperclip do
   desc "Refreshes both metadata and thumbnails."
   task :refresh => ["paperclip:refresh:metadata", "paperclip:refresh:thumbnails"]
 
-  desc <<-EOD
-Create files for a given CLASS (and optional ATTACHMENT) with the options in
-config/new_paperclip_options.yml. These are merged onto the model's current
-options. The YML file is run through ERB first (e.g. if you use one of the
-common tricks to hide some API secrets on the production machine)
-
-Models are not actually changed. This task is meant to be a step in the
-process of setting new options for paperclip, ensuring that hashes are
-correct or a new storage method contains the files before cutting over a
-production system.
-
-The envisioned usage of this task is:
-  1. Put options changes in config/new_paperclip_options.yml
-  2. Disable uploads of the relevant CLASS
-  3. Run "bundle exec rake CLASS=MyModel paperclip:change_options
-  4. Re-enable uploads and set the new options in the model or initializer
-  EOD
+  desc "Create files for a given CLASS (and optional ATTACHMENT) with the options in config/new_paperclip_options.yml"
   task :change_options => :environment do
-    begin
-    # Don't begin/rescue this because errors should terminate anyway
     yml_text = ERB.new(File.read(File.join(Rails.root, 'config', 'new_paperclip_options.yml'))).result
     new_options = Paperclip::Task.recursively_symbolize_keys!(YAML.load(yml_text))
 
@@ -64,7 +46,7 @@ The envisioned usage of this task is:
         attachment = instance.send(name)
         if file = Paperclip.io_adapters.for(attachment)
           options = attachment.options
-          # Check that :path is different at least, unless FORCE=true
+          # Check that :path and :url are different at least
           unless ENV['FORCE'] || ENV['force'] ||
                  (new_options[:url] && options[:url] != new_options[:url]) ||
                  (new_options[:path] && options[:path] != new_options[:path])
@@ -74,7 +56,7 @@ If you're willing to risk file overwrites, re-run the task with FORCE=true
             EOD
           end
 
-          # Create a new instance to handle storage type changes/initialization
+          # Create a new Attachment instance for initialization
           options.merge!(new_options)
           new_att = Paperclip::Attachment.new(name, instance, options)
           new_att.assign(file)
@@ -84,10 +66,6 @@ If you're willing to risk file overwrites, re-run the task with FORCE=true
           end
         end
       end
-    end
-    rescue => e
-      puts e.inspect
-      puts e.backtrace
     end
   end
 
