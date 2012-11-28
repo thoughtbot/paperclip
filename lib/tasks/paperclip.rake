@@ -21,7 +21,7 @@ module Paperclip
     def self.recursively_symbolize_keys!(hsh)
       hsh.symbolize_keys!
       hsh.each do |k, v|
-        if v.is_a? Hash
+        if v.is_a?(Hash)
           recursively_symbolize_keys!(v)
         end
       end
@@ -62,7 +62,7 @@ If you're willing to risk file overwrites, re-run the task with FORCE=true
           new_att.assign(file)
           unless new_att.save
             puts "errors while changing options for #{klass} ID #{instance.id}:"
-            puts " #{instance.errors.full_messages.join "\n "}\n"
+            puts " " + instance.errors.full_messages.join("\n ") + "\n"
           end
         end
       end
