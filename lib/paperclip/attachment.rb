@@ -105,7 +105,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process(*only_process) if post_processing
+      post_process(*only_process) if post_processing && valid_assignment?
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)
@@ -369,8 +369,14 @@ module Paperclip
       Paperclip.log(message)
     end
 
-    def valid_assignment? file #:nodoc:
-      file.nil? || (file.respond_to?(:original_filename) && file.respond_to?(:content_type))
+    def valid_assignment? #:nodoc:
+      if instance.valid?
+        true
+      else
+        instance.errors.none? do |attr, message|
+          attr.to_s.start_with?(@name.to_s)
+        end
+      end
     end
 
     def initialize_storage #:nodoc:
