@@ -282,8 +282,8 @@ class AttachmentTest < Test::Unit::TestCase
 
     teardown { @file.close }
 
-    should "make sure that they are interpolated correctly as long non-word characters separate them" do
-      assert_equal "1024.omg/1024-bbq/:idwhat/000/001/024.wtf", @dummy.avatar.path
+    should "make sure that they are interpolated correctly" do
+      assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
     end
   end
 
