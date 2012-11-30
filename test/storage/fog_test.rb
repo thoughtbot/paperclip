@@ -66,7 +66,7 @@ class FogTest < Test::Unit::TestCase
                      @dummy.avatar.path
       end
     end
-    
+
     context "with no path or url given and using defaults" do
       setup do
         rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
@@ -82,11 +82,32 @@ class FogTest < Test::Unit::TestCase
         @dummy.id = 1
         @dummy.avatar = @file
       end
-      
+
       teardown { @file.close }
-      
+
       should "have correct path and url from interpolated defaults" do
         assert_equal "dummies/avatars/000/000/001/original/5k.png", @dummy.avatar.path
+      end
+    end
+
+    context "with file params provided as lambda" do
+      setup do
+        fog_file = lambda{ |a| { :custom_header => a.instance.custom_method }}
+        klass = rebuild_model :storage => :fog,
+                              :fog_file => fog_file
+
+        klass.class_eval do
+          def custom_method
+            'foobar'
+          end
+        end
+
+
+        @dummy = Dummy.new
+      end
+
+      should "be able to evaluate correct values for file headers" do
+        assert_equal @dummy.avatar.send(:fog_file), { :custom_header => 'foobar' }
       end
     end
 
