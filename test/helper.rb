@@ -125,6 +125,10 @@ class FakeModel
 
   def run_paperclip_callbacks name, *args
   end
+
+  def valid?
+    errors.empty?
+  end
 end
 
 def attachment(options={})
