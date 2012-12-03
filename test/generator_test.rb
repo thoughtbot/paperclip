@@ -20,7 +20,7 @@ class GeneratorTest < Rails::Generators::TestCase
           assert_class_method :up, migration do |up|
             expected = <<-migration
               change_table :users do |t|
-                t.has_attached_file :avatar
+                t.attachment :avatar
               end
             migration
 
@@ -50,8 +50,8 @@ class GeneratorTest < Rails::Generators::TestCase
           assert_class_method :up, migration do |up|
             expected = <<-migration
               change_table :users do |t|
-                t.has_attached_file :avatar
-                t.has_attached_file :photo
+                t.attachment :avatar
+                t.attachment :photo
               end
             migration
 
