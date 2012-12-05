@@ -138,11 +138,12 @@ module Paperclip
 
           @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
 
+          @s3_server_side_encryption = :aes256
           if @options[:s3_server_side_encryption].blank?
-            @options[:s3_server_side_encryption] = false
+            @s3_server_side_encryption = false
           end
-          if @options[:s3_server_side_encryption]
-            @s3_headers['x-amz-server-side-encryption'] = @options[:s3_server_side_encryption].to_s.upcase
+          if @s3_server_side_encryption
+            @s3_server_side_encryption = @options[:s3_server_side_encryption].to_s.upcase
           end
 
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
@@ -306,6 +307,9 @@ module Paperclip
               :content_type => file.content_type,
               :acl => acl
             }
+            if @s3_server_side_encryption
+              write_options[:server_side_encryption] = @s3_server_side_encryption
+            end
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
             s3_object(style).write(file, write_options)

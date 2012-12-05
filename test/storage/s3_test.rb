@@ -924,7 +924,7 @@ class S3Test < Test::Unit::TestCase
           object.expects(:write).with(anything,
                                       :content_type => "image/png",
                                       :acl => :public_read,
-                                      'x-amz-server-side-encryption' => 'AES256')
+                                      :server_side_encryption => 'AES256')
           @dummy.save
         end
 

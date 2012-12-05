@@ -180,7 +180,7 @@ DEPENDENCIES
   activerecord-jdbcsqlite3-adapter
   appraisal
   aruba
-  aws-sdk
+  aws-sdk (>= 1.2.0)
   bourne
   bundler
   capybara

@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('shoulda')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
-  s.add_development_dependency('aws-sdk')
+  s.add_development_dependency('aws-sdk', '>= 1.2.0')
   s.add_development_dependency('bourne')
   s.add_development_dependency('sqlite3', '~> 1.3.4')
   s.add_development_dependency('cucumber', '~> 1.2.1')
