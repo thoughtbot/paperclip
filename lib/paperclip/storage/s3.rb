@@ -222,8 +222,13 @@ module Paperclip
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
 
-          AWS::S3.new(config.merge(@s3_options))
+          obtain_s3_instance_for(config.merge(@s3_options))
         end
+      end
+
+      def obtain_s3_instance_for(options)
+        instances = (Thread.current[:paperclip_s3_instances] ||= {})
+        instances[options] ||= AWS::S3.new(options)
       end
 
       def s3_bucket
