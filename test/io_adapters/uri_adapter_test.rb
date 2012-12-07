@@ -14,6 +14,10 @@ class UriProxyTest < Test::Unit::TestCase
       assert_equal "thoughtbot-logo.png", @subject.original_filename
     end
 
+    should 'close open handle after reading' do
+      assert_equal true, @open_return.closed?
+    end
+
     should "return a content type" do
       assert_equal "image/png", @subject.content_type
     end
