@@ -32,6 +32,7 @@ module Paperclip
       while data = src.read(16*1024)
         destination.write(data)
       end
+      src.close
       destination.rewind
       destination
     end
