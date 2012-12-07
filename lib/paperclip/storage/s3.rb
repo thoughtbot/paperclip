@@ -45,7 +45,7 @@ module Paperclip
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
     #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
     #   runtime. Paperclip will call that Proc with attachment as the only argument.
-    #   Can be defined bot globaly and within a style-specific hash.
+    #   Can be defined both globaly and within a style-specific hash.
     # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
     #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
@@ -84,7 +84,7 @@ module Paperclip
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
     #   "x-amz-meta-" before sending it as a header on the object
-    #   upload request. Can be defined bot globaly and within a style-specific hash.
+    #   upload request. Can be defined both globaly and within a style-specific hash.
     # * +s3_storage_class+: If this option is set to
     #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
     #   Redundancy Storage.  RRS enables customers to reduce their
