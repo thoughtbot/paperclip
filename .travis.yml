@@ -12,9 +12,14 @@ gemfile:
   - gemfiles/3.0.gemfile
   - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
+  - gemfiles/4.0.gemfile
 
 matrix:
   allow_failures:
     - rvm: jruby-19mode
     - rvm: rbx-19mode
     - rvm: 2.0.0
+
+  exclude:
+    - rvm: 1.9.3
+      gemfile: gemfiles/4.0.gemfile
