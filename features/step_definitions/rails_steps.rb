@@ -6,13 +6,15 @@ Given /^I generate a new rails application$/ do
     And I write to "Gemfile" with:
       """
       source "http://rubygems.org"
-      gem "rails", "#{framework_version}"
+      gem "rails", "#{framework_version}", :github => "rails/rails"
       gem "sqlite3", :platform => :ruby
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
+      gem "activerecord-deprecated_finders", :github => "rails/activerecord-deprecated_finders"
+      gem "protected_attributes", :github => "rails/protected_attributes"
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable

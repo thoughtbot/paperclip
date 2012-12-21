@@ -8,5 +8,6 @@ gem "sqlite3", :platform=>:ruby
 gem "rails", :git=>"git://github.com/rails/rails.git"
 gem "activerecord-deprecated_finders", :git=>"git://github.com/rails/activerecord-deprecated_finders.git"
 gem "paperclip", :path=>"../"
+gem "shoulda-context", :git=>"git://github.com/caike/shoulda-context.git"
 
 gemspec :path=>"../"

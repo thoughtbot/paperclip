@@ -18,4 +18,5 @@ appraise "4.0" do
   gem "activerecord-deprecated_finders",
     :git => "git://github.com/rails/activerecord-deprecated_finders.git"
   gem "paperclip", :path => "../"
+  gem "shoulda-context", :git => "git://github.com/caike/shoulda-context.git"
 end
