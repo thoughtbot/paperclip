@@ -46,7 +46,7 @@ namespace :paperclip do
         attachment = instance.send(name)
         if file = Paperclip.io_adapters.for(attachment)
           options = attachment.options
-          # Check that :path and :url are different at least
+          # Check that :path or :url is different at least
           unless ENV['FORCE'] || ENV['force'] ||
                  (new_options[:url] && options[:url] != new_options[:url]) ||
                  (new_options[:path] && options[:path] != new_options[:path])
@@ -58,8 +58,13 @@ If you're willing to risk file overwrites, re-run the task with FORCE=true
 
           # Create a new Attachment instance for initialization
           options.merge!(new_options)
+
+          # Updated_at is a default interpolator in :hash_data, so manually set
+          # it to avoid unintended issues with :hash paths
+          original_update_time = attachment.updated_at
           new_att = Paperclip::Attachment.new(name, instance, options)
           new_att.assign(file)
+          new_att.instance_write(:updated_at, original_update_time)
           unless new_att.save
             puts "errors while changing options for #{klass} ID #{instance.id}:"
             puts " " + instance.errors.full_messages.join("\n ") + "\n"
