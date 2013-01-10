@@ -128,12 +128,15 @@ module Paperclip
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
+
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
+
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
+
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
@@ -150,7 +153,12 @@ module Paperclip
       end
 
       def s3_host_name
-        @options[:s3_host_name] || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        host_name = @options[:s3_host_name]
+        host_name = host_name.call(self) if host_name.is_a?(Proc)
+        host_name = s3_credentials[:s3_host_name] if host_name.nil?
+        host_name = "s3.amazonaws.com" if host_name.nil?
+
+        host_name
       end
 
       def s3_host_alias

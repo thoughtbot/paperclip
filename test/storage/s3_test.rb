@@ -176,6 +176,32 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "dynamic s3_host_name" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_host_name => lambda { |a| a.bucket_name == 'other-bucket' ? "s3-ap-northeast-1.amazonaws.com" : 's3-custom.amazonaws.com' }
+      @dummy = Dummy.new
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "return a url based on an :s3_host_name path" do
+      assert_match %r{^http://s3-custom.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+    end
+
+    should "use the S3 bucket with the correct host name" do
+      assert_equal "s3-custom.amazonaws.com", @dummy.avatar.s3_bucket.config.s3_endpoint
+    end
+
+    should "use the S3 bucket with the correct host name if it satisfies the other condition" do
+      @dummy.avatar.instance_eval { @options[:bucket] = 'other-bucket' }
+      assert_equal "s3-ap-northeast-1.amazonaws.com", @dummy.avatar.s3_bucket.config.s3_endpoint
+    end
+
+  end
+
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     setup do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
