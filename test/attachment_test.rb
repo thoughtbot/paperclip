@@ -1072,6 +1072,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
                 @attachment.expects(:instance_write).with(:fingerprint, nil)
+                @attachment.expects(:instance_write).with(:meta, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
@@ -1083,6 +1084,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
                 @attachment.expects(:instance_write).with(:fingerprint, nil)
+                @attachment.expects(:instance_write).with(:meta, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.clear
                 @attachment.save
@@ -1094,6 +1096,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
                 @attachment.expects(:instance_write).with(:fingerprint, nil)
+                @attachment.expects(:instance_write).with(:meta, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.destroy
                 @existing_names.each{|f| assert_file_not_exists(f) }
@@ -1109,6 +1112,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
                   @attachment.expects(:instance_write).with(:fingerprint, nil)
+                  @attachment.expects(:instance_write).with(:meta, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.assign nil
                   @attachment.save
@@ -1120,6 +1124,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
                   @attachment.expects(:instance_write).with(:fingerprint, nil)
+                  @attachment.expects(:instance_write).with(:meta, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.clear
                   @attachment.save
@@ -1131,6 +1136,7 @@ class AttachmentTest < Test::Unit::TestCase
                   @attachment.expects(:instance_write).with(:content_type, nil)
                   @attachment.expects(:instance_write).with(:file_size, nil)
                   @attachment.expects(:instance_write).with(:fingerprint, nil)
+                  @attachment.expects(:instance_write).with(:meta, nil)
                   @attachment.expects(:instance_write).with(:updated_at, nil)
                   @attachment.destroy
                   @existing_names.each{|f| assert_file_exists(f) }
@@ -1295,6 +1301,42 @@ class AttachmentTest < Test::Unit::TestCase
         @dummy.save
         @dummy = Dummy.find(@dummy.id)
         assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+      end
+    end
+
+    context "and avatar_meta column" do
+      setup do
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_meta, :string
+        rebuild_class
+        @dummy = Dummy.new
+      end
+
+      should "not error when assigned an attachment" do
+        assert_nothing_raised { @dummy.avatar = @file }
+      end
+
+      should "return the right value when sent #width" do
+        @dummy.avatar = @file
+        assert_equal 434, @dummy.avatar.width
+      end
+
+      should "return the right value when sent #height" do
+        @dummy.avatar = @file
+        assert_equal 66, @dummy.avatar.height
+      end
+
+      should "return the right width when saved, reloaded, and sent #width" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal 434, @dummy.avatar.width
+      end
+
+      should "return the right height when saved, reloaded, and sent #height" do
+        @dummy.avatar = @file
+        @dummy.save
+        @dummy = Dummy.find(@dummy.id)
+        assert_equal 66, @dummy.avatar.height
       end
     end
   end

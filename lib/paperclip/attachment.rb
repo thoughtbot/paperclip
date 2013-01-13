@@ -110,6 +110,9 @@ module Paperclip
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)
       instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
+
+      # Update attachment metadata
+      instance_write(:meta, YAML.dump(meta)) if instance_respond_to?(:meta)
     end
 
     # Returns the public URL of the attachment with a given style. This does
@@ -297,6 +300,25 @@ module Paperclip
       OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get(@options[:hash_digest]).new, @options[:hash_secret], data)
     end
 
+    # Returns attachment metadata hash (currently only image width and height).
+    def meta
+      @meta ||= begin
+        YAML.load(instance_read(:meta)) rescue {}
+      end
+    end
+
+    # Returns image width stored in attachment metadata.
+    def width(style = default_style)
+      style = style.to_s
+      meta.has_key?(style) ? meta[style]['width'] : nil
+    end
+
+    # Returns image height stored in attachment metadata.
+    def height(style = default_style)
+      style = style.to_s
+      meta.has_key?(style) ? meta[style]['height'] : nil
+    end
+
     # This method really shouldn't be called that often. It's expected use is
     # in the paperclip:refresh rake task and that's it. It will regenerate all
     # thumbnails forcefully, by reobtaining the original file and going through
@@ -413,6 +435,7 @@ module Paperclip
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
           post_process_styles(*style_args)
+          post_process_styles_meta
         end
       end
     end
@@ -434,6 +457,24 @@ module Paperclip
       rescue Paperclip::Error => e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
+      end
+    end
+
+    def post_process_styles_meta
+      if instance_respond_to?(:meta)
+        post_process_meta(:original)
+        styles.each do |name, _|
+          post_process_meta(name)
+        end
+      end
+    end
+
+    def post_process_meta(name)
+      begin
+        geometry = Geometry.from_file(@queued_for_write[name])
+        meta[name.to_s] = {'width' => geometry.width.to_i, 'height' => geometry.height.to_i}
+      rescue Errors::NotIdentifiedByImageMagickError
+        meta.delete(name.to_s)
       end
     end
 
@@ -460,6 +501,7 @@ module Paperclip
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
       instance_write(:fingerprint, nil)
+      instance_write(:meta, nil)
       instance_write(:created_at, nil) if has_enabled_but_unset_created_at?
       instance_write(:updated_at, nil)
     end
