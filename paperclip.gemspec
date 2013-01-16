@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency('activerecord', '>= 3.0.0')
   s.add_dependency('activemodel', '>= 3.0.0')
   s.add_dependency('activesupport', '>= 3.0.0')
-  s.add_dependency('cocaine', '~> 0.4.0')
+  s.add_dependency('cocaine', '~> 0.5.0')
   s.add_dependency('mime-types')
 
   s.add_development_dependency('shoulda')
@@ -42,7 +42,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('nokogiri')
   s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
-  s.add_development_dependency('cocaine', '~> 0.2')
   s.add_development_dependency('fog', '>= 1.4.0', "< 1.7.0")
   s.add_development_dependency('pry')
   s.add_development_dependency('launchy')
