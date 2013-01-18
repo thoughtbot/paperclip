@@ -36,6 +36,10 @@ module Paperclip
       end
     end
 
+    def self.plural_cache
+      @plural_cache ||= PluralCache.new
+    end
+
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
       [ basename(attachment, style_name), extension(attachment, style_name) ].reject(&:blank?).join(".")
@@ -81,7 +85,7 @@ module Paperclip
     # all class names. Calling #class will return the expected class.
     def class attachment = nil, style_name = nil
       return super() if attachment.nil? && style_name.nil?
-      attachment.instance.class.to_s.underscore.pluralize
+      plural_cache.underscore_and_pluralize(attachment.instance.class.to_s)
     end
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
@@ -169,7 +173,7 @@ module Paperclip
     # Returns the pluralized form of the attachment name. e.g.
     # "avatars" for an attachment of :avatar
     def attachment attachment, style_name
-      attachment.name.to_s.downcase.pluralize
+      plural_cache.pluralize(attachment.name.to_s.downcase)
     end
 
     # Returns the style, or the default style if nil is supplied.
