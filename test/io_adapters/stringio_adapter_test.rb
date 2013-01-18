@@ -42,9 +42,19 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_equal 'image/png', @subject.content_type
     end
 
-    should 'accept an orgiginal_filename' do
+    should 'accept an original_filename' do
       @subject.original_filename = 'image.png'
       assert_equal 'image.png', @subject.original_filename
+    end
+
+    should "not generate filenames that include restricted characters" do
+      @subject.original_filename = 'image:restricted.png'
+      assert_equal 'image_restricted.png', @subject.original_filename
+    end
+
+    should "not generate paths that include restricted characters" do
+      @subject.original_filename = 'image:restricted.png'
+      assert_no_match /:/, @subject.path
     end
 
   end

@@ -84,6 +84,23 @@ class FileAdapterTest < Test::Unit::TestCase
       end
     end
 
+    context "filename with restricted characters" do
+      setup do
+        @file = File.new( fixture_file("animated:restricted.gif") )
+        @subject = Paperclip.io_adapters.for(@file)
+      end
+
+      teardown { @file.close }
+
+      should "not generate filenames that include restricted characters" do
+        assert_equal 'animated_restricted.gif', @subject.original_filename
+      end
+
+      should "not generate paths that include restricted characters" do
+        assert_no_match /:/, @subject.path
+      end
+    end
+
     context "empty file" do
       setup do
         @file = Tempfile.new("file_adapter_test")

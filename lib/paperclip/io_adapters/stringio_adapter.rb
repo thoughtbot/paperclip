@@ -13,7 +13,7 @@ module Paperclip
     def cache_current_values
       @original_filename = @target.original_filename if @target.respond_to?(:original_filename)
       @original_filename ||= "stringio.txt"
-      @original_filename = @original_filename.strip
+      self.original_filename = @original_filename.strip
 
       @content_type = @target.content_type if @target.respond_to?(:content_type)
       @content_type ||= "text/plain"

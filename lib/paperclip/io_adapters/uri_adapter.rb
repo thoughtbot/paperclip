@@ -20,7 +20,7 @@ module Paperclip
     def cache_current_values
       @original_filename = @target.path.split("/").last
       @original_filename ||= "index.html"
-      @original_filename = @original_filename.strip
+      self.original_filename = @original_filename.strip
 
       @content_type = @content.content_type if @content.respond_to?(:content_type)
       @content_type ||= "text/html"
