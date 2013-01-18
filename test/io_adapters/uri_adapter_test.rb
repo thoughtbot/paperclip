@@ -83,4 +83,20 @@ class UriProxyTest < Test::Unit::TestCase
     end
   end
 
+  context "a url with restricted characters in the filename" do
+    setup do
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(StringIO.new("xxx"))
+      @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
+      @subject = Paperclip.io_adapters.for(@uri)
+    end
+
+    should "not generate filenames that include restricted characters" do
+      assert_equal "paper_clip.jpg", @subject.original_filename
+    end
+
+    should "not generate paths that include restricted characters" do
+      assert_no_match /:/, @subject.path
+    end
+  end
+
 end
