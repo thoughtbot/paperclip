@@ -14,7 +14,7 @@ module Paperclip
     private
 
     def cache_current_values
-      @original_filename = @target.original_filename
+      self.original_filename = @target.original_filename
       @content_type = @target.content_type
       @tempfile = copy_to_tempfile(@target)
       @size = @tempfile.size || @target.size
