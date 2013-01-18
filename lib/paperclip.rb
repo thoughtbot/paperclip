@@ -49,7 +49,6 @@ require 'paperclip/glue'
 require 'paperclip/errors'
 require 'paperclip/missing_attachment_styles'
 require 'paperclip/validators'
-require 'paperclip/instance_methods'
 require 'paperclip/logger'
 require 'paperclip/helpers'
 require 'mime/types'
@@ -173,38 +172,47 @@ module Paperclip
     #     end
     #   end
     def has_attached_file(name, options = {})
-      include InstanceMethods
-
       if attachment_definitions.nil?
         self.attachment_definitions = {}
       else
         self.attachment_definitions = self.attachment_definitions.dup
       end
 
-      attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
+      options = attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
 
-      after_save :save_attached_files
-      before_destroy :prepare_for_destroy
-      after_destroy :destroy_attached_files
+      after_save { send(name).send(:save) }
+      before_destroy { send(name).send(:queue_all_for_delete) }
+      after_destroy { send(name).send(:flush_deletes) }
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
 
       define_method name do |*args|
-        a = attachment_for(name)
-        (args.length > 0) ? a.to_s(args.first) : a
+        ivar = "@attachment_#{name}"
+        attachment = instance_variable_get(ivar)
+
+        if attachment.nil?
+          attachment = Attachment.new(name, self, options)
+          instance_variable_set(ivar, attachment)
+        end
+
+        if args.length > 0
+          attachment.to_s(args.first)
+        else
+          attachment
+        end
       end
 
       define_method "#{name}=" do |file|
-        attachment_for(name).assign(file)
+        send(name).assign(file)
       end
 
       define_method "#{name}?" do
-        attachment_for(name).file?
+        send(name).file?
       end
 
       validates_each(name) do |record, attr, value|
-        attachment = record.attachment_for(name)
+        attachment = record.send(name)
         attachment.send(:flush_errors)
       end
     end

@@ -20,7 +20,7 @@ module Paperclip
         def matches? subject
           @subject = subject
           @subject = @subject.class unless Class === @subject
-          responds? && has_column? && included?
+          responds? && has_column?
         end
 
         def failure_message
@@ -46,10 +46,6 @@ module Paperclip
 
         def has_column?
           @subject.column_names.include?("#{@attachment_name}_file_name")
-        end
-
-        def included?
-          @subject.ancestors.include?(Paperclip::InstanceMethods)
         end
       end
     end
