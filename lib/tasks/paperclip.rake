@@ -9,11 +9,17 @@ module Paperclip
     def self.obtain_attachments(klass)
       klass = Paperclip.class_for(klass.to_s)
       name = ENV['ATTACHMENT'] || ENV['attachment']
-      raise "Class #{klass.name} has no attachments specified" unless klass.respond_to?(:attachment_definitions)
-      if !name.blank? && klass.attachment_definitions.keys.map(&:to_s).include?(name.to_s)
+
+      attachment_names = Paperclip::Tasks::Attachments.names_for(klass)
+
+      if attachment_names.empty?
+        raise "Class #{klass.name} has no attachments specified"
+      end
+
+      if !name.blank? && attachment_names.map(&:to_s).include?(name.to_s)
         [ name ]
       else
-        klass.attachment_definitions.keys
+        attachment_names
       end
     end
   end

@@ -180,12 +180,15 @@ module Paperclip
 
       options = attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
+      Paperclip.check_for_path_clash(name, options[:path], self.name)
 
       after_save { send(name).send(:save) }
       before_destroy { send(name).send(:queue_all_for_delete) }
       after_destroy { send(name).send(:flush_deletes) }
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
+
+      Paperclip::Tasks::Attachments.add(self, name, options)
 
       define_method name do |*args|
         ivar = "@attachment_#{name}"

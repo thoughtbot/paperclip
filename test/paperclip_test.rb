@@ -159,11 +159,6 @@ class PaperclipTest < Test::Unit::TestCase
         end
       end
 
-      should "be able to see the attachment definition from the subclass's class" do
-        assert_equal "tmp/:class/omg/:style.:extension",
-                     SubDummy.attachment_definitions[:avatar][:path]
-      end
-
       teardown do
         SubDummy.delete_all
         Object.send(:remove_const, "SubDummy") rescue nil

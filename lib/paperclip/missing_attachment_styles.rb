@@ -38,7 +38,7 @@ module Paperclip
     Hash.new.tap do |current_styles|
       Paperclip.classes_with_attachments.each do |klass_name|
         klass = Paperclip.class_for(klass_name)
-        klass.attachment_definitions.each do |attachment_name, attachment_attributes|
+        Paperclip::Tasks::Attachments.definitions_for(klass).each do |attachment_name, attachment_attributes|
           # TODO: is it even possible to take into account Procs?
           next if attachment_attributes[:styles].kind_of?(Proc)
           attachment_attributes[:styles].try(:keys).try(:each) do |style_name|
