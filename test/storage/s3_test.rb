@@ -176,6 +176,26 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "dynamic s3_host_name" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :s3_credentials => {},
+                    :bucket => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_host_name => lambda {|a| a.instance.value }
+      @dummy = Dummy.new
+      class << @dummy
+        attr_accessor :value
+      end
+      @dummy.avatar = StringIO.new(".")
+    end
+
+    should "use s3_host_name as a proc if available" do
+      @dummy.value = "s3.something.com"
+      assert_equal "http://s3.something.com/bucket/avatars/stringio.txt", @dummy.avatar.url(:original, :timestamp => false)
+    end
+  end
+
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     setup do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
