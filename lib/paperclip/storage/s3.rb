@@ -172,7 +172,10 @@ module Paperclip
       end
 
       def s3_host_name
-        @options[:s3_host_name] || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        host_name = @options[:s3_host_name]
+        host_name = host_name.call(self) if host_name.is_a?(Proc)
+
+        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
       end
 
       def s3_host_alias
