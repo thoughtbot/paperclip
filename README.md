@@ -615,7 +615,7 @@ Please see `CONTRIBUTING.md` for more details on contributing and running test.
 Credits
 -------
 
-![thoughtbot](http://thoughtbot.com/assets/tm/logo.png)
+![thoughtbot](http://thoughtbot.com/logo.png)
 
 Paperclip is maintained and funded by [thoughtbot, inc](http://thoughtbot.com/community)
 
