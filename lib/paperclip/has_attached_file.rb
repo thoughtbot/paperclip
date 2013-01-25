@@ -11,12 +11,20 @@ module Paperclip
     end
 
     def define
+      define_flush_errors
       define_getter
       define_setter
       define_query
     end
 
     private
+
+    def define_flush_errors
+      @klass.send(:validates_each, @name) do |record, attr, value|
+        attachment = record.send(@name)
+        attachment.send(:flush_errors)
+      end
+    end
 
     def define_getter
       name = @name

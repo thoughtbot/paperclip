@@ -187,11 +187,6 @@ module Paperclip
       after_destroy { send(name).send(:flush_deletes) }
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
-
-      validates_each(name) do |record, attr, value|
-        attachment = record.send(name)
-        attachment.send(:flush_errors)
-      end
     end
   end
 end
