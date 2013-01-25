@@ -51,6 +51,7 @@ require 'paperclip/missing_attachment_styles'
 require 'paperclip/validators'
 require 'paperclip/logger'
 require 'paperclip/helpers'
+require 'paperclip/has_attached_file'
 require 'paperclip/tasks/attachments'
 require 'mime/types'
 require 'logger'
@@ -173,9 +174,13 @@ module Paperclip
     #     end
     #   end
     def has_attached_file(name, options = {})
+      HasAttachedFile.new(name, options).define_on(self)
+
       options = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
       Paperclip.check_for_path_clash(name, options[:path], self.name)
+
+      Paperclip::Tasks::Attachments.add(self, name, options)
 
       after_save { send(name).send(:save) }
       before_destroy { send(name).send(:queue_all_for_delete) }
@@ -183,7 +188,10 @@ module Paperclip
 
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
 
-      Paperclip::Tasks::Attachments.add(self, name, options)
+      validates_each(name) do |record, attr, value|
+        attachment = record.send(name)
+        attachment.send(:flush_errors)
+      end
 
       define_method name do |*args|
         ivar = "@attachment_#{name}"
@@ -201,17 +209,8 @@ module Paperclip
         end
       end
 
-      define_method "#{name}=" do |file|
-        send(name).assign(file)
-      end
-
       define_method "#{name}?" do
         send(name).file?
-      end
-
-      validates_each(name) do |record, attr, value|
-        attachment = record.send(name)
-        attachment.send(:flush_errors)
       end
     end
   end

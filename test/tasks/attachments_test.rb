@@ -1,5 +1,5 @@
 require './test/helper'
-require 'tasks/attachments'
+require 'paperclip/tasks/attachments'
 
 class AttachmentsTest < Test::Unit::TestCase
   context '.names_for' do
