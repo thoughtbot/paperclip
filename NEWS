@@ -1,3 +1,22 @@
+New in 2.7.5:
+
+* Feature: :s3_host_name can be a proc
+
+New in 2.7.4:
+
+* Feature: Allow :escape_url as an option in the defaults
+* Bug fix: Correcting some PATH-based tests.
+* Compatability: Cucumber tests work for Rails 3.2.8
+
+New in 2.7.2
+
+* Bug fix: Ensured the correct cocaine version.
+* Bug fix: Fixed some tests that shouldn't have been passing.
+
+New in 2.7.1:
+
+* Bug fix: Fixed the problem with E2BIG errors and an ever-expanding path
+
 New in 2.7.0:
 
 * Bug fix: Checking the existence of a file on S3 handles all AWS errors.
