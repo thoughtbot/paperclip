@@ -13,6 +13,7 @@ module Paperclip
     def define
       define_getter
       define_setter
+      define_query
     end
 
     private
@@ -43,6 +44,14 @@ module Paperclip
 
       @klass.send :define_method, "#{@name}=" do |file|
         send(name).assign(file)
+      end
+    end
+
+    def define_query
+      name = @name
+
+      @klass.send :define_method, "#{@name}?" do
+        send(name).file?
       end
     end
   end

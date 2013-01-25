@@ -192,10 +192,6 @@ module Paperclip
         attachment = record.send(name)
         attachment.send(:flush_errors)
       end
-
-      define_method "#{name}?" do
-        send(name).file?
-      end
     end
   end
 end

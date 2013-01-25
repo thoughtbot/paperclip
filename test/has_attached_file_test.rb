@@ -10,6 +10,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'define a getter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar')
     end
+
+    should 'define a query on the class object' do
+      assert_adding_attachment('avatar').defines_method('avatar?')
+    end
   end
 
   private
