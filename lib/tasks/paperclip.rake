@@ -1,3 +1,5 @@
+require 'paperclip/tasks/attachments'
+
 module Paperclip
   module Task
     def self.obtain_class

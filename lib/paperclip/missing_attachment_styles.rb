@@ -1,5 +1,6 @@
-
+require 'paperclip/tasks/attachments'
 require 'set'
+
 module Paperclip
   class << self
     attr_accessor :classes_with_attachments
