@@ -174,7 +174,7 @@ module Paperclip
     #     end
     #   end
     def has_attached_file(name, options = {})
-      HasAttachedFile.new(name, options).define_on(self)
+      HasAttachedFile.define_on(self, name, options)
 
       options = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
@@ -191,22 +191,6 @@ module Paperclip
       validates_each(name) do |record, attr, value|
         attachment = record.send(name)
         attachment.send(:flush_errors)
-      end
-
-      define_method name do |*args|
-        ivar = "@attachment_#{name}"
-        attachment = instance_variable_get(ivar)
-
-        if attachment.nil?
-          attachment = Attachment.new(name, self, options)
-          instance_variable_set(ivar, attachment)
-        end
-
-        if args.length > 0
-          attachment.to_s(args.first)
-        else
-          attachment
-        end
       end
 
       define_method "#{name}?" do
