@@ -197,3 +197,12 @@ end
 def assert_file_not_exists(path)
   assert !File.exists?(path), %(Expect "#{path}" to not exists.)
 end
+
+module Paperclip
+  class Attachment
+    def self.reset_option_groups!
+      @default_options = nil
+      @named_options = nil
+    end
+  end
+end
