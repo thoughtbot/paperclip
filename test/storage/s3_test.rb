@@ -720,6 +720,23 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and S3 credentials with a :credential_provider" do
+    setup do
+      class DummyCredentialProvider; end
+
+      rebuild_model :storage => :s3,
+                    :bucket => "testing",
+                    :s3_credentials => {
+                      :credential_provider => DummyCredentialProvider.new
+                    }
+      @dummy = Dummy.new
+    end
+
+    should "set the credential-provider" do
+      assert_kind_of DummyCredentialProvider, @dummy.avatar.s3_bucket.config.credential_provider
+    end
+  end
+
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
       rebuild_model :storage => :s3,
