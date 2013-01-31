@@ -737,6 +737,19 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and S3 credentials in an unsupported manor" do
+    setup do
+      rebuild_model :storage => :s3, :bucket => "testing", :s3_credentials => ["unsupported"]
+      @dummy = Dummy.new
+    end
+
+    should "not accept the credentials" do
+      assert_raise(ArgumentError) do
+        @dummy.avatar.s3_credentials
+      end
+    end
+  end
+
   context "An attachment with S3 storage and S3 credentials not supplied" do
     setup do
       rebuild_model :storage => :s3, :bucket => "testing"
