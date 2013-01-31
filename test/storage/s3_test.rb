@@ -737,6 +737,17 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with S3 storage and S3 credentials not supplied" do
+    setup do
+      rebuild_model :storage => :s3, :bucket => "testing"
+      @dummy = Dummy.new
+    end
+
+    should "not parse any credentials" do
+      assert_equal({}, @dummy.avatar.s3_credentials)
+    end
+  end
+
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
       rebuild_model :storage => :s3,

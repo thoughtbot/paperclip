@@ -366,8 +366,10 @@ module Paperclip
           YAML::load(ERB.new(File.read(creds)).result)
         when Hash
           creds
+        when NilClass
+          {}
         else
-          raise ArgumentError, "Credentials are not a path, file, proc, or hash."
+          raise ArgumentError, "Credentials given are not a path, file, proc, or hash."
         end
       end
 
