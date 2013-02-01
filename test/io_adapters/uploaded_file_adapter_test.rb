@@ -52,6 +52,29 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
       end
     end
 
+    context "with UploadedFile that has restricted characters" do
+      setup do
+        Paperclip::UploadedFileAdapter.content_type_detector = nil
+
+        class UploadedFile < OpenStruct; end
+        @file = UploadedFile.new(
+          :original_filename => "image:restricted.gif",
+          :content_type => "image/x-png-by-browser",
+          :head => "",
+          :path => fixture_file("5k.png")
+        )
+        @subject = Paperclip.io_adapters.for(@file)
+      end
+
+      should "not generate paths that include restricted characters" do
+        assert_no_match /:/, @subject.path
+      end
+
+      should "not generate filenames that include restricted characters" do
+        assert_equal 'image_restricted.gif', @subject.original_filename
+      end
+    end
+
     context "with UploadFile responding to #path" do
       setup do
         Paperclip::UploadedFileAdapter.content_type_detector = nil
