@@ -292,6 +292,43 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "An attachment that uses S3 for storage and has a proc for styles" do
+    setup do
+      rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => '20x20#'} },
+                    :storage => :s3,
+                    :bucket  => "bucket",
+                    :path => ":attachment/:style/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    }
+
+      @file = File.new(fixture_file('5k.png'), 'rb')
+
+      Dummy.class_eval do
+        def counter
+          @counter ||= 0
+          @counter += 1
+          @counter
+        end
+      end
+
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+
+      object = stub
+      @dummy.avatar.stubs(:s3_object).returns(object)
+      object.expects(:write).with(anything, anything).twice
+      @dummy.save
+    end
+
+    teardown { @file.close }
+
+    should "succeed" do
+      assert_equal @dummy.counter, 7
+    end
+  end
+
   context "An attachment that uses S3 for storage and has spaces in file name" do
     setup do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
