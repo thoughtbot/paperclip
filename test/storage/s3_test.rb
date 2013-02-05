@@ -258,6 +258,51 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "dynamic styles that call an instance method" do
+    setup do
+      rebuild_model :storage => :s3,
+                    :bucket  => "bucket",
+                    :path => ":attachment/:basename.:extension",
+                    :s3_credentials => {
+                      'access_key_id' => "12345",
+                      'secret_access_key' => "54321"
+                    },
+                    :styles => lambda {|a| a.instance.choose_styles }
+                    
+    end
+  
+    context "when assigned" do
+      setup do
+        @file = File.new(fixture_file('5k.png'), 'rb')
+        @dummy = Dummy.new
+        class << @dummy
+          def choose_styles
+            {:thumb => {:geometry => "50x50#", :s3_headers => {'Cache-Control' => 'max-age=31557600'}}}
+          end
+        end
+        @dummy.avatar = @file
+      end
+
+      teardown { @file.close }
+
+      context "and saved" do
+        setup do
+          object = stub
+          @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
+          @dummy.avatar.stubs(:s3_object).with(:thumb).returns(object)
+          object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read)
+          object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read, :cache_control => 'max-age=31557600')
+        
+          @dummy.save
+        end
+
+        should "succeed" do
+          assert true
+        end
+      end
+    end
+  end
+
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     setup do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
