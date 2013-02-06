@@ -294,7 +294,7 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has a proc for styles" do
     setup do
-      rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => '20x20#'} },
+      rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => { :geometry => "50x50#", :s3_headers => {'Cache-Control' => 'max-age=31557600'}} }},
                     :storage => :s3,
                     :bucket  => "bucket",
                     :path => ":attachment/:style/:basename.:extension",
@@ -317,8 +317,10 @@ class S3Test < Test::Unit::TestCase
       @dummy.avatar = @file
 
       object = stub
-      @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:write).with(anything, anything).twice
+      @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
+      @dummy.avatar.stubs(:s3_object).with(:thumbnail).returns(object)
+      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read)
+      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read, :cache_control => 'max-age=31557600')
       @dummy.save
     end
 
