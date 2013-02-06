@@ -311,9 +311,10 @@ module Paperclip
             end
 
             style_specific_options = styles[style]
-            if style_specific_options.is_a?(Hash)
-              merge_s3_headers( style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options.has_key?(:s3_headers)
-              @s3_metadata.merge!(style_specific_options[:s3_metadata]) if style_specific_options.has_key?(:s3_metadata)
+
+            if style_specific_options
+              merge_s3_headers( style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options[:s3_headers]
+              @s3_metadata.merge!(style_specific_options[:s3_metadata]) if style_specific_options[:s3_metadata]
             end
 
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
