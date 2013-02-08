@@ -11,6 +11,7 @@ Given /^I generate a new rails application$/ do
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
+      gem "rake", "0.9.2"
       """
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
