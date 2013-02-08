@@ -32,6 +32,18 @@ module Paperclip
       }
     end
 
+    # Define a named class of preset options to use in model declarations
+    def self.options_for(name, options = {})
+      raise "Illegal argument. Expected a Symbol" unless name.is_a? Symbol
+      if name == :default
+        self.default_options.merge! options
+      else
+        @named_options ||= {}
+        @named_options[name] ||= {}
+        @named_options[name].merge! options
+      end
+    end
+
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
                 :options, :interpolator, :source_file_options, :whiny
     attr_accessor :post_processing
