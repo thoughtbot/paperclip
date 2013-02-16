@@ -1207,6 +1207,13 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal creation.to_i, @dummy.avatar.created_at
         assert_not_equal now.to_i, @dummy.avatar.created_at
       end
+
+      should "set changed? to true on attachment assignment" do
+        @dummy.avatar = @file
+        @dummy.save!
+        @dummy.avatar = @file
+        assert @dummy.changed?
+      end
     end
 
     context "and avatar_updated_at column" do

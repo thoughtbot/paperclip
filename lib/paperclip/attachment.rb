@@ -110,6 +110,8 @@ module Paperclip
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)
       instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
+      updater = :"#{name}_file_name_will_change!"
+      instance.send updater if instance.respond_to? updater
     end
 
     # Returns the public URL of the attachment with a given style. This does
