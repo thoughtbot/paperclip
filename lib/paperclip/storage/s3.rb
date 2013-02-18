@@ -90,6 +90,14 @@ module Paperclip
     #   Redundancy Storage.  RRS enables customers to reduce their
     #   costs by storing non-critical, reproducible data at lower
     #   levels of redundancy than Amazon S3's standard storage.
+    #
+    #   You can set storage class on a per style bases by doing the following:
+    #     :s3_storage_class => {
+    #       :thumb => :reduced_reduncancy
+    #     }
+    #   Or globally:
+    #     :s3_storage_class => :reduced_redundancy
+
     module S3
       def self.extended base
         begin
@@ -127,7 +135,7 @@ module Paperclip
           @s3_headers = {}
           merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
 
-          @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
+          @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
           @s3_server_side_encryption = :aes256
           if @options[:s3_server_side_encryption].blank?
@@ -258,6 +266,11 @@ module Paperclip
         permissions.merge :default => (permissions[:default] || :public_read)
       end
 
+      def set_storage_class(storage_class)
+        storage_class = {:default => storage_class} unless storage_class.respond_to?(:merge)
+        storage_class
+      end
+
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
@@ -279,6 +292,10 @@ module Paperclip
         s3_permissions = @s3_permissions[style] || @s3_permissions[:default]
         s3_permissions = s3_permissions.call(self, style) if s3_permissions.respond_to?(:call)
         s3_permissions
+      end
+
+      def s3_storage_class(style = default_style)
+        @s3_storage_class[style] || @s3_storage_class[:default]
       end
 
       def s3_protocol(style = default_style, with_colon = false)
@@ -306,6 +323,11 @@ module Paperclip
               :content_type => file.content_type,
               :acl => acl
             }
+
+            # add storage class for this style if defined
+            storage_class = s3_storage_class(style)
+            write_options.merge!(:storage_class => storage_class) if storage_class
+
             if @s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
             end

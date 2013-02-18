@@ -917,40 +917,130 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context "An attachment with S3 storage and storage class set using the header name" do
-    setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_headers => { "x-amz-storage-class" => "reduced_redundancy" }
-    end
-
-    context "when assigned" do
+  context "An attachment with S3 storage and storage class set" do
+    context "using header name" do
       setup do
-        @file = File.new(fixture_file('5k.png'), 'rb')
-        @dummy = Dummy.new
-        @dummy.avatar = @file
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      },
+                      :s3_headers => { "x-amz-storage-class" => "reduced_redundancy" }
       end
 
-      teardown { @file.close }
-
-      context "and saved" do
+      context "when assigned" do
         setup do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :storage_class => "reduced_redundancy")
-          @dummy.save
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
         end
 
-        should "succeed" do
-          assert true
+        teardown { @file.close }
+
+        context "and saved" do
+          setup do
+            object = stub
+            @dummy.avatar.stubs(:s3_object).returns(object)
+            object.expects(:write).with(anything,
+                                        :content_type => "image/png",
+                                        :acl => :public_read,
+                                        :storage_class => "reduced_redundancy")
+            @dummy.save
+          end
+
+          should "succeed" do
+            assert true
+          end
+        end
+      end
+    end
+
+    context "using per style hash" do
+      setup do
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :styles => {
+                        :thumb => "80x80>"
+                      },
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      },
+                      :s3_storage_class => {
+                        :thumb => :reduced_redundancy
+                      }
+      end
+
+      context "when assigned" do
+        setup do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        teardown { @file.close }
+
+        context "and saved" do
+          setup do
+            object = stub
+            [:thumb, :original].each do |style|
+              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              expected_options = {:content_type => "image/png", :acl => :public_read}
+              expected_options.merge!(:storage_class => :reduced_redundancy) if style == :thumb
+              object.expects(:write).with(anything, expected_options)
+            end
+            @dummy.save
+          end
+
+          should "succeed" do
+            assert true
+          end
+        end
+      end
+    end
+
+    context "using global hash option" do
+      setup do
+        rebuild_model :storage => :s3,
+                      :bucket => "testing",
+                      :path => ":attachment/:style/:basename.:extension",
+                      :styles => {
+                        :thumb => "80x80>"
+                      },
+                      :s3_credentials => {
+                        'access_key_id' => "12345",
+                        'secret_access_key' => "54321"
+                      },
+                      :s3_storage_class => :reduced_redundancy
+      end
+
+      context "when assigned" do
+        setup do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        teardown { @file.close }
+
+        context "and saved" do
+          setup do
+            object = stub
+            [:thumb, :original].each do |style|
+              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              object.expects(:write).with(anything, :content_type => "image/png",
+                                                    :acl => :public_read,
+                                                    :storage_class => :reduced_redundancy)
+            end
+            @dummy.save
+          end
+
+          should "succeed" do
+            assert true
+          end
         end
       end
     end
