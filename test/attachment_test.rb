@@ -524,6 +524,18 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  context "An attachment with :default_style that is a proc" do
+    setup do
+      rebuild_model :default_style => lambda{ |attachment| :large }
+
+      @attachment = Dummy.new.avatar
+    end
+
+    should "have the correct default style" do
+      assert_equal :large, @attachment.default_style
+    end
+  end
+
   context "An attachment with :styles that is a proc" do
     setup do
       rebuild_model :styles => lambda{ |attachment| {:thumb => "50x50#", :large => "400x400"} }
