@@ -1324,6 +1324,12 @@ class AttachmentTest < Test::Unit::TestCase
       assert_file_exists(@path)
     end
 
+    should "clear out attachment data when attachment is destroyed" do
+      @attachment.destroy
+      assert !@attachment.exists?
+      assert_nil @dummy.avatar_file_name
+    end
+
     should "not delete the file when model is destroyed" do
       @dummy.destroy
       assert_file_exists(@path)

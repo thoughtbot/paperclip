@@ -233,10 +233,8 @@ module Paperclip
     # nil to the attachment *and saving*. This is permanent. If you wish to
     # wipe out the existing attachment but not save, use #clear.
     def destroy
-      unless @options[:preserve_files]
-        clear
-        save
-      end
+      clear
+      save
     end
 
     # Returns the uploaded file if present.
@@ -454,10 +452,12 @@ module Paperclip
     end
 
     def queue_all_for_delete #:nodoc:
-      return if @options[:preserve_files] || !file?
-      @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
-        path(style) if exists?(style)
-      end.compact
+      return if !file?
+      unless @options[:preserve_files]
+        @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
+          path(style) if exists?(style)
+        end.compact
+      end
       instance_write(:file_name, nil)
       instance_write(:content_type, nil)
       instance_write(:file_size, nil)
