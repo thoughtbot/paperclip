@@ -16,12 +16,63 @@ module Paperclip
         klass.attachment_definitions.keys
       end
     end
+
+    # Better here than opening Hash and potentially fighting others
+    def self.recursively_symbolize_keys!(hsh)
+      hsh.symbolize_keys!
+      hsh.each do |k, v|
+        if v.is_a?(Hash)
+          recursively_symbolize_keys!(v)
+        end
+      end
+      hsh
+    end
   end
 end
 
 namespace :paperclip do
   desc "Refreshes both metadata and thumbnails."
   task :refresh => ["paperclip:refresh:metadata", "paperclip:refresh:thumbnails"]
+
+  desc "Create files for a given CLASS (and optional ATTACHMENT) with the options in config/new_paperclip_options.yml"
+  task :change_options => :environment do
+    yml_text = ERB.new(File.read(File.join(Rails.root, 'config', 'new_paperclip_options.yml'))).result
+    new_options = Paperclip::Task.recursively_symbolize_keys!(YAML.load(yml_text))
+
+    klass = Paperclip::Task.obtain_class
+    names = Paperclip::Task.obtain_attachments(klass)
+    names.each do |name|
+      Paperclip.each_instance_with_attachment(klass, name) do |instance|
+        attachment = instance.send(name)
+        if file = Paperclip.io_adapters.for(attachment)
+          options = attachment.options
+          # Check that :path or :url is different at least
+          unless ENV['FORCE'] || ENV['force'] ||
+                 (new_options[:url] && options[:url] != new_options[:url]) ||
+                 (new_options[:path] && options[:path] != new_options[:path])
+            raise <<-EOD
+Both URL #{options[:url]} and path #{options[:path]} are unchanged.
+If you're willing to risk file overwrites, re-run the task with FORCE=true
+            EOD
+          end
+
+          # Create a new Attachment instance for initialization
+          options.merge!(new_options)
+
+          # Updated_at is a default interpolator in :hash_data, so manually set
+          # it to avoid unintended issues with :hash paths
+          original_update_time = attachment.updated_at
+          new_att = Paperclip::Attachment.new(name, instance, options)
+          new_att.assign(file)
+          new_att.instance_write(:updated_at, original_update_time)
+          unless new_att.save
+            puts "errors while changing options for #{klass} ID #{instance.id}:"
+            puts " " + instance.errors.full_messages.join("\n ") + "\n"
+          end
+        end
+      end
+    end
+  end
 
   namespace :refresh do
     desc "Regenerates thumbnails for a given CLASS (and optional ATTACHMENT and STYLES splitted by comma)."
