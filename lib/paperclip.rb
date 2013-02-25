@@ -182,7 +182,6 @@ module Paperclip
 
       attachment_definitions[name] = Paperclip::AttachmentOptions.new(options)
       Paperclip.classes_with_attachments << self.name
-      Paperclip.check_for_path_clash(name,attachment_definitions[name][:path],self.name)
 
       after_save :save_attached_files
       before_destroy :prepare_for_destroy
