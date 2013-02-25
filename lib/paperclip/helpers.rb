@@ -49,15 +49,6 @@ module Paperclip
       end
     end
 
-    def check_for_path_clash(name,path,klass)
-      @names_path ||= {}
-      default_path = path || Attachment.default_options[:path]
-      if @names_path[name] && @names_path[name][:path] == default_path && @names_path[name][:class] != klass && @names_path[name][:path] !~ /:class/
-        log("Duplicate path for #{name} with #{default_path}. This will clash with attachment defined in #{@names_path[name][:class]} class")
-      end
-      @names_path[name] = {:path => default_path, :class => klass}
-    end
-
     def reset_duplicate_clash_check!
       @names_url = nil
     end
