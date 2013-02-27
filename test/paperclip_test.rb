@@ -125,6 +125,16 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
+    should "not generate warning if clash checking is disabled" do
+      Paperclip.options[:check_for_path_clash] = false
+      Dummy.class_eval do
+        has_attached_file :blah, :path => '/system/:id/:style/:filename'
+      end
+      Dummy2.class_eval do
+        has_attached_file :blah, :path => '/system/:id/:style/:filename'
+      end
+    end
+
     should "not generate warning if attachment is redefined with the same path string but has :class in it" do
       Paperclip.expects(:log).never
       Dummy.class_eval do
