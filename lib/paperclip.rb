@@ -40,7 +40,6 @@ require 'paperclip/interpolations'
 require 'paperclip/tempfile_factory'
 require 'paperclip/style'
 require 'paperclip/attachment'
-require 'paperclip/attachment_options'
 require 'paperclip/storage'
 require 'paperclip/callbacks'
 require 'paperclip/file_command_content_type_detector'
@@ -175,8 +174,6 @@ module Paperclip
     #   end
     def has_attached_file(name, options = {})
       HasAttachedFile.define_on(self, name, options)
-
-      options = Paperclip::AttachmentOptions.new(options)
 
       Paperclip::Tasks::Attachments.add(self, name, options)
 
