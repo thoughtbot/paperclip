@@ -48,6 +48,22 @@ class AttachmentsTest < Test::Unit::TestCase
     end
   end
 
+  context '.definitions_for' do
+    should 'produce the attachment name and options' do
+      expected_definitions = {
+        avatar: { yo: 'greeting' },
+        greeter: { ciao: 'greeting' }
+      }
+      foo = Class.new
+      Paperclip::Tasks::Attachments.add(foo, :avatar, { yo: 'greeting' })
+      Paperclip::Tasks::Attachments.add(foo, :greeter, { ciao: 'greeting' })
+
+      definitions = Paperclip::Tasks::Attachments.definitions_for(foo)
+
+      assert_equal expected_definitions, definitions
+    end
+  end
+
   context '.clear' do
     should 'remove all of the existing attachment definitions' do
       foo = Class.new

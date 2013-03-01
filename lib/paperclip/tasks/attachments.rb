@@ -21,6 +21,10 @@ module Paperclip
         instance.each_definition(&block)
       end
 
+      def self.definitions_for(klass)
+        instance.definitions_for(klass)
+      end
+
       def initialize
         clear
       end
@@ -45,6 +49,10 @@ module Paperclip
             yield klass, name, options
           end
         end
+      end
+
+      def definitions_for(klass)
+        @attachments[klass]
       end
     end
   end
