@@ -8,9 +8,9 @@ module Paperclip
     end
 
     def detect
-      if blank?
+      if blank_name?
         SENSIBLE_DEFAULT
-      elsif empty?
+      elsif empty_file?
         EMPTY_TYPE
       elsif !match?
         type_from_file_command
@@ -23,11 +23,11 @@ module Paperclip
 
     private
 
-    def empty?
+    def empty_file?
       File.exists?(@filename) && File.size(@filename) == 0
     end
 
-    def blank?
+    def blank_name?
       @filename.nil? || @filename.empty?
     end
 
