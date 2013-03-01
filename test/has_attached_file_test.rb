@@ -18,6 +18,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'flush errors as part of validations' do
       assert_adding_attachment('avatar').defines_validation
     end
+
+    should 'check for a path collision' do
+      assert_adding_attachment('avatar').checks_for_path_collision
+    end
   end
 
   private
@@ -54,10 +58,24 @@ class HasAttachedFileTest < Test::Unit::TestCase
       end
     end
 
+    def checks_for_path_collision
+      a_class = stub_class
+      Paperclip.stubs(:check_for_path_clash)
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
+
+      assert_received(Paperclip, :check_for_path_clash) do |expect|
+        expect.with(@attachment_name, nil, a_class.name)
+      end
+    end
+
     private
 
     def stub_class
-      stub('class', validates_each: nil, define_method: nil)
+      stub('class',
+           validates_each: nil,
+           define_method: nil,
+           name: 'Billy')
     end
   end
 end

@@ -15,6 +15,7 @@ module Paperclip
       define_getter
       define_setter
       define_query
+      check_for_path_clash
     end
 
     private
@@ -61,6 +62,10 @@ module Paperclip
       @klass.send :define_method, "#{@name}?" do
         send(name).file?
       end
+    end
+
+    def check_for_path_clash
+      Paperclip.check_for_path_clash(@name, @options[:path], @klass.name)
     end
   end
 end

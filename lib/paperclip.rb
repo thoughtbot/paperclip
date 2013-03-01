@@ -177,7 +177,6 @@ module Paperclip
       HasAttachedFile.define_on(self, name, options)
 
       options = Paperclip::AttachmentOptions.new(options)
-      Paperclip.check_for_path_clash(name, options[:path], self.name)
 
       Paperclip::Tasks::Attachments.add(self, name, options)
 
