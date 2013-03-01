@@ -26,6 +26,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'register the attachment with Paperclip::Tasks' do
       assert_adding_attachment('avatar').registers_with_tasks
     end
+
+    should 'define an after_save callback' do
+      assert_adding_attachment('avatar').defines_callback('after_save')
+    end
   end
 
   private
@@ -84,12 +88,23 @@ class HasAttachedFileTest < Test::Unit::TestCase
       end
     end
 
+    def defines_callback(callback_name)
+      a_class = stub_class
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
+
+      assert_received(a_class, callback_name.to_sym)
+    end
+
     private
 
     def stub_class
       stub('class',
            validates_each: nil,
            define_method: nil,
+           after_save: nil,
+           before_destroy: nil,
+           after_destroy: nil,
            name: 'Billy')
     end
   end

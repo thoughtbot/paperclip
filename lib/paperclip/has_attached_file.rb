@@ -17,6 +17,7 @@ module Paperclip
       define_query
       check_for_path_clash
       register_with_rake_tasks
+      add_active_record_callbacks
     end
 
     private
@@ -71,6 +72,11 @@ module Paperclip
 
     def register_with_rake_tasks
       Paperclip::Tasks::Attachments.add(@klass, @name, @options)
+    end
+
+    def add_active_record_callbacks
+      name = @name
+      @klass.send(:after_save) { send(name).send(:save) }
     end
   end
 end
