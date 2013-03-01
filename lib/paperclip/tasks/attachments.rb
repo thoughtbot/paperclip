@@ -9,12 +9,20 @@ module Paperclip
         instance.add(klass, attachment_name, attachment_options)
       end
 
+      def self.clear
+        instance.clear
+      end
+
       def self.names_for(klass)
         instance.names_for(klass)
       end
 
-      def self.definitions_for(klass)
-        instance.definitions_for(klass)
+      def self.each_definition(&block)
+        instance.each_definition(&block)
+      end
+
+      def initialize
+        clear
       end
 
       def add(klass, attachment_name, attachment_options)
@@ -23,12 +31,20 @@ module Paperclip
         @attachments[klass][attachment_name] = attachment_options
       end
 
+      def clear
+        @attachments = Hash.new { |h,k| h[k] = {} }
+      end
+
       def names_for(klass)
         @attachments[klass].keys
       end
 
-      def definitions_for(klass)
-        @attachments[klass]
+      def each_definition
+        @attachments.each do |klass, attachments|
+          attachments.each do |name, options|
+            yield klass, name, options
+          end
+        end
       end
     end
   end
