@@ -14,6 +14,11 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
 
       assert_equal "text/plain", Paperclip::ContentTypeDetector.new(tempfile.path).detect
     end
+    
+    should 'return content type of uploaded file if it is an acceptable type' do
+      @filename = fixture_file("sample_mpeg4.mp4")
+      assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
+    end
 
     should 'return an empty content type if the file is empty' do
       tempfile = Tempfile.new("something")
@@ -36,5 +41,7 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
       @filename = "/path/to/something"
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
     end
+    
+
   end
 end
