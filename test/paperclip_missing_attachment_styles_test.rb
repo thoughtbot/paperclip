@@ -1,8 +1,11 @@
 require './test/helper'
 
 class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
-
   context "Paperclip" do
+    setup do
+      Paperclip::Tasks::Attachments.clear
+    end
+
     teardown do
       File.unlink(Paperclip.registered_attachments_styles_path) rescue nil
     end
