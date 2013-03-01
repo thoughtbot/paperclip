@@ -15,7 +15,7 @@ module Paperclip
     #
     # And _include_ the module:
     #
-    #   Spec::Runner.configure do |config|
+    #   RSpec.configure do |config|
     #     config.include Paperclip::Shoulda::Matchers
     #   end
     #
