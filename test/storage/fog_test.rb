@@ -309,7 +309,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with a valid bucket name for a subdomain" do
         should "provide an url in subdomain style" do
-          assert_match @dummy.avatar.url, /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/
+          assert_match /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url
         end
 
         should "provide an url that expires in subdomain style" do
