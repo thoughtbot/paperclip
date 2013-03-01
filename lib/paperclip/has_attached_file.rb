@@ -16,6 +16,7 @@ module Paperclip
       define_setter
       define_query
       check_for_path_clash
+      register_with_rake_tasks
     end
 
     private
@@ -66,6 +67,10 @@ module Paperclip
 
     def check_for_path_clash
       Paperclip.check_for_path_clash(@name, @options[:path], @klass.name)
+    end
+
+    def register_with_rake_tasks
+      Paperclip::Tasks::Attachments.add(@klass, @name, @options)
     end
   end
 end

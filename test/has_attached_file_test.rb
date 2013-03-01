@@ -22,6 +22,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'check for a path collision' do
       assert_adding_attachment('avatar').checks_for_path_collision
     end
+
+    should 'register the attachment with Paperclip::Tasks' do
+      assert_adding_attachment('avatar').registers_with_tasks
+    end
   end
 
   private
@@ -66,6 +70,17 @@ class HasAttachedFileTest < Test::Unit::TestCase
 
       assert_received(Paperclip, :check_for_path_clash) do |expect|
         expect.with(@attachment_name, nil, a_class.name)
+      end
+    end
+
+    def registers_with_tasks
+      a_class = stub_class
+      Paperclip::Tasks::Attachments.stubs(:add)
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {size: 1})
+
+      assert_received(Paperclip::Tasks::Attachments, :add) do |expect|
+        expect.with(a_class, @attachment_name, {size: 1})
       end
     end
 
