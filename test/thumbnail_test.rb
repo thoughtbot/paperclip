@@ -381,11 +381,15 @@ class ThumbnailTest < Test::Unit::TestCase
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "50x50"*12, `#{cmd}`.chomp
+        assert_equal ("50x5050x5050x5050x5050x5050x49")*2, `#{cmd}`.chomp
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -397,11 +401,15 @@ class ThumbnailTest < Test::Unit::TestCase
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "50x50"*12, `#{cmd}`.chomp
+        assert_equal ("50x5050x5050x5050x5050x5050x49")*2, `#{cmd}`.chomp
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -414,11 +422,16 @@ class ThumbnailTest < Test::Unit::TestCase
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "60x60"*12, `#{cmd}`.chomp
+        assert_equal "60x6059x5959x5959x5960x5959x5859x6059x5959x5959x5960x5959x58", `#{cmd}`.chomp
+
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -431,11 +444,15 @@ class ThumbnailTest < Test::Unit::TestCase
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "70x70"*12, `#{cmd}`.chomp
+        assert_equal "70x7067x6867x6868x6769x6767x6768x6967x6867x6868x6769x6767x67", `#{cmd}`.chomp
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 

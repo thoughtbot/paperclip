@@ -96,6 +96,7 @@ module Paperclip
       trans << "-auto-orient" if auto_orient
       trans << "-resize" << %["#{scale}"] unless scale.nil? || scale.empty?
       trans << "-crop" << %["#{crop}"] << "+repage" if crop
+      trans << "-layers \"optimize\"" if animated?
       trans
     end
 
