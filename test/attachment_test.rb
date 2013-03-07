@@ -31,7 +31,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   should "process :original style first" do
     file = File.new(fixture_file("50x50.png"), 'rb')
-    rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
+    rebuild_model :styles => { :small => '100x>', :original => '42x42#' }
     dummy = Dummy.new
     dummy.avatar = file
     dummy.save
@@ -122,7 +122,7 @@ class AttachmentTest < Test::Unit::TestCase
 
   should "not delete styles that don't get reprocessed" do
     file = File.new(fixture_file("50x50.png"), 'rb')
-    rebuild_class :styles => { :small => '100x>',
+    rebuild_model :styles => { :small => '100x>',
                                :large => '500x>',
                                :original => '42x42#' }
     dummy = Dummy.new
