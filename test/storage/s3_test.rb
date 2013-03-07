@@ -327,7 +327,7 @@ class S3Test < Test::Unit::TestCase
     teardown { @file.close }
 
     should "succeed" do
-      assert_equal @dummy.counter, 7
+      assert_equal 6, @dummy.counter
     end
   end
 
