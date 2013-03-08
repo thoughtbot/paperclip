@@ -953,6 +953,10 @@ class AttachmentTest < Test::Unit::TestCase
       assert_match @attachment.to_s, @attachment.url
       assert_match @attachment.to_s(:small), @attachment.url(:small)
     end
+
+    should "have matching expiring_url and url methods when using the filesystem storage" do
+      assert_match @attachment.expiring_url, @attachment.url
+    end
   end
 
   context "An attachment" do
