@@ -165,7 +165,13 @@ module Paperclip
     end
 
     def default_style
-      @options[:default_style]
+      @default_style ||= begin
+        if @options[:default_style].respond_to?(:call)
+          @options[:default_style].call(self)
+        else
+          @options[:default_style]
+        end
+      end
     end
 
     def styles
