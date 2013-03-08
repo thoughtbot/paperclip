@@ -9,7 +9,7 @@ PATH
       mime-types
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     actionmailer (3.2.6)
       actionpack (= 3.2.6)
