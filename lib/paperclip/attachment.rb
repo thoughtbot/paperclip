@@ -146,6 +146,13 @@ module Paperclip
       end
     end
 
+    # Alias to +url+ that allows using the expiring_url method provided by the cloud
+    # storage implementations, but keep using filesystem storage for development and
+    # testing.
+    def expiring_url(time = 3600, style_name = default_style)
+      url(style_name)
+    end
+
     # Returns the path of the attachment as defined by the :path option. If the
     # file is stored in the filesystem the path refers to the path of the file
     # on disk. If the file is stored in S3, the path is the "key" part of the
