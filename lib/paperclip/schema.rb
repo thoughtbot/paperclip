@@ -1,4 +1,6 @@
 require 'active_support/deprecation'
+require 'paperclip/style_adder'
+require 'paperclip/style_remover'
 
 module Paperclip
   # Provides helper methods that can be used in migrations.
@@ -42,6 +44,29 @@ module Paperclip
       def drop_attached_file(*args)
         ActiveSupport::Deprecation.warn "Method `drop_attached_file` in the migration has been deprecated and will be replaced by `remove_attachment`."
         remove_attachment(*args)
+      end
+
+      def add_style(table_name, attachment_name, styles)
+        StyleAdder.run(model_enumerator(table_name), attachment_name, styles)
+      end
+
+      def remove_style(table_name, attachment_name, style_name)
+        StyleRemover.run(model_enumerator(table_name), attachment_name, style_name)
+      end
+
+      private
+
+      def model_enumerator(table_name)
+        model_class(table_name).enum_for(:find_each)
+      end
+
+      def model_class(table_name)
+        model_class_name = table_name.to_s.singularize.camelize
+        begin
+          model_class_name.constantize
+        rescue NameError
+          raise ArgumentError, "found no model named #{model_class_name}"
+        end
       end
     end
 

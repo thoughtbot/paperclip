@@ -11,6 +11,8 @@ Before do
 end
 
 After do
+  RailsServer.stop
+
   ORIGINAL_BUNDLE_VARS.each_pair do |key, value|
     ENV[key] = value
   end

@@ -6,10 +6,13 @@ class SchemaTest < Test::Unit::TestCase
   include ActiveSupport::Testing::Deprecation
 
   def setup
+    super
     rebuild_class
+    register_recording_processor
   end
 
   def teardown
+    super
     Dummy.connection.drop_table :dummies rescue nil
   end
 
@@ -64,7 +67,7 @@ class SchemaTest < Test::Unit::TestCase
       Dummy.connection.create_table :dummies, :force => true
     end
 
-    context "migrating up" do
+    context '#add_attachment' do
       context "with single attachment" do
         setup do
           Dummy.connection.add_attachment :dummies, :avatar
@@ -111,7 +114,7 @@ class SchemaTest < Test::Unit::TestCase
       end
     end
 
-    context "migrating down" do
+    context "#remove_attachment" do
       setup do
         Dummy.connection.change_table :dummies do |t|
           t.column :avatar_file_name, :string
@@ -196,5 +199,63 @@ class SchemaTest < Test::Unit::TestCase
         end
       end
     end
+
+    context '#add_style' do
+      should 'process the specific style' do
+        dummy_with_avatar(thumbnail: '24x24', large: '124x124')
+
+        Dummy.connection.add_style :dummies, :avatar, large: '124x124'
+
+        assert RecordingProcessor.has_processed?(large: '124x124')
+        assert !RecordingProcessor.has_processed?(thumbnail: '24x24')
+      end
+
+      should 'raise if the style is missing' do
+        dummy_with_avatar(thumbnail: '24x24')
+
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :dummies, :avatar, missing_style: '24x24'
+        end
+      end
+
+      should 'raise if the attachment is missing' do
+        dummy_with_avatar(thumbnail: '24x24')
+
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :dummies, :missng_attachment, thumbnail: '24x24'
+        end
+      end
+
+      should 'raise if the model is missing' do
+        assert_raise ArgumentError do
+          Dummy.connection.add_style :missing_model, :avatar, thumbnail: '24x24'
+        end
+      end
+    end
+
+    context '#remove_style' do
+      should 'remove files for the specific style' do
+        dummy_with_avatar(large: '24x24')
+        large_path = Dummy.first.avatar.path(:large)
+        original_path = Dummy.first.avatar.path(:original)
+
+        Dummy.connection.remove_style :dummy, :avatar, :large
+
+        assert !File.exist?(large_path)
+        assert File.exist?(original_path)
+      end
+    end
+  end
+
+  def dummy_with_avatar(styles)
+    rebuild_model styles: styles, processors: [:recording]
+
+    file = File.new(fixture_file("50x50.png"), 'rb')
+    dummy = Dummy.new
+    dummy.avatar = file
+    dummy.save
+    file.close
+
+    RecordingProcessor.clear
   end
 end

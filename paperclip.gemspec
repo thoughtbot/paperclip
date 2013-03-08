@@ -49,4 +49,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('railties')
   s.add_development_dependency('actionmailer')
+  s.add_development_dependency('thin')
+  s.add_development_dependency('capybara-webkit')
 end
