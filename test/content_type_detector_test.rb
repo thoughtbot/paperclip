@@ -14,9 +14,12 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
 
       assert_equal "text/plain", Paperclip::ContentTypeDetector.new(tempfile.path).detect
     end
-    
-    should 'return content type of uploaded file if it is an acceptable type' do
-      @filename = fixture_file("sample_mpeg4.mp4")
+
+    should 'return content type of file if it is an acceptable type' do
+      MIME::Types.stubs(:type_for).returns([MIME::Type.new('application/mp4'), MIME::Type.new('video/mp4'), MIME::Type.new('audio/mp4')])
+      Paperclip.stubs(:run).returns("video/mp4")
+      
+      @filename = "my_file.mp4"
       assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
     end
 
@@ -41,7 +44,5 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
       @filename = "/path/to/something"
       assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
     end
-    
-
   end
 end

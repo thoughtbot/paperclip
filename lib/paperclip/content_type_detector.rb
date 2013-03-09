@@ -31,8 +31,12 @@ module Paperclip
         SENSIBLE_DEFAULT
       elsif empty_file?
         EMPTY_TYPE
-      elsif best_from_possible_types
-        best_from_possible_types.content_type
+      elsif types_matching_file.any?
+        types_matching_file.first
+      elsif official_types.any?
+        official_types.first
+      elsif possible_types.any?
+        possible_types.first
       else
         type_from_file_command || SENSIBLE_DEFAULT
       end.to_s
@@ -53,19 +57,15 @@ module Paperclip
     end
 
     def possible_types
-      @possible_types ||= MIME::Types.type_for(@filename)
+      @possible_types ||= MIME::Types.type_for(@filename).collect(&:content_type)
     end
     
     def official_types
-      @official_types ||= possible_types.reject {|type| type.content_type.match(/\/x-/) }
+      @offical_types ||= possible_types.reject{|content_type| content_type.match(/\/x-/) }
     end
     
     def types_matching_file
-      possible_types.select{|type| type.content_type == type_from_file_command}
-    end
-    
-    def best_from_possible_types
-      @best_from_possible_types ||= (types_matching_file.first || official_types.first || possible_types.first)
+      @types_matching_file ||= possible_types.select{|content_type| content_type == type_from_file_command}
     end
 
     def type_from_file_command
