@@ -516,9 +516,9 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read)
+          object.expects(:write).with(:content_type => "image/png",
+                                      :acl => :public_read,
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -615,10 +615,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :cache_control => 'max-age=31557600')
+                                      :cache_control => 'max-age=31557600',
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -654,10 +654,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :metadata => { "color" => "red" })
+                                      :metadata => { "color" => "red" },
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -693,10 +693,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :metadata => { "color" => "red" })
+                                      :metadata => { "color" => "red" },
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -732,10 +732,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :storage_class => "reduced_redundancy")
+                                      :storage_class => "reduced_redundancy",
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -771,10 +771,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :server_side_encryption => :aes256)
+                                      :server_side_encryption => :aes256,
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -810,10 +810,10 @@ class S3Test < Test::Unit::TestCase
         setup do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      :content_type => "image/png",
+          object.expects(:write).with(:content_type => "image/png",
                                       :acl => :public_read,
-                                      :storage_class => :reduced_redundancy)
+                                      :storage_class => :reduced_redundancy,
+                                      :file => @dummy.avatar.to_file.path)
           @dummy.save
         end
 
@@ -894,9 +894,9 @@ class S3Test < Test::Unit::TestCase
           setup do
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
-            object.expects(:write).with(anything,
-                                        :content_type => "image/png",
-                                        :acl => :public_read)
+            object.expects(:write).with(:content_type => "image/png",
+                                        :acl => :public_read,
+                                        :file => @dummy.avatar.to_file.path)
             @dummy.save
           end
 
@@ -932,9 +932,9 @@ class S3Test < Test::Unit::TestCase
           setup do
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
-            object.expects(:write).with(anything,
-                                        :content_type => "image/png",
-                                        :acl => :private)
+            object.expects(:write).with(:content_type => "image/png",
+                                        :acl => :private,
+                                        :file => @dummy.avatar.to_file.path)
             @dummy.save
           end
 
@@ -977,9 +977,9 @@ class S3Test < Test::Unit::TestCase
             [:thumb, :original].each do |style|
               object = stub
               @dummy.avatar.stubs(:s3_object).with(style).returns(object)
-              object.expects(:write).with(anything,
-                                          :content_type => "image/png",
-                                          :acl => style == :thumb ? :public_read : :private)
+              object.expects(:write).with(:content_type => "image/png",
+                                          :acl => style == :thumb ? :public_read : :private,
+                                          :file => @dummy.avatar.to_file(style).path)
             end
             @dummy.save
           end
@@ -1025,9 +1025,9 @@ class S3Test < Test::Unit::TestCase
             [:thumb, :original].each do |style|
               object = stub
               @dummy.avatar.stubs(:s3_object).with(style).returns(object)
-              object.expects(:write).with(anything,
-                                          :content_type => "image/png",
-                                          :acl => style == :thumb ? :public_read : :private)
+              object.expects(:write).with(:content_type => "image/png",
+                                          :acl => style == :thumb ? :public_read : :private,
+                                          :file => @dummy.avatar.to_file(style).path)
             end
             @dummy.save
           end
@@ -1076,10 +1076,10 @@ class S3Test < Test::Unit::TestCase
           [:thumb, :original].each do |style|
             object = stub
             @dummy.avatar.stubs(:s3_object).with(style).returns(object)
-            object.expects(:write).with(anything,
-                                        :content_type => "image/png",
+            object.expects(:write).with(:content_type => "image/png",
                                         :acl => :public_read,
-                                        :content_disposition => 'attachment; filename="Custom Avatar Name.png"')
+                                        :content_disposition => 'attachment; filename="Custom Avatar Name.png"',
+                                        :file => @dummy.avatar.to_file(style).path)
           end
           @dummy.save
         end
