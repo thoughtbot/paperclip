@@ -57,20 +57,19 @@ module Paperclip
     end
 
     def possible_types
-      @possible_types ||= MIME::Types.type_for(@filename).collect(&:content_type)
+      MIME::Types.type_for(@filename).collect(&:content_type)
     end
     
     def official_types
-      @offical_types ||= possible_types.reject{|content_type| content_type.match(/\/x-/) }
+      possible_types.reject{|content_type| content_type.match(/\/x-/) }
     end
     
     def types_matching_file
-      @types_matching_file ||= possible_types.select{|content_type| content_type == type_from_file_command}
+      possible_types.select{|content_type| content_type == type_from_file_command}
     end
 
     def type_from_file_command
-      @type_from_file_command ||= FileCommandContentTypeDetector.new(@filename).detect
+      FileCommandContentTypeDetector.new(@filename).detect
     end
-
   end
 end
