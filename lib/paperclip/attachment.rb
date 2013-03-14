@@ -456,6 +456,9 @@ module Paperclip
       generator = Paperclip.processor(generator)
       results = generator.make(@queued_for_write[:original], style_options, self)
       @queued_for_write.update results
+    rescue Paperclip::Error => e
+      log("An error was received while processing: #{e.inspect}")
+      (@errors[:processing] ||= []) << e.message if @options[:whiny]
     end
 
     def process_style?(style_name, style_args) #:nodoc:

@@ -118,6 +118,22 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal '.ob', File.read(dummy.avatar.path(:b))
       end
     end
+
+    context "An attachment with erroring generator" do
+      setup do
+        rebuild_model :generator => :test_full_generator, :styles => { :small => '' }, :whiny_thumbnails => true
+        @dummy = Dummy.new
+        TestFullGenerator.expects(:make).raises(Paperclip::Error, "cannot be processed.")
+        @file = StringIO.new("...")
+        @file.stubs(:to_tempfile).returns(@file)
+        @dummy.avatar = @file
+      end
+
+      should "correctly forward processing error message to the instance" do
+        @dummy.valid?
+        assert_contains @dummy.errors.full_messages, "Avatar cannot be processed."
+      end
+    end
   end
 
   should "not delete styles that don't get reprocessed" do
