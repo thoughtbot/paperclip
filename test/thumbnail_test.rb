@@ -380,12 +380,18 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "50x50"*12, `#{cmd}`.chomp
+        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(',')
+        assert_equal 12, frames.size
+        assert_frame_dimensions (45..50), frames
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -396,12 +402,18 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "50x50"*12, `#{cmd}`.chomp
+        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(',')
+        assert_equal 12, frames.size
+        assert_frame_dimensions (45..50), frames
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -413,12 +425,18 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "60x60"*12, `#{cmd}`.chomp
+        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(',')
+        assert_equal 12, frames.size
+        assert_frame_dimensions (55..60), frames
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 
@@ -430,12 +448,18 @@ class ThumbnailTest < Test::Unit::TestCase
 
       should "create the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
-        assert_equal "70x70"*12, `#{cmd}`.chomp
+        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(',')
+        assert_equal 12, frames.size
+        assert_frame_dimensions (60..70), frames
       end
 
       should "use the -coalesce option" do
         assert_equal @thumb.transformation_command.first, "-coalesce"
+      end
+
+      should "use the -layers 'optimize' option" do
+        assert_equal @thumb.transformation_command.last, '-layers "optimize"'
       end
     end
 

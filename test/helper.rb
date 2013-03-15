@@ -197,3 +197,11 @@ end
 def assert_file_not_exists(path)
   assert !File.exists?(path), %(Expect "#{path}" to not exists.)
 end
+
+def assert_frame_dimensions(range, frames)
+  frames.each_with_index do |frame, frame_index|
+    frame.split('x').each_with_index do |dimension, dimension_index |
+      assert range.include?(dimension.to_i), "Frame #{frame_index}[#{dimension_index}] should have been within #{range.inspect}, but was #{dimension}"
+    end
+  end
+end
