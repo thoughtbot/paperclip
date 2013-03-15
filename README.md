@@ -327,7 +327,7 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '~> 1.3.4'
+gem 'aws-sdk', '~> 1.5.7'
 ```
 
 And then you can specify using S3 from `has_attached_file`.
