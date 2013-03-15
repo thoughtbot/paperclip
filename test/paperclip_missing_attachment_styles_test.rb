@@ -1,6 +1,10 @@
 require './test/helper'
 
 class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
+  def setup
+    Paperclip::Tasks::Attachments.clear
+  end
+
   context "Paperclip" do
     setup do
       Paperclip::Tasks::Attachments.clear
