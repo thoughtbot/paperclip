@@ -44,6 +44,8 @@ class AttachmentTest < Test::Unit::TestCase
 
   should "have a random file name when the option randomize_file_name is set" do
     file = File.new(fixture_file("50x50.png"), 'rb')
+    file.stubs(:original_filename).returns("original_filename.png")
+
     rebuild_class :randomize_file_name => true
     dummy = Dummy.new
     dummy.avatar = file
