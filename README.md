@@ -535,9 +535,9 @@ end
 Logging
 ----------
 
-By default Paperclip outputs logging according to your logger level. If you want to disable logging (f.ex. in test environment) add this in to your environments configuration:
+By default Paperclip outputs logging according to your logger level. If you want to disable logging (e.g. during testing) add this in to your environment's configuration:
 ```ruby
-App.configure do
+Your::Application.configure do
 ...
   Paperclip.options[:log] = false
 ...
