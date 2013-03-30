@@ -532,6 +532,20 @@ class User < ActiveRecord::Base
 end
 ```
 
+Logging
+----------
+
+By default Paperclip outputs logging according to your logger level. If you want to disable logging (e.g. during testing) add this in to your environment's configuration:
+```ruby
+Your::Application.configure do
+...
+  Paperclip.options[:log] = false
+...
+end
+```
+
+More information in the [rdocs](http://rdoc.info/github/thoughtbot/paperclip/Paperclip.options)
+
 Deployment
 ----------
 
