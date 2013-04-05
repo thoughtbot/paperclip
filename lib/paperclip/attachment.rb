@@ -28,7 +28,8 @@ module Paperclip
         :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
         :use_timestamp         => true,
-        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
+        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        :randomize_file_name   => false
       }
     end
 
@@ -488,7 +489,10 @@ module Paperclip
     end
 
     def cleanup_filename(filename)
-      if @options[:restricted_characters]
+      if @options[:randomize_file_name]
+        extension = File.extname(filename).downcase
+        "#{SecureRandom.hex(16)}#{extension}"
+      elsif @options[:restricted_characters]
         filename.gsub(@options[:restricted_characters], '_')
       else
         filename
