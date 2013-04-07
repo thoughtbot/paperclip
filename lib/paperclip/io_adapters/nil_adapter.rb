@@ -30,5 +30,5 @@ module Paperclip
 end
 
 Paperclip.io_adapters.register Paperclip::NilAdapter do |target|
-  target.nil? || target == '' || ( (Paperclip::Attachment === target) && !target.present? )
+  target.blank? || ( (Paperclip::Attachment === target) && !target.present? )
 end
