@@ -197,3 +197,27 @@ end
 def assert_file_not_exists(path)
   assert !File.exists?(path), %(Expect "#{path}" to not exists.)
 end
+
+def should_register_with_valid_nil_adapter target
+  setup do
+    @subject = Paperclip.io_adapters.for(target)
+  end
+
+  should "get a blank filename" do
+    assert_equal "", @subject.original_filename
+  end
+
+  should "get a blank content type" do
+    assert_equal "", @subject.content_type
+  end
+
+  should "get the file's size" do
+    assert_equal 0, @subject.size
+  end
+
+  context "nil?" do
+    should "return true" do
+      assert @subject.nil?
+    end
+  end
+end
