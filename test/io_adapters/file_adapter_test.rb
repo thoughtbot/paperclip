@@ -46,6 +46,11 @@ class FileAdapterTest < Test::Unit::TestCase
         assert_equal expected, @subject.read
       end
 
+      should "return file stat for the file" do
+        expected = File.stat(@file)
+        assert_equal expected, @subject.stat
+      end
+
       context "file with multiple possible content type" do
         setup do
           MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
