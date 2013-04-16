@@ -37,6 +37,7 @@ module Paperclip
       @convert_options     = options[:convert_options]
       @whiny               = options[:whiny].nil? ? true : options[:whiny]
       @format              = options[:format]
+      @sub_format          = @format.to_s == "png" ? "PNG24" : ""
       @animated            = options[:animated].nil? ? true : options[:animated]
       @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
@@ -73,7 +74,7 @@ module Paperclip
         parameters << ":source"
         parameters << transformation_command
         parameters << convert_options
-        parameters << ":dest"
+        parameters << [@sub_format, ":dest"].join(":")
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
