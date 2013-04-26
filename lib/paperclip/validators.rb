@@ -39,8 +39,26 @@ module Paperclip
           end
         end
 
+        attributes.each do |attribute|
+          process_validation(attribute, options.dup)
+        end
+
         validates(*attributes + [options])
       end
+
+      def process_validation(attribute, validations)
+        send(:"before_#{attribute}_post_process") do |*args|
+          validations.each do |validator_name, validator_args|
+            validator_args = {} if validator_args == true
+            validator_args = validator_args.merge(:attributes => [attribute])
+            validator = Paperclip::Validators.const_get("#{validator_name}_validator".classify)
+            validator.new(validator_args).validate_each(self, attribute, send(attribute))
+          end
+
+          !self.errors.any?
+        end
+      end
+
     end
   end
 end

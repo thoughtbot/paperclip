@@ -105,7 +105,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process(*only_process) if post_processing && valid_assignment?
+      post_process(*only_process) if post_processing
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)

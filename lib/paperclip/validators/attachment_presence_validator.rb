@@ -2,12 +2,10 @@ require 'active_model/validations/presence'
 
 module Paperclip
   module Validators
-    class AttachmentPresenceValidator < ActiveModel::Validations::PresenceValidator
-      def validate(record)
-        [attributes].flatten.map do |attribute|
-          if record.send(:read_attribute_for_validation, "#{attribute}_file_name").blank?
-            record.errors.add(attribute, :blank, options)
-          end
+    class AttachmentPresenceValidator < ActiveModel::EachValidator
+      def validate_each(record, attribute, value)
+        if record.send("#{attribute}_file_name").blank?
+          record.errors.add(attribute, :blank, options)
         end
       end
     end
