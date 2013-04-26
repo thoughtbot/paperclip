@@ -34,13 +34,32 @@ module Paperclip
             validator_kind = $1.underscore.to_sym
 
             if options.has_key?(validator_kind)
-              options[:"attachment_#{validator_kind}"] = options.delete(validator_kind)
+              validator_options = options.delete(validator_kind)
+              validator_options = {} if validator_options == true
+              local_options = attributes + [validator_options]
+              send(:"validates_attachment_#{validator_kind}", *local_options)
             end
           end
         end
-
-        validates(*attributes + [options])
       end
+
+      def validate_before_processing(validator_class, options)
+        options = options.dup
+        attributes = options.delete(:attributes)
+        attributes.each do |attribute|
+          options[:attributes] = [attribute]
+          create_validating_before_filter(attribute, validator_class, options)
+        end
+      end
+
+      def create_validating_before_filter(attribute, validator_class, options)
+        if_clause = options.delete(:if)
+        unless_clause = options.delete(:unless)
+        send(:"before_#{attribute}_post_process", :if => if_clause, :unless => unless_clause) do |*args|
+          validator_class.new(options.dup).validate(self)
+        end
+      end
+
     end
   end
 end
