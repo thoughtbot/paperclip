@@ -73,7 +73,9 @@ module Paperclip
       # You'll still need to have a virtual attribute (created by +attr_accessor+)
       # name +[attachment]_content_type+ to be able to use this validator.
       def validates_attachment_content_type(*attr_names)
-        validates_with AttachmentContentTypeValidator, _merge_attributes(attr_names)
+        options = _merge_attributes(attr_names)
+        validates_with AttachmentContentTypeValidator, options.dup
+        validate_before_processing AttachmentContentTypeValidator, options.dup
       end
     end
   end

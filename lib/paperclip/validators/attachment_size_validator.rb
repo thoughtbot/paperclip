@@ -98,7 +98,9 @@ module Paperclip
       #   be run if this lambda or method returns true.
       # * +unless+: Same as +if+ but validates if lambda or method returns false.
       def validates_attachment_size(*attr_names)
-        validates_with AttachmentSizeValidator, _merge_attributes(attr_names)
+        options = _merge_attributes(attr_names)
+        validates_with AttachmentSizeValidator, options.dup
+        validate_before_processing AttachmentSizeValidator, options.dup
       end
     end
   end

@@ -28,7 +28,8 @@ module Paperclip
         :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
         :use_timestamp         => true,
-        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
+        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        :check_validity_before_processing => true
       }
     end
 
@@ -105,7 +106,7 @@ module Paperclip
 
       @dirty = true
 
-      post_process(*only_process) if post_processing && valid_assignment?
+      post_process(*only_process) if post_processing
 
       # Reset the file size if the original file was reprocessed.
       instance_write(:file_size,   @queued_for_write[:original].size)
@@ -418,7 +419,9 @@ module Paperclip
 
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
-          post_process_styles(*style_args)
+          unless @options[:check_validity_before_processing] && instance.errors.any?
+            post_process_styles(*style_args)
+          end
         end
       end
     end
