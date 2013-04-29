@@ -1,12 +1,12 @@
 module Paperclip
   class TempfileFactory
-
     ILLEGAL_FILENAME_CHARACTERS = /^~/
 
     def generate(name)
       @name = name
       file = Tempfile.new([basename, extension])
       file.binmode
+      puts `lsof -p #{$$}`
       file
     end
 

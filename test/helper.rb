@@ -4,7 +4,13 @@ require 'pathname'
 require 'test/unit'
 
 require 'shoulda'
-require 'mocha'
+
+begin
+  require 'mocha/setup'
+rescue LoadError
+  require 'mocha'
+end
+
 require 'bourne'
 
 require 'active_record'
@@ -37,6 +43,12 @@ class Test::Unit::TestCase
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end
   end
+
+  def teardown
+    if @file
+      @file.close rescue nil
+    end
+  end
 end
 
 $LOAD_PATH << File.join(ROOT, 'lib')
@@ -48,7 +60,14 @@ require './shoulda_macros/paperclip'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
-ActiveRecord::Base.logger = ActiveSupport::Logger.new(File.dirname(__FILE__) + "/debug.log")
+
+logger_klass = if defined?(ActiveSupport::BufferedLogger)
+    ActiveSupport::BufferedLogger
+  else
+    ActiveSupport::Logger
+  end
+
+ActiveRecord::Base.logger = logger_klass.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
