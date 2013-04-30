@@ -4,7 +4,7 @@ require 'pathname'
 require 'test/unit'
 
 require 'shoulda'
-require 'mocha'
+require 'mocha/setup'
 require 'bourne'
 
 require 'active_record'
