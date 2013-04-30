@@ -14,6 +14,7 @@ module Paperclip
         :default_url           => "/:attachment/:style/missing.png",
         :escape_url            => true,
         :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
+        :filename_sanitizer    => nil,
         :hash_data             => ":class/:attachment/:id/:style/:updated_at",
         :hash_digest           => "SHA1",
         :interpolator          => Paperclip::Interpolations,
@@ -96,7 +97,12 @@ module Paperclip
       return nil if file.nil?
 
       @queued_for_write[:original]   = file
-      instance_write(:file_name,       cleanup_filename(file.original_filename))
+      cleaned_filename = if @options[:filename_sanitizer]
+        @options[:filename_sanitizer].call(file.original_filename, self)
+      else
+        cleanup_filename(file.original_filename)
+      end
+      instance_write(:file_name,       cleaned_filename)
       instance_write(:content_type,    file.content_type.to_s.strip)
       instance_write(:file_size,       file.size)
       instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
@@ -358,6 +364,14 @@ module Paperclip
       end
     end
 
+    def cleanup_filename(filename)
+      if @options[:restricted_characters]
+        filename.gsub(@options[:restricted_characters], '_')
+      else
+        filename
+      end
+    end
+
     private
 
     def path_option
@@ -485,14 +499,6 @@ module Paperclip
          file.close unless file.closed?
          file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
        end
-    end
-
-    def cleanup_filename(filename)
-      if @options[:restricted_characters]
-        filename.gsub(@options[:restricted_characters], '_')
-      else
-        filename
-      end
     end
 
     # Check if attachment database table has a created_at field

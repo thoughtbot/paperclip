@@ -916,6 +916,40 @@ class AttachmentTest < Test::Unit::TestCase
         end
       end
     end
+
+    context 'with specified sanitizer proc' do
+      setup do
+        @old_defaults = Paperclip::Attachment.default_options.dup
+      end
+
+      teardown do
+        Paperclip::Attachment.default_options.merge! @old_defaults
+      end
+
+      should 'call proc and take it result as cleaned filename' do
+        proc = Proc.new do |str, attachment|
+          "from_proc_#{str}"
+        end
+        Paperclip::Attachment.default_options[:filename_sanitizer] = proc
+
+        @file.stubs(:original_filename).returns("goood.png")
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+        assert_equal "from_proc_goood.png", @dummy.avatar.original_filename
+      end
+
+      should 'be able to call cleanup_filename from proc' do
+        proc = Proc.new do |str, attachment|
+          attachment.cleanup_filename "from_proc_#{str}"
+        end
+        Paperclip::Attachment.default_options[:filename_sanitizer] = proc
+
+        @file.stubs(:original_filename).returns("go/ood.png")
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+        assert_equal "from_proc_go_ood.png", @dummy.avatar.original_filename
+      end
+    end
   end
 
   context "Attachment with uppercase extension and a default style" do
