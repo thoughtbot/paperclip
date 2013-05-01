@@ -164,6 +164,8 @@ module Paperclip
         if path
           base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
           s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+        else
+          url
         end
       end
 

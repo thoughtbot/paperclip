@@ -539,6 +539,18 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
+  context "#expiring_url" do
+    setup { @dummy = Dummy.new }
+
+    context "with no attachment" do
+      setup { assert(!@dummy.avatar.exists?) }
+
+      should "return the default URL" do
+        assert_equal(@dummy.avatar.url, @dummy.avatar.expiring_url)
+      end
+    end
+  end
+
   context "Generating a url with an expiration for each style" do
     setup do
       rebuild_model :storage => :s3,
