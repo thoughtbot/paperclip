@@ -26,6 +26,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'define an after_save callback' do
       assert_adding_attachment('avatar').defines_callback('after_save')
     end
+
+    should 'define a before_destroy callback' do
+      assert_adding_attachment('avatar').defines_callback('before_destroy')
+    end
   end
 
   private
