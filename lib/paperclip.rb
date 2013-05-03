@@ -175,8 +175,6 @@ module Paperclip
     def has_attached_file(name, options = {})
       HasAttachedFile.define_on(self, name, options)
 
-      after_destroy { send(name).send(:flush_deletes) }
-
       define_paperclip_callbacks :post_process, :"#{name}_post_process"
     end
   end
