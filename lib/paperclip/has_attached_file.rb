@@ -15,7 +15,6 @@ module Paperclip
       define_getter
       define_setter
       define_query
-      check_for_path_clash
       register_with_rake_tasks
       add_active_record_callbacks
     end
@@ -64,10 +63,6 @@ module Paperclip
       @klass.send :define_method, "#{@name}?" do
         send(name).file?
       end
-    end
-
-    def check_for_path_clash
-      Paperclip.check_for_path_clash(@name, @options[:path], @klass.name)
     end
 
     def register_with_rake_tasks

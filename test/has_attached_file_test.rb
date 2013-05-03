@@ -19,10 +19,6 @@ class HasAttachedFileTest < Test::Unit::TestCase
       assert_adding_attachment('avatar').defines_validation
     end
 
-    should 'check for a path collision' do
-      assert_adding_attachment('avatar').checks_for_path_collision
-    end
-
     should 'register the attachment with Paperclip::Tasks' do
       assert_adding_attachment('avatar').registers_with_tasks
     end
@@ -63,17 +59,6 @@ class HasAttachedFileTest < Test::Unit::TestCase
 
       assert_received(a_class, :validates_each) do |expect|
         expect.with(@attachment_name)
-      end
-    end
-
-    def checks_for_path_collision
-      a_class = stub_class
-      Paperclip.stubs(:check_for_path_clash)
-
-      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
-
-      assert_received(Paperclip, :check_for_path_clash) do |expect|
-        expect.with(@attachment_name, nil, a_class.name)
       end
     end
 
