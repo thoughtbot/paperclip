@@ -34,6 +34,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
     should 'define an after_destroy callback' do
       assert_adding_attachment('avatar').defines_callback('after_destroy')
     end
+
+    should 'define the Paperclip-specific callbacks' do
+      assert_adding_attachment('avatar').defines_callback('define_paperclip_callbacks')
+    end
   end
 
   private
@@ -98,6 +102,7 @@ class HasAttachedFileTest < Test::Unit::TestCase
            after_save: nil,
            before_destroy: nil,
            after_destroy: nil,
+           define_paperclip_callbacks: nil,
            name: 'Billy')
     end
   end
