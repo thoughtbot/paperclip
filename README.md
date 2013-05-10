@@ -174,6 +174,9 @@ validation.
 More information about the options to `has_attached_file` is available in the
 documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
 
+Validations
+-----------
+
 For validations, Paperclip introduces several validators to validate your attachment:
 
 * `AttachmentContentTypeValidator`
@@ -205,6 +208,49 @@ Lastly, you can also define multiple validations on a single attachment using `v
 validates_attachment :avatar, :presence => true,
   :content_type => { :content_type => "image/jpg" },
   :size => { :in => 0..10.kilobytes }
+```
+
+_NOTE: Post processing will not even *start* if the attachment is not valid
+according to the validations. Your callbacks and processors will *only* be
+called with valid attachments._
+
+```ruby
+class Message < ActiveRecord::Base
+  has_attached_file :asset, styles: {thumb: "100x100#"}
+
+  before_post_process :skip_for_audio
+
+  def skip_for_audio
+    ! %w(audio/ogg application/ogg).include?(asset_content_type)
+  end
+end
+```
+
+If you have other validations that depend on assignment order, the recommended
+course of action is to prevent the assignment of the attachment until
+afterwards, then assign manually:
+
+```ruby
+class Book < ActiveRecord::Base
+  has_attached_file :document, styles: {thumbnail: "60x60#"}
+  validates_attachment :document, content_type: "application/pdf"
+  validates_something_else # Other validations that conflict with Paperclip's
+end
+
+class BooksController < ApplicationController
+  def create
+    @book = Book.new(book_params)
+    @book.document = params[:book][:document]
+    @book.save
+    respond_with @book
+  end
+
+  private
+
+  def book_params
+    params.require(:book).permit(:title, :author)
+  end
+end
 ```
 
 Defaults
