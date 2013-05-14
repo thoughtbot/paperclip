@@ -6,7 +6,6 @@ module Paperclip
       @name = name
       file = Tempfile.new([basename, extension])
       file.binmode
-      puts `lsof -p #{$$}`
       file
     end
 
