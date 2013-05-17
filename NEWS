@@ -1,7 +1,17 @@
+New in 3.4.2:
+
+* Improvement: Use https for Gemfile urls
+* Improvement: Updated and more correct documentation
+* Improvement: Use the -optimize flag on animated GIFs
+* Improvement: Remove the Gemfile.lock
+* Improvement: Add #expiring_url as an alias for #url until the storage defines it
+* Improvement: Remove path clash checking, as it's unnecessary
+* Bug Fix: Do not rely on checking version numbers for aws-sdk
+
 New in 3.4.1:
 
 * Improvement: Various documentation fixes and improvements
-* Bug Fix: Clearing an attachment with `perserve_files` on should still clear the attachment
+* Bug Fix: Clearing an attachment with `preserve_files` on should still clear the attachment
 * Bug Fix: Instances are #changed? when a new file is assigned
 * Bug Fix: Correctly deal with S3 styles when using a lambda
 * Improvement: Accept and pass :credential_provider option to AWS-SDK
