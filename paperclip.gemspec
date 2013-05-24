@@ -40,7 +40,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency('cucumber', '~> 1.2.1')
   s.add_development_dependency('aruba')
   s.add_development_dependency('nokogiri')
-  s.add_development_dependency('capybara')
+  # Ruby version < 1.9.3 can't install capybara > 2.0.3.
+  s.add_development_dependency('capybara', '= 2.0.3')
   s.add_development_dependency('bundler')
   s.add_development_dependency('fog', '>= 1.4.0', "< 1.7.0")
   s.add_development_dependency('pry')
