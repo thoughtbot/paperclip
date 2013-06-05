@@ -11,6 +11,10 @@ module Paperclip
       end
     end
 
+    def target
+      @target
+    end
+
     class << self
       attr_accessor :content_type_detector
     end

@@ -377,7 +377,9 @@ module Paperclip
     end
 
     def valid_assignment? #:nodoc:
+      dont_forget_about_me = @queued_for_write[:original].target
       if instance.valid?
+        @queued_for_write[:original] = UploadedFileAdapter.new(dont_forget_about_me) if @queued_for_write[:original].nil?
         true
       else
         instance.errors.none? do |attr, message|
