@@ -7,29 +7,31 @@ module Paperclip
       end
 
       def validate_each(record, attribute, value)
+        base_attribute = attribute.to_sym
         attribute = "#{attribute}_content_type".to_sym
         value = record.send :read_attribute_for_validation, attribute
 
         return if (value.nil? && options[:allow_nil]) || (value.blank? && options[:allow_blank])
 
-        validate_whitelist(record, attribute, value)
-        validate_blacklist(record, attribute, value)
+        validate_whitelist(record, base_attribute, attribute, value)
+        validate_blacklist(record, base_attribute, attribute, value)
       end
 
-      def validate_whitelist(record, attribute, value)
+      def validate_whitelist(record, base_attribute, attribute, value)
         if allowed_types.present? && allowed_types.none? { |type| type === value }
-          mark_invalid record, attribute, allowed_types
+          mark_invalid record, base_attribute, attribute, allowed_types
         end
       end
 
-      def validate_blacklist(record, attribute, value)
+      def validate_blacklist(record, base_attribute, attribute, value)
         if forbidden_types.present? && forbidden_types.any? { |type| type === value }
-          mark_invalid record, attribute, forbidden_types
+          mark_invalid record, base_attribute, attribute, forbidden_types
         end
       end
 
-      def mark_invalid(record, attribute, types)
+      def mark_invalid(record, base_attribute, attribute, types)
         record.errors.add attribute, :invalid, options.merge(:types => types.join(', '))
+        record.errors.add base_attribute, :invalid, options.merge(:types => types.join(', '))
       end
 
       def allowed_types
