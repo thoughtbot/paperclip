@@ -16,6 +16,10 @@ module Paperclip
         klass.attachment_definitions.keys
       end
     end
+
+    def self.log_error(error)
+      puts error
+    end
   end
 end
 
@@ -31,10 +35,16 @@ namespace :paperclip do
       styles = (ENV['STYLES'] || ENV['styles'] || '').split(',').map(&:to_sym)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
-          instance.send(name).reprocess!(*styles)
+          attachment = instance.send(name)
+          begin
+            attachment.reprocess!(*styles)
+          rescue Exception => e
+            Paperclip::Task.log_error("exception while processing #{klass} ID #{instance.id}:")
+            Paperclip::Task.log_error(" " + e.message + "\n")
+          end
           unless instance.errors.blank?
-            puts "errors while processing #{klass} ID #{instance.id}:"
-            puts " " + instance.errors.full_messages.join("\n ") + "\n"
+            Paperclip::Task.log_error("errors while processing #{klass} ID #{instance.id}:")
+            Paperclip::Task.log_error(" " + instance.errors.full_messages.join("\n ") + "\n")
           end
         end
       end
