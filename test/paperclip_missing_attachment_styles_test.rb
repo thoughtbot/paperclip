@@ -1,21 +1,17 @@
 require './test/helper'
 
 class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
+  def setup
+    Paperclip::Tasks::Attachments.clear
+  end
 
   context "Paperclip" do
     setup do
-      Paperclip.classes_with_attachments = Set.new
+      Paperclip::Tasks::Attachments.clear
     end
 
     teardown do
       File.unlink(Paperclip.registered_attachments_styles_path) rescue nil
-    end
-
-    should "be able to keep list of models using it" do
-      assert_kind_of Set, Paperclip.classes_with_attachments
-      assert Paperclip.classes_with_attachments.empty?, 'list should be empty'
-      rebuild_model
-      assert_equal ['Dummy'].to_set, Paperclip.classes_with_attachments
     end
 
     should "enable to get and set path to registered styles file" do

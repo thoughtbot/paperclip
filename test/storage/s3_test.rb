@@ -709,7 +709,7 @@ class S3Test < Test::Unit::TestCase
         setup do
           AWS::S3::S3Object.any_instance.stubs(:exists?).returns(true)
           AWS::S3::S3Object.any_instance.stubs(:delete)
-          @dummy.destroy_attached_files
+          @dummy.destroy
         end
 
         should "succeed" do
