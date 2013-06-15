@@ -53,7 +53,6 @@ class RakeTest < Test::Unit::TestCase
         end
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
-
     end
 
     context "when there is an error in reprocess!" do
@@ -91,7 +90,14 @@ class RakeTest < Test::Unit::TestCase
         end
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
+    end
+  end
 
+  context "Paperclip::Task.log_error method" do
+    should "print its argument to STDERR" do
+      msg = 'Some Message'
+      $stderr.expects(:puts).with(msg)
+      Paperclip::Task.log_error(msg)
     end
   end
 end

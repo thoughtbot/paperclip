@@ -18,7 +18,7 @@ module Paperclip
     end
 
     def self.log_error(error)
-      puts error
+      $stderr.puts error
     end
   end
 end
