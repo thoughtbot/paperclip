@@ -657,6 +657,25 @@ Paperclip provides rspec-compatible matchers for testing attachments. See the
 documentation on [Paperclip::Shoulda::Matchers](http://rubydoc.info/gems/paperclip/Paperclip/Shoulda/Matchers)
 for more information.
 
+**Parallel Tests**
+
+Because of the default `path` for Paperclip storage, if you try to run tests in
+parallel, you may find that files get overwritten because the same path is being
+calculated for them in each test process. While this fix works for
+parallel_tests, a similar concept should be used for any other mechanism for
+running tests concurrently.
+
+```ruby
+if ENV['PARALLEL_TEST_GROUPS']
+  Paperclip::Attachment.default_options[:path] = ":rails_root/public/system/:rails_env/#{ENV['TEST_ENV_NUMBER'].to_i}/:class/:attachment/:id_partition/:filename"
+else
+  Paperclip::Attachment.default_options[:path] = ":rails_root/public/system/:rails_env/:class/:attachment/:id_partition/:filename"
+end
+```
+
+The important part here being the inclusion of `ENV['TEST_ENV_NUMBER']`, or the
+similar mechanism for whichever parallel testing library you use.
+
 Contributing
 ------------
 
