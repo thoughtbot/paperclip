@@ -13,7 +13,7 @@ module Paperclip
     end
 
     module HelperMethods
-      # Places ActiveRecord-style validations on the presence of a file.
+      # Places ActiveModel validations on the presence of a file.
       # Options:
       # * +if+: A lambda or name of an instance method. Validation will only
       #   be run if this lambda or method returns true.

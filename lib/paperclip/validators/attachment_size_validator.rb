@@ -88,7 +88,7 @@ module Paperclip
     end
 
     module HelperMethods
-      # Places ActiveRecord-style validations on the size of the file assigned. The
+      # Places ActiveModel validations on the size of the file assigned. The
       # possible options are:
       # * +in+: a Range of bytes (i.e. +1..1.megabyte+),
       # * +less_than+: equivalent to :in => 0..options[:less_than]

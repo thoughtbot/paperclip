@@ -53,7 +53,7 @@ module Paperclip
     end
 
     module HelperMethods
-      # Places ActiveRecord-style validations on the content type of the file
+      # Places ActiveModel validations on the content type of the file
       # assigned. The possible options are:
       # * +content_type+: Allowed content types.  Can be a single content type
       #   or an array.  Each type can be a String or a Regexp. It should be
