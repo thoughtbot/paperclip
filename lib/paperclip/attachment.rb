@@ -37,7 +37,7 @@ module Paperclip
     attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,
-    # +instance+ is the ActiveRecord object instance it's attached to, and
+    # +instance+ is the model object instance it's attached to, and
     # +options+ is the same as the hash passed to +has_attached_file+.
     #
     # Options include:
