@@ -397,18 +397,17 @@ module Paperclip
     end
 
     def extra_options_for(style) #:nodoc:
-      all_options   = @options[:convert_options][:all]
-      all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
-      style_options = @options[:convert_options][style]
-      style_options = style_options.call(instance) if style_options.respond_to?(:call)
-
-      [ style_options, all_options ].compact.join(" ")
+      process_options(:convert_options, style)
     end
 
     def extra_source_file_options_for(style) #:nodoc:
-      all_options   = @options[:source_file_options][:all]
+      process_options(:source_file_options, style)
+    end
+
+    def process_options(options_type, style) #:nodoc:
+      all_options   = @options[options_type][:all]
       all_options   = all_options.call(instance)   if all_options.respond_to?(:call)
-      style_options = @options[:source_file_options][style]
+      style_options = @options[options_type][style]
       style_options = style_options.call(instance) if style_options.respond_to?(:call)
 
       [ style_options, all_options ].compact.join(" ")
