@@ -377,16 +377,6 @@ module Paperclip
       Paperclip.log(message)
     end
 
-    def valid_assignment? #:nodoc:
-      if instance.valid?
-        true
-      else
-        instance.errors.none? do |attr, message|
-          attr.to_s.start_with?(@name.to_s)
-        end
-      end
-    end
-
     def initialize_storage #:nodoc:
       storage_class_name = @options[:storage].to_s.downcase.camelize
       begin
