@@ -5,6 +5,10 @@ module Paperclip
       cache_current_values
     end
 
+    def stat
+      File.stat(@target)
+    end
+
     private
 
     def cache_current_values
