@@ -23,6 +23,14 @@ module Paperclip
       @original_filename = new_filename.gsub(OS_RESTRICTED_CHARACTERS, "_")
     end
 
+    def nil?
+      false
+    end
+
+    def assignment?
+      true
+    end
+
     private
 
     def destination

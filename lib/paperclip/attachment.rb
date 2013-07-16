@@ -93,6 +93,7 @@ module Paperclip
       ensure_required_accessors!
       file = Paperclip.io_adapters.for(uploaded_file)
 
+      return nil if not file.assignment?
       self.clear(*only_process)
       return nil if file.nil?
 

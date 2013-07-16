@@ -47,4 +47,12 @@ class AbstractAdapterTest < Test::Unit::TestCase
 
     assert_equal "awesome_file_name.png", @adapter.original_filename
   end
+
+  should 'be an assignment' do
+    assert TestAdapter.new.assignment?
+  end
+
+  should 'not be nil' do
+    assert !TestAdapter.new.nil?
+  end
 end
