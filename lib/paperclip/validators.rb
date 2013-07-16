@@ -56,7 +56,7 @@ module Paperclip
         if_clause = options.delete(:if)
         unless_clause = options.delete(:unless)
         send(:"before_#{attribute}_post_process", :if => if_clause, :unless => unless_clause) do |*args|
-          validator_class.new(options).validate(self)
+          validator_class.new(options.dup).validate(self)
         end
       end
 
