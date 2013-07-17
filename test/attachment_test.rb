@@ -985,6 +985,20 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
+    should 'clear out the previous assignment when assigned nil' do
+      @attachment.assign(@file)
+      original_file = @attachment.queued_for_write[:original]
+      @attachment.assign(nil)
+      assert_nil @attachment.queued_for_write[:original]
+    end
+
+    should 'not do anything when it is assigned an empty string' do
+      @attachment.assign(@file)
+      original_file = @attachment.queued_for_write[:original]
+      @attachment.assign("")
+      assert_equal original_file, @attachment.queued_for_write[:original]
+    end
+
     should "return nil as path when no file assigned" do
       assert_equal nil, @attachment.path
       assert_equal nil, @attachment.path(:blah)
