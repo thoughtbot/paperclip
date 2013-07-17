@@ -93,8 +93,24 @@ def rebuild_model options = {}
     table.column :avatar_file_size, :integer
     table.column :avatar_updated_at, :datetime
     table.column :avatar_fingerprint, :string
+    table.column :parent_id, :integer
   end
   rebuild_class options
+end
+
+def build_parent
+  ActiveRecord::Base.connection.create_table :parents, :force => true do |table|
+    table.column :checked, :boolean
+  end
+
+  build_parent_class
+end
+
+def build_parent_class
+  reset_class("Parent").tap do |klass|
+    klass.has_many :dummies, :inverse_of => :parent
+    klass.accepts_nested_attributes_for :dummies
+  end
 end
 
 def rebuild_class options = {}
