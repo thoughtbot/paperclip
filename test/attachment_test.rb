@@ -917,7 +917,7 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
 
-    context 'with specified sanitizer proc' do
+    context 'with specified cleaner' do
       setup do
         @old_defaults = Paperclip::Attachment.default_options.dup
       end
@@ -926,11 +926,10 @@ class AttachmentTest < Test::Unit::TestCase
         Paperclip::Attachment.default_options.merge! @old_defaults
       end
 
-      should 'call proc and take it result as cleaned filename' do
-        proc = Proc.new do |str, attachment|
+      should 'call the given proc and take the result as cleaned filename' do
+        Paperclip::Attachment.default_options[:filename_cleaner] = lambda do |str|
           "from_proc_#{str}"
         end
-        Paperclip::Attachment.default_options[:filename_sanitizer] = proc
 
         @file.stubs(:original_filename).returns("goood.png")
         @dummy = Dummy.new
@@ -938,16 +937,18 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal "from_proc_goood.png", @dummy.avatar.original_filename
       end
 
-      should 'be able to call cleanup_filename from proc' do
-        proc = Proc.new do |str, attachment|
-          attachment.cleanup_filename "from_proc_#{str}"
+      should 'call the given object and take the result as the cleaned filename' do
+        class MyCleaner
+          def call(filename)
+            "foo"
+          end
         end
-        Paperclip::Attachment.default_options[:filename_sanitizer] = proc
+        Paperclip::Attachment.default_options[:filename_cleaner] = MyCleaner.new
 
-        @file.stubs(:original_filename).returns("go/ood.png")
+        @file.stubs(:original_filename).returns("goood.png")
         @dummy = Dummy.new
         @dummy.avatar = @file
-        assert_equal "from_proc_go_ood.png", @dummy.avatar.original_filename
+        assert_equal "foo", @dummy.avatar.original_filename
       end
     end
   end
