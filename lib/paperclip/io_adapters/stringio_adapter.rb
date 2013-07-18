@@ -3,7 +3,7 @@ module Paperclip
     def initialize(target)
       @target = target
       cache_current_values
-      @tempfile = copy_to_tempfile(@target)
+      @tempfile = copy_to_tempfile
     end
 
     attr_writer :content_type
@@ -21,8 +21,8 @@ module Paperclip
       @size = @target.size
     end
 
-    def copy_to_tempfile(src)
-      while data = src.read(16*1024)
+    def copy_to_tempfile
+      while data = @target.read(16*1024)
         destination.write(data)
       end
       destination.rewind
