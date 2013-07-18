@@ -3,9 +3,8 @@ module Paperclip
 
     REGEXP = /^data:([-\w]+\/[-\w\+]+);base64,(.*)/
 
-    def initialize(target)
-      @data_uri_parts = target.match(REGEXP) || []
-      deserialize
+    def initialize(target_uri)
+      @target_uri = target_uri
       cache_current_values
       @tempfile = copy_to_tempfile
     end
@@ -14,15 +13,10 @@ module Paperclip
 
     def cache_current_values
       self.original_filename = 'base64.txt'
-
-      @content_type = @data_uri_parts[1]
-      @content_type ||= 'text/plain'
-
+      data_uri_parts ||= @target_uri.match(REGEXP) || []
+      @content_type = data_uri_parts[1] || 'text/plain'
+      @target = StringIO.new(Base64.decode64(data_uri_parts[2] || ''))
       @size = @target.size
-    end
-
-    def deserialize
-      @target = StringIO.new(Base64.decode64(@data_uri_parts[2]))
     end
 
   end
