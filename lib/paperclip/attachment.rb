@@ -61,6 +61,7 @@ module Paperclip
     # +source_file_options+ - flags passed to the +convert+ command that controls how the file is read
     # +processors+ - classes that transform the attachment. Defaults to [:thumbnail]
     # +preserve_files+ - whether to keep files on the filesystem when deleting or clearing the attachment. Defaults to false
+    # +filename_cleaner+ - An object that responds to #call(filename) that will strip unacceptable charcters from filename
     # +interpolator+ - the object used to interpolate filenames and URLs. Defaults to Paperclip::Interpolations
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
     # +escape_url+ - Perform URI escaping to URLs. Defaults to true
@@ -481,6 +482,9 @@ module Paperclip
        end
     end
 
+    # You can either specifiy :restricted_characters or you can define your own
+    # :filename_cleaner object. This object needs to respond to #call and takes
+    # the filename that will be cleaned. It should return the cleaned filenme.
     def filename_cleaner
       @options[:filename_cleaner] || FilenameCleaner.new(@options[:restricted_characters])
     end
