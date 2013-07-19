@@ -1,3 +1,19 @@
+New in 3.5.0:
+
+* Feature: Handle Base64-encoded data URIs as uploads
+* Feature: Add a FilenameCleaner class to allow custom filename sanitation
+* Improvement: Satisfied Mocha deprecation warnings
+* Bug Fix: Allow empty string to be submitted and ignored, as some forms do this
+* Improvement: Make #expiring_url behavior consistent with #url
+* Bug Fix: "Validate" attachments without invoking AR's validations
+* Improvement: Various refactorings for a cleaner codebase
+* Improvement: Be agnostic, use ActiveModel when appropriate
+* Improvement: Add validation errors to the base attachment attribute
+* Improvement: Handle errors in rake tasks
+* Improvement: Largely refactor has_attached_file into a new class
+* Improvement: Added Ruby 2.0.0 as a supported platform and removed 1.8.7
+* Improvement: Fixed some incompatabilities in the test suite
+
 New in 3.4.2:
 
 * Improvement: Use https for Gemfile urls
