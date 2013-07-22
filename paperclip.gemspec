@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage          = "https://github.com/thoughtbot/paperclip"
   s.summary           = "File attachments as attributes for ActiveRecord"
   s.description       = "Easy upload management for ActiveRecord"
+  s.license           = "MIT"
 
   s.rubyforge_project = "paperclip"
 
