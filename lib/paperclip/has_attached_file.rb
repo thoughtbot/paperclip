@@ -15,7 +15,7 @@ module Paperclip
       define_getter
       define_setter
       define_query
-      register_with_rake_tasks
+      register_new_attachment
       add_active_record_callbacks
       add_paperclip_callbacks
     end
@@ -66,8 +66,8 @@ module Paperclip
       end
     end
 
-    def register_with_rake_tasks
-      Paperclip::Tasks::Attachments.add(@klass, @name, @options)
+    def register_new_attachment
+      Paperclip::AttachmentRegistry.register(@klass, @name, @options)
     end
 
     def add_active_record_callbacks

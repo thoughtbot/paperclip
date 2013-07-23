@@ -2,19 +2,19 @@ require 'rubygems'
 require 'tempfile'
 require 'pathname'
 require 'test/unit'
-
-require 'shoulda'
-require 'mocha/setup'
-require 'bourne'
-
 require 'active_record'
 require 'active_record/version'
 require 'active_support'
 require 'active_support/core_ext'
+require 'shoulda'
+require 'mocha/setup'
+require 'bourne'
+require 'shoulda/context'
 require 'mime/types'
 require 'pathname'
 require 'ostruct'
 require 'pry'
+require 'protected_attributes'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
@@ -48,7 +48,7 @@ require './shoulda_macros/paperclip'
 
 FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
-ActiveRecord::Base.logger = ActiveSupport::BufferedLogger.new(File.dirname(__FILE__) + "/debug.log")
+ActiveRecord::Base.logger = ActiveSupport::Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
