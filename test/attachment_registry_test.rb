@@ -32,7 +32,7 @@ class AttachmentRegistryTest < Test::Unit::TestCase
     should 'call the block with the class, attachment name, and options' do
       foo = Class.new
       expected_accumulations = [
-        [foo,:avatar, { yo: 'greeting' }],
+        [foo, :avatar, { yo: 'greeting' }],
         [foo, :greeter, { ciao: 'greeting' }]
       ]
       expected_accumulations.each do |args|

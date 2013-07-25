@@ -15,6 +15,10 @@ class HasAttachedFileTest < Test::Unit::TestCase
       assert_adding_attachment('avatar').defines_method('avatar?')
     end
 
+    should 'define a method on the class to get all of its attachments' do
+      assert_adding_attachment('avatar').defines_class_method('attachment_definitions')
+    end
+
     should 'flush errors as part of validations' do
       assert_adding_attachment('avatar').defines_validation
     end
@@ -64,6 +68,17 @@ class HasAttachedFileTest < Test::Unit::TestCase
       end
     end
 
+    def defines_class_method(method_name)
+      a_class = stub_class
+      a_class.class.stubs(:define_method)
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
+
+      assert_received(a_class, :extend) do |expect|
+        expect.with(Paperclip::HasAttachedFile::ClassMethods)
+      end
+    end
+
     def defines_validation
       a_class = stub_class
 
@@ -103,6 +118,7 @@ class HasAttachedFileTest < Test::Unit::TestCase
            before_destroy: nil,
            after_destroy: nil,
            define_paperclip_callbacks: nil,
+           extend: nil,
            name: 'Billy')
     end
   end

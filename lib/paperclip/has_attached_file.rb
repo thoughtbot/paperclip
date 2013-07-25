@@ -12,7 +12,7 @@ module Paperclip
 
     def define
       define_flush_errors
-      define_getter
+      define_getters
       define_setter
       define_query
       register_new_attachment
@@ -29,7 +29,12 @@ module Paperclip
       end
     end
 
-    def define_getter
+    def define_getters
+      define_instance_getter
+      define_class_getter
+    end
+
+    def define_instance_getter
       name = @name
       options = @options
 
@@ -50,9 +55,12 @@ module Paperclip
       end
     end
 
+    def define_class_getter
+      @klass.extend(ClassMethods)
+    end
+
     def define_setter
       name = @name
-
       @klass.send :define_method, "#{@name}=" do |file|
         send(name).assign(file)
       end
@@ -60,7 +68,6 @@ module Paperclip
 
     def define_query
       name = @name
-
       @klass.send :define_method, "#{@name}?" do
         send(name).file?
       end
@@ -81,6 +88,12 @@ module Paperclip
       @klass.send(
         :define_paperclip_callbacks,
         :post_process, :"#{@name}_post_process")
+    end
+
+    module ClassMethods
+      def attachment_definitions
+        Paperclip::AttachmentRegistry.definitions_for(self.class)
+      end
     end
   end
 end
