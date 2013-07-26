@@ -46,7 +46,11 @@ module Paperclip
           @file = StringIO.new(".")
           @subject.send(@attachment_name).assign(@file)
           @subject.valid?
-          @subject.errors[:"#{@attachment_name}"].blank?
+          expected_message = [
+            @attachment_name.to_s.titleize,
+            I18n.t(:blank, scope: [:errors, :messages])
+          ].join(' ')
+          @subject.errors.full_messages.exclude?(expected_message)
         end
       end
     end
