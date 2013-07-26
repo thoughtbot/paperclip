@@ -324,8 +324,6 @@ class S3Test < Test::Unit::TestCase
       @dummy.save
     end
 
-    teardown { @file.close }
-
     should "succeed" do
       assert_equal @dummy.counter, 7
     end
@@ -663,8 +661,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       should "not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
@@ -831,8 +827,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       context "and saved" do
         setup do
           object = stub
@@ -869,8 +863,6 @@ class S3Test < Test::Unit::TestCase
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       context "and saved" do
         setup do
@@ -909,8 +901,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       context "and saved" do
         setup do
           object = stub
@@ -947,8 +937,6 @@ class S3Test < Test::Unit::TestCase
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       context "and saved" do
         setup do
@@ -988,8 +976,6 @@ class S3Test < Test::Unit::TestCase
           @dummy.avatar = @file
         end
 
-        teardown { @file.close }
-
         context "and saved" do
           setup do
             object = stub
@@ -1027,8 +1013,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       context "and saved" do
         setup do
           object = stub
@@ -1065,8 +1049,6 @@ class S3Test < Test::Unit::TestCase
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       context "and saved" do
         setup do
@@ -1150,8 +1132,6 @@ class S3Test < Test::Unit::TestCase
           @dummy.avatar = @file
         end
 
-        teardown { @file.close }
-
         context "and saved" do
           setup do
             object = stub
@@ -1187,8 +1167,6 @@ class S3Test < Test::Unit::TestCase
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
-
-        teardown { @file.close }
 
         context "and saved" do
           setup do
@@ -1231,8 +1209,6 @@ class S3Test < Test::Unit::TestCase
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
-
-        teardown { @file.close }
 
         context "and saved" do
           setup do
@@ -1280,8 +1256,6 @@ class S3Test < Test::Unit::TestCase
           @dummy.avatar = @file
         end
 
-        teardown { @file.close }
-
         context "and saved" do
           setup do
             @dummy.save
@@ -1323,8 +1297,6 @@ class S3Test < Test::Unit::TestCase
         @dummy.stubs(:name => 'Custom Avatar Name.png')
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       context "and saved" do
         setup do

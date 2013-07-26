@@ -17,10 +17,6 @@ class AttachmentAdapterTest < Test::Unit::TestCase
       @subject = Paperclip.io_adapters.for(@attachment)
     end
 
-    teardown do
-      @file.close
-    end
-
     should "get the right filename" do
       assert_equal "5k.png", @subject.original_filename
     end
@@ -68,10 +64,6 @@ class AttachmentAdapterTest < Test::Unit::TestCase
       @subject = Paperclip.io_adapters.for(@attachment)
     end
 
-    teardown do
-      @file.close
-    end
-
     should "not generate paths that include restricted characters" do
       assert_no_match /:/, @subject.path
     end
@@ -93,11 +85,6 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
       @attachment.save
       @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb])
-    end
-
-    teardown do
-      @file.close
-      @thumb.close
     end
 
     should "get the original filename" do

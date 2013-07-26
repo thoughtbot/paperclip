@@ -34,8 +34,6 @@ unless ENV["S3_BUCKET"].blank?
         @attachment2.assign(@attachment)
         @attachment2.save
       end
-
-      teardown { [@s3_credentials, @file].each(&:close) }
     end
 
     context "Generating an expiring url on a nonexistant attachment" do
@@ -68,8 +66,6 @@ unless ENV["S3_BUCKET"].blank?
         @dummy = Dummy.new
       end
 
-      teardown { @s3_credentials.close }
-
       should "be extended by the S3 module" do
         assert Dummy.new.avatar.is_a?(Paperclip::Storage::S3)
       end
@@ -81,7 +77,6 @@ unless ENV["S3_BUCKET"].blank?
         end
 
         teardown do
-          @file.close
           @dummy.destroy
         end
 
@@ -111,8 +106,6 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.avatar = @file
         @dummy.save
       end
-
-      teardown { @s3_credentials.close }
 
       should "return a replaced version for path" do
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
@@ -151,8 +144,6 @@ unless ENV["S3_BUCKET"].blank?
         @dummy = Dummy.new
       end
 
-      teardown { @s3_credentials.close }
-
       context "when assigned" do
         setup do
           @file = File.new(fixture_file('5k.png'), 'rb')
@@ -160,7 +151,6 @@ unless ENV["S3_BUCKET"].blank?
         end
 
         teardown do
-          @file.close
           @dummy.destroy
         end
 

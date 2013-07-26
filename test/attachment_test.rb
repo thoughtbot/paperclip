@@ -38,8 +38,6 @@ class AttachmentTest < Test::Unit::TestCase
 
     # :small avatar should be 42px wide (processed original), not 50px (preprocessed original)
     assert_equal `identify -format "%w" "#{dummy.avatar.path(:small)}"`.strip, "42"
-
-    file.close
   end
 
   should "not delete styles that don't get reprocessed" do
@@ -280,8 +278,6 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.avatar = @file
     end
 
-    teardown { @file.close }
-
     should "make sure that they are interpolated correctly" do
       assert_equal "1024.omg/1024-bbq/1024what/000/001/024.wtf", @dummy.avatar.path
     end
@@ -515,8 +511,6 @@ class AttachmentTest < Test::Unit::TestCase
       @dummyB = Dummy.new(:other => 'b')
       @dummyB.avatar = @file
     end
-
-    teardown { @file.close }
 
     should "return correct path" do
       assert_equal "path/a.png", @dummyA.avatar.path
@@ -980,7 +974,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     teardown do
-      @file.close
       Paperclip::Attachment.default_options.merge!(@old_defaults)
     end
 
@@ -1009,7 +1002,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
 
     teardown do
-      @file.close
       Paperclip::Attachment.default_options.merge!(@old_defaults)
     end
 
@@ -1216,8 +1208,6 @@ class AttachmentTest < Test::Unit::TestCase
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
-    teardown { @file.close }
-
     should "not error when assigned an attachment" do
       assert_nothing_raised { @dummy.avatar = @file }
     end
@@ -1370,8 +1360,6 @@ class AttachmentTest < Test::Unit::TestCase
       @path = @attachment.path
     end
 
-    teardown { @file.close }
-
     should "not delete the files from storage when attachment is destroyed" do
       @attachment.destroy
       assert_file_exists(@path)
@@ -1399,8 +1387,6 @@ class AttachmentTest < Test::Unit::TestCase
       @attachment = @dummy.avatar
       @path = @attachment.path
     end
-
-    teardown { @file.close }
 
     should "not be deleted when the model fails to destroy" do
       @dummy.stubs(:destroy).raises(Exception)

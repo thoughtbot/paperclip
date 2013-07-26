@@ -7,8 +7,6 @@ class MetaClassTest < Test::Unit::TestCase
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
-    teardown { @file.close }
-
     should "be able to use Paperclip like a normal class" do
       reset_class("Dummy")
       @dummy = Dummy.new
@@ -16,7 +14,7 @@ class MetaClassTest < Test::Unit::TestCase
       assert_nothing_raised do
         rebuild_meta_class_of(@dummy)
       end
-    end    
+    end
 
     should "work like any other instance" do
       reset_class("Dummy")

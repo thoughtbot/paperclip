@@ -13,8 +13,6 @@ class IntegrationTest < Test::Unit::TestCase
       end
     end
 
-    teardown { @file.close }
-
     should "not exceed the open file limit" do
        assert_nothing_raised do
          dummies = Dummy.find(:all)
@@ -31,8 +29,6 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy.avatar = @file
       assert @dummy.save
     end
-
-    teardown { @file.close }
 
     should "create its thumbnails properly" do
       assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
@@ -90,8 +86,6 @@ class IntegrationTest < Test::Unit::TestCase
 
     end
 
-    teardown { @file.close }
-
     should "not create the thumbnails upon saving when post-processing is disabled" do
       @dummy.avatar.post_processing = false
       @dummy.avatar = @file
@@ -122,8 +116,6 @@ class IntegrationTest < Test::Unit::TestCase
       assert @dummy.save
       @dummy.avatar.post_processing = true
     end
-
-    teardown { @file.close }
 
     should "allow us to create all thumbnails in one go" do
       assert_file_not_exists(@thumb_small_path)
@@ -159,8 +151,6 @@ class IntegrationTest < Test::Unit::TestCase
     should "report the file size of the processed file and not the original" do
       assert_not_equal File.size(@file.path), @dummy.avatar.size
     end
-
-    teardown { @file.close }
   end
 
   context "A model with attachments scoped under an id" do
@@ -172,8 +162,6 @@ class IntegrationTest < Test::Unit::TestCase
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
     end
-
-    teardown { @file.close }
 
     context "when saved" do
       setup do
@@ -218,7 +206,6 @@ class IntegrationTest < Test::Unit::TestCase
 
       teardown do
         File.umask @umask
-        @file.close
       end
 
       should "respect the current umask" do
@@ -235,10 +222,6 @@ class IntegrationTest < Test::Unit::TestCase
         rebuild_model :override_file_permissions => perms
         @dummy = Dummy.new
         @file  = File.new(fixture_file("5k.png"), 'rb')
-      end
-
-      teardown do
-        @file.close
       end
 
       should "respect the current perms" do
@@ -274,8 +257,6 @@ class IntegrationTest < Test::Unit::TestCase
       assert @dummy.valid?, @dummy.errors.full_messages.join(", ")
       assert @dummy.save
     end
-
-    teardown { [@file, @bad_file].each(&:close) }
 
     should "write and delete its files" do
       [["434x66", :original],
@@ -370,8 +351,6 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy2.save
       end
 
-      teardown { @file2.close }
-
       should "work when assigned a file" do
         assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
                          `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
@@ -397,8 +376,6 @@ class IntegrationTest < Test::Unit::TestCase
       @dummy.avatar = @file
     end
 
-    teardown { @file.close }
-
     should "should not error when saving" do
       @dummy.save!
     end
@@ -415,10 +392,6 @@ class IntegrationTest < Test::Unit::TestCase
 
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy = Dummy.create! :avatar => @file
-    end
-
-    teardown do
-      @file.close
     end
 
     should "be accessible" do
@@ -491,12 +464,6 @@ class IntegrationTest < Test::Unit::TestCase
         @dummy.save!
 
         @files_on_s3 = s3_files_for(@dummy.avatar)
-      end
-
-      teardown do
-        @file.close
-        @bad_file.close
-        @files_on_s3.values.each(&:close) if @files_on_s3
       end
 
       context 'assigning itself to a new model' do
@@ -629,8 +596,6 @@ class IntegrationTest < Test::Unit::TestCase
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
-
-    teardown { @file.close }
 
     should "succeed when original attachment is a file" do
       original = Dummy.new
