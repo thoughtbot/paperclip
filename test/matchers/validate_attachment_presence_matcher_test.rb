@@ -23,6 +23,28 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
       should_accept_dummy_class
     end
 
+    context "given an instance with other attachment validations" do
+      setup do
+        reset_table("dummies") do |d|
+          d.string :avatar_file_name
+          d.string :avatar_content_type
+        end
+
+        @dummy_class.class_eval do
+          validates_attachment_presence :avatar
+          validates_attachment_content_type :avatar, :content_type => 'image/gif'
+        end
+
+        @dummy = @dummy_class.new
+        @matcher = self.class.validate_attachment_presence(:avatar)
+      end
+
+      should "it should validate properly" do
+        @dummy.avatar = File.new fixture_file('5k.png')
+        assert_accepts @matcher, @dummy
+      end
+    end
+
     context "using an :if to control the validation" do
       setup do
         @dummy_class.class_eval do
