@@ -37,6 +37,14 @@ class Test::Unit::TestCase
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end
   end
+
+  def teardown
+    ObjectSpace.each_object File do |file|
+      if !file.closed? && file.path !~ /debug.log$/
+        file.close
+      end
+    end
+  end
 end
 
 $LOAD_PATH << File.join(ROOT, 'lib')

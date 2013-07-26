@@ -17,8 +17,6 @@ class FogTest < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       should "have the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
@@ -35,8 +33,6 @@ class FogTest < Test::Unit::TestCase
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       should "have the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
@@ -59,8 +55,6 @@ class FogTest < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       should "be able to interpolate the path without blowing up" do
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../tmp/public/avatars/5k.png")),
                      @dummy.avatar.path
@@ -82,8 +76,6 @@ class FogTest < Test::Unit::TestCase
         @dummy.id = 1
         @dummy.avatar = @file
       end
-
-      teardown { @file.close }
 
       should "have correct path and url from interpolated defaults" do
         assert_equal "dummies/avatars/000/000/001/original/5k.png", @dummy.avatar.path
@@ -149,7 +141,6 @@ class FogTest < Test::Unit::TestCase
       end
 
       teardown do
-        @file.close
         directory = @connection.directories.new(:key => @fog_directory)
         directory.files.each {|file| file.destroy}
         directory.destroy
@@ -178,7 +169,6 @@ class FogTest < Test::Unit::TestCase
         tempfile.rewind
         assert_equal @connection.directories.get(@fog_directory).files.get(@dummy.avatar.path).body,
                      tempfile.read
-        tempfile.close
       end
 
       should "pass the content type to the Fog::Storage::AWS::Files instance" do
@@ -442,7 +432,6 @@ class FogTest < Test::Unit::TestCase
     end
 
     teardown do
-      @file.close
       Fog.mock!
     end
 

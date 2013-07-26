@@ -75,8 +75,6 @@ class PaperclipTest < Test::Unit::TestCase
       @expected = [d1, d3]
     end
 
-    teardown { @file.close }
-
     should "yield every instance of a model that has an attachment" do
       actual = []
       Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|
@@ -112,8 +110,6 @@ class PaperclipTest < Test::Unit::TestCase
       rebuild_model :path => "tmp/:class/omg/:style.:extension"
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
-
-    teardown { @file.close }
 
     should "not error when trying to also create a 'blah' attachment" do
       assert_nothing_raised do

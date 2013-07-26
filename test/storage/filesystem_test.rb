@@ -11,8 +11,6 @@ class FileSystemTest < Test::Unit::TestCase
         @dummy.avatar = @file
       end
 
-      teardown { @file.close }
-
       should "allow file assignment" do
         assert @dummy.save
       end
@@ -47,7 +45,6 @@ class FileSystemTest < Test::Unit::TestCase
         @dummy.avatar.copy_to_local_file(:original, tempfile.path)
         tempfile.rewind
         assert_equal @file.read, tempfile.read
-        tempfile.close
       end
     end
 
@@ -60,8 +57,6 @@ class FileSystemTest < Test::Unit::TestCase
         @dummy.avatar = @file
         @dummy.save
       end
-
-      teardown { @file.close }
 
       should "store the file" do
         assert_file_exists(@dummy.avatar.path)

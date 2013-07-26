@@ -9,8 +9,6 @@ class FileAdapterTest < Test::Unit::TestCase
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
-
       should "get the right filename" do
         assert_equal "5k.png", @subject.original_filename
       end
@@ -92,8 +90,6 @@ class FileAdapterTest < Test::Unit::TestCase
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
-
       should "not generate filenames that include restricted characters" do
         assert_equal 'image_restricted.gif', @subject.original_filename
       end
@@ -108,8 +104,6 @@ class FileAdapterTest < Test::Unit::TestCase
         @file = Tempfile.new("file_adapter_test")
         @subject = Paperclip.io_adapters.for(@file)
       end
-
-      teardown { @file.close }
 
       should "provide correct mime-type" do
         assert_match %r{.*/x-empty}, @subject.content_type

@@ -7,8 +7,6 @@ class ThumbnailTest < Test::Unit::TestCase
       @tempfile = Paperclip::Tempfile.new(["file", ".jpg"])
     end
 
-    teardown { @tempfile.close }
-
     should "have its path contain a real extension" do
       assert_equal ".jpg", File.extname(@tempfile.path)
     end
@@ -23,8 +21,6 @@ class ThumbnailTest < Test::Unit::TestCase
       @tempfile = Paperclip::Tempfile.new("file")
     end
 
-    teardown { @tempfile.close }
-
     should "not have an extension if not given one" do
       assert_equal "", File.extname(@tempfile.path)
     end
@@ -38,8 +34,6 @@ class ThumbnailTest < Test::Unit::TestCase
     setup do
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
-
-    teardown { @file.close }
 
     [["600x600>", "434x66"],
      ["400x400>", "400x61"],
@@ -321,8 +315,6 @@ class ThumbnailTest < Test::Unit::TestCase
       @file = File.new(fixture_file("twopage.pdf"), 'rb')
     end
 
-    teardown { @file.close }
-
     should "start with two pages with dimensions 612x792" do
       cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
       assert_equal "612x792"*2, `#{cmd}`.chomp
@@ -353,8 +345,6 @@ class ThumbnailTest < Test::Unit::TestCase
     setup do
       @file = File.new(fixture_file("animated.gif"), 'rb')
     end
-
-    teardown { @file.close }
 
     should "start with 12 frames with size 100x100" do
       cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
