@@ -92,7 +92,7 @@ module Paperclip
 
     module ClassMethods
       def attachment_definitions
-        Paperclip::AttachmentRegistry.definitions_for(self.class)
+        Paperclip::AttachmentRegistry.definitions_for(self)
       end
     end
   end
