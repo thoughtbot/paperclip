@@ -1,4 +1,4 @@
-require 'paperclip/tasks/attachments'
+require 'paperclip/attachment_registry'
 require 'set'
 
 module Paperclip
@@ -34,7 +34,7 @@ module Paperclip
   #   }
   def self.current_attachments_styles
     Hash.new.tap do |current_styles|
-      Paperclip::Tasks::Attachments.each_definition do |klass, attachment_name, attachment_attributes|
+      Paperclip::AttachmentRegistry.each_definition do |klass, attachment_name, attachment_attributes|
         # TODO: is it even possible to take into account Procs?
         next if attachment_attributes[:styles].kind_of?(Proc)
         attachment_attributes[:styles].try(:keys).try(:each) do |style_name|

@@ -201,7 +201,10 @@ class AttachmentTest < Test::Unit::TestCase
     dummy = Dummy.new
     dummy.id = 1234
     dummy.avatar_file_name = "fake.jpg"
-    expected_string = '{"dummy":{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}}'
+    expected_string = '{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}'
+    if ActiveRecord::Base.include_root_in_json # This is true by default in Rails 3, and false in 4
+      expected_string = %({"dummy":#{expected_string}})
+    end
     # active_model pre-3.2 checks only by calling any? on it, thus it doesn't work if it is empty
     assert_equal expected_string, dummy.to_json(:only => [:dummy_key_for_old_active_model], :methods => [:avatar])
   end
