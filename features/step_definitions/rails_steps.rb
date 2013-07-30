@@ -15,6 +15,7 @@ Given /^I generate a new rails application$/ do
       gem "gherkin"
       gem "aws-sdk"
       """
+    And I remove turbolinks if it exists
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
     And I successfully run `bundle install --local`
@@ -25,6 +26,27 @@ Given "I fix the application.rb for 3.0.12" do
   in_current_dir do
     File.open("config/application.rb", "a") do |f|
       f << "ActionController::Base.config.relative_url_root = ''"
+    end
+  end
+end
+
+def transform_file(filename)
+  content = File.read(filename)
+  File.open(filename, "w") do |f|
+    content = yield(content)
+    f.write(content)
+  end
+end
+
+Given "I remove turbolinks if it exists" do
+  if framework_major_version >= 4
+    in_current_dir do
+      transform_file("app/assets/javascripts/application.js") do |content|
+        content.gsub("//= require turbolinks", "")
+      end
+      transform_file("app/views/layouts/application.html.erb") do |content|
+        content.gsub(', "data-turbolinks-track" => true', "")
+      end
     end
   end
 end

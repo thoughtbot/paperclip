@@ -123,28 +123,30 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
-    context "that is attr_protected" do
-      setup do
-        Dummy.class_eval do
-          attr_protected :avatar
+    if ActiveSupport::VERSION::MAJOR < 4
+      context "that is attr_protected" do
+        setup do
+          Dummy.class_eval do
+            attr_protected :avatar
+          end
+          @dummy = Dummy.new
         end
-        @dummy = Dummy.new
-      end
 
-      should "not assign the avatar on mass-set" do
-        @dummy.attributes = { :other => "I'm set!",
-                              :avatar => @file }
+        should "not assign the avatar on mass-set" do
+          @dummy.attributes = { :other => "I'm set!",
+                                :avatar => @file }
 
-        assert_equal "I'm set!", @dummy.other
-        assert ! @dummy.avatar?
-      end
+          assert_equal "I'm set!", @dummy.other
+          assert ! @dummy.avatar?
+        end
 
-      should "still allow assigment on normal set" do
-        @dummy.other  = "I'm set!"
-        @dummy.avatar = @file
+        should "still allow assigment on normal set" do
+          @dummy.other  = "I'm set!"
+          @dummy.avatar = @file
 
-        assert_equal "I'm set!", @dummy.other
-        assert @dummy.avatar?
+          assert_equal "I'm set!", @dummy.other
+          assert @dummy.avatar?
+        end
       end
     end
 

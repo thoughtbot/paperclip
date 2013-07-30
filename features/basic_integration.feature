@@ -15,7 +15,7 @@ Feature: Rails integration
       """
     Given I add this snippet to the User model:
       """
-      attr_accessible :name, :attachment
+      attr_accessible :name, :attachment if Rails::VERSION::MAJOR < 4
       has_attached_file :attachment
       """
     And I start the rails application
@@ -30,7 +30,7 @@ Feature: Rails integration
   Scenario: Filesystem integration test
     Given I add this snippet to the User model:
       """
-      attr_accessible :name, :attachment
+      attr_accessible :name, :attachment if Rails::VERSION::MAJOR < 4
       has_attached_file :attachment, :url => "/system/:attachment/:style/:filename"
       """
     And I start the rails application
@@ -45,7 +45,7 @@ Feature: Rails integration
   Scenario: S3 Integration test
     Given I add this snippet to the User model:
       """
-      attr_accessible :name, :attachment
+      attr_accessible :name, :attachment if Rails::VERSION::MAJOR < 4
       has_attached_file :attachment,
                         :storage => :s3,
                         :path => "/:attachment/:style/:filename",
