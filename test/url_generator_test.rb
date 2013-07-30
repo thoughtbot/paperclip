@@ -184,4 +184,17 @@ class UrlGeneratorTest < Test::Unit::TestCase
     assert mock_interpolator.has_interpolated_pattern?(expected),
       "expected the interpolator to be passed #{expected.inspect} but it wasn't"
   end
+
+  should "execute the URL lambda if a closure is provided" do
+    mock_attachment = MockAttachment.new(:original_filename => 'exists')
+    mock_interpolator = MockInterpolator.new
+    url = lambda {|attachment| "the #{attachment.class.name} url" }
+    options = { :interpolator => mock_interpolator, :url => url}
+
+    url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
+    url_generator.for(:style_name, {})
+
+    assert mock_interpolator.has_interpolated_pattern?("the MockAttachment url"),
+      %{expected the interpolator to be passed "the MockAttachment url", but it wasn't}
+  end
 end
