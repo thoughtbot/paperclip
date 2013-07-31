@@ -1,3 +1,11 @@
+New in 3.5.1:
+
+* Bug Fix: Returned the class-level `attachment_definitions` method for compatability.
+* Improvement: Ensured compatability with Rails 4
+* Improvement: Added Rails 4 to the Appraisals
+* Bug Fix: #1296, where validations were generating errors
+* Improvement: Specify MIT license in the gemspec
+
 New in 3.5.0:
 
 * Feature: Handle Base64-encoded data URIs as uploads
