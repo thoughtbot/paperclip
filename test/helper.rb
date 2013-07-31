@@ -51,6 +51,10 @@ ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
+def using_protected_attributes?
+  ActiveRecord::VERSION::MAJOR < 4
+end
+
 def require_everything_in_directory(directory_name)
   Dir[File.join(File.dirname(__FILE__), directory_name, '*')].each do |f|
     require f

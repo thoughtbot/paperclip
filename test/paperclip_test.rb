@@ -123,7 +123,7 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
-    if ActiveSupport::VERSION::MAJOR < 4
+    if using_protected_attributes?
       context "that is attr_protected" do
         setup do
           Dummy.class_eval do

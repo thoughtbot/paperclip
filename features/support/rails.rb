@@ -35,6 +35,10 @@ module RailsCommandHelpers
     framework_version.split(".").first.to_i
   end
 
+  def using_protected_attributes?
+    framework_major_version < 4
+  end
+
   def new_application_command
     "rails new"
   end

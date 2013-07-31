@@ -15,8 +15,8 @@ Given /^I generate a new rails application$/ do
       gem "gherkin"
       gem "aws-sdk"
       """
-    And I remove turbolinks if it exists
-    And I empty the application.js file if it exists
+    And I remove turbolinks
+    And I empty the application.js file
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
     And I successfully run `bundle install --local`
@@ -40,7 +40,7 @@ Given "I allow the attachment to be submitted" do
   end
 end
 
-Given "I remove turbolinks if it exists" do
+Given "I remove turbolinks" do
   in_current_dir do
     transform_file("app/assets/javascripts/application.js") do |content|
       content.gsub("//= require turbolinks", "")
@@ -51,7 +51,32 @@ Given "I remove turbolinks if it exists" do
   end
 end
 
-Given "I empty the application.js file if it exists" do
+Given /^I attach :attachment$/ do
+  attach_attachment("attachment")
+end
+
+Given /^I attach :attachment with:$/ do |definition|
+  attach_attachment("attachment", definition)
+end
+
+def attach_attachment(name, definition = nil)
+  snippet = ""
+  if using_protected_attributes?
+    snippet += "attr_accessible :name, :#{name}\n"
+  end
+  snippet += "has_attached_file :#{name}"
+  if definition
+    snippet += ", \n"
+    snippet += definition
+  end
+  in_current_dir do
+    transform_file("app/models/user.rb") do |content|
+      content.sub(/end\Z/, "#{snippet}\nend")
+    end
+  end
+end
+
+Given "I empty the application.js file" do
   in_current_dir do
     transform_file("app/assets/javascripts/application.js") do |content|
       ""
@@ -139,13 +164,7 @@ end
 
 Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, path|
   expected = IO.read(path)
-  actual = if web_file.match %r{^https?://}
-             Net::HTTP.get(URI.parse(web_file))
-           else
-             visit(web_file)
-             page.source
-           end
-  actual.force_encoding("UTF-8") if actual.respond_to?(:force_encoding)
+  actual = read_from_web(web_file)
   actual.should == expected
 end
 
