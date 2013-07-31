@@ -15,6 +15,8 @@ Given /^I generate a new rails application$/ do
       gem "gherkin"
       gem "aws-sdk"
       """
+    And I remove turbolinks
+    And I empty the application.js file
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
     And I successfully run `bundle install --local`
@@ -25,6 +27,59 @@ Given "I fix the application.rb for 3.0.12" do
   in_current_dir do
     File.open("config/application.rb", "a") do |f|
       f << "ActionController::Base.config.relative_url_root = ''"
+    end
+  end
+end
+
+Given "I allow the attachment to be submitted" do
+  in_current_dir do
+    transform_file("app/controllers/users_controller.rb") do |content|
+      content.gsub("params.require(:user).permit(:name)",
+                   "params.require(:user).permit!")
+    end
+  end
+end
+
+Given "I remove turbolinks" do
+  in_current_dir do
+    transform_file("app/assets/javascripts/application.js") do |content|
+      content.gsub("//= require turbolinks", "")
+    end
+    transform_file("app/views/layouts/application.html.erb") do |content|
+      content.gsub(', "data-turbolinks-track" => true', "")
+    end
+  end
+end
+
+Given /^I attach :attachment$/ do
+  attach_attachment("attachment")
+end
+
+Given /^I attach :attachment with:$/ do |definition|
+  attach_attachment("attachment", definition)
+end
+
+def attach_attachment(name, definition = nil)
+  snippet = ""
+  if using_protected_attributes?
+    snippet += "attr_accessible :name, :#{name}\n"
+  end
+  snippet += "has_attached_file :#{name}"
+  if definition
+    snippet += ", \n"
+    snippet += definition
+  end
+  in_current_dir do
+    transform_file("app/models/user.rb") do |content|
+      content.sub(/end\Z/, "#{snippet}\nend")
+    end
+  end
+end
+
+Given "I empty the application.js file" do
+  in_current_dir do
+    transform_file("app/assets/javascripts/application.js") do |content|
+      ""
     end
   end
 end
@@ -109,13 +164,7 @@ end
 
 Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, path|
   expected = IO.read(path)
-  actual = if web_file.match %r{^https?://}
-    Net::HTTP.get(URI.parse(web_file))
-  else
-    visit(web_file)
-    page.source
-  end
-  actual.force_encoding("UTF-8") if actual.respond_to?(:force_encoding)
+  actual = read_from_web(web_file)
   actual.should == expected
 end
 
@@ -143,5 +192,15 @@ end
 Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
   if framework_version < version
     pending "Not supported in Rails < #{version}"
+  end
+end
+
+def transform_file(filename)
+  if File.exists?(filename)
+    content = File.read(filename)
+    File.open(filename, "w") do |f|
+      content = yield(content)
+      f.write(content)
+    end
   end
 end

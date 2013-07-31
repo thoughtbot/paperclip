@@ -7,17 +7,14 @@ Feature: Rails integration
     And I run a migration
     And I update my new user view to include the file upload field
     And I update my user view to include the attachment
+    And I allow the attachment to be submitted
 
   Scenario: Configure defaults for all attachments through Railtie
     Given I add this snippet to config/application.rb:
       """
       config.paperclip_defaults = {:url => "/paperclip/custom/:attachment/:style/:filename"}
       """
-    Given I add this snippet to the User model:
-      """
-      attr_accessible :name, :attachment
-      has_attached_file :attachment
-      """
+    And I attach :attachment
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
@@ -28,10 +25,9 @@ Feature: Rails integration
     And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
 
   Scenario: Filesystem integration test
-    Given I add this snippet to the User model:
+    Given I attach :attachment with:
       """
-      attr_accessible :name, :attachment
-      has_attached_file :attachment, :url => "/system/:attachment/:style/:filename"
+        :url => "/system/:attachment/:style/:filename"
       """
     And I start the rails application
     When I go to the new user page
@@ -43,14 +39,12 @@ Feature: Rails integration
     And the file at "/system/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
 
   Scenario: S3 Integration test
-    Given I add this snippet to the User model:
+    Given I attach :attachment with:
       """
-      attr_accessible :name, :attachment
-      has_attached_file :attachment,
-                        :storage => :s3,
-                        :path => "/:attachment/:style/:filename",
-                        :s3_credentials => Rails.root.join("config/s3.yml"),
-                        :styles => { :square => "100x100#" }
+        :storage => :s3,
+        :path => "/:attachment/:style/:filename",
+        :s3_credentials => Rails.root.join("config/s3.yml"),
+        :styles => { :square => "100x100#" }
       """
     And I write to "config/s3.yml" with:
       """
