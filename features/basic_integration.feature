@@ -7,6 +7,7 @@ Feature: Rails integration
     And I run a migration
     And I update my new user view to include the file upload field
     And I update my user view to include the attachment
+    And I allow the attachment to be submitted
 
   Scenario: Configure defaults for all attachments through Railtie
     Given I add this snippet to config/application.rb:

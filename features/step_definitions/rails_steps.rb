@@ -16,6 +16,7 @@ Given /^I generate a new rails application$/ do
       gem "aws-sdk"
       """
     And I remove turbolinks if it exists
+    And I empty the application.js file if it exists
     And I configure the application to use "paperclip" from this project
     And I reset Bundler environment variable
     And I successfully run `bundle install --local`
@@ -30,23 +31,30 @@ Given "I fix the application.rb for 3.0.12" do
   end
 end
 
-def transform_file(filename)
-  content = File.read(filename)
-  File.open(filename, "w") do |f|
-    content = yield(content)
-    f.write(content)
+Given "I allow the attachment to be submitted" do
+  in_current_dir do
+    transform_file("app/controllers/users_controller.rb") do |content|
+      content.gsub("params.require(:user).permit(:name)",
+                   "params.require(:user).permit!")
+    end
   end
 end
 
 Given "I remove turbolinks if it exists" do
-  if framework_major_version >= 4
-    in_current_dir do
-      transform_file("app/assets/javascripts/application.js") do |content|
-        content.gsub("//= require turbolinks", "")
-      end
-      transform_file("app/views/layouts/application.html.erb") do |content|
-        content.gsub(', "data-turbolinks-track" => true', "")
-      end
+  in_current_dir do
+    transform_file("app/assets/javascripts/application.js") do |content|
+      content.gsub("//= require turbolinks", "")
+    end
+    transform_file("app/views/layouts/application.html.erb") do |content|
+      content.gsub(', "data-turbolinks-track" => true', "")
+    end
+  end
+end
+
+Given "I empty the application.js file if it exists" do
+  in_current_dir do
+    transform_file("app/assets/javascripts/application.js") do |content|
+      ""
     end
   end
 end
@@ -132,11 +140,11 @@ end
 Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, path|
   expected = IO.read(path)
   actual = if web_file.match %r{^https?://}
-    Net::HTTP.get(URI.parse(web_file))
-  else
-    visit(web_file)
-    page.source
-  end
+             Net::HTTP.get(URI.parse(web_file))
+           else
+             visit(web_file)
+             page.source
+           end
   actual.force_encoding("UTF-8") if actual.respond_to?(:force_encoding)
   actual.should == expected
 end
@@ -165,5 +173,15 @@ end
 Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
   if framework_version < version
     pending "Not supported in Rails < #{version}"
+  end
+end
+
+def transform_file(filename)
+  if File.exists?(filename)
+    content = File.read(filename)
+    File.open(filename, "w") do |f|
+      content = yield(content)
+      f.write(content)
+    end
   end
 end
