@@ -76,7 +76,7 @@ module Paperclip
 
     # Returns the Rails.env constant.
     def rails_env attachment, style_name
-      Rails.env
+      Rails.env.downcase
     end
 
     # Returns the underscored, pluralized version of the class name.
