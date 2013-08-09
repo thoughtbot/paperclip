@@ -45,6 +45,11 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
           "Error not added to base attribute"
       end
 
+      should "add error to base object as a string" do
+        assert_kind_of String, @dummy.errors[:avatar].first,
+          "Error added to base attribute as something other than a String"
+      end
+
       if options[:message]
         should "return a correct error message" do
           assert_includes @dummy.errors[:avatar_file_size], options[:message]
