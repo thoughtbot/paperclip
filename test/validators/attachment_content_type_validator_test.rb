@@ -61,6 +61,11 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
       assert @dummy.errors[:avatar].present?,
         "Error not added to base attribute"
     end
+
+    should "add error to base object as a string" do
+      assert_kind_of String, @dummy.errors[:avatar].first,
+        "Error added to base attribute as something other than a String"
+    end
   end
 
   context "with a successful validation" do
