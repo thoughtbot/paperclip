@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
   s.add_development_dependency('capybara', '= 2.0.3')
   s.add_development_dependency('bundler')
-  s.add_development_dependency('fog', '>= 1.4.0', "< 1.7.0")
+  s.add_development_dependency('fog', '~> 1.0')
   s.add_development_dependency('pry')
   s.add_development_dependency('pry-debugger')
   s.add_development_dependency('launchy')
