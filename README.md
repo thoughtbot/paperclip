@@ -233,7 +233,7 @@ afterwards, then assign manually:
 ```ruby
 class Book < ActiveRecord::Base
   has_attached_file :document, styles: {thumbnail: "60x60#"}
-  validates_attachment :document, content_type: "application/pdf"
+  validates_attachment :document, content_type: { content_type: "application/pdf" }
   validates_something_else # Other validations that conflict with Paperclip's
 end
 
