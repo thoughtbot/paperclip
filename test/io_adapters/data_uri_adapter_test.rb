@@ -3,7 +3,7 @@ require './test/helper'
 class DataUriAdapterTest < Test::Unit::TestCase
   context "a new instance" do
     setup do
-      @contents = "data:image/png;base64,dGVzdA=="
+      @contents = "data:image/png;base64,#{original_base64_content}"
       @subject = Paperclip.io_adapters.for(@contents)
     end
 
@@ -16,11 +16,14 @@ class DataUriAdapterTest < Test::Unit::TestCase
     end
 
     should "return the size of the data" do
-      assert_equal 4, @subject.size
+      assert_equal 4456, @subject.size
     end
 
-    should "generate an MD5 hash of the contents" do
-      assert_equal Digest::MD5.hexdigest(Base64.decode64('dGVzdA==')), @subject.fingerprint
+    should "generate a correct MD5 hash of the contents" do
+      assert_equal(
+        Digest::MD5.hexdigest(Base64.decode64(original_base64_content)),
+        @subject.fingerprint
+      )
     end
 
     should "generate correct fingerprint after read" do
@@ -30,10 +33,6 @@ class DataUriAdapterTest < Test::Unit::TestCase
 
     should "generate same fingerprint" do
       assert_equal @subject.fingerprint, @subject.fingerprint
-    end
-
-    should "return the data contained in the StringIO" do
-      assert_equal "test", @subject.read
     end
 
     should 'accept a content_type' do
@@ -56,5 +55,13 @@ class DataUriAdapterTest < Test::Unit::TestCase
       assert_no_match /:/, @subject.path
     end
 
+  end
+
+  def original_base64_content
+    Base64.encode64(original_file_contents)
+  end
+
+  def original_file_contents
+    @original_file_contents ||= File.read(fixture_file('5k.png'))
   end
 end
