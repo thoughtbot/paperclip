@@ -88,8 +88,7 @@ class FileAdapterTest < Test::Unit::TestCase
       setup do
         @file = File.new(fixture_file("5k.png"))
         @file.binmode
-        @file.class.class_eval { attr_accessor :original_filename }
-        @file.original_filename = 'over10k.png'
+        @file.stubs(:original_filename).returns('over10k.png')
         @subject = Paperclip.io_adapters.for(@file)
       end
 
