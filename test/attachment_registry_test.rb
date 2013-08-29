@@ -62,6 +62,20 @@ class AttachmentRegistryTest < Test::Unit::TestCase
 
       assert_equal expected_definitions, definitions
     end
+
+    should "produce defintions for subclasses" do
+      expected_definitions = {
+        avatar: { yo: 'greeting' }
+      }
+      foo = Class.new
+      bar = Class.new(foo)
+
+      Paperclip::AttachmentRegistry.register(foo, :avatar, { yo: 'greeting' })
+
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
+
+      assert_equal expected_definitions, definitions
+    end
   end
 
   context '.clear' do
