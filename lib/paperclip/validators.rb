@@ -37,6 +37,8 @@ module Paperclip
               validator_options = options.delete(validator_kind)
               validator_options = {} if validator_options == true
               local_options = attributes + [validator_options]
+              conditional_options = options.slice(:if, :unless)
+              local_options.last.merge!(conditional_options)
               send(:"validates_attachment_#{validator_kind}", *local_options)
             end
           end
