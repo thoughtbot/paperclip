@@ -69,7 +69,7 @@ module Paperclip
       @name              = name
       @instance          = instance
 
-      options = self.class.default_options.merge(options)
+      options = self.class.default_options.deep_merge(options)
 
       @options               = options
       @post_processing       = true
