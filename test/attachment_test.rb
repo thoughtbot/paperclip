@@ -62,6 +62,26 @@ class AttachmentTest < Test::Unit::TestCase
     assert_file_exists(dummy.avatar.path(:original))
   end
 
+  context "having a not empty hash as a default option" do
+    setup do
+      @old_default_options = Paperclip::Attachment.default_options.dup
+      @new_default_options = { :convert_options => { :all => "-background white" } }
+      Paperclip::Attachment.default_options.merge!(@new_default_options)
+    end
+
+    teardown do
+      Paperclip::Attachment.default_options.merge!(@old_default_options)
+    end
+
+    should "deep merge when it is overridden" do
+      new_options = { :convert_options => { :thumb => "-thumbnailize" } }
+      attachment = Paperclip::Attachment.new(:name, :instance, new_options)
+
+      assert_equal Paperclip::Attachment.default_options.deep_merge(new_options),
+                   attachment.instance_variable_get("@options")
+    end
+  end
+
   should "handle a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
