@@ -160,7 +160,10 @@ module Paperclip
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style_name
-      case id = attachment.instance.id
+      id = attachment.instance.id
+      id = id.to_s if defined?(Moped::BSON::ObjectId) && id.is_a?(Moped::BSON::ObjectId)
+      
+      case id
       when Integer
         ("%09d" % id).scan(/\d{3}/).join("/")
       when String
