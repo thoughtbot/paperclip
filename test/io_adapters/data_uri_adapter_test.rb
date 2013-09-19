@@ -1,6 +1,13 @@
 require './test/helper'
 
 class DataUriAdapterTest < Test::Unit::TestCase
+
+  def teardown
+    if @subject
+      @subject.close
+    end
+  end
+
   context "a new instance" do
     setup do
       @contents = "data:image/png;base64,#{original_base64_content}"

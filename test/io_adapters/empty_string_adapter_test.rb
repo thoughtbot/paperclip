@@ -1,6 +1,13 @@
 require './test/helper'
 
 class EmptyStringAdapterTest < Test::Unit::TestCase
+
+  def teardown
+    if @subject
+      @subject.close
+    end
+  end
+
   context 'a new instance' do
     setup do
       @subject = Paperclip.io_adapters.for('')

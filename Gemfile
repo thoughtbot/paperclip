@@ -11,3 +11,5 @@ platform :ruby do
   gem 'pry'
   gem 'pry-debugger'
 end
+
+gem "cocaine", :path => "/Users/jyurek/Development/cocaine"

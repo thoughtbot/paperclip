@@ -41,6 +41,10 @@ class Test::Unit::TestCase
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end
   end
+
+  def report_files
+    ObjectSpace.each_object(IO){|io| puts "Open IO: #{io.inspect}" unless io.closed? }
+  end
 end
 
 $LOAD_PATH << File.join(ROOT, 'lib')

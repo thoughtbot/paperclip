@@ -7,6 +7,10 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     @attachment = Dummy.new.avatar
   end
 
+  def teardown
+    report_files
+  end
+
   context "for an attachment" do
     setup do
       @file = File.new(fixture_file("5k.png"))
@@ -18,6 +22,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     end
 
     teardown do
+      @subject.close
       @file.close
     end
 

@@ -1,6 +1,30 @@
 require './test/helper'
 
+class File
+  def initialize_with_logging(*args)
+    p "NEW FILE #{args.inspect}"
+    p caller
+    initialize_without_logging(*args)
+  end
+  alias_method :initialize_without_logging, :initialize
+  alias_method :initialize, :initialize_with_logging
+end
+
+# class Tempfile
+#   def initialize_with_logging(*args)
+#     p "NEW #{args.inspect}"
+#     initialize_without_logging(*args)
+#   end
+#   alias_method :initialize_without_logging, :initialize
+#   alias_method :initialize, :initialize_with_logging
+# end
 class FileAdapterTest < Test::Unit::TestCase
+  def setup
+    p self
+  end
+  def teardown
+    report_files
+  end
   context "a new instance" do
     context "with normal file" do
       setup do
@@ -9,7 +33,10 @@ class FileAdapterTest < Test::Unit::TestCase
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
+      teardown do
+        @file.close
+        @subject.close
+      end
 
       should "get the right filename" do
         assert_equal "5k.png", @subject.original_filename
@@ -86,13 +113,17 @@ class FileAdapterTest < Test::Unit::TestCase
 
     context "filename with restricted characters" do
       setup do
-        file_contents = File.new(fixture_file("animated.gif"))
-        @file = StringIO.new(file_contents.read)
+        @file = File.open(fixture_file("animated.gif")) do |file|
+          StringIO.new(file.read)
+        end
         @file.stubs(:original_filename).returns('image:restricted.gif')
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
+      teardown do
+        @file.close
+        @subject.close
+      end
 
       should "not generate filenames that include restricted characters" do
         assert_equal 'image_restricted.gif', @subject.original_filename
@@ -109,7 +140,10 @@ class FileAdapterTest < Test::Unit::TestCase
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
+      teardown do
+        @file.close
+        @subject.close
+      end
 
       should "provide correct mime-type" do
         assert_match %r{.*/x-empty}, @subject.content_type
