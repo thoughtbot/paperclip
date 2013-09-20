@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency('mime-types')
 
   s.add_development_dependency('activerecord', '>= 3.0.0')
+  s.add_development_dependency('mongoid')
   s.add_development_dependency('shoulda')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')

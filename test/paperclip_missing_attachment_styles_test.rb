@@ -50,10 +50,19 @@ class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
       expected_hash = { :Dummy => {:avatar => [:export, :thumb]} }
       assert_equal expected_hash, Paperclip.missing_attachments_styles
 
-      ActiveRecord::Base.connection.create_table :books, :force => true
-      class ::Book < ActiveRecord::Base
-        has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
-        has_attached_file :sample, :styles => {:thumb => 'x100'}
+      if using_active_record?
+        ActiveRecord::Base.connection.create_table :books, :force => true
+        class ::Book < ActiveRecord::Base
+          has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
+          has_attached_file :sample, :styles => {:thumb => 'x100'}
+        end
+      else
+        class ::Book
+          include Mongoid::Document
+          include Paperclip::Glue
+          has_attached_file :cover, :styles => {:small => 'x100', :large => '1000x1000>'}
+          has_attached_file :sample, :styles => {:thumb => 'x100'}
+        end
       end
 
       expected_hash = {

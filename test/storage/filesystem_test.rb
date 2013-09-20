@@ -43,6 +43,7 @@ class FileSystemTest < Test::Unit::TestCase
       end
 
       should 'copy the file to a known location with copy_to_local_file' do
+        @dummy.save
         tempfile = Tempfile.new("known_location")
         @dummy.avatar.copy_to_local_file(:original, tempfile.path)
         tempfile.rewind

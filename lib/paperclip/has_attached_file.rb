@@ -11,6 +11,7 @@ module Paperclip
     end
 
     def define
+      add_mongoid_fields
       define_flush_errors
       define_getters
       define_setter
@@ -18,7 +19,6 @@ module Paperclip
       register_new_attachment
       add_active_record_callbacks
       add_paperclip_callbacks
-      add_mongoid_fields
     end
 
     private
@@ -92,7 +92,7 @@ module Paperclip
     end
 
     def add_mongoid_fields
-      return unless defined?(Mongoid::Document) && @klass < Mongoid::Document
+      return unless defined?(Mongoid::Document) && @klass.include?(Mongoid::Document)
 
       @klass.field(:"#{@name}_file_name", :type => String)
       @klass.field(:"#{@name}_content_type", :type => String)
