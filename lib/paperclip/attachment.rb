@@ -314,6 +314,7 @@ module Paperclip
     # the post-process again.
     def reprocess!(*style_args)
       saved_only_process, @options[:only_process] = @options[:only_process], style_args
+      saved_preserve_files, @options[:preserve_files] = @options[:preserve_files], true
       begin
         assign(self)
         save
@@ -323,6 +324,7 @@ module Paperclip
         false
       ensure
         @options[:only_process] = saved_only_process
+        @options[:preserve_files] = saved_preserve_files
       end
     end
 
