@@ -40,13 +40,8 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
           "Unexpected error message on :avatar_file_size"
       end
 
-      should "add error to the base dummy object" do
-        assert @dummy.errors[:avatar].present?,
-          "Error not added to base attribute"
-      end
-
-      should "add error to base object as a string" do
-        assert_kind_of String, @dummy.errors[:avatar].first,
+      should "add error to dummy object as a string" do
+        assert_kind_of String, @dummy.errors[:avatar_file_size].first,
           "Error added to base attribute as something other than a String"
       end
 

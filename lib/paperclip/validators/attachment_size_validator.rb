@@ -65,7 +65,7 @@ module Paperclip
         end
       end
 
-      def human_size(size)
+      def human_size(size, unit = nil)
         if unit.present? && VALID_UNITS.include?(unit.to_s)
           unit_name   = unit.to_s
           unit_size   = UNIT_SIZES[unit.to_sym]
