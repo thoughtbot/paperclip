@@ -13,7 +13,12 @@ require 'shoulda/context'
 require 'mime/types'
 require 'pathname'
 require 'ostruct'
-require 'pry'
+
+begin
+  require 'pry'
+rescue LoadError
+  # Pry is not available, just ignore.
+end
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
