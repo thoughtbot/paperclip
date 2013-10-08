@@ -4,6 +4,8 @@ module Paperclip
   module Validators
     class AttachmentSizeValidator < ActiveModel::Validations::NumericalityValidator
       AVAILABLE_CHECKS = [:less_than, :less_than_or_equal_to, :greater_than, :greater_than_or_equal_to]
+      VALID_UNITS = %w[byte kb mb gb tb]
+      UNIT_SIZES  = { :byte => 1, :kb => 1024, :mb => (1024 * 1024), :gb => (1024 * 1024 * 1024), :tb => (1024 * 1024 * 1024 * 1024) }
 
       def initialize(options)
         extract_options(options)
@@ -11,7 +13,6 @@ module Paperclip
       end
 
       def validate_each(record, attr_name, value)
-        base_attr_name = attr_name
         attr_name = "#{attr_name}_file_size".to_sym
         value = record.send(:read_attribute_for_validation, attr_name)
 
@@ -22,13 +23,11 @@ module Paperclip
 
             unless value.send(CHECKS[option], option_value)
               error_message_key = options[:in] ? :in_between : option
-              [ attr_name, base_attr_name ].each do |error_attr_name|
-                record.errors.add(error_attr_name, error_message_key, filtered_options(value).merge(
-                  :min => min_value_in_human_size(record),
-                  :max => max_value_in_human_size(record),
-                  :count => human_size(option_value)
-                ))
-              end
+              record.errors.add(attr_name, error_message_key, filtered_options(value).merge(
+                :min => min_value_in_human_size(record),
+                :max => max_value_in_human_size(record),
+                :count => human_size(option_value, options[:unit])
+              ))
             end
           end
         end
@@ -67,9 +66,16 @@ module Paperclip
       end
 
       def human_size(size)
+        if unit.present? && VALID_UNITS.include?(unit.to_s)
+          unit_name   = unit.to_s
+          unit_size   = UNIT_SIZES[unit.to_sym]
+        else
+          unit_name   = "byte"
+          unit_size   = 1
+        end
         storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
-        unit = I18n.translate(:'number.human.storage_units.units.byte', :locale => options[:locale], :count => size.to_i, :raise => true)
-        storage_units_format.gsub(/%n/, size.to_i.to_s).gsub(/%u/, unit).html_safe
+        unit = I18n.translate("number.human.storage_units.units.#{unit_name}".to_sym, :locale => options[:locale], :count => size.to_i, :raise => true)
+        storage_units_format.gsub(/%n/, (size.to_i / unit_size).to_s).gsub(/%u/, unit).html_safe
       end
 
       def min_value_in_human_size(record)
