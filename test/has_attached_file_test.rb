@@ -119,7 +119,8 @@ class HasAttachedFileTest < Test::Unit::TestCase
            after_destroy: nil,
            define_paperclip_callbacks: nil,
            extend: nil,
-           name: 'Billy')
+           name: 'Billy',
+           include?: false)
     end
   end
 end

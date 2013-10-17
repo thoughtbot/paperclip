@@ -14,7 +14,11 @@ class HaveAttachedFileMatcherTest < Test::Unit::TestCase
 
     context "given a class with an attachment" do
       setup do
-        modify_table("dummies"){|d| d.string :avatar_file_name }
+        if using_active_record?
+          modify_table("dummies"){|d| d.string :avatar_file_name }
+        else
+          modify_table("dummies"){|d| d[:avatar_file_name] = String }
+        end
         @dummy_class.has_attached_file :avatar
       end
 

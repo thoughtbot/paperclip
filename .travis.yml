@@ -13,7 +13,24 @@ gemfile:
   - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
 
+env:
+  - ORM=active_record
+  - ORM=mongoid
+
 matrix:
   allow_failures:
     - rvm: jruby-19mode
     - rvm: rbx-19mode
+  exclude:
+    - rvm: 1.9.2
+      env: ORM=mongoid
+      gemfile: gemfiles/3.0.gemfile
+    - rvm: 1.9.2
+      env: ORM=mongoid
+      gemfile: gemfiles/3.1.gemfile
+    - rvm: 1.9.2
+      env: ORM=mongoid
+      gemfile: gemfiles/3.2.gemfile
+
+services:
+  - mongodb

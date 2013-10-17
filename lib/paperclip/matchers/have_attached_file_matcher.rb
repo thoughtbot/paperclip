@@ -45,7 +45,11 @@ module Paperclip
         end
 
         def has_column?
-          @subject.column_names.include?("#{@attachment_name}_file_name")
+          if defined?(Mongoid::Document) && @subject < Mongoid::Document
+            return @subject.fields.include?("#{@attachment_name}_file_name")
+          else
+            return @subject.column_names.include?("#{@attachment_name}_file_name")
+          end
         end
       end
     end

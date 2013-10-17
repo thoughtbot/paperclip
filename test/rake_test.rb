@@ -8,7 +8,17 @@ class RakeTest < Test::Unit::TestCase
       rebuild_model
       Paperclip::Task.stubs(:obtain_class).returns('Dummy')
       @bogus_instance = Dummy.new
-      @bogus_instance.id = 'some_id'
+
+      if defined?(Mongoid::Document) && Dummy < Mongoid::Document
+        if Mongoid::VERSION.to_i < 3
+          @bogus_instance.id = ::BSON::ObjectId.from_string('523ce3d06e955269bf000001')
+        else
+          @bogus_instance.id = ::Moped::BSON::ObjectId.from_string('523ce3d06e955269bf000001')
+        end
+      else
+        @bogus_instance.id = 'some_id'
+      end
+
       @bogus_instance.avatar.stubs(:reprocess!)
       @valid_instance = Dummy.new
       @valid_instance.avatar.stubs(:reprocess!)

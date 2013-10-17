@@ -3,8 +3,14 @@ require './test/helper'
 class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
   context "validate_attachment_presence" do
     setup do
-      reset_table("dummies") do |d|
-        d.string :avatar_file_name
+      if using_active_record?
+        reset_table("dummies") do |d|
+          d.string :avatar_file_name
+        end
+      else
+        reset_table("dummies") do |d|
+          d[:avatar_file_name] = String
+        end
       end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar
@@ -25,9 +31,17 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
 
     context "given an instance with other attachment validations" do
       setup do
-        reset_table("dummies") do |d|
-          d.string :avatar_file_name
-          d.string :avatar_content_type
+
+        if using_active_record?
+          reset_table("dummies") do |d|
+            d.string :avatar_file_name
+            d.string :avatar_content_type
+          end
+        else
+          reset_table("dummies") do |d|
+            d[:avatar_file_name] = String
+            d[:avatar_content_type] = String
+          end
         end
 
         @dummy_class.class_eval do

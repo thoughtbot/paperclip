@@ -20,7 +20,7 @@ rescue LoadError
   # Pry is not available, just ignore.
 end
 
-puts "Testing against version #{ActiveRecord::VERSION::STRING}"
+puts "Testing against ActiveRecord version #{ActiveRecord::VERSION::STRING}"
 
 `ruby -e 'exit 0'` # Prime $? with a value.
 
@@ -56,6 +56,36 @@ ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
+def using_active_record?
+  ENV['ORM'] == 'active_record'
+end
+
+if !using_active_record?
+  require 'mongoid'
+  require 'mongoid/version'
+
+  puts "Testing against Mongoid version #{Mongoid::VERSION.to_s}"
+
+  Mongoid.configure do |config|
+    if Mongoid::VERSION.to_i >= 3
+      config.connect_to('paperclip_test')
+    else
+      config.master = Mongo::Connection.new('localhost').db('paperclip_test')
+    end
+  end
+
+  DUMMY_ATTRIBUTES = {
+      :title => String,
+      :other => String,
+      :avatar_file_name => String,
+      :avatar_content_type => String,
+      :avatar_file_size => Integer,
+      :avatar_updated_at => DateTime,
+      :avatar_fingerprint => String
+  }
+  $current_dummy_attributes = DUMMY_ATTRIBUTES
+end
+
 def using_protected_attributes?
   ActiveRecord::VERSION::MAJOR < 4
 end
@@ -69,38 +99,71 @@ end
 require_everything_in_directory('support')
 
 def reset_class class_name
-  ActiveRecord::Base.send(:include, Paperclip::Glue)
-  Object.send(:remove_const, class_name) rescue nil
-  klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
+  if using_active_record?
 
-  klass.class_eval do
-    include Paperclip::Glue
+    ActiveRecord::Base.send(:include, Paperclip::Glue)
+    Object.send(:remove_const, class_name) rescue nil
+    klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
+
+    klass.class_eval do
+      include Paperclip::Glue
+    end
+
+    klass.reset_column_information
+    klass.connection_pool.clear_table_cache!(klass.table_name) if klass.connection_pool.respond_to?(:clear_table_cache!)
+    klass.connection.schema_cache.clear_table_cache!(klass.table_name) if klass.connection.respond_to?(:schema_cache)
+
+  else
+    Object.send(:remove_const, class_name) rescue nil
+    klass = Object.const_set(class_name, Class.new)
+
+    klass.class_eval do
+      include Mongoid::Document
+      include Paperclip::Glue
+    end
+
+    for key, value in $current_dummy_attributes do
+        klass.send('field', key, :type => value)
+    end
   end
 
-  klass.reset_column_information
-  klass.connection_pool.clear_table_cache!(klass.table_name) if klass.connection_pool.respond_to?(:clear_table_cache!)
-  klass.connection.schema_cache.clear_table_cache!(klass.table_name) if klass.connection.respond_to?(:schema_cache)
   klass
 end
 
 def reset_table table_name, &block
   block ||= lambda { |table| true }
-  ActiveRecord::Base.connection.create_table :dummies, {:force => true}, &block
+
+  if using_active_record?
+    ActiveRecord::Base.connection.create_table :dummies, {:force => true}, &block
+  else
+    Dummy.delete_all rescue nil
+    $current_dummy_attributes = DUMMY_ATTRIBUTES
+    $current_dummy_attributes.tap &block
+  end
 end
 
 def modify_table table_name, &block
-  ActiveRecord::Base.connection.change_table :dummies, &block
+  if using_active_record?
+    ActiveRecord::Base.connection.change_table :dummies, &block
+  else
+    $current_dummy_attributes.tap &block
+  end
 end
 
 def rebuild_model options = {}
-  ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
-    table.column :title, :string
-    table.column :other, :string
-    table.column :avatar_file_name, :string
-    table.column :avatar_content_type, :string
-    table.column :avatar_file_size, :integer
-    table.column :avatar_updated_at, :datetime
-    table.column :avatar_fingerprint, :string
+  if using_active_record?
+    ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+      table.column :title, :string
+      table.column :other, :string
+      table.column :avatar_file_name, :string
+      table.column :avatar_content_type, :string
+      table.column :avatar_file_size, :integer
+      table.column :avatar_updated_at, :datetime
+      table.column :avatar_fingerprint, :string
+    end
+  else
+    Dummy.delete_all rescue nil
+    $current_dummy_attributes = DUMMY_ATTRIBUTES
   end
   rebuild_class options
 end
@@ -181,7 +244,7 @@ def with_exitstatus_returning(code)
 end
 
 def fixture_file(filename)
-  File.join(File.dirname(__FILE__), 'fixtures', filename)
+  File.join(FIXTURES_DIR, filename)
 end
 
 def assert_success_response(url)

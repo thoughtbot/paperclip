@@ -11,6 +11,7 @@ module Paperclip
     end
 
     def define
+      add_mongoid_fields
       define_flush_errors
       define_getters
       define_setter
@@ -88,6 +89,15 @@ module Paperclip
       @klass.send(
         :define_paperclip_callbacks,
         :post_process, :"#{@name}_post_process")
+    end
+
+    def add_mongoid_fields
+      return unless defined?(Mongoid::Document) && @klass.include?(Mongoid::Document)
+
+      @klass.field(:"#{@name}_file_name", :type => String)
+      @klass.field(:"#{@name}_content_type", :type => String)
+      @klass.field(:"#{@name}_file_size", :type => Integer)
+      @klass.field(:"#{@name}_updated_at", :type => DateTime)
     end
 
     module ClassMethods

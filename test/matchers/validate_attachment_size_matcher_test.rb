@@ -3,9 +3,16 @@ require './test/helper'
 class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
   context "validate_attachment_size" do
     setup do
-      reset_table("dummies") do |d|
-        d.string :avatar_file_name
-        d.integer :avatar_file_size
+      if using_active_record?
+        reset_table("dummies") do |d|
+          d.string :avatar_file_name
+          d.integer :avatar_file_size
+        end
+      else
+        reset_table("dummies") do |d|
+          d[:avatar_file_name] = String
+          d[:avatar_file_size] = Integer
+        end
       end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar

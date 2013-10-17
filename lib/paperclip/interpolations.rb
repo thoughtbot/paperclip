@@ -166,7 +166,11 @@ module Paperclip
       when String
         id.scan(/.{3}/).first(3).join("/")
       else
-        nil
+        if defined?(Moped::BSON::ObjectId) && id.is_a?(Moped::BSON::ObjectId)
+          id.to_s.scan(/.{4}/).join("/")
+        else
+          nil
+        end
       end
     end
 

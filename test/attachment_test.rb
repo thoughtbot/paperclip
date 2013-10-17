@@ -202,7 +202,7 @@ class AttachmentTest < Test::Unit::TestCase
     dummy.id = 1234
     dummy.avatar_file_name = "fake.jpg"
     expected_string = '{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}'
-    if ActiveRecord::Base.include_root_in_json # This is true by default in Rails 3, and false in 4
+    if using_active_record? && ActiveRecord::Base.include_root_in_json # This is true by default in Rails 3, and false in 4
       expected_string = %({"dummy":#{expected_string}})
     end
     # active_model pre-3.2 checks only by calling any? on it, thus it doesn't work if it is empty
@@ -1209,119 +1209,27 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  context "An attachment with only a avatar_file_name column" do
-    setup do
-      ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
-        table.column :avatar_file_name, :string
-      end
-      rebuild_class
-      @dummy = Dummy.new
-      @file = File.new(fixture_file("5k.png"), 'rb')
-    end
+  if using_active_record?
 
-    teardown { @file.close }
-
-    should "not error when assigned an attachment" do
-      assert_nothing_raised { @dummy.avatar = @file }
-    end
-
-    should "not return the time when sent #avatar_updated_at" do
-      @dummy.avatar = @file
-      assert_nil @dummy.avatar.updated_at
-    end
-
-    should "return the right value when sent #avatar_file_size" do
-      @dummy.avatar = @file
-      assert_equal File.size(@file), @dummy.avatar.size
-    end
-
-    context "and avatar_created_at column" do
+    context "An attachment with only a avatar_file_name column" do
       setup do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
+        ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+          table.column :avatar_file_name, :string
+        end
         rebuild_class
         @dummy = Dummy.new
+        @file = File.new(fixture_file("5k.png"), 'rb')
       end
+
+      teardown { @file.close }
 
       should "not error when assigned an attachment" do
         assert_nothing_raised { @dummy.avatar = @file }
       end
 
-      should "return the creation time when sent #avatar_created_at" do
-        now = Time.now
-        Time.stubs(:now).returns(now)
+      should "not return the time when sent #avatar_updated_at" do
         @dummy.avatar = @file
-        assert_equal now.to_i, @dummy.avatar.created_at
-      end
-
-      should "return the creation time when sent #avatar_created_at and the entry has been updated" do
-        creation = 2.hours.ago
-        now = Time.now
-        Time.stubs(:now).returns(creation)
-        @dummy.avatar = @file
-        Time.stubs(:now).returns(now)
-        @dummy.avatar = @file
-        assert_equal creation.to_i, @dummy.avatar.created_at
-        assert_not_equal now.to_i, @dummy.avatar.created_at
-      end
-
-      should "set changed? to true on attachment assignment" do
-        @dummy.avatar = @file
-        @dummy.save!
-        @dummy.avatar = @file
-        assert @dummy.changed?
-      end
-    end
-
-    context "and avatar_updated_at column" do
-      setup do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
-        rebuild_class
-        @dummy = Dummy.new
-      end
-
-      should "not error when assigned an attachment" do
-        assert_nothing_raised { @dummy.avatar = @file }
-      end
-
-      should "return the right value when sent #avatar_updated_at" do
-        now = Time.now
-        Time.stubs(:now).returns(now)
-        @dummy.avatar = @file
-        assert_equal now.to_i, @dummy.avatar.updated_at
-      end
-    end
-
-    should "not calculate fingerprint" do
-      @dummy.avatar = @file
-      assert_nil @dummy.avatar.fingerprint
-    end
-
-    context "and avatar_content_type column" do
-      setup do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
-        rebuild_class
-        @dummy = Dummy.new
-      end
-
-      should "not error when assigned an attachment" do
-        assert_nothing_raised { @dummy.avatar = @file }
-      end
-
-      should "return the right value when sent #avatar_content_type" do
-        @dummy.avatar = @file
-        assert_equal "image/png", @dummy.avatar.content_type
-      end
-    end
-
-    context "and avatar_file_size column" do
-      setup do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :integer
-        rebuild_class
-        @dummy = Dummy.new
-      end
-
-      should "not error when assigned an attachment" do
-        assert_nothing_raised { @dummy.avatar = @file }
+        assert_nil @dummy.avatar.updated_at
       end
 
       should "return the right value when sent #avatar_file_size" do
@@ -1329,37 +1237,133 @@ class AttachmentTest < Test::Unit::TestCase
         assert_equal File.size(@file), @dummy.avatar.size
       end
 
-      should "return the right value when saved, reloaded, and sent #avatar_file_size" do
+      context "and avatar_created_at column" do
+        setup do
+          ActiveRecord::Base.connection.add_column :dummies, :avatar_created_at, :timestamp
+          rebuild_class
+          @dummy = Dummy.new
+        end
+
+        should "not error when assigned an attachment" do
+          assert_nothing_raised { @dummy.avatar = @file }
+        end
+
+        should "return the creation time when sent #avatar_created_at" do
+          now = Time.now
+          Time.stubs(:now).returns(now)
+          @dummy.avatar = @file
+          assert_equal now.to_i, @dummy.avatar.created_at
+        end
+
+        should "return the creation time when sent #avatar_created_at and the entry has been updated" do
+          creation = 2.hours.ago
+          now = Time.now
+          Time.stubs(:now).returns(creation)
+          @dummy.avatar = @file
+          Time.stubs(:now).returns(now)
+          @dummy.avatar = @file
+          assert_equal creation.to_i, @dummy.avatar.created_at
+          assert_not_equal now.to_i, @dummy.avatar.created_at
+        end
+
+        should "set changed? to true on attachment assignment" do
+          @dummy.avatar = @file
+          @dummy.save!
+          @dummy.avatar = @file
+          assert @dummy.changed?
+        end
+      end
+
+      context "and avatar_updated_at column" do
+        setup do
+          ActiveRecord::Base.connection.add_column :dummies, :avatar_updated_at, :timestamp
+          rebuild_class
+          @dummy = Dummy.new
+        end
+
+        should "not error when assigned an attachment" do
+          assert_nothing_raised { @dummy.avatar = @file }
+        end
+
+        should "return the right value when sent #avatar_updated_at" do
+          now = Time.now
+          Time.stubs(:now).returns(now)
+          @dummy.avatar = @file
+          assert_equal now.to_i, @dummy.avatar.updated_at
+        end
+      end
+
+      should "not calculate fingerprint" do
         @dummy.avatar = @file
-        @dummy.save
-        @dummy = Dummy.find(@dummy.id)
-        assert_equal File.size(@file), @dummy.avatar.size
+        assert_nil @dummy.avatar.fingerprint
+      end
+
+      context "and avatar_content_type column" do
+        setup do
+          ActiveRecord::Base.connection.add_column :dummies, :avatar_content_type, :string
+          rebuild_class
+          @dummy = Dummy.new
+        end
+
+        should "not error when assigned an attachment" do
+          assert_nothing_raised { @dummy.avatar = @file }
+        end
+
+        should "return the right value when sent #avatar_content_type" do
+          @dummy.avatar = @file
+          assert_equal "image/png", @dummy.avatar.content_type
+        end
+      end
+
+      context "and avatar_file_size column" do
+        setup do
+          ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :integer
+          rebuild_class
+          @dummy = Dummy.new
+        end
+
+        should "not error when assigned an attachment" do
+          assert_nothing_raised { @dummy.avatar = @file }
+        end
+
+        should "return the right value when sent #avatar_file_size" do
+          @dummy.avatar = @file
+          assert_equal File.size(@file), @dummy.avatar.size
+        end
+
+        should "return the right value when saved, reloaded, and sent #avatar_file_size" do
+          @dummy.avatar = @file
+          @dummy.save
+          @dummy = Dummy.find(@dummy.id)
+          assert_equal File.size(@file), @dummy.avatar.size
+        end
+      end
+
+      context "and avatar_fingerprint column" do
+        setup do
+          ActiveRecord::Base.connection.add_column :dummies, :avatar_fingerprint, :string
+          rebuild_class
+          @dummy = Dummy.new
+        end
+
+        should "not error when assigned an attachment" do
+          assert_nothing_raised { @dummy.avatar = @file }
+        end
+
+        should "return the right value when sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+        end
+
+        should "return the right value when saved, reloaded, and sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          @dummy.save
+          @dummy = Dummy.find(@dummy.id)
+          assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+        end
       end
     end
 
-    context "and avatar_fingerprint column" do
-      setup do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_fingerprint, :string
-        rebuild_class
-        @dummy = Dummy.new
-      end
-
-      should "not error when assigned an attachment" do
-        assert_nothing_raised { @dummy.avatar = @file }
-      end
-
-      should "return the right value when sent #avatar_fingerprint" do
-        @dummy.avatar = @file
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
-      end
-
-      should "return the right value when saved, reloaded, and sent #avatar_fingerprint" do
-        @dummy.avatar = @file
-        @dummy.save
-        @dummy = Dummy.find(@dummy.id)
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
-      end
-    end
   end
 
   context "an attachment with delete_file option set to false" do

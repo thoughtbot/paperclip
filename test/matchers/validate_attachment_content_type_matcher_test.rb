@@ -3,10 +3,18 @@ require './test/helper'
 class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
   context "validate_attachment_content_type" do
     setup do
-      reset_table("dummies") do |d|
-        d.string :title
-        d.string :avatar_file_name
-        d.string :avatar_content_type
+      if using_active_record?
+        reset_table("dummies") do |d|
+          d.string :title
+          d.string :avatar_file_name
+          d.string :avatar_content_type
+        end
+      else
+        reset_table("dummies") do |d|
+          d[:title] = String
+          d[:avatar_file_name] = String
+          d[:avatar_content_type] = String
+        end
       end
       @dummy_class = reset_class "Dummy"
       @dummy_class.has_attached_file :avatar

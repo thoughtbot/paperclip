@@ -17,7 +17,7 @@ class IntegrationTest < Test::Unit::TestCase
 
     should "not exceed the open file limit" do
        assert_nothing_raised do
-         dummies = Dummy.find(:all)
+         dummies = Dummy.all
          dummies.each { |dummy| dummy.avatar }
        end
     end
@@ -65,6 +65,7 @@ class IntegrationTest < Test::Unit::TestCase
         end
         @d2 = Dummy.find(@dummy.id)
         @original_timestamp = @d2.avatar_updated_at
+        sleep(1)
         @d2.avatar.reprocess!
         @d2.save
       end
@@ -80,72 +81,77 @@ class IntegrationTest < Test::Unit::TestCase
     end
   end
 
-  context "Attachment" do
-    setup do
-      @thumb_path = "tmp/public/system/dummies/avatars/000/000/001/thumb/5k.png"
-      File.delete(@thumb_path) if File.exists?(@thumb_path)
-      rebuild_model :styles => { :thumb => "50x50#" }
-      @dummy = Dummy.new
-      @file = File.new(fixture_file("5k.png"), 'rb')
+  # Only for ActiveRecord because id in mongoid model are not predictable so the path neither
+  if using_active_record?
 
+    context "Attachment" do
+      setup do
+        @thumb_path = "tmp/public/system/dummies/avatars/000/000/001/thumb/5k.png"
+        File.delete(@thumb_path) if File.exists?(@thumb_path)
+        rebuild_model :styles => { :thumb => "50x50#" }
+        @dummy = Dummy.new
+        @file = File.new(fixture_file("5k.png"), 'rb')
+
+      end
+
+      teardown { @file.close }
+
+      should "not create the thumbnails upon saving when post-processing is disabled" do
+        @dummy.avatar.post_processing = false
+        @dummy.avatar = @file
+        assert @dummy.save
+        assert_file_not_exists(@thumb_path)
+      end
+
+      should "create the thumbnails upon saving when post_processing is enabled" do
+        @dummy.avatar.post_processing = true
+        @dummy.avatar = @file
+        assert @dummy.save
+        assert_file_exists(@thumb_path)
+      end
     end
 
-    teardown { @file.close }
+    context "Attachment with no generated thumbnails" do
+      setup do
+        @thumb_small_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
+        @thumb_large_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
+        File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
+        File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
+        rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
+        @dummy = Dummy.new
+        @file = File.new(fixture_file("5k.png"), 'rb')
 
-    should "not create the thumbnails upon saving when post-processing is disabled" do
-      @dummy.avatar.post_processing = false
-      @dummy.avatar = @file
-      assert @dummy.save
-      assert_file_not_exists @thumb_path
+        @dummy.avatar.post_processing = false
+        @dummy.avatar = @file
+        assert @dummy.save
+        @dummy.avatar.post_processing = true
+      end
+
+      teardown { @file.close }
+
+      should "allow us to create all thumbnails in one go" do
+        assert_file_not_exists(@thumb_small_path)
+        assert_file_not_exists(@thumb_large_path)
+
+        @dummy.avatar.reprocess!
+
+        assert_file_exists(@thumb_small_path)
+        assert_file_exists(@thumb_large_path)
+      end
+
+      should "allow us to selectively create each thumbnail" do
+        assert_file_not_exists(@thumb_small_path)
+        assert_file_not_exists(@thumb_large_path)
+
+        @dummy.avatar.reprocess! :thumb_small
+        assert_file_exists(@thumb_small_path)
+        assert_file_not_exists(@thumb_large_path)
+
+        @dummy.avatar.reprocess! :thumb_large
+        assert_file_exists(@thumb_large_path)
+      end
     end
 
-    should "create the thumbnails upon saving when post_processing is enabled" do
-      @dummy.avatar.post_processing = true
-      @dummy.avatar = @file
-      assert @dummy.save
-      assert_file_exists @thumb_path
-    end
-  end
-
-  context "Attachment with no generated thumbnails" do
-    setup do
-      @thumb_small_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
-      @thumb_large_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
-      File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
-      File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
-      rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
-      @dummy = Dummy.new
-      @file = File.new(fixture_file("5k.png"), 'rb')
-
-      @dummy.avatar.post_processing = false
-      @dummy.avatar = @file
-      assert @dummy.save
-      @dummy.avatar.post_processing = true
-    end
-
-    teardown { @file.close }
-
-    should "allow us to create all thumbnails in one go" do
-      assert_file_not_exists(@thumb_small_path)
-      assert_file_not_exists(@thumb_large_path)
-
-      @dummy.avatar.reprocess!
-
-      assert_file_exists(@thumb_small_path)
-      assert_file_exists(@thumb_large_path)
-    end
-
-    should "allow us to selectively create each thumbnail" do
-      assert_file_not_exists(@thumb_small_path)
-      assert_file_not_exists(@thumb_large_path)
-
-      @dummy.avatar.reprocess! :thumb_small
-      assert_file_exists(@thumb_small_path)
-      assert_file_not_exists(@thumb_large_path)
-
-      @dummy.avatar.reprocess! :thumb_large
-      assert_file_exists(@thumb_large_path)
-    end
   end
 
   context "A model that modifies its original" do
