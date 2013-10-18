@@ -100,13 +100,13 @@ module Paperclip
         end unless defined?(AWS::Core)
 
         # Overriding AWS::Core::LogFormatter to make sure it return a UTF-8 string
-        if AWS::VERSION >= "1.3.9"
+        if defined?(AWS::Core::LogFormatter)
           AWS::Core::LogFormatter.class_eval do
             def summarize_hash(hash)
               hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
           end
-        else
+        elsif defined?(AWS::Core::ClientLogging)
           AWS::Core::ClientLogging.class_eval do
             def sanitize_hash(hash)
               hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
