@@ -299,6 +299,10 @@ module Paperclip
       end
 
       def flush_writes #:nodoc:
+        if @queued_for_write[:original].instance_of? Paperclip::AttachmentAdapter
+          flush_copies
+        end
+
         @queued_for_write.each do |style, file|
           begin
             log("saving #{path(style)}")
@@ -336,6 +340,42 @@ module Paperclip
         @queued_for_write = {}
       end
 
+      def flush_copies
+        @queued_for_write.each do |new_style, file|
+          begin
+            log("saving #{path(new_style)}")
+            acl = @s3_permissions[new_style] || @s3_permissions[:default]
+            acl = acl.call(self, new_style) if acl.respond_to?(:call)
+            write_options = {
+              :content_type => file.content_type,
+              :acl => acl
+            }
+            if @s3_server_side_encryption
+              write_options[:server_side_encryption] = @s3_server_side_encryption
+            end
+
+            style_specific_options = styles[new_style]
+
+            if style_specific_options
+              merge_s3_headers( style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options[:s3_headers]
+              @s3_metadata.merge!(style_specific_options[:s3_metadata]) if style_specific_options[:s3_metadata]
+            end
+
+            write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
+            write_options.merge!(@s3_headers)
+
+            @@old_s3_file.copy_to(s3_object(new_style), write_options)
+          rescue AWS::S3::Errors::NoSuchBucket => e
+            create_bucket
+            retry
+          ensure
+            file.rewind
+          end
+        end
+
+        @queued_for_write = {}
+      end
+
       def flush_deletes #:nodoc:
         @queued_for_delete.each do |path|
           begin
@@ -357,6 +397,10 @@ module Paperclip
       rescue AWS::Errors::Base => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
+      end
+
+      def copy_amongst_s3(style)
+        @@old_s3_file = s3_object(style)
       end
 
       private
