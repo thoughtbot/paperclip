@@ -32,6 +32,7 @@ end
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
+$previous_count = 0
 class Test::Unit::TestCase
   def setup
     silence_warnings do
@@ -42,8 +43,21 @@ class Test::Unit::TestCase
     end
   end
 
+  def teardown
+    report_files
+  end
+
   def report_files
-    ObjectSpace.each_object(IO){|io| puts "Open IO: #{io.inspect}" unless io.closed? }
+    files = []
+    ObjectSpace.each_object(IO){|io| files << io unless io.closed? }
+    if files.count > $previous_count
+      puts __name__
+      puts "#{files.count} files"
+      files.each do |file|
+        puts "Open IO: #{file.inspect}"
+      end
+    end
+    $previous_count = files.count
   end
 end
 

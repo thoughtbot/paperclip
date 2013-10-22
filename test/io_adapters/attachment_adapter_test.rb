@@ -1,14 +1,28 @@
 require './test/helper'
 
+# class File
+#   def initialize_with_logging(*args)
+#     p "NEW FILE #{args.inspect}"
+#     p caller
+#     initialize_without_logging(*args)
+#   end
+#   alias_method :initialize_without_logging, :initialize
+#   alias_method :initialize, :initialize_with_logging
+# end
+
+# class Tempfile
+#   def initialize_with_logging(*args)
+#     p "NEW #{args.inspect}"
+#     initialize_without_logging(*args)
+#   end
+#   alias_method :initialize_without_logging, :initialize
+#   alias_method :initialize, :initialize_with_logging
+# end
 class AttachmentAdapterTest < Test::Unit::TestCase
 
   def setup
     rebuild_model :path => "tmp/:class/:attachment/:style/:filename", :styles => {:thumb => '50x50'}
     @attachment = Dummy.new.avatar
-  end
-
-  def teardown
-    report_files
   end
 
   context "for an attachment" do
@@ -22,7 +36,6 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     end
 
     teardown do
-      @subject.close
       @file.close
     end
 
@@ -63,8 +76,8 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
   context "for a file with restricted characters in the name" do
     setup do
-      file_contents = File.new(fixture_file("animated.gif"))
-      @file = StringIO.new(file_contents.read)
+      file_contents = IO.read(fixture_file("animated.gif"))
+      @file = StringIO.new(file_contents)
       @file.stubs(:original_filename).returns('image:restricted.gif')
       @file.binmode
 
@@ -74,7 +87,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     end
 
     teardown do
-      @file.close
+      @subject.close
     end
 
     should "not generate paths that include restricted characters" do
