@@ -104,6 +104,7 @@ class User < ActiveRecord::Base
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
 end
 ```
+(Note: if you are using Rails 4, leave attr_accessible out to accommodate [strong parameters](https://github.com/rails/strong_parameters). Instead add the parameters in the controller (see below).)
 
 In your migrations:
 
@@ -134,6 +135,18 @@ In your controller:
 ```ruby
 def create
   @user = User.create( params[:user] )
+end
+```
+If you are using Rails 4, add this to your controller as well:
+
+```ruby
+private
+
+# Use strong_parameters for attribute whitelisting
+# Be sure to update your create() and update() controller methods.
+
+def user_params
+  params.require(:user).permit(:avatar)
 end
 ```
 
