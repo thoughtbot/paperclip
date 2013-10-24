@@ -97,7 +97,6 @@ Quick Start
 -----------
 
 In your model:
-Note, if you are using Rails 4, leave attr_accessible out to accommodate strong parameters. Instead add the parameters in the controller (see below).
 
 ```ruby
 class User < ActiveRecord::Base
@@ -105,6 +104,7 @@ class User < ActiveRecord::Base
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
 end
 ```
+(Note: if you are using Rails 4, leave attr_accessible out to accommodate strong parameters. Instead add the parameters in the controller (see below).)
 
 In your migrations:
 
@@ -143,7 +143,7 @@ If you are using Rails 4, add this to your controller as well:
 private
 
 def user_params
-  params.require(:user).permit(:avatar, :avatar_file_name)
+  params.require(:user).permit(:avatar)
 end
 ```
 
