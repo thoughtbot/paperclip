@@ -1419,6 +1419,15 @@ class AttachmentTest < Test::Unit::TestCase
       @dummy.destroy
       assert_file_not_exists(@path)
     end
+
+    should "not be deleted when transaction rollbacks after model is destroyed" do
+      ActiveRecord::Base.transaction do
+        @dummy.destroy
+        raise ActiveRecord::Rollback
+      end
+
+      assert_file_exists(@path)
+    end
   end
 
 end
