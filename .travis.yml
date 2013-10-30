@@ -22,6 +22,6 @@ matrix:
     - rvm: jruby-19mode
     - rvm: rbx-19mode
 
-exclude:
-    - rvm: 1.9.2
-      gemfile: gemfiles/4.0.gemfile
+  exclude:
+      - rvm: 1.9.2
+        gemfile: gemfiles/4.0.gemfile
