@@ -44,7 +44,6 @@ class Test::Unit::TestCase
   end
 
   def teardown
-    # report_file:
   end
 
   def report_files
@@ -231,35 +230,3 @@ def assert_frame_dimensions(range, frames)
     end
   end
 end
-
-# class File
-#   def initialize_with_logging(*args)
-#     if args.first != "/Users/jyurek/.pry_history"
-#       pp "NEW FILE #{args.inspect}"
-#       # pp caller
-#     end
-#     initialize_without_logging(*args)
-#   end
-#   alias_method :initialize_without_logging, :initialize
-#   alias_method :initialize, :initialize_with_logging
-# 
-#   def close_with_logging(*args)
-#     if path != "/Users/jyurek/.pry_history"
-#       pp "CLOSE FILE #{self.path}"
-#       # pp caller
-#     end
-#     close_without_logging(*args)
-#   end
-#   alias_method :close_without_logging, :close
-#   alias_method :close, :close_with_logging
-# end
-# 
-# class Tempfile
-#   def initialize_with_logging(*args)
-#     # pp "NEW #{args.inspect}"
-#     # pp caller
-#     initialize_without_logging(*args)
-#   end
-#   alias_method :initialize_without_logging, :initialize
-#   alias_method :initialize, :initialize_with_logging
-# end
