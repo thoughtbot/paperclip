@@ -1,23 +1,6 @@
 require './test/helper'
+require 'pp'
 
-# class File
-#   def initialize_with_logging(*args)
-#     p "NEW FILE #{args.inspect}"
-#     p caller
-#     initialize_without_logging(*args)
-#   end
-#   alias_method :initialize_without_logging, :initialize
-#   alias_method :initialize, :initialize_with_logging
-# end
-
-# class Tempfile
-#   def initialize_with_logging(*args)
-#     p "NEW #{args.inspect}"
-#     initialize_without_logging(*args)
-#   end
-#   alias_method :initialize_without_logging, :initialize
-#   alias_method :initialize, :initialize_with_logging
-# end
 class AttachmentAdapterTest < Test::Unit::TestCase
 
   def setup
@@ -37,6 +20,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
     teardown do
       @file.close
+      @subject.close
     end
 
     should "get the right filename" do
@@ -116,6 +100,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     teardown do
       @file.close
       @thumb.close
+      @subject.close
     end
 
     should "get the original filename" do
