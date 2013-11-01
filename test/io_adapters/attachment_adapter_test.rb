@@ -1,4 +1,5 @@
 require './test/helper'
+require 'pp'
 
 class AttachmentAdapterTest < Test::Unit::TestCase
 
@@ -19,6 +20,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
     teardown do
       @file.close
+      @subject.close
     end
 
     should "get the right filename" do
@@ -58,8 +60,8 @@ class AttachmentAdapterTest < Test::Unit::TestCase
 
   context "for a file with restricted characters in the name" do
     setup do
-      file_contents = File.new(fixture_file("animated.gif"))
-      @file = StringIO.new(file_contents.read)
+      file_contents = IO.read(fixture_file("animated.gif"))
+      @file = StringIO.new(file_contents)
       @file.stubs(:original_filename).returns('image:restricted.gif')
       @file.binmode
 
@@ -69,7 +71,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     end
 
     teardown do
-      @file.close
+      @subject.close
     end
 
     should "not generate paths that include restricted characters" do
@@ -98,6 +100,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     teardown do
       @file.close
       @thumb.close
+      @subject.close
     end
 
     should "get the original filename" do

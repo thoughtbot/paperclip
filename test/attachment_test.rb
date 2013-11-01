@@ -643,7 +643,7 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model :processors => [:thumbnail, :test], :styles => @style_params
       @dummy = Dummy.new
       @file = StringIO.new("...")
-      @file.stubs(:to_tempfile).returns(@file)
+      @file.stubs(:close)
       Paperclip::Test.stubs(:make).returns(@file)
       Paperclip::Thumbnail.stubs(:make).returns(@file)
     end

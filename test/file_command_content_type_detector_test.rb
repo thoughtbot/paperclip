@@ -7,6 +7,8 @@ class FileCommandContentTypeDetectorTest < Test::Unit::TestCase
     tempfile.rewind
 
     assert_equal "text/plain", Paperclip::FileCommandContentTypeDetector.new(tempfile.path).detect
+
+    tempfile.close
   end
 
   should 'return a sensible default when the file command is missing' do
