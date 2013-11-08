@@ -96,7 +96,9 @@ end
 Quick Start
 -----------
 
-In your model:
+### Models
+
+**Rails 3**
 
 ```ruby
 class User < ActiveRecord::Base
@@ -104,9 +106,16 @@ class User < ActiveRecord::Base
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
 end
 ```
-(Note: if you are using Rails 4, leave attr_accessible out to accommodate [strong parameters](https://github.com/rails/strong_parameters). Instead add the parameters in the controller (see below).)
 
-In your migrations:
+**Rails 4**
+
+```ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
+end
+```
+
+### Migrations
 
 ```ruby
 class AddAvatarColumnsToUsers < ActiveRecord::Migration
@@ -122,7 +131,7 @@ end
 
 (Or you can use migration generator: `rails generate paperclip user avatar`)
 
-In your edit and new views:
+### Edit and New Views
 
 ```erb
 <%= form_for @user, :url => users_path, :html => { :multipart => true } do |form| %>
@@ -130,16 +139,23 @@ In your edit and new views:
 <% end %>
 ```
 
-In your controller:
+### Controller
+
+**Rails 3**
 
 ```ruby
 def create
   @user = User.create( params[:user] )
 end
 ```
-If you are using Rails 4, add this to your controller as well:
+
+**Rails 4**
 
 ```ruby
+def create
+  @user = User.create( user_params )
+end
+
 private
 
 # Use strong_parameters for attribute whitelisting
@@ -150,7 +166,7 @@ def user_params
 end
 ```
 
-In your show view:
+### Show View
 
 ```erb
 <%= image_tag @user.avatar.url %>
@@ -158,7 +174,9 @@ In your show view:
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
 
-To detach a file, simply set the attribute to `nil`:
+### Deleting an Attachment
+
+Set the attribute to `nil` and save.
 
 ```ruby
 @user.avatar = nil
