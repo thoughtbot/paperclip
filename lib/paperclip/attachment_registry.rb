@@ -51,7 +51,13 @@ module Paperclip
     end
 
     def definitions_for(klass)
-      @attachments[klass]
+      (klass.ancestors - klass.included_modules).inject({}) do |definitions, klass|
+        if @attachments[klass]
+          definitions.reverse_merge! @attachments[klass]
+        end
+
+        definitions
+      end
     end
   end
 end
