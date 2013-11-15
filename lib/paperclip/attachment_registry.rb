@@ -51,7 +51,9 @@ module Paperclip
     end
 
     def definitions_for(klass)
-      @attachments[klass]
+      klass.ancestors.each_with_object({}) do |k, obj|
+        obj.merge! @attachments[k]
+      end
     end
   end
 end
