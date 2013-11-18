@@ -707,6 +707,27 @@ end
 The important part here being the inclusion of `ENV['TEST_ENV_NUMBER']`, or the
 similar mechanism for whichever parallel testing library you use.
 
+**Integration Tests**
+
+Using integration tests with Capybara/FactoryGirl may save multiple copies
+of your test file(s) within the app. To avoid this, specify a custom path in 
+the `config/environments/test.rb` like so:
+
+```ruby
+Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
+```
+
+Then, make sure to delete that directory after the test suite runs by adding
+this to `spec_helper.rb`.
+
+```ruby
+config.after(:suite) do
+  FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
+end
+```
+
+
+
 Contributing
 ------------
 
