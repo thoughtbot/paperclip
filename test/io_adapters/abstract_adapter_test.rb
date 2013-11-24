@@ -32,7 +32,7 @@ class AbstractAdapterTest < Test::Unit::TestCase
       @adapter.tempfile = stub("Tempfile")
     end
 
-    [:close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each do |method|
+    [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each do |method|
       should "delegate #{method} to @tempfile" do
         @adapter.tempfile.stubs(method)
         @adapter.public_send(method)

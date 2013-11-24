@@ -5,7 +5,7 @@ module Paperclip
     OS_RESTRICTED_CHARACTERS = %r{[/:]}
 
     attr_reader :content_type, :original_filename, :size
-    delegate :close, :close!, :closed?, :eof?, :path, :rewind, :unlink, :to => :@tempfile
+    delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink, :to => :@tempfile
 
     def fingerprint
       @fingerprint ||= Digest::MD5.file(path).to_s
