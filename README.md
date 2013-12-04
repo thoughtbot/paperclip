@@ -605,7 +605,7 @@ look as follows where a boss will receive a `300x300` thumbnail otherwise a
 
 ```ruby
 class User < ActiveRecord::Base
-  has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") }
+  has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") } }
 end
 ```
 
