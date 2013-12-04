@@ -292,12 +292,12 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context "An attachment that uses S3 for storage and has a proc for styles" do
+  context "An attachment that uses S3 for storage and has a proc for styles and path" do
     setup do
       rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => { :geometry => "50x50#", :s3_headers => {'Cache-Control' => 'max-age=31557600'}} }},
                     :storage => :s3,
                     :bucket  => "bucket",
-                    :path => ":attachment/:style/:basename.:extension",
+                    :path    => lambda { |attachment| dummy = "dummy_string"; "/system/:attachment/#{dummy}/:style/:basename.:extension" },
                     :s3_credentials => {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
@@ -328,6 +328,10 @@ class S3Test < Test::Unit::TestCase
 
     should "succeed" do
       assert_equal @dummy.counter, 7
+    end
+
+    should "succeed with correct URL" do
+      assert_equal @dummy.avatar.path, "/avatars/dummy_string/original/5k.png"
     end
   end
 
