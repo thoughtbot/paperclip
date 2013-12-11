@@ -149,8 +149,8 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption].to_s.upcase
           end
 
-          unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
-            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
+            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
@@ -159,16 +159,16 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
@@ -244,7 +244,7 @@ module Paperclip
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
       end
 
       def using_http_proxy?
@@ -352,7 +352,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{^/},'')].delete
+            s3_bucket.objects[path.sub(%r{\A/},'')].delete
           rescue AWS::Errors::Base => e
             # Ignore this.
           end
@@ -397,10 +397,10 @@ module Paperclip
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
         http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
-          when /^x-amz-meta-(.*)/i
+          when /\Ax-amz-meta-(.*)/i
             s3_metadata[$1.downcase] = value
           else
-            s3_headers[name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym] = value
+            s3_headers[name.to_s.downcase.sub(/\Ax-amz-/,'').tr("-","_").to_sym] = value
           end
         end
       end

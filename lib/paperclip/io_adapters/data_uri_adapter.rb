@@ -1,7 +1,7 @@
 module Paperclip
   class DataUriAdapter < StringioAdapter
 
-    REGEXP = /^data:([-\w]+\/[-\w\+]+);base64,(.*)/m
+    REGEXP = /\Adata:([-\w]+\/[-\w\+]+);base64,(.*)/m
 
     def initialize(target_uri)
       @target_uri = target_uri
