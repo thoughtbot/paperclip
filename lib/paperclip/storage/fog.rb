@@ -43,8 +43,8 @@ module Paperclip
         end unless defined?(Fog)
 
         base.instance_eval do
-          unless @options[:url].to_s.match(/^:fog.*url$/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system\//, '')
+          unless @options[:url].to_s.match(/\A:fog.*url\Z/)
+            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, '')
             @options[:url]   = ':fog_public_url'
           end
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
@@ -53,7 +53,7 @@ module Paperclip
         end
       end
 
-      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /^(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}$))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]$/
+      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /\A(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}\Z))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]\Z/
 
       def exists?(style = default_style)
         if original_filename

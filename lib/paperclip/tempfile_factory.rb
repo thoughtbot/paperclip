@@ -1,7 +1,7 @@
 module Paperclip
   class TempfileFactory
 
-    ILLEGAL_FILENAME_CHARACTERS = /^~/
+    ILLEGAL_FILENAME_CHARACTERS = /\A~/
 
     def generate(name)
       @name = name

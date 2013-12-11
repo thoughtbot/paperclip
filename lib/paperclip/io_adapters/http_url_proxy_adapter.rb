@@ -1,7 +1,7 @@
 module Paperclip
   class HttpUrlProxyAdapter < UriAdapter
 
-    REGEXP = /^https?:\/\//
+    REGEXP = /\Ahttps?:\/\//
 
     def initialize(target)
       super(URI(target))

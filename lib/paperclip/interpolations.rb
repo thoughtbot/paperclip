@@ -48,7 +48,7 @@ module Paperclip
     # Returns the interpolated URL. Will raise an error if the url itself
     # contains ":url" to prevent infinite recursion. This interpolation
     # is used in the default :path to ease default specifications.
-    RIGHT_HERE = "#{__FILE__.gsub(%r{^\./}, "")}:#{__LINE__ + 3}"
+    RIGHT_HERE = "#{__FILE__.gsub(%r{\A\./}, "")}:#{__LINE__ + 3}"
     def url attachment, style_name
       raise Errors::InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
       attachment.url(style_name, :timestamp => false, :escape => false)
@@ -90,7 +90,7 @@ module Paperclip
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}$/, "")
+      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}\Z/, "")
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
@@ -98,7 +98,7 @@ module Paperclip
     # of the actual extension.
     def extension attachment, style_name
       ((style = attachment.styles[style_name.to_s.to_sym]) && style[:format]) ||
-        File.extname(attachment.original_filename).gsub(/^\.+/, "")
+        File.extname(attachment.original_filename).gsub(/\A\.+/, "")
     end
 
     # Returns an extension based on the content type. e.g. "jpeg" for
@@ -128,7 +128,7 @@ module Paperclip
         # It's possible, though unlikely, that the mime type is not in the
         # database, so just use the part after the '/' in the mime type as the
         # extension.
-        %r{/([^/]*)$}.match(attachment.content_type)[1]
+        %r{/([^/]*)\Z}.match(attachment.content_type)[1]
       end
     end
 
