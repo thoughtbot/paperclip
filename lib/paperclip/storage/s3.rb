@@ -134,7 +134,7 @@ module Paperclip
             @s3_server_side_encryption = false
           end
           if @s3_server_side_encryption
-            @s3_server_side_encryption = @options[:s3_server_side_encryption].to_s.upcase
+            @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
           unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
