@@ -1045,7 +1045,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:write).with(anything,
                                       content_type: "image/png",
                                       acl: :public_read,
-                                      server_side_encryption: 'AES256')
+                                      server_side_encryption: :aes256)
           @dummy.save
         end
 
