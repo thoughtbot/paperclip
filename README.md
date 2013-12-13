@@ -284,6 +284,24 @@ class BooksController < ApplicationController
 end
 ```
 
+**A note on content_type validations and security**
+
+You should ensure that you validate files to be only those MIME types you
+explicitly want to support.  If you don't, you could be open to
+<a href="https://www.owasp.org/index.php/Testing_for_Stored_Cross_site_scripting_(OWASP-DV-002)">XSS attacks</a>
+if a user uploads a file with a malicious HTML payload.
+
+If you're only interested in images, restrict your allowed content_types to
+image-y ones:
+
+```ruby
+validates_attachment :avatar,
+  :content_type => { :content_type => ["image/jpg", "image/gif", "image/png"] }
+```
+
+`Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
+inferred content_type, regardless of the actual contents of the file.
+
 Defaults
 --------
 Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
