@@ -714,11 +714,11 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the [mailing list](http://groups.google.com/group/paperclip-plugin), or
-   post a new [GitHub Issue](http://github.com/thoughtbot/paperclip/issues).
+1. Post a [pull request](https://github.com/thoughtbot/paperclip/compare/).
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
-   about writing tests for paperclip, please ask the mailing list.
+   about writing tests for paperclip, please open a
+   [GitHub issue](https://github.com/thoughtbot/paperclip/issues/new).
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
