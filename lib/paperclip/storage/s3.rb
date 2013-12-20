@@ -6,7 +6,7 @@ module Paperclip
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
     #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
-    # * +s3_credentials+: Takes a path, a File, or a Hash. The path (or File) must point
+    # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
     #   gives you. You can 'environment-space' this just like you do to your
     #   database.yml file, so different environments can use different accounts:
@@ -26,6 +26,18 @@ module Paperclip
     #   put your bucket name in this file, instead of adding it to the code directly.
     #   This is useful when you want the same account but a different bucket for
     #   development versus production.
+    #   When using a Proc it provides a single parameter which is the attachment itself. A  
+    #   method #instance is available on the attachment which will take you back to your
+    #   code. eg.
+    #     class User
+    #       has_attached_file :download,
+    #                         :storage => :s3,
+    #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
+    #
+    #       def s3_credentials
+    #         {:bucket => "xxx", :access_key_id => "xxx", :secret_access_key => "xxx"}
+    #       end
+    #     end
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
     #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
