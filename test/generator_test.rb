@@ -72,8 +72,12 @@ class GeneratorTest < Rails::Generators::TestCase
 
     context 'without required arguments' do
       should 'not create the migration' do
-        silence_stream(STDERR) { run_generator %w() }
-        assert_no_migration 'db/migrate/add_attachment_avatar_to_users.rb'
+        begin
+          silence_stream(STDERR) { run_generator %w() }
+          assert_no_migration 'db/migrate/add_attachment_avatar_to_users.rb'
+        rescue Thor::RequiredArgumentMissingError
+          # This is also OK. It happens in 1.9.2 and Rails 3.2
+        end
       end
     end
   end
