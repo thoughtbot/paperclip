@@ -309,11 +309,11 @@ class FogTest < Test::Unit::TestCase
 
       context "with a valid bucket name for a subdomain" do
         should "provide an url in subdomain style" do
-          assert_match /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url
+          assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
         end
 
         should "provide an url that expires in subdomain style" do
-          assert_match /^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
+          assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
         end
       end
 
@@ -333,11 +333,11 @@ class FogTest < Test::Unit::TestCase
         end
 
         should "provide an url in folder style" do
-          assert_match /^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url
+          assert_match(/^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url)
         end
 
         should "provide a url that expires in folder style" do
-          assert_match /^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url
+          assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
         end
 
       end
@@ -368,7 +368,7 @@ class FogTest < Test::Unit::TestCase
         end
 
         should "provide a public url" do
-          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+          assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.url)
         end
 
       end
@@ -382,11 +382,11 @@ class FogTest < Test::Unit::TestCase
         end
 
         should "provide a public url" do
-          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.url
+          assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.url)
         end
 
         should "provide an expiring url" do
-          assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+          assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url)
         end
 
         context "with an invalid bucket name for a subdomain" do
@@ -398,7 +398,7 @@ class FogTest < Test::Unit::TestCase
           end
 
           should "provide an expiring url" do
-            assert_match /http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url
+            assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url)
           end
         end
 

@@ -17,8 +17,7 @@ class IntegrationTest < Test::Unit::TestCase
 
     should "not exceed the open file limit" do
        assert_nothing_raised do
-         dummies = Dummy.find(:all)
-         dummies.each { |dummy| dummy.avatar }
+         Dummy.all.each { |dummy| dummy.avatar }
        end
     end
   end
@@ -35,7 +34,7 @@ class IntegrationTest < Test::Unit::TestCase
     teardown { @file.close }
 
     should "create its thumbnails properly" do
-      assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
+      assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
     end
 
     context 'reprocessing with unreadable original' do
@@ -70,8 +69,8 @@ class IntegrationTest < Test::Unit::TestCase
       end
 
       should "create its thumbnails properly" do
-        assert_match /\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`
-        assert_match /\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`
+        assert_match(/\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
+        assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`)
       end
 
       should "change the timestamp" do
