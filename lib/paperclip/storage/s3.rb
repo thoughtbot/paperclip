@@ -40,7 +40,7 @@ module Paperclip
     #     end
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
+    #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
     #   The default for Paperclip is :public_read.
     #
     #   You can set permission on a per style bases by doing the following:
