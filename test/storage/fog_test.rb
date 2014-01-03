@@ -317,6 +317,16 @@ class FogTest < Test::Unit::TestCase
         end
       end
 
+      context "generating an expiring url" do
+        should "generate the same url when using Times and Integer offsets" do
+          rebuild_model(@options)
+          dummy = Dummy.new
+          dummy.avatar = StringIO.new('.')
+
+          assert_equal dummy.avatar.expiring_url(1234), dummy.avatar.expiring_url(Time.now + 1234)
+        end
+      end
+
       context "with an invalid bucket name for a subdomain" do
         setup do
           rebuild_model(@options.merge(:fog_directory => "this_is_invalid"))

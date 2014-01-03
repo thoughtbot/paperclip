@@ -549,6 +549,10 @@ class S3Test < Test::Unit::TestCase
         assert_equal(@dummy.avatar.url, @dummy.avatar.expiring_url)
       end
     end
+
+    should "generate the same url when using Times and Integer offsets" do
+      assert_equal @dummy.avatar.expiring_url(1234), @dummy.avatar.expiring_url(Time.now + 1234)
+    end
   end
 
   context "Generating a url with an expiration for each style" do

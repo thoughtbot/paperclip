@@ -139,6 +139,7 @@ module Paperclip
       end
 
       def expiring_url(time = (Time.now + 3600), style = default_style)
+        time = convert_time(time)
         if directory.files.respond_to?(:get_http_url)
           expiring_url = directory.files.get_http_url(path(style), time)
 
@@ -170,6 +171,13 @@ module Paperclip
       end
 
       private
+
+      def convert_time(time)
+        if time.is_a?(Fixnum)
+          time = Time.now + time
+        end
+        time
+      end
 
       def dynamic_fog_host_for_style(style)
         if @options[:fog_host].respond_to?(:call)
