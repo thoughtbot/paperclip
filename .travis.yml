@@ -4,6 +4,7 @@ rvm:
   - jruby-19mode
   - rbx-19mode
   - 2.0.0
+  - 2.1.0
 
 install:
   - "bundle install"
@@ -16,6 +17,7 @@ gemfile:
   - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
+  - gemfiles/4.1.gemfile
 
 matrix:
   allow_failures:
@@ -25,3 +27,5 @@ matrix:
   exclude:
       - rvm: 1.9.2
         gemfile: gemfiles/4.0.gemfile
+      - rvm: 1.9.2
+        gemfile: gemfiles/4.1.gemfile
