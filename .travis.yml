@@ -17,6 +17,7 @@ gemfile:
   - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
+  - gemfiles/4.1.gemfile
 
 matrix:
   allow_failures:
@@ -26,3 +27,5 @@ matrix:
   exclude:
       - rvm: 1.9.2
         gemfile: gemfiles/4.0.gemfile
+      - rvm: 1.9.2
+        gemfile: gemfiles/4.1.gemfile
