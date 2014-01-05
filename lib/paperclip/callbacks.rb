@@ -23,7 +23,7 @@ module Paperclip
       private
 
       def callback_terminator
-        if Gem::Version.new(::Rails::VERSION::STRING) >= Gem::Version.new('4.1.0.beta')
+        if ::ActiveSupport::VERSION::STRING >= '4.1'
           lambda { |target, result| result == false }
         else
           'result == false'
