@@ -88,8 +88,8 @@ For Non-Rails usage:
 
 ```ruby
 class ModuleName < ActiveRecord::Base
-    include Paperclip::Glue
-    ...
+  include Paperclip::Glue
+  ...
 end
 ```
 
