@@ -22,7 +22,11 @@ module Paperclip
 
     def copy_to_tempfile(src)
       if src.respond_to? :copy_to_local_file
-        src.copy_to_local_file(@style, destination.path)
+        if src.options[:storage] == :s3
+          src.copy_amongst_s3(@style)
+        else
+          src.copy_to_local_file(@style, destination.path)
+        end
       else
         FileUtils.cp(src.path(@style), destination.path)
       end
