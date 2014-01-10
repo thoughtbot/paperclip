@@ -325,6 +325,16 @@ class FogTest < Test::Unit::TestCase
 
           assert_equal dummy.avatar.expiring_url(1234), dummy.avatar.expiring_url(Time.now + 1234)
         end
+
+        should 'match the default url if there is no assignment' do
+          dummy = Dummy.new
+          assert_equal dummy.avatar.url, dummy.avatar.expiring_url
+        end
+
+        should 'match the default url when given a style if there is no assignment' do
+          dummy = Dummy.new
+          assert_equal dummy.avatar.url(:thumb), dummy.avatar.expiring_url(3600, :thumb)
+        end
       end
 
       context "with an invalid bucket name for a subdomain" do
