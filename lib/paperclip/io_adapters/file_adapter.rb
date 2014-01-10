@@ -8,8 +8,9 @@ module Paperclip
     private
 
     def cache_current_values
-      self.original_filename = @target.original_filename if @target.respond_to?(:original_filename)
-      self.original_filename ||= File.basename(@target.path)
+      filename = @target.original_filename if @target.respond_to?(:original_filename)
+      filename ||= File.basename(@target.path)
+      self.original_filename = filename.strip
       @tempfile = copy_to_tempfile(@target)
       @content_type = ContentTypeDetector.new(@target.path).detect
       @size = File.size(@target)

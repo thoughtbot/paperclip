@@ -93,6 +93,21 @@ class FileAdapterTest < Test::Unit::TestCase
       end
     end
 
+    context "file with original filename" do
+      setup do
+        @file = File.new(fixture_file("5k.png"))
+        @file.binmode
+        @file.stubs(:original_filename).returns('over10k.png')
+        @subject = Paperclip.io_adapters.for(@file)
+      end
+
+      teardown { @file.close }
+
+      should "use the original filename" do
+        assert_equal 'over10k.png', @subject.original_filename
+      end
+    end
+
     context "filename with restricted characters" do
       setup do
         @file = File.open(fixture_file("animated.gif")) do |file|
