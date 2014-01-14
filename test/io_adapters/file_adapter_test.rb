@@ -6,49 +6,58 @@ class FileAdapterTest < Test::Unit::TestCase
       setup do
         @file = File.new(fixture_file("5k.png"))
         @file.binmode
-        @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
-
-      should "get the right filename" do
-        assert_equal "5k.png", @subject.original_filename
+      teardown do
+        @file.close
+        @subject.close if @subject
       end
 
-      should "force binmode on tempfile" do
-        assert @subject.instance_variable_get("@tempfile").binmode?
-      end
+      context 'doing normal things' do
+        setup do
+          @subject = Paperclip.io_adapters.for(@file)
+        end
 
-      should "get the content type" do
-        assert_equal "image/png", @subject.content_type
-      end
+        should "get the right filename" do
+          assert_equal "5k.png", @subject.original_filename
+        end
 
-      should "return content type as a string" do
-        assert_kind_of String, @subject.content_type
-      end
+        should "force binmode on tempfile" do
+          assert @subject.instance_variable_get("@tempfile").binmode?
+        end
 
-      should "get the file's size" do
-        assert_equal 4456, @subject.size
-      end
+        should "get the content type" do
+          assert_equal "image/png", @subject.content_type
+        end
 
-      should "return false for a call to nil?" do
-        assert ! @subject.nil?
-      end
+        should "return content type as a string" do
+          assert_kind_of String, @subject.content_type
+        end
 
-      should "generate a MD5 hash of the contents" do
-        expected = Digest::MD5.file(@file.path).to_s
-        assert_equal expected, @subject.fingerprint
-      end
+        should "get the file's size" do
+          assert_equal 4456, @subject.size
+        end
 
-      should "read the contents of the file" do
-        expected = @file.read
-        assert expected.length > 0
-        assert_equal expected, @subject.read
+        should "return false for a call to nil?" do
+          assert ! @subject.nil?
+        end
+
+        should "generate a MD5 hash of the contents" do
+          expected = Digest::MD5.file(@file.path).to_s
+          assert_equal expected, @subject.fingerprint
+        end
+
+        should "read the contents of the file" do
+          expected = @file.read
+          assert expected.length > 0
+          assert_equal expected, @subject.read
+        end
       end
 
       context "file with multiple possible content type" do
         setup do
           MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
+          @subject = Paperclip.io_adapters.for(@file)
         end
 
         should "prefer officially registered mime type" do
@@ -86,13 +95,17 @@ class FileAdapterTest < Test::Unit::TestCase
 
     context "filename with restricted characters" do
       setup do
-        file_contents = File.new(fixture_file("animated.gif"))
-        @file = StringIO.new(file_contents.read)
+        @file = File.open(fixture_file("animated.gif")) do |file|
+          StringIO.new(file.read)
+        end
         @file.stubs(:original_filename).returns('image:restricted.gif')
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
+      teardown do
+        @file.close
+        @subject.close
+      end
 
       should "not generate filenames that include restricted characters" do
         assert_equal 'image_restricted.gif', @subject.original_filename
@@ -109,7 +122,10 @@ class FileAdapterTest < Test::Unit::TestCase
         @subject = Paperclip.io_adapters.for(@file)
       end
 
-      teardown { @file.close }
+      teardown do
+        @file.close
+        @subject.close
+      end
 
       should "provide correct mime-type" do
         assert_match %r{.*/x-empty}, @subject.content_type

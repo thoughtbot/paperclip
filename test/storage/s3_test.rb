@@ -548,6 +548,14 @@ class S3Test < Test::Unit::TestCase
       should "return the default URL" do
         assert_equal(@dummy.avatar.url, @dummy.avatar.expiring_url)
       end
+
+      should 'generate a url for a style when a file does not exist' do
+        assert_equal(@dummy.avatar.url(:thumb), @dummy.avatar.expiring_url(3600, :thumb))
+      end
+    end
+
+    should "generate the same url when using Times and Integer offsets" do
+      assert_equal @dummy.avatar.expiring_url(1234), @dummy.avatar.expiring_url(Time.now + 1234)
     end
   end
 

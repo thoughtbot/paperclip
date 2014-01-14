@@ -1,3 +1,10 @@
+New in 3.5.2:
+
+* Security: Force cocaine to at least 0.5.3 to include a security fix
+* Improvement: Fixed some README exmaples
+* Feature: Added HTTP URL Proxy Adapter, can assign string URLs as attachments
+* Improvement: Put validation errors on the base attribute and the sub-attribute
+
 New in 3.5.1:
 
 * Bug Fix: Returned the class-level `attachment_definitions` method for compatability.

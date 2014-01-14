@@ -51,7 +51,9 @@ module Paperclip
     end
 
     def definitions_for(klass)
-      @attachments[klass]
+      klass.ancestors.each_with_object({}) do |ancestor, inherited_definitions|
+        inherited_definitions.merge! @attachments[ancestor]
+      end
     end
   end
 end

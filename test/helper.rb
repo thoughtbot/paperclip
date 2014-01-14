@@ -13,7 +13,12 @@ require 'shoulda/context'
 require 'mime/types'
 require 'pathname'
 require 'ostruct'
-require 'pry'
+
+begin
+  require 'pry'
+rescue LoadError
+  # Pry is not available, just ignore.
+end
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
@@ -21,12 +26,13 @@ puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
 begin
   require 'ruby-debug'
-rescue LoadError => e
+rescue LoadError
   puts "debugger disabled"
 end
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
+$previous_count = 0
 class Test::Unit::TestCase
   def setup
     silence_warnings do
@@ -35,6 +41,22 @@ class Test::Unit::TestCase
       Rails.stubs(:env).returns('test')
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
     end
+  end
+
+  def teardown
+  end
+
+  def report_files
+    files = []
+    ObjectSpace.each_object(IO){|io| files << io unless io.closed? }
+    if files.count > $previous_count
+      puts __name__
+      puts "#{files.count} files"
+      files.each do |file|
+        puts "Open IO: #{file.inspect}"
+      end
+    end
+    $previous_count = files.count
   end
 end
 
