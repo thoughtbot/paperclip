@@ -14,9 +14,14 @@ module Paperclip
 
     def geometry_string
       begin
-        silence_stream(STDERR) do
-          Paperclip.run("identify", "-format '%wx%h,%[exif:orientation]' :file", :file => "#{path}[0]")
-        end
+        Paperclip.run(
+          "identify",
+          "-format '%wx%h,%[exif:orientation]' :file", {
+            :file => "#{path}[0]"
+          }, {
+            :swallow_stderr => true
+          }
+        )
       rescue Cocaine::ExitStatusError
         ""
       rescue Cocaine::CommandNotFoundError => e

@@ -4,6 +4,7 @@ class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
   def setup
     rebuild_model
     @dummy = Dummy.new
+    super
   end
 
   def build_validator(options)

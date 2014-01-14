@@ -69,7 +69,7 @@ module Paperclip
       @name              = name
       @instance          = instance
 
-      options = self.class.default_options.merge(options)
+      options = self.class.default_options.deep_merge(options)
 
       @options               = options
       @post_processing       = true
@@ -312,8 +312,12 @@ module Paperclip
     # in the paperclip:refresh rake task and that's it. It will regenerate all
     # thumbnails forcefully, by reobtaining the original file and going through
     # the post-process again.
+    # NOTE: Calling reprocess WILL NOT delete existing files. This is due to
+    # inconsistencies in timing of S3 commands. It's possible that calling
+    # #reprocess! will lose data if the files are not kept.
     def reprocess!(*style_args)
       saved_only_process, @options[:only_process] = @options[:only_process], style_args
+      saved_preserve_files, @options[:preserve_files] = @options[:preserve_files], true
       begin
         assign(self)
         save
@@ -323,6 +327,7 @@ module Paperclip
         false
       ensure
         @options[:only_process] = saved_only_process
+        @options[:preserve_files] = saved_preserve_files
       end
     end
 
@@ -429,10 +434,16 @@ module Paperclip
     def post_process_style(name, style) #:nodoc:
       begin
         raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
+        original_file = @queued_for_write[:original]
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
-          Paperclip.processor(processor).make(file, style.processor_options, self)
+          new_file = Paperclip.processor(processor).make(file, style.processor_options, self)
+          file.close unless file == original_file
+          new_file
         end
+        unadapted_file = @queued_for_write[name]
         @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
+        unadapted_file.close if unadapted_file.respond_to?(:close)
+        @queued_for_write[name]
       rescue Paperclip::Error => e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]

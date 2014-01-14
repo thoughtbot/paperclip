@@ -46,13 +46,11 @@ module Paperclip
     def empty_file?
       File.exists?(@filename) && File.size(@filename) == 0
     end
+    
+    alias :empty? :empty_file?
 
     def blank_name?
       @filename.nil? || @filename.empty?
-    end
-
-    def empty?
-      File.exists?(@filename) && File.size(@filename) == 0
     end
 
     def possible_types

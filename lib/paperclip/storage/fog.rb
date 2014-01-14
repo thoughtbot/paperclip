@@ -43,8 +43,8 @@ module Paperclip
         end unless defined?(Fog)
 
         base.instance_eval do
-          unless @options[:url].to_s.match(/^:fog.*url$/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system\//, '')
+          unless @options[:url].to_s.match(/\A:fog.*url\Z/)
+            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, '')
             @options[:url]   = ':fog_public_url'
           end
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
@@ -53,7 +53,7 @@ module Paperclip
         end
       end
 
-      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /^(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}$))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]$/
+      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /\A(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}\Z))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]\Z/
 
       def exists?(style = default_style)
         if original_filename
@@ -138,15 +138,16 @@ module Paperclip
         end
       end
 
-      def expiring_url(time = (Time.now + 3600), style = default_style)
-        if directory.files.respond_to?(:get_http_url)
-          expiring_url = directory.files.get_http_url(path(style), time)
+      def expiring_url(time = (Time.now + 3600), style_name = default_style)
+        time = convert_time(time)
+        if path(style_name) && directory.files.respond_to?(:get_http_url)
+          expiring_url = directory.files.get_http_url(path(style_name), time)
 
           if @options[:fog_host]
-            expiring_url.gsub!(/#{host_name_for_directory}/, dynamic_fog_host_for_style(style))
+            expiring_url.gsub!(/#{host_name_for_directory}/, dynamic_fog_host_for_style(style_name))
           end
         else
-          expiring_url = public_url
+          expiring_url = url(style_name)
         end
 
         return expiring_url
@@ -170,6 +171,13 @@ module Paperclip
       end
 
       private
+
+      def convert_time(time)
+        if time.is_a?(Fixnum)
+          time = Time.now + time
+        end
+        time
+      end
 
       def dynamic_fog_host_for_style(style)
         if @options[:fog_host].respond_to?(:call)

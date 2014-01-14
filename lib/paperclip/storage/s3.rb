@@ -6,7 +6,7 @@ module Paperclip
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
     #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
-    # * +s3_credentials+: Takes a path, a File, or a Hash. The path (or File) must point
+    # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
     #   gives you. You can 'environment-space' this just like you do to your
     #   database.yml file, so different environments can use different accounts:
@@ -26,9 +26,21 @@ module Paperclip
     #   put your bucket name in this file, instead of adding it to the code directly.
     #   This is useful when you want the same account but a different bucket for
     #   development versus production.
+    #   When using a Proc it provides a single parameter which is the attachment itself. A  
+    #   method #instance is available on the attachment which will take you back to your
+    #   code. eg.
+    #     class User
+    #       has_attached_file :download,
+    #                         :storage => :s3,
+    #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
+    #
+    #       def s3_credentials
+    #         {:bucket => "xxx", :access_key_id => "xxx", :secret_access_key => "xxx"}
+    #       end
+    #     end
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
+    #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
     #   The default for Paperclip is :public_read.
     #
     #   You can set permission on a per style bases by doing the following:
@@ -137,8 +149,8 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption].to_s.upcase
           end
 
-          unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
-            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
+            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
@@ -147,25 +159,25 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
       def expiring_url(time = 3600, style_name = default_style)
-        if path
+        if path(style_name)
           base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
           s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
         else
-          url
+          url(style_name)
         end
       end
 
@@ -232,7 +244,7 @@ module Paperclip
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
       end
 
       def using_http_proxy?
@@ -340,7 +352,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{^/},'')].delete
+            s3_bucket.objects[path.sub(%r{\A/},'')].delete
           rescue AWS::Errors::Base => e
             # Ignore this.
           end
@@ -385,10 +397,10 @@ module Paperclip
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
         http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
-          when /^x-amz-meta-(.*)/i
+          when /\Ax-amz-meta-(.*)/i
             s3_metadata[$1.downcase] = value
           else
-            s3_headers[name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym] = value
+            s3_headers[name.to_s.downcase.sub(/\Ax-amz-/,'').tr("-","_").to_sym] = value
           end
         end
       end

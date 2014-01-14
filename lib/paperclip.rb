@@ -129,8 +129,9 @@ module Paperclip
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
     # * +keep_old_files+: Keep the existing attachment files (original + resized) from
-    #   being automatically deleted when an attachment is cleared or updated.
-    #   Defaults to +false+.#
+    #   being automatically deleted when an attachment is cleared or updated. Defaults to +false+.
+    # * +preserve_files+: Keep the existing attachment files in all cases, even if the parent 
+    #   record is destroyed. Defaults to +false+.
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
     #   Defaults to true.

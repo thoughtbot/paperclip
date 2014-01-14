@@ -8,6 +8,7 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
   should 'return the empty content type when the file is empty' do
     tempfile = Tempfile.new("empty")
     assert_equal "inode/x-empty", Paperclip::ContentTypeDetector.new(tempfile.path).detect
+    tempfile.close
   end
 
   should 'return content type of file if it is an acceptable type' do
