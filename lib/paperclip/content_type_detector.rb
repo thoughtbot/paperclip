@@ -20,8 +20,9 @@ module Paperclip
     EMPTY_TYPE = "inode/x-empty"
     SENSIBLE_DEFAULT = "application/octet-stream"
 
-    def initialize(filename)
+    def initialize(filename, tempfile = nil)
       @filename = filename
+      @tempfile = tempfile
     end
 
     # Returns a String describing the file's content type
@@ -70,7 +71,16 @@ module Paperclip
     end
 
     def type_from_file_command
-      @type_from_file_command ||= FileCommandContentTypeDetector.new(@filename).detect
+      @type_from_file_command = begin
+        type_from_filename = FileCommandContentTypeDetector.new(@filename).detect
+        if type_from_file_command
+          type_from_filename
+        else
+          if @tempfile
+            FileCommandContentTypeDetector.new(@tempfile.path).detect
+          end
+        end
+      end
     end
   end
 end

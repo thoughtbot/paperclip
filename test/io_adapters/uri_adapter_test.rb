@@ -71,6 +71,21 @@ class UriProxyTest < Test::Unit::TestCase
     end
   end
 
+  context "don't trust an odd client-given MIME type" do
+    setup do
+      @open_return = File.open(fixture_file('5k.png'))
+      @open_return.stubs(:content_type).returns("image/png")
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(@open_return)
+      @uri = URI.parse("http://thoughtbot.com/images/thoughtbot-logo.png.html")
+      @subject = Paperclip.io_adapters.for(@uri)
+    end
+
+    should "get the content type" do
+      binding.pry
+      assert_equal "image/png", @subject.content_type
+    end
+  end
+
   context "a url with query params" do
     setup do
       Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(StringIO.new("xxx"))

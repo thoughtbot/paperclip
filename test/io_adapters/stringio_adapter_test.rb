@@ -1,6 +1,6 @@
 require './test/helper'
 
-class StringioFileProxyTest < Test::Unit::TestCase
+class StringioFileProxyTest < Test::Unit::TestCase 
   context "a new instance" do
     setup do
       @contents = "abc123"
@@ -57,5 +57,12 @@ class StringioFileProxyTest < Test::Unit::TestCase
       assert_no_match /:/, @subject.path
     end
 
+    context "don't trust an odd client-given MIME type" do
+      should "get the correct content type" do
+        @subject.original_filename = 'foo.png'
+        @subject.content_type = 'text/html'
+        assert_equal "image/png", @subject.content_type
+      end
+    end
   end
 end

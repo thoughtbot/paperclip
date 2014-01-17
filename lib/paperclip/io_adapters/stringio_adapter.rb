@@ -16,7 +16,7 @@ module Paperclip
       self.original_filename = @original_filename.strip
 
       @content_type = @target.content_type if @target.respond_to?(:content_type)
-      @content_type ||= "text/plain"
+      @content_type = ContentTypeDetector.new(@original_filename).detect
 
       @size = @target.size
     end
