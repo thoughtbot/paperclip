@@ -210,4 +210,42 @@ class StyleTest < Test::Unit::TestCase
       assert_equal "-do_extra_stuff", @attachment.styles[:large].processor_options[:source_file_options]
     end
   end
+
+  context "A style rule supplied with default format" do
+     setup do
+       @attachment = attachment :default_format => :png,
+                                :styles => {
+                                  :asstring => "300x300#",
+                                  :aslist => ["300x300#", :jpg],
+                                  :ashash => {
+                                    :geometry => "300x300#",
+                                    :convert_options => "-do_stuff"
+                                  }
+                                }
+     end
+
+     should "have the right number of styles" do
+       assert_kind_of Hash, @attachment.styles
+       assert_equal 3, @attachment.styles.size
+     end
+
+     should "have styles as Style objects" do
+       [:aslist, :ashash, :aslist].each do |s|
+         assert_kind_of Paperclip::Style, @attachment.styles[s]
+       end
+     end
+
+     should "have the right geometries" do
+       [:aslist, :ashash, :aslist].each do |s|
+         assert_equal @attachment.styles[s].geometry, "300x300#"
+       end
+     end
+
+     should "have the right formats" do
+       assert_equal @attachment.styles[:aslist].format,    :jpg
+       assert_equal @attachment.styles[:ashash].format,    :png
+       assert_equal @attachment.styles[:asstring].format,  :png
+     end
+
+   end
 end
