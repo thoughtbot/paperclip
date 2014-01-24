@@ -119,7 +119,9 @@ class HasAttachedFileTest < Test::Unit::TestCase
            after_commit: nil,
            define_paperclip_callbacks: nil,
            extend: nil,
-           name: 'Billy')
+           name: 'Billy',
+           validates_media_type_spoof_detection: nil
+          )
     end
   end
 end
