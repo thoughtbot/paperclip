@@ -92,7 +92,7 @@ class S3Test < Test::Unit::TestCase
                     :s3_credentials => {:not => :important}
 
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
 
     end
 
@@ -111,11 +111,11 @@ class S3Test < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_path_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an S3 path" do
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
 
     should "use the correct bucket" do
@@ -123,7 +123,7 @@ class S3Test < Test::Unit::TestCase
     end
 
     should "use the correct key" do
-      assert_equal "avatars/stringio.txt", @dummy.avatar.s3_object.key
+      assert_equal "avatars/data.txt", @dummy.avatar.s3_object.key
     end
   end
 
@@ -151,11 +151,11 @@ class S3Test < Test::Unit::TestCase
                     :bucket => "bucket",
                     :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an S3 path" do
-      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
 
@@ -167,11 +167,11 @@ class S3Test < Test::Unit::TestCase
                     :bucket => "bucket",
                     :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an S3 path" do
-      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
 
@@ -183,11 +183,11 @@ class S3Test < Test::Unit::TestCase
                     :bucket => "bucket",
                     :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an S3 path" do
-      assert_match %r{^//s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
 
@@ -205,16 +205,16 @@ class S3Test < Test::Unit::TestCase
                     }
 
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
       @avatar = @dummy.avatar
     end
 
     should "use an S3 object based on the correct path for the default style" do
-      assert_equal("avatars/original/stringio.txt", @dummy.avatar.s3_object.key)
+      assert_equal("avatars/original/data.txt", @dummy.avatar.s3_object.key)
     end
 
     should "use an S3 object based on the correct path for the custom style" do
-      assert_equal("avatars/thumb/stringio.txt", @dummy.avatar.s3_object(:thumb).key)
+      assert_equal("avatars/thumb/data.txt", @dummy.avatar.s3_object(:thumb).key)
     end
   end
 
@@ -226,11 +226,11 @@ class S3Test < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :s3_host_name => "s3-ap-northeast-1.amazonaws.com"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an :s3_host_name path" do
-      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
 
     should "use the S3 bucket with the correct host name" do
@@ -249,12 +249,12 @@ class S3Test < Test::Unit::TestCase
       class << @dummy
         attr_accessor :value
       end
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "use s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
-      assert_equal "http://s3.something.com/bucket/avatars/stringio.txt", @dummy.avatar.url(:original, :timestamp => false)
+      assert_equal "http://s3.something.com/bucket/avatars/data.txt", @dummy.avatar.url(:original, :timestamp => false)
     end
   end
 
@@ -366,7 +366,7 @@ class S3Test < Test::Unit::TestCase
                       'secret_access_key' => "54321"
                     }
 
-      stringio = StringIO.new(".")
+      stringio = stringy_file
       class << stringio
         def original_filename
           "question?mark.png"
@@ -395,11 +395,11 @@ class S3Test < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_domain_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on an S3 subdomain" do
-      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data.txt}, @dummy.avatar.url
     end
   end
 
@@ -414,11 +414,11 @@ class S3Test < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_alias_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on the host_alias" do
-      assert_match %r{^http://something.something.com/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://something.something.com/avatars/data.txt}, @dummy.avatar.url
     end
   end
 
@@ -437,12 +437,12 @@ class S3Test < Test::Unit::TestCase
         end
       end
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a url based on the host_alias" do
-      assert_match %r{^http://cdn1.example.com/avatars/stringio.txt}, @dummy.avatar.url
-      assert_match %r{^http://cdn2.example.com/avatars/stringio.txt}, @dummy.avatar.url
+      assert_match %r{^http://cdn1.example.com/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://cdn2.example.com/avatars/data.txt}, @dummy.avatar.url
     end
 
     should "still return the bucket name" do
@@ -459,11 +459,11 @@ class S3Test < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":asset_host"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "return a relative URL for Rails to calculate assets host" do
-      assert_match %r{^avatars/stringio\.txt}, @dummy.avatar.url
+      assert_match %r{^avatars/data\.txt}, @dummy.avatar.url
     end
 
   end
@@ -493,7 +493,7 @@ class S3Test < Test::Unit::TestCase
       rails_env("production")
 
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
 
       object = stub
       @dummy.avatar.stubs(:s3_object).returns(object)
@@ -508,7 +508,7 @@ class S3Test < Test::Unit::TestCase
       rails_env("production")
 
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
 
       object = stub
       @dummy.avatar.stubs(:s3_object).returns(object)
@@ -524,8 +524,9 @@ class S3Test < Test::Unit::TestCase
 
       @dummy = Dummy.new
 
-      @file = StringIO.new(".")
+      @file = stringy_file
       @file.stubs(:original_filename).returns("5k.png\n\n")
+      Paperclip.stubs(:run).returns('image/png')
       @file.stubs(:content_type).returns("image/png\n\n")
       @file.stubs(:to_tempfile).returns(@file)
 
@@ -574,7 +575,7 @@ class S3Test < Test::Unit::TestCase
       rails_env("production")
 
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = stringy_file
     end
 
     should "should generate a url for the thumb" do

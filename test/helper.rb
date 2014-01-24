@@ -197,6 +197,10 @@ def with_exitstatus_returning(code)
   end
 end
 
+def stringy_file
+  StringIO.new('.\n')
+end
+
 def fixture_file(filename)
   File.join(File.dirname(__FILE__), 'fixtures', filename)
 end
