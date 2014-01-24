@@ -14,8 +14,8 @@ class DataUriAdapterTest < Test::Unit::TestCase
       @subject = Paperclip.io_adapters.for(@contents)
     end
 
-    should "return a file name" do
-      assert_equal "base64.txt", @subject.original_filename
+    should "returns a file name based on the content type" do
+      assert_equal "data.png", @subject.original_filename
     end
 
     should "return a content type" do
