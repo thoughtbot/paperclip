@@ -4,8 +4,8 @@ source "https://rubygems.org"
 
 gem "jruby-openssl", :platform=>:jruby
 gem "activerecord-jdbcsqlite3-adapter", :platform=>:jruby
-gem "sqlite3", :platform=>:ruby
-gem "rails", "~> 3.2.6"
+gem "pry", :platform=>:ruby
+gem "rails", "~> 3.2.15"
 gem "paperclip", :path=>"../"
 
 gemspec :path=>"../"

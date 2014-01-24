@@ -1,3 +1,25 @@
+New in 3.5.3:
+
+Improvement: After three long, hard years... we know how to upgrade
+Bug Fix: #expiring_url returns 'missing' urls if nothing is attached
+Improvement: Lots of documentation fixes
+Improvement: Lots of fixes for Ruby warnings
+Improvement: Test the most appropriate Ruby/Rails comobinations on Travis
+Improvement: Delegate more IO methods through IOAdapters
+Improvement: Remove Rails 4 deprecations
+Improvement: Both S3's and Fog's #expiring_url can take a Time or Int
+Bug Fix: Both S3's and Fog's expiring_url respect style when missing the file
+Bug Fix: Timefiles will have a reasonable-length name. They're all MD5 hashes now
+Bug Fix: Don't delete files off S3 when reprocessing due to AWS inconsistencies
+Bug Fix: "swallow_stream" isn't thread dafe. Use :swallow_stderr
+Improvement: Regexps use \A and \Z instead of ^ and $
+Improvement: :s3_credentials can take a lambda as an argument
+Improvement: Search up the class heirarchy for attachments
+Improvement: deep_merge options instead of regular merge
+Bug Fix: Prevent file deletion on transaction rollback
+Test Improvement: Ensure more files are properly closed during tests
+Test Bug Fix: Return the gemfile's syntax to normal
+
 New in 3.5.2:
 
 * Security: Force cocaine to at least 0.5.3 to include a security fix
