@@ -75,7 +75,7 @@ class AttachmentAdapterTest < Test::Unit::TestCase
     end
 
     should "not generate paths that include restricted characters" do
-      assert_no_match /:/, @subject.path
+      assert_no_match(/:/, @subject.path)
     end
 
     should "not generate filenames that include restricted characters" do

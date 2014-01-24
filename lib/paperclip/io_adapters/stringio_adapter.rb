@@ -2,8 +2,8 @@ module Paperclip
   class StringioAdapter < AbstractAdapter
     def initialize(target)
       @target = target
-      cache_current_values
       @tempfile = copy_to_tempfile
+      cache_current_values
     end
 
     attr_writer :content_type
@@ -11,13 +11,10 @@ module Paperclip
     private
 
     def cache_current_values
-      @original_filename = @target.original_filename if @target.respond_to?(:original_filename)
-      @original_filename ||= "stringio.txt"
-      self.original_filename = @original_filename.strip
-
-      @content_type = @target.content_type if @target.respond_to?(:content_type)
-      @content_type ||= "text/plain"
-
+      @content_type = ContentTypeDetector.new(@tempfile.path).detect
+      original_filename = @target.original_filename if @target.respond_to?(:original_filename)
+      original_filename ||= "data.#{extension_for(@content_type)}"
+      self.original_filename = original_filename.strip
       @size = @target.size
     end
 
@@ -27,6 +24,11 @@ module Paperclip
       end
       destination.rewind
       destination
+    end
+
+    def extension_for(content_type)
+      type = MIME::Types[content_type].first
+      type && type.extensions.first
     end
 
   end

@@ -13,6 +13,7 @@ class AbstractAdapterTest < Test::Unit::TestCase
     setup do
       @adapter = TestAdapter.new
       @adapter.stubs(:path).returns("image.png")
+      Paperclip.stubs(:run).returns("image/png\n")
     end
 
     should "return the content type without newline" do

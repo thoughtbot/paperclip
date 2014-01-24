@@ -18,16 +18,6 @@ class ContentTypeDetectorTest < Test::Unit::TestCase
     assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
   end
 
-  should 'find the first result that matches from the official types' do
-    @filename = "/path/to/something.bmp"
-    assert_equal "image/bmp", Paperclip::ContentTypeDetector.new(@filename).detect
-  end
-
-  should 'find the first unofficial result for this filename if no official ones exist' do
-    @filename = "/path/to/something.aiff"
-    assert_equal "audio/x-aiff", Paperclip::ContentTypeDetector.new(@filename).detect
-  end
-
   should 'find the right type in the list via the file command' do
     @filename = "#{Dir.tmpdir}/something.hahalolnotreal"
     File.open(@filename, "w+") do |file|

@@ -18,6 +18,7 @@ module Paperclip
       register_new_attachment
       add_active_record_callbacks
       add_paperclip_callbacks
+      add_required_validations
     end
 
     private
@@ -75,6 +76,10 @@ module Paperclip
 
     def register_new_attachment
       Paperclip::AttachmentRegistry.register(@klass, @name, @options)
+    end
+
+    def add_required_validations
+      @klass.validates_media_type_spoof_detection @name
     end
 
     def add_active_record_callbacks

@@ -60,7 +60,7 @@ class AttachmentPresenceValidatorTest < Test::Unit::TestCase
   context "with attachment" do
     setup do
       build_validator
-      @dummy.avatar = StringIO.new('.')
+      @dummy.avatar = StringIO.new('.\n')
       @validator.validate(@dummy)
     end
 

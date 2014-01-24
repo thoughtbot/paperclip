@@ -166,6 +166,18 @@ module Paperclip
       path.respond_to?(:unescape) ? path.unescape : path
     end
 
+    # :nodoc:
+    def staged_path(style_name = default_style)
+      if staged?
+        @queued_for_write[style_name].path
+      end
+    end
+
+    # :nodoc:
+    def staged?
+      ! @queued_for_write.empty?
+    end
+
     # Alias to +url+
     def to_s style_name = default_style
       url(style_name)
@@ -485,7 +497,7 @@ module Paperclip
       end
     end
 
-    # called by storage after the writes are flushed and before @queued_for_writes is cleared
+    # called by storage after the writes are flushed and before @queued_for_write is cleared
     def after_flush_writes
       @queued_for_write.each do |style, file|
         file.close unless file.closed?
