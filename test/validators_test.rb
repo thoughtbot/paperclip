@@ -1,6 +1,8 @@
 require './test/helper'
 
 class ValidatorsTest < Test::Unit::TestCase
+  include ActiveSupport::Testing::Deprecation
+
   def setup
     rebuild_model
   end
@@ -57,5 +59,42 @@ class ValidatorsTest < Test::Unit::TestCase
       dummy = Dummy.new(:avatar => File.new(fixture_file("12k.png")))
       assert_equal [], dummy.errors.keys
     end
+  end
+
+  context 'when no content_type validation exists' do
+    setup do
+      ActiveSupport::Deprecation.silenced = false
+    end
+
+    should 'emit a deprecation warning' do
+      assert_deprecated do
+        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      end
+    end
+
+    # should 'raise an error' do
+    #   assert_raises(Paperclip::Errors::NoContentTypeValidator) do 
+    #     Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+    #   end
+    # end
+  end
+
+  context 'when a content_type validation exists' do
+    setup do
+      Dummy.validates_attachment :avatar, :content_type => { :content_type => "image/jpeg" }
+      ActiveSupport::Deprecation.silenced = false
+    end
+
+    should 'not emit a deprecation warning' do
+      assert_not_deprecated do
+        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      end
+    end
+
+    # should 'not raise an error' do
+    #   assert_nothing_raised(Paperclip::Errors::NoContentTypeValidator) do 
+    #     Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+    #   end
+    # end
   end
 end

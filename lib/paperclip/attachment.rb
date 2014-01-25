@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'uri'
 require 'paperclip/url_generator'
+require 'active_support/deprecation'
 
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
@@ -93,6 +94,7 @@ module Paperclip
     #   new_user.avatar = old_user.avatar
     def assign uploaded_file
       ensure_required_accessors!
+      ensure_required_validations!
       file = Paperclip.io_adapters.for(uploaded_file)
 
       return nil if not file.assignment?
@@ -383,6 +385,19 @@ module Paperclip
 
     def path_option
       @options[:path].respond_to?(:call) ? @options[:path].call(self) : @options[:path]
+    end
+
+    def active_validator_classes
+      @instance.class.validators.map(&:class)
+    end
+
+    def ensure_required_validations!
+      if ! active_validator_classes.include?(Paperclip::Validators::AttachmentContentTypeValidator)
+        ActiveSupport::Deprecation.warn(
+          "You must define a content_type validator to ensure you only accept files of the correct type. Failure to do so will raise an error in Paperclip versions >= 4.0"
+        )
+        # raise Paperclip::Errors::NoContentTypeValidator.new('you must define a content type validation')
+      end
     end
 
     def ensure_required_accessors! #:nodoc:

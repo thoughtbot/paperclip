@@ -13,6 +13,10 @@ module Paperclip
     class CommandNotFoundError < Paperclip::Error
     end
 
+    # Thrown when no content_type validation exists
+    # class NoContentTypeValidator < Paperclip::Error
+    # end
+
     # Will be thrown when ImageMagic cannot determine the uploaded file's
     # metadata, usually this would mean the file is not an image.
     class NotIdentifiedByImageMagickError < Paperclip::Error

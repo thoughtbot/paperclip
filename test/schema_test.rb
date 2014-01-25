@@ -15,6 +15,9 @@ class SchemaTest < Test::Unit::TestCase
 
   context "within table definition" do
     context "using #has_attached_file" do
+      setup do
+        ActiveSupport::Deprecation.silenced = false
+      end
       should "create attachment columns" do
         Dummy.connection.create_table :dummies, :force => true do |t|
           ActiveSupport::Deprecation.silence do
@@ -122,6 +125,9 @@ class SchemaTest < Test::Unit::TestCase
       end
 
       context "using #drop_attached_file" do
+        setup do
+          ActiveSupport::Deprecation.silenced = false
+        end
         should "remove the attachment columns" do
           ActiveSupport::Deprecation.silence do
             Dummy.connection.drop_attached_file :dummies, :avatar

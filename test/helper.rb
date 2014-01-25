@@ -40,6 +40,7 @@ class Test::Unit::TestCase
       Rails.stubs(:root).returns(Pathname.new(ROOT).join('tmp'))
       Rails.stubs(:env).returns('test')
       Rails.stubs(:const_defined?).with(:Railtie).returns(false)
+      ActiveSupport::Deprecation.silenced = true
     end
   end
 
