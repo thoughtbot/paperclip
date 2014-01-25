@@ -9,7 +9,7 @@ class StringioFileProxyTest < Test::Unit::TestCase
     end
 
     should "return a file name" do
-      assert_equal "stringio.txt", @subject.original_filename
+      assert_equal "data.txt", @subject.original_filename
     end
 
     should "return a content type" do
