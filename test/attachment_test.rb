@@ -346,11 +346,12 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment with :hash interpolations" do
     setup do
-      @file = StringIO.new("...")
+      @file = StringIO.new("...\n")
     end
 
     should "raise if no secret is provided" do
-      @attachment = attachment :path => ":hash"
+      rebuild_model :path => ":hash"
+      @attachment = Dummy.new.avatar
       @attachment.assign @file
 
       assert_raise ArgumentError do
@@ -360,29 +361,23 @@ class AttachmentTest < Test::Unit::TestCase
 
     context "when secret is set" do
       setup do
-        @attachment = attachment :path => ":hash", :hash_secret => "w00t"
-        @attachment.stubs(:instance_read).with(:updated_at).returns(Time.at(1234567890))
-        @attachment.stubs(:instance_read).with(:file_name).returns("bla.txt")
-        @attachment.instance.id = 1234
+        rebuild_model :path => ":hash",
+          :hash_secret => "w00t",
+          :hash_data => ":class/:attachment/:style/:filename"
+        @attachment = Dummy.new.avatar
         @attachment.assign @file
       end
 
-      should "interpolate the hash data" do
-        @attachment.expects(:interpolate).with(@attachment.options[:hash_data],anything).returns("interpolated_stuff")
-        @attachment.hash_key
-      end
-
       should "result in the correct interpolation" do
-        assert_equal "fake_models/avatars/1234/original/1234567890", @attachment.send(:interpolate,@attachment.options[:hash_data])
+        assert_equal "dummies/avatars/original/data.txt",
+          @attachment.send(:interpolate, @attachment.options[:hash_data])
+        assert_equal "dummies/avatars/thumb/data.txt",
+          @attachment.send(:interpolate, @attachment.options[:hash_data], :thumb)
       end
 
       should "result in a correct hash" do
-        assert_equal "d22b617d1bf10016aa7d046d16427ae203f39fce", @attachment.path
-      end
-
-      should "generate a hash digest with the correct style" do
-        OpenSSL::HMAC.expects(:hexdigest).with(anything, anything, "fake_models/avatars/1234/medium/1234567890")
-        @attachment.path("medium")
+        assert_equal "e1079a5c34ddbd197ebd0280d07952d98a57fb30", @attachment.path
+        assert_equal "d740189bd3e49ef226fab84c8d45f7ae4126d043", @attachment.path(:thumb)
       end
     end
   end
@@ -406,15 +401,16 @@ class AttachmentTest < Test::Unit::TestCase
 
   context "An attachment with a default style and an extension interpolation" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => { :default => ["100x100", :png] },
-                               :default_style => :default
-      @file = StringIO.new("...")
-      @file.stubs(:original_filename).returns("file.jpg")
+      rebuild_model :path => ":basename.:extension",
+        :styles => { :default => ["100x100", :jpg] },
+        :default_style => :default
+      @attachment = Dummy.new.avatar
+      @file = File.open(fixture_file("5k.png"))
+      @file.stubs(:original_filename).returns("file.png")
     end
     should "return the right extension for the path" do
       @attachment.assign(@file)
-      assert_equal "file.png", @attachment.path
+      assert_equal "file.jpg", @attachment.path
     end
   end
 
@@ -1091,11 +1087,14 @@ class AttachmentTest < Test::Unit::TestCase
 
       context "when expecting three styles" do
         setup do
-          rebuild_model :styles => {
+          rebuild_class :styles => {
             :large  => ["400x400", :png],
             :medium => ["100x100", :gif],
             :small => ["32x32#", :jpg]
           }
+          @instance = Dummy.new
+          @instance.stubs(:id).returns 123
+          @file = File.new(fixture_file("5k.png"), 'rb')
           @attachment = @instance.avatar
         end
 
