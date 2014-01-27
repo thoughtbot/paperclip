@@ -165,7 +165,7 @@ class AttachmentTest < Test::Unit::TestCase
                                            :default_style => 'default style',
                                            :url_generator => mock_url_generator_builder)
 
-    attachment_json = attachment.as_json
+    attachment.as_json
     assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
   end
 
@@ -983,19 +983,16 @@ class AttachmentTest < Test::Unit::TestCase
         :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
-      rebuild_model
-      @instance = Dummy.new
-      @instance.stubs(:id).returns 123
-
-      @file = File.new(fixture_file("uppercase.PNG"), 'rb')
-
-      styles = {:styles => { :large  => ["400x400", :jpg],
+      rebuild_model :styles => { :large  => ["400x400", :jpg],
                              :medium => ["100x100", :jpg],
                              :small => ["32x32#", :jpg]},
-                :default_style => :small}
-      @attachment = Paperclip::Attachment.new(:avatar,
-                                              @instance,
-                                              styles)
+                    :default_style => :small
+      @instance = Dummy.new
+      @instance.stubs(:id).returns 123
+      @file = File.new(fixture_file("uppercase.PNG"), 'rb')
+
+      @attachment = @instance.avatar
+
       now = Time.now
       Time.stubs(:now).returns(now)
       @attachment.assign(@file)
@@ -1027,7 +1024,8 @@ class AttachmentTest < Test::Unit::TestCase
       rebuild_model
       @instance = Dummy.new
       @instance.stubs(:id).returns 123
-      @attachment = Paperclip::Attachment.new(:avatar, @instance)
+      # @attachment = Paperclip::Attachment.new(:avatar, @instance)
+      @attachment = @instance.avatar
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
@@ -1045,7 +1043,7 @@ class AttachmentTest < Test::Unit::TestCase
 
     should 'clear out the previous assignment when assigned nil' do
       @attachment.assign(@file)
-      original_file = @attachment.queued_for_write[:original]
+      @attachment.queued_for_write[:original]
       @attachment.assign(nil)
       assert_nil @attachment.queued_for_write[:original]
     end
@@ -1093,12 +1091,12 @@ class AttachmentTest < Test::Unit::TestCase
 
       context "when expecting three styles" do
         setup do
-          styles = {:styles => { :large  => ["400x400", :png],
-                                 :medium => ["100x100", :gif],
-                                 :small => ["32x32#", :jpg]}}
-          @attachment = Paperclip::Attachment.new(:avatar,
-                                                  @instance,
-                                                  styles)
+          rebuild_model :styles => {
+            :large  => ["400x400", :png],
+            :medium => ["100x100", :gif],
+            :small => ["32x32#", :jpg]
+          }
+          @attachment = @instance.avatar
         end
 
         context "and assigned a file" do
@@ -1129,7 +1127,7 @@ class AttachmentTest < Test::Unit::TestCase
                [:small, 32, 32, "JPEG"]].each do |style|
                 cmd = %Q[identify -format "%w %h %b %m" "#{@attachment.path(style.first)}"]
                 out = `#{cmd}`
-                width, height, size, format = out.split(" ")
+                width, height, _size, format = out.split(" ")
                 assert_equal style[1].to_s, width.to_s
                 assert_equal style[2].to_s, height.to_s
                 assert_equal style[3].to_s, format.to_s

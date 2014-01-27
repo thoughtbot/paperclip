@@ -6,3 +6,4 @@ gem 'jruby-openssl', :platform => :jruby
 gem 'activerecord-jdbcsqlite3-adapter', :platform => :jruby
 
 gem 'pry', :platform => :ruby
+gem 'pry-byebug', :platform => :ruby
