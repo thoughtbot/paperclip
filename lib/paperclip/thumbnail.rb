@@ -109,7 +109,10 @@ module Paperclip
 
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
-      ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+      if @identified_as_animated.nil?
+        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+      end
+      @identified_as_animated
     rescue Cocaine::ExitStatusError => e
       raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
     rescue Cocaine::CommandNotFoundError => e
