@@ -222,12 +222,12 @@ class FogTest < Test::Unit::TestCase
         setup do
           rebuild_model(@options.merge(:fog_host => 'http://example.com'))
           @dummy = Dummy.new
-          @dummy.avatar = StringIO.new('.')
+          @dummy.avatar = StringIO.new(".\n")
           @dummy.save
         end
 
         should "provide a public url" do
-          assert @dummy.avatar.url =~ /^http:\/\/example\.com\/avatars\/stringio\.txt\?\d*$/
+          assert @dummy.avatar.url =~ /^http:\/\/example\.com\/avatars\/data\.txt\?\d*$/
         end
       end
 
@@ -241,12 +241,12 @@ class FogTest < Test::Unit::TestCase
             :storage          => :fog
           )
           @dummy = Dummy.new
-          @dummy.avatar = StringIO.new('.')
+          @dummy.avatar = StringIO.new(".\n")
           @dummy.save
         end
 
         should "provide a public url" do
-          assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/stringio\.txt\?\d*$/
+          assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/data\.txt\?\d*$/
         end
       end
 
