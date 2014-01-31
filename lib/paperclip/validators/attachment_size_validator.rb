@@ -10,6 +10,10 @@ module Paperclip
         super
       end
 
+      def self.helper_method_name
+        :validates_attachment_size
+      end
+
       def validate_each(record, attr_name, value)
         base_attr_name = attr_name
         attr_name = "#{attr_name}_file_size".to_sym

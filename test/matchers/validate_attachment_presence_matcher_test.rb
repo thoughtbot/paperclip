@@ -6,8 +6,9 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
       reset_table("dummies") do |d|
         d.string :avatar_file_name
       end
-      @dummy_class = reset_class "Dummy"
-      @dummy_class.has_attached_file :avatar
+      reset_class "Dummy"
+      Dummy.has_attached_file :avatar
+      Dummy.do_not_validate_attachment_file_type :avatar
       @matcher     = self.class.validate_attachment_presence(:avatar)
     end
 
@@ -17,7 +18,7 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
 
     context "given a class with a matching validation" do
       setup do
-        @dummy_class.validates_attachment_presence :avatar
+        Dummy.validates_attachment_presence :avatar
       end
 
       should_accept_dummy_class
@@ -30,12 +31,12 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
           d.string :avatar_content_type
         end
 
-        @dummy_class.class_eval do
+        Dummy.class_eval do
           validates_attachment_presence :avatar
           validates_attachment_content_type :avatar, :content_type => 'image/gif'
         end
 
-        @dummy = @dummy_class.new
+        @dummy = Dummy.new
         @matcher = self.class.validate_attachment_presence(:avatar)
       end
 
@@ -47,11 +48,11 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
 
     context "using an :if to control the validation" do
       setup do
-        @dummy_class.class_eval do
+        Dummy.class_eval do
           validates_attachment_presence :avatar, :if => :go
           attr_accessor :go
         end
-        @dummy = @dummy_class.new
+        @dummy = Dummy.new
         @dummy.avatar = nil
       end
 

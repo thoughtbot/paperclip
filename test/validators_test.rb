@@ -35,9 +35,9 @@ class ValidatorsTest < Test::Unit::TestCase
   context "using the helper with a conditional" do
     setup do
       Dummy.validates_attachment :avatar, :presence => true,
-                                 :content_type => { :content_type => "image/jpeg" },
-                                 :size => { :in => 0..10.kilobytes },
-                                 :if => :title_present?
+        :content_type => { :content_type => "image/jpeg" },
+        :size => { :in => 0..10.kilobytes },
+        :if => :title_present?
     end
 
     should "validate the attachment if title is present" do
@@ -61,40 +61,41 @@ class ValidatorsTest < Test::Unit::TestCase
     end
   end
 
-  context 'when no content_type validation exists' do
+  context 'with no other validations on the Dummy#avatar attachment' do
     setup do
-      ActiveSupport::Deprecation.silenced = false
+      reset_class("Dummy")
+      Dummy.has_attached_file :avatar
+      Paperclip.reset_duplicate_clash_check!
     end
 
-    should 'emit a deprecation warning' do
-      assert_deprecated do
+    should 'raise an error when no content_type validation exists' do
+      assert_raises(Paperclip::Errors::MissingRequiredValidatorError) do
         Dummy.new(:avatar => File.new(fixture_file("12k.png")))
       end
     end
 
-    # should 'raise an error' do
-    #   assert_raises(Paperclip::Errors::NoContentTypeValidator) do 
-    #     Dummy.new(:avatar => File.new(fixture_file("12k.png")))
-    #   end
-    # end
-  end
-
-  context 'when a content_type validation exists' do
-    setup do
+    should 'not raise an error when a content_type validation exists' do
       Dummy.validates_attachment :avatar, :content_type => { :content_type => "image/jpeg" }
-      ActiveSupport::Deprecation.silenced = false
-    end
 
-    should 'not emit a deprecation warning' do
-      assert_not_deprecated do
+      assert_nothing_raised(Paperclip::Errors::MissingRequiredValidatorError) do 
         Dummy.new(:avatar => File.new(fixture_file("12k.png")))
       end
     end
 
-    # should 'not raise an error' do
-    #   assert_nothing_raised(Paperclip::Errors::NoContentTypeValidator) do 
-    #     Dummy.new(:avatar => File.new(fixture_file("12k.png")))
-    #   end
-    # end
+    should 'not raise an error when a file_name validation exists' do
+      Dummy.validates_attachment :avatar, :file_name => { :matches => /png$/ }
+
+      assert_nothing_raised(Paperclip::Errors::MissingRequiredValidatorError) do 
+        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      end
+    end
+
+    should 'not raise an error when a the validation has been explicitly rejected' do
+      Dummy.validates_attachment :avatar, :file_type_ignorance => true
+
+      assert_nothing_raised(Paperclip::Errors::MissingRequiredValidatorError) do
+        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      end
+    end
   end
 end

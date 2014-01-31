@@ -85,7 +85,6 @@ class HttpUrlProxyAdapterTest < Test::Unit::TestCase
       begin
         @subject.close
       rescue Exception
-        binding.pry
         true
       end
     end

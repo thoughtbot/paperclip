@@ -126,6 +126,7 @@ end
 def rebuild_class options = {}
   reset_class("Dummy").tap do |klass|
     klass.has_attached_file :avatar, options
+    klass.do_not_validate_attachment_file_type :avatar
     Paperclip.reset_duplicate_clash_check!
   end
 end
@@ -133,6 +134,7 @@ end
 def rebuild_meta_class_of obj, options = {}
   (class << obj; self; end).tap do |metaklass|
     metaklass.has_attached_file :avatar, options
+    metaklass.do_not_validate_attachment_file_type :avatar
     Paperclip.reset_duplicate_clash_check!
   end
 end
@@ -170,21 +172,21 @@ end
 
 def should_accept_dummy_class
   should "accept the class" do
-    assert_accepts @matcher, @dummy_class
+    assert_accepts @matcher, Dummy
   end
 
   should "accept an instance of that class" do
-    assert_accepts @matcher, @dummy_class.new
+    assert_accepts @matcher, Dummy.new
   end
 end
 
 def should_reject_dummy_class
   should "reject the class" do
-    assert_rejects @matcher, @dummy_class
+    assert_rejects @matcher, Dummy
   end
 
   should "reject an instance of that class" do
-    assert_rejects @matcher, @dummy_class.new
+    assert_rejects @matcher, Dummy.new
   end
 end
 

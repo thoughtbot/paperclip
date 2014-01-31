@@ -392,11 +392,8 @@ module Paperclip
     end
 
     def ensure_required_validations!
-      if ! active_validator_classes.include?(Paperclip::Validators::AttachmentContentTypeValidator)
-        ActiveSupport::Deprecation.warn(
-          "You must define a content_type validator to ensure you only accept files of the correct type. Failure to do so will raise an error in Paperclip versions >= 4.0"
-        )
-        # raise Paperclip::Errors::NoContentTypeValidator.new('you must define a content type validation')
+      if (active_validator_classes & Paperclip::REQUIRED_VALIDATORS).empty?
+        raise Paperclip::Errors::MissingRequiredValidatorError
       end
     end
 

@@ -69,6 +69,7 @@ def attach_attachment(name, definition = nil)
     snippet += ", \n"
     snippet += definition
   end
+  snippet += "\ndo_not_validate_attachment_file_type :#{name}\n"
   in_current_dir do
     transform_file("app/models/user.rb") do |content|
       content.sub(/end\Z/, "#{snippet}\nend")

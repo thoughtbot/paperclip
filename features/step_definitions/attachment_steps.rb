@@ -11,8 +11,10 @@ World(AttachmentHelpers)
 
 When /^I modify my attachment definition to:$/ do |definition|
   content = in_current_dir { File.read("app/models/user.rb") }
+  name = content[/has_attached_file :\w+/][/:\w+/]
   content.gsub!(/has_attached_file.+end/m, <<-FILE)
       #{definition}
+      do_not_validate_attachment_file_type #{name}
     end
   FILE
 

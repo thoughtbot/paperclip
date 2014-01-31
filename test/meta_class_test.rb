@@ -16,7 +16,7 @@ class MetaClassTest < Test::Unit::TestCase
       assert_nothing_raised do
         rebuild_meta_class_of(@dummy)
       end
-    end    
+    end
 
     should "work like any other instance" do
       reset_class("Dummy")
