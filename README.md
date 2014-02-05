@@ -307,6 +307,10 @@ inferred content_type, regardless of the actual contents of the file.
 Security Validations
 ====================
 
+Thanks to a report from [Egor Homakov](http://homakov.blogspot.com/) we have
+taken steps to prevent people from spoofing Content-Types and getting data
+you weren't expecting onto your server.
+
 NOTE: Starting at version 4.0.0, all attachments are *required* to include a
 content_type validation, a file_name validation, or to explicitly state that
 they're not going to have either. *Paperclip will raise an error* if you do not
@@ -329,12 +333,12 @@ with your filesystem.
 
 NOTE: Also starting at version 4.0.0, Paperclip has another validation that
 cannot be turned off. This validation will prevent content type spoofing. That
-is, uploading, say, a PHP document as part of the EXIF tags of a well-formed
-JPEG. This check is limited to the media type (the first part of the MIME type,
-so, 'text' in 'text/plain'). This will prevent HTML documents from being
-uploaded as JPEGs, but will not prevent GIFs from being uploaded with a .jpg
-extension. This validation will only add validation errors to the form. It will
-not cause Errors to be raised.
+is, uploading a PHP document (for example) as part of the EXIF tags of a
+well-formed JPEG. This check is limited to the media type (the first part of the
+MIME type, so, 'text' in 'text/plain'). This will prevent HTML documents from
+being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
+.jpg extension. This validation will only add validation errors to the form. It
+will not cause Errors to be raised.
 
 Defaults
 --------
