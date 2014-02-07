@@ -4,7 +4,7 @@ New in 4.0.0:
 * Security: It is now *enforced* that every attachment has a file/mime validation.
 * Bug Fix: Removed a call to IOAdapter#close that was causing issues.
 * Improvement: Added bullets to the 3.5.3 list of changes. Very important.
-* Improcement: Updated the copyright to 2014
+* Improvement: Updated the copyright to 2014
 
 New in 3.5.3:
 
