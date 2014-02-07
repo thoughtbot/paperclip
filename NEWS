@@ -1,3 +1,7 @@
+New in 3.5.4:
+
+Bug Fix: Users were reporting IOErrors. Stop closing extra files to prevent.
+
 New in 3.5.3:
 
 Improvement: After three long, hard years... we know how to upgrade
