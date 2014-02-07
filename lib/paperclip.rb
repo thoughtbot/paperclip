@@ -77,12 +77,13 @@ module Paperclip
   #   nil, which uses the first executable found in the user's search path.
   def self.options
     @options ||= {
-      :whiny             => true,
+      :whiny => true,
       :image_magick_path => nil,
-      :command_path      => nil,
-      :log               => true,
-      :log_command       => true,
-      :swallow_stderr    => true
+      :command_path => nil,
+      :log => true,
+      :log_command => true,
+      :swallow_stderr => true,
+      :content_type_mappings => {}
     }
   end
 
