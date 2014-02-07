@@ -7,7 +7,7 @@ rvm:
   - 2.1.0
 
 install:
-  - "bundle install"
+  - "travis_retry bundle install"
 
 before_script: "sudo ntpdate -ub ntp.ubuntu.com pool.ntp.org; true"
 script: "bundle exec rake clean test cucumber"
