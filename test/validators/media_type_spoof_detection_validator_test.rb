@@ -18,8 +18,6 @@ class MediaTypeSpoofDetectionValidatorTest < Test::Unit::TestCase
 
   should "return default error message for spoofed media type" do
     build_validator
-
-    # Make avatar dirty
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
 
@@ -28,5 +26,22 @@ class MediaTypeSpoofDetectionValidatorTest < Test::Unit::TestCase
     @validator.validate(@dummy)
 
     assert_equal "has an extension that does not match its contents", @dummy.errors[:avatar].first
+  end
+
+  should "run when attachment is dirty" do
+    build_validator
+    file = File.new(fixture_file("5k.png"), "rb")
+    @dummy.avatar.assign(file)
+    Paperclip::MediaTypeSpoofDetector.stubs(:using).returns(stub(:spoofed? => false))
+
+    @dummy.valid?
+
+    assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.once }
+  end
+
+  should "not run when attachment is not dirty" do
+    Paperclip::MediaTypeSpoofDetector.stubs(:using).never
+    @dummy.valid?
+    assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }
   end
 end

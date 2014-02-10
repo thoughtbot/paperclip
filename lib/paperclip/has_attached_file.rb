@@ -79,7 +79,8 @@ module Paperclip
     end
 
     def add_required_validations
-      @klass.validates_media_type_spoof_detection @name
+      name = @name
+      @klass.validates_media_type_spoof_detection name, :if => ->{ send(name).dirty? }
     end
 
     def add_active_record_callbacks
