@@ -2,6 +2,7 @@ en:
   errors:
     messages:
       in_between: "must be in between %{min} and %{max}"
+      spoofed_media_type: "media type is spoofed"
 
   number:
     human:
