@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency('activesupport', '>= 3.0.0')
   s.add_dependency('cocaine', '~> 0.5.3')
   s.add_dependency('mime-types')
+  s.add_dependency('nokogiri')
 
   s.add_development_dependency('activerecord', '>= 3.0.0')
   s.add_development_dependency('shoulda')
@@ -36,7 +37,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sqlite3', '~> 1.3.4')
   s.add_development_dependency('cucumber', '~> 1.2.1')
   s.add_development_dependency('aruba')
-  s.add_development_dependency('nokogiri')
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
   s.add_development_dependency('capybara', '= 2.0.3')
   s.add_development_dependency('bundler')
