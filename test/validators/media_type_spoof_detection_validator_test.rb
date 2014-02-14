@@ -27,6 +27,6 @@ class MediaTypeSpoofDetectionValidatorTest < Test::Unit::TestCase
     Paperclip::MediaTypeSpoofDetector.stubs(:using).returns(detector)
     @validator.validate(@dummy)
 
-    assert_equal "media type is spoofed", @dummy.errors[:avatar].first
+    assert_equal "has an extension that does not match its contents", @dummy.errors[:avatar].first
   end
 end
