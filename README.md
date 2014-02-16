@@ -64,7 +64,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 3.0"
+gem "paperclip", "~> 4.1"
 ```
 
 If you're still using Rails 2.3.x, you should do this instead:
