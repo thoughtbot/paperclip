@@ -1,8 +1,7 @@
 rvm:
-  - 1.9.2
   - 1.9.3
   - jruby-19mode
-  - rbx-19mode
+  - rbx
   - 2.0.0
   - 2.1.0
 
@@ -13,8 +12,6 @@ before_script: "sudo ntpdate -ub ntp.ubuntu.com pool.ntp.org; true"
 script: "bundle exec rake clean test cucumber"
 
 gemfile:
-  - gemfiles/3.0.gemfile
-  - gemfiles/3.1.gemfile
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
   - gemfiles/4.1.gemfile
@@ -24,9 +21,3 @@ matrix:
   allow_failures:
     - rvm: jruby-19mode
     - rvm: rbx-19mode
-
-  exclude:
-      - rvm: 1.9.2
-        gemfile: gemfiles/4.0.gemfile
-      - rvm: 1.9.2
-        gemfile: gemfiles/4.1.gemfile
