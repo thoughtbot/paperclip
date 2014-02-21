@@ -1,3 +1,14 @@
+New in 4.1.1:
+
+* Improvement: Add defauly translations for spoof validation
+* Bug Fix: Don't check for spoofs if the file hasn't changed
+* Bug Fix: Callback chain terminator is different in Rails 4.1, remove warnings
+* Improvement: Fixed various Ruby warnings
+* Bug Fix: Give bundler a hint, so it doesn't run forever on a fresh bundle
+* Improvement: Documentation fixes
+* Improvement: Allow travis-ci to finish-fast
+
+
 New in 4.1.0:
 
 * Improvement: Add :content_type_mappings to correct for missing spoof types
