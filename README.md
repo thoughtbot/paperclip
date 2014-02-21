@@ -527,7 +527,7 @@ _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
 If you're interested in caching your thumbnail's width, height and size in the
-database, take a look at the [paperclip-meta](https://github.com/y8/paperclip-meta) gem.
+database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta) gem.
 
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
