@@ -80,14 +80,14 @@ module Paperclip
 
     def add_required_validations
       name = @name
-      @klass.validates_media_type_spoof_detection name, :if => ->{ send(name).dirty? }
+      @klass.validates_media_type_spoof_detection name, if: ->{ send(name).dirty? }
     end
 
     def add_active_record_callbacks
       name = @name
       @klass.send(:after_save) { send(name).send(:save) }
       @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
-      @klass.send(:after_commit, :on => :destroy) { send(name).send(:flush_deletes) }
+      @klass.send(:after_commit, on: :destroy) { send(name).send(:flush_deletes) }
     end
 
     def add_paperclip_callbacks

@@ -17,14 +17,14 @@ module Paperclip
         Paperclip.run(
           "identify",
           "-format '%wx%h,%[exif:orientation]' :file", {
-            :file => "#{path}[0]"
+            file: "#{path}[0]"
           }, {
-            :swallow_stderr => true
+            swallow_stderr: true
           }
         )
       rescue Cocaine::ExitStatusError
         ""
-      rescue Cocaine::CommandNotFoundError => e
+      rescue Cocaine:CommandNotFoundError: e
         raise_because_imagemagick_missing
       end
     end

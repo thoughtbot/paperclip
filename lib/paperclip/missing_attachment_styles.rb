@@ -26,10 +26,10 @@ module Paperclip
   # Returns hash with styles for all classes using Paperclip.
   # Unfortunately current version does not work with lambda styles:(
   #   {
-  #     :User => {:avatar => [:small, :big]},
-  #     :Book => {
-  #       :cover => [:thumb, :croppable]},
-  #       :sample => [:thumb, :big]},
+  #     User: {avatar: [:small, :big]},
+  #     Book: {
+  #       cover: [:thumb, :croppable]},
+  #       sample: [:thumb, :big]},
   #     }
   #   }
   def self.current_attachments_styles
@@ -51,9 +51,9 @@ module Paperclip
 
   # Returns hash with styles missing from recent run of rake paperclip:refresh:missing_styles
   #   {
-  #     :User => {:avatar => [:big]},
-  #     :Book => {
-  #       :cover => [:croppable]},
+  #     User: {avatar: [:big]},
+  #     Book: {
+  #       cover: [:croppable]},
   #     }
   #   }
   def self.missing_attachments_styles

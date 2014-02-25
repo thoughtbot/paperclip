@@ -13,7 +13,7 @@
 # +has_attached_file+ method:
 #
 #   class User < ActiveRecord::Base
-#     has_attached_file :avatar, :styles => { :thumb => "100x100" }
+#     has_attached_file :avatar, styles: { thumb: "100x100" }
 #   end
 #
 #   user = User.new
@@ -77,13 +77,13 @@ module Paperclip
   #   nil, which uses the first executable found in the user's search path.
   def self.options
     @options ||= {
-      :whiny => true,
-      :image_magick_path => nil,
-      :command_path => nil,
-      :log => true,
-      :log_command => true,
-      :swallow_stderr => true,
-      :content_type_mappings => {}
+      whiny: true,
+      image_magick_path: nil,
+      command_path: nil,
+      log: true,
+      log_command: true,
+      swallow_stderr: true,
+      content_type_mappings: {}
     }
   end
 
@@ -112,12 +112,12 @@ module Paperclip
     #   absolute paths. The default value is
     #   "/system/:class/:attachment/:id_partition/:style/:filename". See
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :url => "/:class/:attachment/:id/:style_:filename"
-    #     :url => "http://some.other.host/stuff/:class/:id_:extension"
+    #     url: "/:class/:attachment/:id/:style_:filename"
+    #     url: "http://some.other.host/stuff/:class/:id_:extension"
     # * +default_url+: The URL that will be returned if there is no attachment assigned.
     #   This field is interpolated just as the url is. The default value is
     #   "/:attachment/:style/missing.png"
-    #     has_attached_file :avatar, :default_url => "/images/default_:style_avatar.png"
+    #     has_attached_file :avatar, default_url: "/images/default_:style_avatar.png"
     #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
     # * +styles+: A hash of thumbnail styles and their geometries. You can find more about
     #   geometry strings at the ImageMagick website
@@ -127,8 +127,8 @@ module Paperclip
     #   default value is to generate no thumbnails.
     # * +default_style+: The thumbnail style that will be used by default URLs.
     #   Defaults to +original+.
-    #     has_attached_file :avatar, :styles => { :normal => "100x100#" },
-    #                       :default_style => :normal
+    #     has_attached_file :avatar, styles: { normal: "100x100#" },
+    #                       default_style: :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
     # * +keep_old_files+: Keep the existing attachment files (original + resized) from
     #   being automatically deleted when an attachment is cleared or updated. Defaults to +false+.
@@ -147,10 +147,10 @@ module Paperclip
     #   to all of the thumbnails being generated. If you specify options for the :original,
     #   it would be best if you did not specify destructive options, as the intent of keeping
     #   the original around is to regenerate all the thumbnails when requirements change.
-    #     has_attached_file :avatar, :styles => { :large => "300x300", :negative => "100x100" }
-    #                                :convert_options => {
-    #                                  :all => "-strip",
-    #                                  :negative => "-negate"
+    #     has_attached_file :avatar, styles: { large: "300x300", negative: "100x100" }
+    #                                convert_options: {
+    #                                  all: "-strip",
+    #                                  negative: "-negate"
     #                                }
     #   NOTE: While not deprecated yet, it is not recommended to specify options this way.
     #   It is recommended that :convert_options option be included in the hash passed to each
@@ -168,7 +168,7 @@ module Paperclip
     # for your has_attached_file definition:
     #
     #   class Person
-    #     has_attached_file :avatar, :default_url => :default_url_by_gender
+    #     has_attached_file :avatar, default_url: :default_url_by_gender
     #
     #     private
     #

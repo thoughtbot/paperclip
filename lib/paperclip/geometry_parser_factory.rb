@@ -8,10 +8,10 @@ module Paperclip
     def make
       if match
         Geometry.new(
-          :height => @height,
-          :width => @width,
-          :modifier => @modifier,
-          :orientation => @orientation
+          height: @height,
+          width: @width,
+          modifier: @modifier,
+          orientation: @orientation
         )
       end
     end

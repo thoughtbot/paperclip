@@ -51,7 +51,7 @@ module Paperclip
     RIGHT_HERE = "#{__FILE__.gsub(%r{\A\./}, "")}:#{__LINE__ + 3}"
     def url attachment, style_name
       raise Errors::InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE) }
-      attachment.url(style_name, :timestamp => false, :escape => false)
+      attachment.url(style_name, timestamp: false, escape: false)
     end
 
     # Returns the timestamp as defined by the <attachment>_updated_at field

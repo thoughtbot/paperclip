@@ -98,10 +98,10 @@ module Paperclip
           retried = false
           begin
             directory.files.create(fog_file.merge(
-              :body         => file,
-              :key          => path(style),
-              :public       => fog_public(style),
-              :content_type => file.content_type
+              body: file,
+              key: path(style),
+              public: fog_public(style),
+              content_type: file.content_type
             ))
           rescue Excon::Errors::NotFound
             raise if retried
@@ -121,7 +121,7 @@ module Paperclip
       def flush_deletes
         for path in @queued_for_delete do
           log("deleting #{path}")
-          directory.files.new(:key => path).destroy
+          directory.files.new(key: path).destroy
         end
         @queued_for_delete = []
       end
@@ -133,7 +133,7 @@ module Paperclip
           if fog_credentials[:provider] == 'AWS'
             "https://#{host_name_for_directory}/#{path(style)}"
           else
-            directory.files.new(:key => path(style)).public_url
+            directory.files.new(key: path(style)).public_url
           end
         end
       end
@@ -165,7 +165,7 @@ module Paperclip
           file = directory.files.get(path(style))
           local_file.write(file.body)
         end
-      rescue ::Fog::Errors::Error => e
+      rescue ::Fog::Errors:Error: e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
@@ -223,7 +223,7 @@ module Paperclip
           @options[:fog_directory]
         end
 
-        @directory ||= connection.directories.new(:key => dir)
+        @directory ||= connection.directories.new(key: dir)
       end
     end
   end

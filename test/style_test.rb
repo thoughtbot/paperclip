@@ -5,9 +5,9 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => { :foo => {:geometry => "100x100#", :format => :png} },
-                               :whiny => true
+      @attachment = attachment path: ":basename.:extension",
+                               styles: { foo: {geometry: "100x100#", format: :png} },
+                               whiny: true
       @style = @attachment.styles[:foo]
     end
 
@@ -35,15 +35,15 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule with properties supplied as procs" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :whiny_thumbnails => true,
-                               :processors => lambda {|a| [:test]},
-                               :styles => {
-                                 :foo => lambda{|a| "300x300#"},
-                                 :bar => {
-                                   :geometry => lambda{|a| "300x300#"},
-                                   :convert_options => lambda{|a| "-do_stuff"},
-                                   :source_file_options => lambda{|a| "-do_extra_stuff"}
+      @attachment = attachment path: ":basename.:extension",
+                               whiny_thumbnails: true,
+                               processors: lambda {|a| [:test]},
+                               styles: {
+                                 foo: lambda{|a| "300x300#"},
+                                 bar: {
+                                   geometry: lambda{|a| "300x300#"},
+                                   convert_options: lambda{|a| "-do_stuff"},
+                                   source_file_options: lambda{|a| "-do_extra_stuff"}
                                  }
                                }
     end
@@ -62,10 +62,10 @@ class StyleTest < Test::Unit::TestCase
     setup do
       styles = {}
       styles[:aslist] = ["100x100", :png]
-      styles[:ashash] = {:geometry => "100x100", :format => :png}
+      styles[:ashash] = {geometry: "100x100", format: :png}
       styles[:asstring] = "100x100"
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => styles
+      @attachment = attachment path: ":basename.:extension",
+                               styles: styles
     end
     should "have the right number of styles" do
       assert_kind_of Hash, @attachment.styles
@@ -97,17 +97,17 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :convert_options" do
     should "not have called extra_options_for(:thumb/:large) on initialization" do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {:thumb => "100x100", :large => "400x400"},
-                               :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {thumb: "100x100", large: "400x400"},
+                               convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
       @attachment.expects(:extra_options_for).never
       @style = @attachment.styles[:thumb]
     end
 
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {:thumb => "100x100", :large => "400x400"},
-                               :convert_options => {:all => "-do_stuff", :thumb => "-thumbnailize"}
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {thumb: "100x100", large: "400x400"},
+                               convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
@@ -119,17 +119,17 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :source_file_options" do
     should "not have called extra_source_file_options_for(:thumb/:large) on initialization" do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {:thumb => "100x100", :large => "400x400"},
-                               :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {thumb: "100x100", large: "400x400"},
+                               source_file_options: {all: "-density 400", thumb: "-depth 8"}
       @attachment.expects(:extra_source_file_options_for).never
       @style = @attachment.styles[:thumb]
     end
 
     should "call extra_options_for(:thumb/:large) when convert options are requested" do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {:thumb => "100x100", :large => "400x400"},
-                               :source_file_options => {:all => "-density 400", :thumb => "-depth 8"}
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {thumb: "100x100", large: "400x400"},
+                               source_file_options: {all: "-density 400", thumb: "-depth 8"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       @file.stubs(:original_filename).returns("file.jpg")
@@ -141,15 +141,15 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule with its own :processors" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {
-                                 :foo => {
-                                   :geometry => "100x100#",
-                                   :format => :png,
-                                   :processors => [:test]
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {
+                                 foo: {
+                                   geometry: "100x100#",
+                                   format: :png,
+                                   processors: [:test]
                                   }
                                 },
-                               :processors => [:thumbnail]
+                               processors: [:thumbnail]
       @style = @attachment.styles[:foo]
     end
 
@@ -166,15 +166,15 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule with :processors supplied as procs" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {
-                                 :foo => {
-                                   :geometry => "100x100#",
-                                   :format => :png,
-                                   :processors => lambda{|a| [:test]}
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {
+                                 foo: {
+                                   geometry: "100x100#",
+                                   format: :png,
+                                   processors: lambda{|a| [:test]}
                                   }
                                 },
-                               :processors => [:thumbnail]
+                               processors: [:thumbnail]
     end
 
     should "defer processing of procs until they are needed" do
@@ -188,12 +188,12 @@ class StyleTest < Test::Unit::TestCase
 
   context "An attachment with :convert_options and :source_file_options in :styles" do
     setup do
-      @attachment = attachment :path => ":basename.:extension",
-                               :styles => {
-                                 :thumb => "100x100",
-                                 :large => {:geometry => "400x400",
-                                            :convert_options => "-do_stuff",
-                                            :source_file_options => "-do_extra_stuff"
+      @attachment = attachment path: ":basename.:extension",
+                               styles: {
+                                 thumb: "100x100",
+                                 large: {geometry: "400x400",
+                                            convert_options: "-do_stuff",
+                                            source_file_options: "-do_extra_stuff"
                                  }
                                }
       @file = StringIO.new("...")
@@ -213,13 +213,13 @@ class StyleTest < Test::Unit::TestCase
 
   context "A style rule supplied with default format" do
      setup do
-       @attachment = attachment :default_format => :png,
-                                :styles => {
-                                  :asstring => "300x300#",
-                                  :aslist => ["300x300#", :jpg],
-                                  :ashash => {
-                                    :geometry => "300x300#",
-                                    :convert_options => "-do_stuff"
+       @attachment = attachment default_format: :png,
+                                styles: {
+                                  asstring: "300x300#",
+                                  aslist: ["300x300#", :jpg],
+                                  ashash: {
+                                    geometry: "300x300#",
+                                    convert_options: "-do_stuff"
                                   }
                                 }
      end

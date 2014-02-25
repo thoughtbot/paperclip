@@ -19,7 +19,7 @@ class SchemaTest < Test::Unit::TestCase
         ActiveSupport::Deprecation.silenced = false
       end
       should "create attachment columns" do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           ActiveSupport::Deprecation.silence do
             t.has_attached_file :avatar
           end
@@ -35,7 +35,7 @@ class SchemaTest < Test::Unit::TestCase
       end
 
       should "display deprecation warning" do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           assert_deprecated do
             t.has_attached_file :avatar
           end
@@ -45,7 +45,7 @@ class SchemaTest < Test::Unit::TestCase
 
     context "using #attachment" do
       setup do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           t.attachment :avatar
         end
         rebuild_class
@@ -64,7 +64,7 @@ class SchemaTest < Test::Unit::TestCase
 
   context "within schema statement" do
     setup do
-      Dummy.connection.create_table :dummies, :force => true
+      Dummy.connection.create_table :dummies, force: true
     end
 
     context "migrating up" do

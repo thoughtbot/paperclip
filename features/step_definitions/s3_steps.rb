@@ -5,7 +5,7 @@ When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
   path.gsub!(/:([^\/\.]+)/) do |match|
     "([^\/\.]+)"
   end
-  FakeWeb.register_uri(:put, Regexp.new(path), :body => "OK")
+  FakeWeb.register_uri(:put, Regexp.new(path), body: "OK")
   step "I attach the file \"#{file_path}\" to \"#{field}\""
 end
 

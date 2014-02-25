@@ -11,11 +11,11 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
         tempfile.binmode
 
         @file = UploadedFile.new(
-          :original_filename => "5k.png",
-          :content_type => "image/x-png-by-browser\r",
-          :head => "",
-          :tempfile => tempfile,
-          :path => tempfile.path
+          original_filename: "5k.png",
+          content_type: "image/x-png-by-browser\r",
+          head: "",
+          tempfile: tempfile,
+          path: tempfile.path
         )
         @subject = Paperclip.io_adapters.for(@file)
       end
@@ -58,10 +58,10 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
         class UploadedFile < OpenStruct; end
         @file = UploadedFile.new(
-          :original_filename => "image:restricted.gif",
-          :content_type => "image/x-png-by-browser",
-          :head => "",
-          :path => fixture_file("5k.png")
+          original_filename: "image:restricted.gif",
+          content_type: "image/x-png-by-browser",
+          head: "",
+          path: fixture_file("5k.png")
         )
         @subject = Paperclip.io_adapters.for(@file)
       end
@@ -81,10 +81,10 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
         class UploadedFile < OpenStruct; end
         @file = UploadedFile.new(
-          :original_filename => "5k.png",
-          :content_type => "image/x-png-by-browser",
-          :head => "",
-          :path => fixture_file("5k.png")
+          original_filename: "5k.png",
+          content_type: "image/x-png-by-browser",
+          head: "",
+          path: fixture_file("5k.png")
         )
         @subject = Paperclip.io_adapters.for(@file)
       end
@@ -129,10 +129,10 @@ class UploadedFileAdapterTest < Test::Unit::TestCase
 
           class UploadedFile < OpenStruct; end
           @file = UploadedFile.new(
-            :original_filename => "5k.png",
-            :content_type => "image/x-png-by-browser",
-            :head => "",
-            :path => fixture_file("5k.png")
+            original_filename: "5k.png",
+            content_type: "image/x-png-by-browser",
+            head: "",
+            path: fixture_file("5k.png")
           )
           @subject = Paperclip.io_adapters.for(@file)
         end

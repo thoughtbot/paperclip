@@ -10,28 +10,28 @@ module Paperclip
   class Attachment
     def self.default_options
       @default_options ||= {
-        :convert_options       => {},
-        :default_style         => :original,
-        :default_url           => "/:attachment/:style/missing.png",
-        :escape_url            => true,
-        :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
-        :filename_cleaner      => nil,
-        :hash_data             => ":class/:attachment/:id/:style/:updated_at",
-        :hash_digest           => "SHA1",
-        :interpolator          => Paperclip::Interpolations,
-        :only_process          => [],
-        :path                  => ":rails_root/public:url",
-        :preserve_files        => false,
-        :processors            => [:thumbnail],
-        :source_file_options   => {},
-        :storage               => :filesystem,
-        :styles                => {},
-        :url                   => "/system/:class/:attachment/:id_partition/:style/:filename",
-        :url_generator         => Paperclip::UrlGenerator,
-        :use_default_time_zone => true,
-        :use_timestamp         => true,
-        :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
-        :check_validity_before_processing => true
+        convert_options: {},
+        default_style: :original,
+        default_url: "/:attachment/:style/missing.png",
+        escape_url: true,
+        restricted_characters: /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
+        filename_cleaner: nil,
+        hash_data: ":class/:attachment/:id/:style/:updated_at",
+        hash_digest: "SHA1",
+        interpolator: Paperclip::Interpolations,
+        only_process: [],
+        path: ":rails_root/public:url",
+        preserve_files: false,
+        processors: [:thumbnail],
+        source_file_options: {},
+        storage: :filesystem,
+        styles: {},
+        url: "/system/:class/:attachment/:id_partition/:style/:filename",
+        url_generator: Paperclip::UrlGenerator,
+        use_default_time_zone: true,
+        use_timestamp: true,
+        whiny: Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
+        check_validity_before_processing: true
       }
     end
 
@@ -143,10 +143,10 @@ module Paperclip
     # +#new(Paperclip::Attachment, options_hash)+
     # +#for(style_name, options_hash)+
     def url(style_name = default_style, options = {})
-      default_options = {:timestamp => @options[:use_timestamp], :escape => @options[:escape_url]}
+      default_options = {timestamp: @options[:use_timestamp], escape: @options[:escape_url]}
 
       if options == true || options == false # Backwards compatibility.
-        @url_generator.for(style_name, default_options.merge(:timestamp => options))
+        @url_generator.for(style_name, default_options.merge(timestamp: options))
       else
         @url_generator.for(style_name, default_options.merge(options))
       end
@@ -336,7 +336,7 @@ module Paperclip
         assign(self)
         save
         instance.save
-      rescue Errno::EACCES => e
+      rescue Errno:EACCES: e
         warn "#{e} - skipping file."
         false
       ensure
@@ -465,7 +465,7 @@ module Paperclip
         @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
         unadapted_file.close if unadapted_file.respond_to?(:close)
         @queued_for_write[name]
-      rescue Paperclip::Error => e
+      rescue Paperclip:Error: e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
       end
