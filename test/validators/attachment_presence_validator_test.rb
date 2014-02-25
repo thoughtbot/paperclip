@@ -8,7 +8,7 @@ class AttachmentPresenceValidatorTest < Test::Unit::TestCase
 
   def build_validator(options={})
     @validator = Paperclip::Validators::AttachmentPresenceValidator.new(options.merge(
-      :attributes => :avatar
+      attributes: :avatar
     ))
   end
 
@@ -35,7 +35,7 @@ class AttachmentPresenceValidatorTest < Test::Unit::TestCase
     context "with :if option" do
       context "returning true" do
         setup do
-          build_validator :if => true
+          build_validator if: true
           @validator.validate(@dummy)
         end
 
@@ -46,7 +46,7 @@ class AttachmentPresenceValidatorTest < Test::Unit::TestCase
 
       context "returning false" do
         setup do
-          build_validator :if => false
+          build_validator if: false
           @validator.validate(@dummy)
         end
 

@@ -8,7 +8,7 @@ class MediaTypeSpoofDetectionValidatorTest < Test::Unit::TestCase
 
   def build_validator(options = {})
     @validator = Paperclip::Validators::MediaTypeSpoofDetectionValidator.new(options.merge(
-      :attributes => :avatar
+      attributes: :avatar
     ))
   end
 

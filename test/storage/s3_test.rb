@@ -4,25 +4,25 @@ require 'aws'
 class S3Test < Test::Unit::TestCase
   def rails_env(env)
     silence_warnings do
-      Object.const_set(:Rails, stub('Rails', :env => env))
+      Object.const_set(:Rails, stub('Rails', env: env))
     end
   end
 
   def setup
-    AWS.config(:access_key_id => "TESTKEY", :secret_access_key => "TESTSECRET", :stub_requests => true)
+    AWS.config(access_key_id: "TESTKEY", secret_access_key: "TESTSECRET", stub_requests: true)
   end
 
   def teardown
-    AWS.config(:access_key_id => nil, :secret_access_key => nil, :stub_requests => nil)
+    AWS.config(access_key_id: nil, secret_access_key: nil, stub_requests: nil)
   end
 
   context "Parsing S3 credentials" do
     setup do
-      @proxy_settings = {:host => "127.0.0.1", :port => 8888, :user => "foo", :password => "bar"}
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :http_proxy => @proxy_settings,
-                    :s3_credentials => {:not => :important}
+      @proxy_settings = {host: "127.0.0.1", port: 8888, user: "foo", password: "bar"}
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    http_proxy: @proxy_settings,
+                    s3_credentials: {not: :important}
 
       @dummy = Dummy.new
       @avatar = @dummy.avatar
@@ -30,21 +30,21 @@ class S3Test < Test::Unit::TestCase
 
     should "get the correct credentials when RAILS_ENV is production" do
       rails_env("production")
-      assert_equal({:key => "12345"},
-                   @avatar.parse_credentials('production' => {:key => '12345'},
-                                             :development => {:key => "54321"}))
+      assert_equal({key: "12345"},
+                   @avatar.parse_credentials('production' => {key: '12345'},
+                                             development: {key: "54321"}))
     end
 
     should "get the correct credentials when RAILS_ENV is development" do
       rails_env("development")
-      assert_equal({:key => "54321"},
-                   @avatar.parse_credentials('production' => {:key => '12345'},
-                                             :development => {:key => "54321"}))
+      assert_equal({key: "54321"},
+                   @avatar.parse_credentials('production' => {key: '12345'},
+                                             development: {key: "54321"}))
     end
 
     should "return the argument if the key does not exist" do
       rails_env("not really an env")
-      assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
+      assert_equal({test: "12345"}, @avatar.parse_credentials(test: "12345"))
     end
 
     should "support HTTP proxy settings" do
@@ -61,7 +61,7 @@ class S3Test < Test::Unit::TestCase
   context ":bucket option via :s3_credentials" do
 
     setup do
-      rebuild_model :storage => :s3, :s3_credentials => {:bucket => 'testing'}
+      rebuild_model storage: :s3, s3_credentials: {bucket: 'testing'}
       @dummy = Dummy.new
     end
 
@@ -74,7 +74,7 @@ class S3Test < Test::Unit::TestCase
   context ":bucket option" do
 
     setup do
-      rebuild_model :storage => :s3, :bucket => "testing", :s3_credentials => {}
+      rebuild_model storage: :s3, bucket: "testing", s3_credentials: {}
       @dummy = Dummy.new
     end
 
@@ -87,9 +87,9 @@ class S3Test < Test::Unit::TestCase
   context "missing :bucket option" do
 
     setup do
-      rebuild_model :storage => :s3,
-                    :http_proxy => @proxy_settings,
-                    :s3_credentials => {:not => :important}
+      rebuild_model storage: :s3,
+                    http_proxy: @proxy_settings,
+                    s3_credentials: {not: :important}
 
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
@@ -105,11 +105,11 @@ class S3Test < Test::Unit::TestCase
 
   context "" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_path_url"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    url: ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -131,7 +131,7 @@ class S3Test < Test::Unit::TestCase
     ["http", :http, ""].each do |protocol|
       context "as #{protocol.inspect}" do
         setup do
-          rebuild_model :storage => :s3, :s3_protocol => protocol
+          rebuild_model storage: :s3, s3_protocol: protocol
 
           @dummy = Dummy.new
         end
@@ -143,13 +143,13 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context ":s3_protocol => 'https'" do
+  context "s3_protocol: 'https'" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => 'https',
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    s3_protocol: 'https',
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -159,13 +159,13 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context ":s3_protocol => :https" do
+  context "s3_protocol: :https" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => :https,
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    s3_protocol: :https,
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -175,13 +175,13 @@ class S3Test < Test::Unit::TestCase
     end
   end
 
-  context ":s3_protocol => ''" do
+  context "s3_protocol: ''" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => '',
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    s3_protocol: '',
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -193,13 +193,13 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has the style in the path" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :styles => {
-                       :thumb => "80x80>"
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    styles: {
+                       thumb: "80x80>"
                     },
-                    :s3_credentials => {
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -220,11 +220,11 @@ class S3Test < Test::Unit::TestCase
 
   context "s3_host_name" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_host_name => "s3-ap-northeast-1.amazonaws.com"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    s3_host_name: "s3-ap-northeast-1.amazonaws.com"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -240,11 +240,11 @@ class S3Test < Test::Unit::TestCase
 
   context "dynamic s3_host_name" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_host_name => lambda {|a| a.instance.value }
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    s3_host_name: lambda {|a| a.instance.value }
       @dummy = Dummy.new
       class << @dummy
         attr_accessor :value
@@ -254,17 +254,17 @@ class S3Test < Test::Unit::TestCase
 
     should "use s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
-      assert_equal "http://s3.something.com/bucket/avatars/data.txt", @dummy.avatar.url(:original, :timestamp => false)
+      assert_equal "http://s3.something.com/bucket/avatars/data.txt", @dummy.avatar.url(:original, timestamp: false)
     end
   end
 
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     setup do
-      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model styles: { large: ['500x500#', :jpg] },
+                    storage: :s3,
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -294,11 +294,11 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has a proc for styles" do
     setup do
-      rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => { :geometry => "50x50#", :s3_headers => {'Cache-Control' => 'max-age=31557600'}} }},
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model styles: lambda { |attachment| attachment.instance.counter; {thumbnail: { geometry: "50x50#", s3_headers: {'Cache-Control' => 'max-age=31557600'}} }},
+                    storage: :s3,
+                    bucket: "bucket",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -319,8 +319,8 @@ class S3Test < Test::Unit::TestCase
       object = stub
       @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
       @dummy.avatar.stubs(:s3_object).with(:thumbnail).returns(object)
-      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read)
-      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read, :cache_control => 'max-age=31557600')
+      object.expects(:write).with(anything, content_type: 'image/png', acl: :public_read)
+      object.expects(:write).with(anything, content_type: 'image/png', acl: :public_read, cache_control: 'max-age=31557600')
       @dummy.save
     end
 
@@ -333,10 +333,10 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has spaces in file name" do
     setup do
-      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :s3_credentials => {
+      rebuild_model styles: { large: ['500x500#', :jpg] },
+                    storage: :s3,
+                    bucket: "bucket",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -358,10 +358,10 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment that uses S3 for storage and has a question mark in file name" do
     setup do
-      rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :s3_credentials => {
+      rebuild_model styles: { large: ['500x500#', :jpg] },
+                    storage: :s3,
+                    bucket: "bucket",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -389,11 +389,11 @@ class S3Test < Test::Unit::TestCase
 
   context "" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_domain_url"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    url: ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -405,14 +405,14 @@ class S3Test < Test::Unit::TestCase
 
   context "" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
+      rebuild_model storage: :s3,
+                    s3_credentials: {
+                      production: { bucket: "prod_bucket" },
+                      development: { bucket: "dev_bucket" }
                     },
-                    :s3_host_alias => "something.something.com",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_alias_url"
+                    s3_host_alias: "something.something.com",
+                    path: ":attachment/:basename.:extension",
+                    url: ":s3_alias_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -424,11 +424,11 @@ class S3Test < Test::Unit::TestCase
 
   context "generating a url with a proc as the host alias" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => { :bucket => "prod_bucket" },
-                    :s3_host_alias => Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_alias_url"
+      rebuild_model storage: :s3,
+                    s3_credentials: { bucket: "prod_bucket" },
+                    s3_host_alias: Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
+                    path: ":attachment/:basename.:extension",
+                    url: ":s3_alias_url"
       Dummy.class_eval do
         def counter
           @counter ||= 0
@@ -453,11 +453,11 @@ class S3Test < Test::Unit::TestCase
 
   context "" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":asset_host"
+      rebuild_model storage: :s3,
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename.:extension",
+                    url: ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -472,15 +472,15 @@ class S3Test < Test::Unit::TestCase
     setup do
       @build_model_with_options = lambda {|options|
         base_options = {
-          :storage => :s3,
-          :s3_credentials => {
-            :production   => { :bucket => "prod_bucket" },
-            :development  => { :bucket => "dev_bucket" }
+          storage: :s3,
+          s3_credentials: {
+            production: { bucket: "prod_bucket" },
+            development: { bucket: "dev_bucket" }
           },
-          :s3_host_alias => "something.something.com",
-          :s3_permissions => "private",
-          :path => ":attachment/:basename.:extension",
-          :url => ":s3_alias_url"
+          s3_host_alias: "something.something.com",
+          s3_permissions: "private",
+          path: ":attachment/:basename.:extension",
+          url: ":s3_alias_url"
         }
 
         rebuild_model base_options.merge(options)
@@ -497,13 +497,13 @@ class S3Test < Test::Unit::TestCase
 
       object = stub
       @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true)
+      object.expects(:url_for).with(:read, expires: 3600, secure: true)
 
       @dummy.avatar.expiring_url
     end
 
     should "allow overriding s3_url_options" do
-      @build_model_with_options[:s3_url_options => { :response_content_disposition => "inline" }]
+      @build_model_with_options[s3_url_options: { response_content_disposition: "inline" }]
 
       rails_env("production")
 
@@ -512,13 +512,13 @@ class S3Test < Test::Unit::TestCase
 
       object = stub
       @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_disposition => "inline")
+      object.expects(:url_for).with(:read, expires: 3600, secure: true, response_content_disposition: "inline")
 
       @dummy.avatar.expiring_url
     end
 
     should "allow overriding s3_object options with a proc" do
-      @build_model_with_options[:s3_url_options => lambda {|attachment| { :response_content_type => attachment.avatar_content_type } }]
+      @build_model_with_options[s3_url_options: lambda {|attachment| { response_content_type: attachment.avatar_content_type } }]
 
       rails_env("production")
 
@@ -534,7 +534,7 @@ class S3Test < Test::Unit::TestCase
 
       object = stub
       @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_type => "image/png")
+      object.expects(:url_for).with(:read, expires: 3600, secure: true, response_content_type: "image/png")
 
       @dummy.avatar.expiring_url
     end
@@ -562,15 +562,15 @@ class S3Test < Test::Unit::TestCase
 
   context "Generating a url with an expiration for each style" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
+      rebuild_model storage: :s3,
+                    s3_credentials: {
+                      production: { bucket: "prod_bucket" },
+                      development: { bucket: "dev_bucket" }
                     },
-                    :s3_permissions => :private,
-                    :s3_host_alias => "something.something.com",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :url => ":s3_alias_url"
+                    s3_permissions: :private,
+                    s3_host_alias: "something.something.com",
+                    path: ":attachment/:style/:basename.:extension",
+                    url: ":s3_alias_url"
 
       rails_env("production")
 
@@ -581,24 +581,24 @@ class S3Test < Test::Unit::TestCase
     should "should generate a url for the thumb" do
       object = stub
       @dummy.avatar.stubs(:s3_object).with(:thumb).returns(object)
-      object.expects(:url_for).with(:read, :expires => 1800, :secure => true)
+      object.expects(:url_for).with(:read, expires: 1800, secure: true)
       @dummy.avatar.expiring_url(1800, :thumb)
     end
 
     should "should generate a url for the default style" do
       object = stub
       @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
-      object.expects(:url_for).with(:read, :expires => 1800, :secure => true)
+      object.expects(:url_for).with(:read, expires: 1800, secure: true)
       @dummy.avatar.expiring_url(1800)
     end
   end
 
   context "Parsing S3 credentials with a bucket in them" do
     setup do
-      rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
+      rebuild_model storage: :s3,
+                    s3_credentials: {
+                      production: { bucket: "prod_bucket" },
+                      development: { bucket: "dev_bucket" }
                     }
       @dummy = Dummy.new
     end
@@ -618,11 +618,11 @@ class S3Test < Test::Unit::TestCase
 
   context "Parsing S3 credentials with a s3_host_name in them" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => 'testing',
-                    :s3_credentials => {
-                      :production   => { :s3_host_name => "s3-world-end.amazonaws.com" },
-                      :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }
+      rebuild_model storage: :s3,
+                    bucket: 'testing',
+                    s3_credentials: {
+                      production: { s3_host_name: "s3-world-end.amazonaws.com" },
+                      development: { s3_host_name: "s3-ap-northeast-1.amazonaws.com" }
                     }
       @dummy = Dummy.new
     end
@@ -648,10 +648,10 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     }
@@ -700,8 +700,8 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read)
+                                      content_type: "image/png",
+                                      acl: :public_read)
           @dummy.save
         end
 
@@ -715,8 +715,8 @@ class S3Test < Test::Unit::TestCase
           AWS::S3::BucketCollection.any_instance.expects(:create).with("testing")
           AWS::S3::S3Object.any_instance.stubs(:write).
             raises(AWS::S3::Errors::NoSuchBucket.new(stub,
-                                                     stub(:status => 404,
-                                                          :body => "<foo/>"))).
+                                                     stub(status: 404,
+                                                          body: "<foo/>"))).
             then.returns(nil)
           @dummy.save
         end
@@ -752,31 +752,31 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and bucket defined as a Proc" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => lambda { |attachment| "bucket_#{attachment.instance.other}" },
-                    :s3_credentials => {:not => :important}
+      rebuild_model storage: :s3,
+                    bucket: lambda { |attachment| "bucket_#{attachment.instance.other}" },
+                    s3_credentials: {not: :important}
     end
 
     should "get the right bucket name" do
-      assert "bucket_a", Dummy.new(:other => 'a').avatar.bucket_name
-      assert "bucket_a", Dummy.new(:other => 'a').avatar.s3_bucket.name
-      assert "bucket_b", Dummy.new(:other => 'b').avatar.bucket_name
-      assert "bucket_b", Dummy.new(:other => 'b').avatar.s3_bucket.name
+      assert "bucket_a", Dummy.new(other: 'a').avatar.bucket_name
+      assert "bucket_a", Dummy.new(other: 'a').avatar.s3_bucket.name
+      assert "bucket_b", Dummy.new(other: 'b').avatar.bucket_name
+      assert "bucket_b", Dummy.new(other: 'b').avatar.s3_bucket.name
     end
   end
 
   context "An attachment with S3 storage and S3 credentials defined as a Proc" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => {:not => :important},
-                    :s3_credentials => lambda { |attachment|
+      rebuild_model storage: :s3,
+                    bucket: {not: :important},
+                    s3_credentials: lambda { |attachment|
                       Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
                     }
     end
 
     should "get the right credentials" do
-      assert "access1234", Dummy.new(:other => '1234').avatar.s3_credentials[:access_key_id]
-      assert "secret1234", Dummy.new(:other => '1234').avatar.s3_credentials[:secret_access_key]
+      assert "access1234", Dummy.new(other: '1234').avatar.s3_credentials[:access_key_id]
+      assert "secret1234", Dummy.new(other: '1234').avatar.s3_credentials[:secret_access_key]
     end
   end
 
@@ -784,10 +784,10 @@ class S3Test < Test::Unit::TestCase
     setup do
       class DummyCredentialProvider; end
 
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :s3_credentials => {
-                      :credential_provider => DummyCredentialProvider.new
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    s3_credentials: {
+                      credential_provider: DummyCredentialProvider.new
                     }
       @dummy = Dummy.new
     end
@@ -799,7 +799,7 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and S3 credentials in an unsupported manor" do
     setup do
-      rebuild_model :storage => :s3, :bucket => "testing", :s3_credentials => ["unsupported"]
+      rebuild_model storage: :s3, bucket: "testing", s3_credentials: ["unsupported"]
       @dummy = Dummy.new
     end
 
@@ -812,7 +812,7 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and S3 credentials not supplied" do
     setup do
-      rebuild_model :storage => :s3, :bucket => "testing"
+      rebuild_model storage: :s3, bucket: "testing"
       @dummy = Dummy.new
     end
 
@@ -823,14 +823,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and specific s3 headers set" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_headers => {'Cache-Control' => 'max-age=31557600'}
+                    s3_headers: {'Cache-Control' => 'max-age=31557600'}
     end
 
     context "when assigned" do
@@ -847,9 +847,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :cache_control => 'max-age=31557600')
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      cache_control: 'max-age=31557600')
           @dummy.save
         end
 
@@ -862,14 +862,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and metadata set using header names" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_headers => {'x-amz-meta-color' => 'red'}
+                    s3_headers: {'x-amz-meta-color' => 'red'}
     end
 
     context "when assigned" do
@@ -886,9 +886,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :metadata => { "color" => "red" })
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      metadata: { "color" => "red" })
           @dummy.save
         end
 
@@ -901,14 +901,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and metadata set using the :s3_metadata option" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_metadata => { "color" => "red" }
+                    s3_metadata: { "color" => "red" }
     end
 
     context "when assigned" do
@@ -925,9 +925,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :metadata => { "color" => "red" })
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      metadata: { "color" => "red" })
           @dummy.save
         end
 
@@ -940,14 +940,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and storage class set using the header name" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_headers => { "x-amz-storage-class" => "reduced_redundancy" }
+                    s3_headers: { "x-amz-storage-class" => "reduced_redundancy" }
     end
 
     context "when assigned" do
@@ -964,9 +964,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :storage_class => "reduced_redundancy")
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      storage_class: "reduced_redundancy")
           @dummy.save
         end
 
@@ -981,13 +981,13 @@ class S3Test < Test::Unit::TestCase
     [nil, false, ''].each do |tech|
       setup do
         rebuild_model(
-          :storage                   => :s3,
-          :bucket                    => "testing",
-          :path                      => ":attachment/:style/:basename.:extension",
-          :s3_credentials            => {
+          storage: :s3,
+          bucket: "testing",
+          path: ":attachment/:style/:basename.:extension",
+          s3_credentials: {
             'access_key_id'          => "12345",
             'secret_access_key'      => "54321"},
-          :s3_server_side_encryption => tech)
+          s3_server_side_encryption: tech)
       end
 
       context "when assigned" do
@@ -1004,8 +1004,8 @@ class S3Test < Test::Unit::TestCase
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
             object.expects(:write).with(anything,
-              :content_type => "image/png",
-              :acl => :public_read)
+              content_type: "image/png",
+              acl: :public_read)
             @dummy.save
           end
 
@@ -1019,14 +1019,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and using AES256 encryption" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_server_side_encryption => :aes256
+                    s3_server_side_encryption: :aes256
     end
 
     context "when assigned" do
@@ -1043,9 +1043,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :server_side_encryption => 'AES256')
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      server_side_encryption: 'AES256')
           @dummy.save
         end
 
@@ -1058,14 +1058,14 @@ class S3Test < Test::Unit::TestCase
 
   context "An attachment with S3 storage and storage class set using the :storage_class option" do
     setup do
-      rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
+      rebuild_model storage: :s3,
+                    bucket: "testing",
+                    path: ":attachment/:style/:basename.:extension",
+                    s3_credentials: {
                       'access_key_id' => "12345",
                       'secret_access_key' => "54321"
                     },
-                    :s3_storage_class => :reduced_redundancy
+                    s3_storage_class: :reduced_redundancy
     end
 
     context "when assigned" do
@@ -1082,9 +1082,9 @@ class S3Test < Test::Unit::TestCase
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:write).with(anything,
-                                      :content_type => "image/png",
-                                      :acl => :public_read,
-                                      :storage_class => :reduced_redundancy)
+                                      content_type: "image/png",
+                                      acl: :public_read,
+                                      storage_class: :reduced_redundancy)
           @dummy.save
         end
 
@@ -1103,8 +1103,8 @@ class S3Test < Test::Unit::TestCase
 
       rails_env('test')
 
-      rebuild_model :storage        => :s3,
-                    :s3_credentials => Pathname.new(fixture_file('s3.yml'))
+      rebuild_model storage: :s3,
+                    s3_credentials: Pathname.new(fixture_file('s3.yml'))
 
       Dummy.delete_all
       @dummy = Dummy.new
@@ -1125,8 +1125,8 @@ class S3Test < Test::Unit::TestCase
 
       rails_env('test')
 
-      rebuild_model :storage        => :s3,
-                    :s3_credentials => File.new(fixture_file('s3.yml'))
+      rebuild_model storage: :s3,
+                    s3_credentials: File.new(fixture_file('s3.yml'))
 
       Dummy.delete_all
 
@@ -1143,10 +1143,10 @@ class S3Test < Test::Unit::TestCase
   context "S3 Permissions" do
     context "defaults to :public_read" do
       setup do
-        rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :s3_credentials => {
+        rebuild_model storage: :s3,
+                      bucket: "testing",
+                      path: ":attachment/:style/:basename.:extension",
+                      s3_credentials: {
                         'access_key_id' => "12345",
                         'secret_access_key' => "54321"
                       }
@@ -1166,8 +1166,8 @@ class S3Test < Test::Unit::TestCase
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
             object.expects(:write).with(anything,
-                                        :content_type => "image/png",
-                                        :acl => :public_read)
+                                        content_type: "image/png",
+                                        acl: :public_read)
             @dummy.save
           end
 
@@ -1180,14 +1180,14 @@ class S3Test < Test::Unit::TestCase
 
     context "string permissions set" do
       setup do
-        rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :s3_credentials => {
+        rebuild_model storage: :s3,
+                      bucket: "testing",
+                      path: ":attachment/:style/:basename.:extension",
+                      s3_credentials: {
                         'access_key_id' => "12345",
                         'secret_access_key' => "54321"
                       },
-                      :s3_permissions => :private
+                      s3_permissions: :private
       end
 
       context "when assigned" do
@@ -1204,8 +1204,8 @@ class S3Test < Test::Unit::TestCase
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
             object.expects(:write).with(anything,
-                                        :content_type => "image/png",
-                                        :acl => :private)
+                                        content_type: "image/png",
+                                        acl: :private)
             @dummy.save
           end
 
@@ -1218,19 +1218,19 @@ class S3Test < Test::Unit::TestCase
 
     context "hash permissions set" do
       setup do
-        rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :styles => {
-                         :thumb => "80x80>"
+        rebuild_model storage: :s3,
+                      bucket: "testing",
+                      path: ":attachment/:style/:basename.:extension",
+                      styles: {
+                         thumb: "80x80>"
                       },
-                      :s3_credentials => {
+                      s3_credentials: {
                         'access_key_id' => "12345",
                         'secret_access_key' => "54321"
                       },
-                      :s3_permissions => {
-                        :original => :private,
-                        :thumb => :public_read
+                      s3_permissions: {
+                        original: :private,
+                        thumb: :public_read
                       }
       end
 
@@ -1249,8 +1249,8 @@ class S3Test < Test::Unit::TestCase
               object = stub
               @dummy.avatar.stubs(:s3_object).with(style).returns(object)
               object.expects(:write).with(anything,
-                                          :content_type => "image/png",
-                                          :acl => style == :thumb ? :public_read : :private)
+                                          content_type: "image/png",
+                                          acl: style == :thumb ? :public_read : :private)
             end
             @dummy.save
           end
@@ -1265,17 +1265,17 @@ class S3Test < Test::Unit::TestCase
     context "proc permission set" do
       setup do
         rebuild_model(
-          :storage => :s3,
-          :bucket => "testing",
-          :path => ":attachment/:style/:basename.:extension",
-          :styles => {
-             :thumb => "80x80>"
+          storage: :s3,
+          bucket: "testing",
+          path: ":attachment/:style/:basename.:extension",
+          styles: {
+             thumb: "80x80>"
           },
-          :s3_credentials => {
+          s3_credentials: {
             'access_key_id' => "12345",
             'secret_access_key' => "54321"
           },
-          :s3_permissions => lambda {|attachment, style|
+          s3_permissions: lambda {|attachment, style|
             attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : :public_read
           }
         )
@@ -1309,17 +1309,17 @@ class S3Test < Test::Unit::TestCase
   context "An attachment with S3 storage and metadata set using a proc as headers" do
     setup do
       rebuild_model(
-        :storage => :s3,
-        :bucket => "testing",
-        :path => ":attachment/:style/:basename.:extension",
-        :styles => {
-          :thumb => "80x80>"
+        storage: :s3,
+        bucket: "testing",
+        path: ":attachment/:style/:basename.:extension",
+        styles: {
+          thumb: "80x80>"
         },
-        :s3_credentials => {
+        s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
         },
-        :s3_headers => lambda {|attachment|
+        s3_headers: lambda {|attachment|
           {'Content-Disposition' => "attachment; filename=\"#{attachment.name}\""}
         }
       )
@@ -1329,7 +1329,7 @@ class S3Test < Test::Unit::TestCase
       setup do
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
-        @dummy.stubs(:name => 'Custom Avatar Name.png')
+        @dummy.stubs(name: 'Custom Avatar Name.png')
         @dummy.avatar = @file
       end
 
@@ -1341,9 +1341,9 @@ class S3Test < Test::Unit::TestCase
             object = stub
             @dummy.avatar.stubs(:s3_object).with(style).returns(object)
             object.expects(:write).with(anything,
-                                        :content_type => "image/png",
-                                        :acl => :public_read,
-                                        :content_disposition => 'attachment; filename="Custom Avatar Name.png"')
+                                        content_type: "image/png",
+                                        acl: :public_read,
+                                        content_disposition: 'attachment; filename="Custom Avatar Name.png"')
           end
           @dummy.save
         end

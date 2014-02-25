@@ -7,11 +7,11 @@ class FogTest < Test::Unit::TestCase
 
     context "with credentials provided in a path string" do
       setup do
-        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
-                      :storage => :fog,
-                      :url => '/:attachment/:filename',
-                      :fog_directory => "paperclip",
-                      :fog_credentials => fixture_file('fog.yml')
+        rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                      storage: :fog,
+                      url: '/:attachment/:filename',
+                      fog_directory: "paperclip",
+                      fog_credentials: fixture_file('fog.yml')
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
@@ -26,11 +26,11 @@ class FogTest < Test::Unit::TestCase
 
     context "with credentials provided in a File object" do
       setup do
-        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
-                      :storage => :fog,
-                      :url => '/:attachment/:filename',
-                      :fog_directory => "paperclip",
-                      :fog_credentials => File.open(fixture_file('fog.yml'))
+        rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                      storage: :fog,
+                      url: '/:attachment/:filename',
+                      fog_directory: "paperclip",
+                      fog_credentials: File.open(fixture_file('fog.yml'))
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
@@ -45,14 +45,14 @@ class FogTest < Test::Unit::TestCase
 
     context "with default values for path and url" do
       setup do
-        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
-                      :storage => :fog,
-                      :url => '/:attachment/:filename',
-                      :fog_directory => "paperclip",
-                      :fog_credentials => {
-                        :provider => 'AWS',
-                        :aws_access_key_id => 'AWS_ID',
-                        :aws_secret_access_key => 'AWS_SECRET'
+        rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                      storage: :fog,
+                      url: '/:attachment/:filename',
+                      fog_directory: "paperclip",
+                      fog_credentials: {
+                        provider: 'AWS',
+                        aws_access_key_id: 'AWS_ID',
+                        aws_secret_access_key: 'AWS_SECRET'
                       }
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
@@ -69,13 +69,13 @@ class FogTest < Test::Unit::TestCase
 
     context "with no path or url given and using defaults" do
       setup do
-        rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
-                      :storage => :fog,
-                      :fog_directory => "paperclip",
-                      :fog_credentials => {
-                        :provider => 'AWS',
-                        :aws_access_key_id => 'AWS_ID',
-                        :aws_secret_access_key => 'AWS_SECRET'
+        rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                      storage: :fog,
+                      fog_directory: "paperclip",
+                      fog_credentials: {
+                        provider: 'AWS',
+                        aws_access_key_id: 'AWS_ID',
+                        aws_secret_access_key: 'AWS_SECRET'
                       }
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
@@ -92,9 +92,9 @@ class FogTest < Test::Unit::TestCase
 
     context "with file params provided as lambda" do
       setup do
-        fog_file = lambda{ |a| { :custom_header => a.instance.custom_method }}
-        klass = rebuild_model :storage => :fog,
-                              :fog_file => fog_file
+        fog_file = lambda{ |a| { custom_header: a.instance.custom_method }}
+        klass = rebuild_model storage: :fog,
+                              fog_file: fog_file
 
         klass.class_eval do
           def custom_method
@@ -107,7 +107,7 @@ class FogTest < Test::Unit::TestCase
       end
 
       should "be able to evaluate correct values for file headers" do
-        assert_equal @dummy.avatar.send(:fog_file), { :custom_header => 'foobar' }
+        assert_equal @dummy.avatar.send(:fog_file), { custom_header: 'foobar' }
       end
     end
 
@@ -115,23 +115,23 @@ class FogTest < Test::Unit::TestCase
       @fog_directory = 'papercliptests'
 
       @credentials = {
-        :provider               => 'AWS',
-        :aws_access_key_id      => 'ID',
-        :aws_secret_access_key  => 'SECRET'
+        provider: 'AWS',
+        aws_access_key_id: 'ID',
+        aws_secret_access_key: 'SECRET'
       }
 
       @connection = Fog::Storage.new(@credentials)
       @connection.directories.create(
-        :key => @fog_directory
+        key: @fog_directory
       )
 
       @options = {
-        :fog_directory    => @fog_directory,
-        :fog_credentials  => @credentials,
-        :fog_host         => nil,
-        :fog_file         => {:cache_control => 1234},
-        :path             => ":attachment/:basename.:extension",
-        :storage          => :fog
+        fog_directory: @fog_directory,
+        fog_credentials: @credentials,
+        fog_host: nil,
+        fog_file: {cache_control: 1234},
+        path: ":attachment/:basename.:extension",
+        storage: :fog
       }
 
       rebuild_model(@options)
@@ -150,7 +150,7 @@ class FogTest < Test::Unit::TestCase
 
       teardown do
         @file.close
-        directory = @connection.directories.new(:key => @fog_directory)
+        directory = @connection.directories.new(key: @fog_directory)
         directory.files.each {|file| file.destroy}
         directory.destroy
       end
@@ -207,7 +207,7 @@ class FogTest < Test::Unit::TestCase
 
       context "without a fog_host" do
         setup do
-          rebuild_model(@options.merge(:fog_host => nil))
+          rebuild_model(@options.merge(fog_host: nil))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new('.')
           @dummy.save
@@ -220,7 +220,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with a fog_host" do
         setup do
-          rebuild_model(@options.merge(:fog_host => 'http://example.com'))
+          rebuild_model(@options.merge(fog_host: 'http://example.com'))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new(".\n")
           @dummy.save
@@ -234,11 +234,11 @@ class FogTest < Test::Unit::TestCase
       context "with a fog_host that includes a wildcard placeholder" do
         setup do
           rebuild_model(
-            :fog_directory    => @fog_directory,
-            :fog_credentials  => @credentials,
-            :fog_host         => 'http://img%d.example.com',
-            :path             => ":attachment/:basename.:extension",
-            :storage          => :fog
+            fog_directory: @fog_directory,
+            fog_credentials: @credentials,
+            fog_host: 'http://img%d.example.com',
+            path: ":attachment/:basename.:extension",
+            storage: :fog
           )
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new(".\n")
@@ -252,7 +252,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with fog_public set to false" do
         setup do
-          rebuild_model(@options.merge(:fog_public => false))
+          rebuild_model(@options.merge(fog_public: false))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new('.')
           @dummy.save
@@ -266,7 +266,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with styles set and fog_public set to false" do
         setup do
-          rebuild_model(@options.merge(:fog_public => false, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          rebuild_model(@options.merge(fog_public: false, styles: { medium: "300x300>", thumb: "100x100>" }))
           @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
@@ -281,7 +281,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with styles set and fog_public set per-style" do
         setup do
-          rebuild_model(@options.merge(:fog_public => { :medium => false, :thumb => true}, :styles => { :medium => "300x300>", :thumb => "100x100>" }))
+          rebuild_model(@options.merge(fog_public: { medium: false, thumb: true}, styles: { medium: "300x300>", thumb: "100x100>" }))
           @file = File.new(fixture_file('5k.png'), 'rb')
           @dummy = Dummy.new
           @dummy.avatar = @file
@@ -339,7 +339,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with an invalid bucket name for a subdomain" do
         setup do
-          rebuild_model(@options.merge(:fog_directory => "this_is_invalid"))
+          rebuild_model(@options.merge(fog_directory: "this_is_invalid"))
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
@@ -365,7 +365,7 @@ class FogTest < Test::Unit::TestCase
       context "with a proc for a bucket name evaluating a model method" do
         setup do
           @dynamic_fog_directory = 'dynamicpaperclip'
-          rebuild_model(@options.merge(:fog_directory => lambda { |attachment| attachment.instance.bucket_name }))
+          rebuild_model(@options.merge(fog_directory: lambda { |attachment| attachment.instance.bucket_name }))
           @dummy = Dummy.new
           @dummy.stubs(:bucket_name).returns(@dynamic_fog_directory)
           @dummy.avatar = @file
@@ -380,7 +380,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with a proc for the fog_host evaluating a model method" do
         setup do
-          rebuild_model(@options.merge(:fog_host => lambda { |attachment| attachment.instance.fog_host }))
+          rebuild_model(@options.merge(fog_host: lambda { |attachment| attachment.instance.fog_host }))
           @dummy = Dummy.new
           @dummy.stubs(:fog_host).returns('http://dynamicfoghost.com')
           @dummy.avatar = @file
@@ -395,7 +395,7 @@ class FogTest < Test::Unit::TestCase
 
       context "with a custom fog_host" do
         setup do
-          rebuild_model(@options.merge(:fog_host => "http://dynamicfoghost.com"))
+          rebuild_model(@options.merge(fog_host: "http://dynamicfoghost.com"))
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
@@ -411,7 +411,7 @@ class FogTest < Test::Unit::TestCase
 
         context "with an invalid bucket name for a subdomain" do
           setup do
-            rebuild_model(@options.merge({:fog_directory => "this_is_invalid", :fog_host => "http://dynamicfoghost.com"}))
+            rebuild_model(@options.merge({fog_directory: "this_is_invalid", fog_host: "http://dynamicfoghost.com"}))
             @dummy = Dummy.new
             @dummy.avatar = @file
             @dummy.save
@@ -427,11 +427,11 @@ class FogTest < Test::Unit::TestCase
       context "with a proc for the fog_credentials evaluating a model method" do
         setup do
           @dynamic_fog_credentials = {
-            :provider               => 'AWS',
-            :aws_access_key_id      => 'DYNAMIC_ID',
-            :aws_secret_access_key  => 'DYNAMIC_SECRET'
+            provider: 'AWS',
+            aws_access_key_id: 'DYNAMIC_ID',
+            aws_secret_access_key: 'DYNAMIC_SECRET'
           }
-          rebuild_model(@options.merge(:fog_credentials => lambda { |attachment| attachment.instance.fog_credentials }))
+          rebuild_model(@options.merge(fog_credentials: lambda { |attachment| attachment.instance.fog_credentials }))
           @dummy = Dummy.new
           @dummy.stubs(:fog_credentials).returns(@dynamic_fog_credentials)
           @dummy.avatar = @file
@@ -449,12 +449,12 @@ class FogTest < Test::Unit::TestCase
   context "when using local storage" do
     setup do
       Fog.unmock!
-      rebuild_model :styles => { :medium => "300x300>", :thumb => "100x100>" },
-                    :storage => :fog,
-                    :url => '/:attachment/:filename',
-                    :fog_directory => "paperclip",
-                    :fog_credentials => { :provider => :local, :local_root => "." },
-                    :fog_host => 'localhost'
+      rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
+                    storage: :fog,
+                    url: '/:attachment/:filename',
+                    fog_directory: "paperclip",
+                    fog_credentials: { provider: :local, local_root: "." },
+                    fog_host: 'localhost'
 
       @file = File.new(fixture_file('5k.png'), 'rb')
       @dummy = Dummy.new

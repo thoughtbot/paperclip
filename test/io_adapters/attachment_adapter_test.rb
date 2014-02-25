@@ -4,7 +4,7 @@ require 'pp'
 class AttachmentAdapterTest < Test::Unit::TestCase
 
   def setup
-    rebuild_model :path => "tmp/:class/:attachment/:style/:filename", :styles => {:thumb => '50x50'}
+    rebuild_model path: "tmp/:class/:attachment/:style/:filename", styles: {thumb: '50x50'}
     @attachment = Dummy.new.avatar
   end
 

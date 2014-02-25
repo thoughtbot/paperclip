@@ -3,10 +3,10 @@ require 'active_support/deprecation'
 module Paperclip
   # Provides helper methods that can be used in migrations.
   module Schema
-    COLUMNS = {:file_name    => :string,
-               :content_type => :string,
-               :file_size    => :integer,
-               :updated_at   => :datetime}
+    COLUMNS = {file_name: :string,
+               content_type: :string,
+               file_size: :integer,
+               updated_at: :datetime}
 
     def self.included(base)
       ActiveRecord::ConnectionAdapters::Table.send :include, TableDefinition

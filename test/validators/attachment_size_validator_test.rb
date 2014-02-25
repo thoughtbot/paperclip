@@ -8,7 +8,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
 
   def build_validator(options)
     @validator = Paperclip::Validators::AttachmentSizeValidator.new(options.merge(
-      :attributes => :avatar
+      attributes: :avatar
     ))
   end
 
@@ -61,7 +61,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "with :in option" do
     context "as a range" do
       setup do
-        build_validator :in => (5.kilobytes..10.kilobytes)
+        build_validator in: (5.kilobytes..10.kilobytes)
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -71,7 +71,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
 
     context "as a proc" do
       setup do
-        build_validator :in => lambda { |avatar| (5.kilobytes..10.kilobytes) }
+        build_validator in: lambda { |avatar| (5.kilobytes..10.kilobytes) }
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -83,7 +83,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "with :greater_than option" do
     context "as number" do
       setup do
-        build_validator :greater_than => 10.kilobytes
+        build_validator greater_than: 10.kilobytes
       end
 
       should_allow_attachment_file_size 11.kilobytes
@@ -92,7 +92,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
 
     context "as a proc" do
       setup do
-        build_validator :greater_than => lambda { |avatar| 10.kilobytes }
+        build_validator greater_than: lambda { |avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 11.kilobytes
@@ -103,7 +103,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "with :less_than option" do
     context "as number" do
       setup do
-        build_validator :less_than => 10.kilobytes
+        build_validator less_than: 10.kilobytes
       end
 
       should_allow_attachment_file_size 9.kilobytes
@@ -112,7 +112,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
 
     context "as a proc" do
       setup do
-        build_validator :less_than => lambda { |avatar| 10.kilobytes }
+        build_validator less_than: lambda { |avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 9.kilobytes
@@ -123,8 +123,8 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "with :greater_than and :less_than option" do
     context "as numbers" do
       setup do
-        build_validator :greater_than => 5.kilobytes,
-          :less_than => 10.kilobytes
+        build_validator greater_than: 5.kilobytes,
+          less_than: 10.kilobytes
       end
 
       should_allow_attachment_file_size 7.kilobytes
@@ -134,8 +134,8 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
 
     context "as a proc" do
       setup do
-        build_validator :greater_than => lambda { |avatar| 5.kilobytes },
-          :less_than => lambda { |avatar| 10.kilobytes }
+        build_validator greater_than: lambda { |avatar| 5.kilobytes },
+          less_than: lambda { |avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 7.kilobytes
@@ -147,54 +147,54 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "with :message option" do
     context "given a range" do
       setup do
-        build_validator :in => (5.kilobytes..10.kilobytes),
-          :message => "is invalid. (Between %{min} and %{max} please.)"
+        build_validator in: (5.kilobytes..10.kilobytes),
+          message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        :message => "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
+        message: "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
     end
 
     context "given :less_than and :greater_than" do
       setup do
-        build_validator :less_than => 10.kilobytes,
-          :greater_than => 5.kilobytes,
-          :message => "is invalid. (Between %{min} and %{max} please.)"
+        build_validator less_than: 10.kilobytes,
+          greater_than: 5.kilobytes,
+          message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        :message => "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
+        message: "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
     end
   end
 
   context "default error messages" do
     context "given :less_than and :greater_than" do
       setup do
-        build_validator :greater_than => 5.kilobytes,
-          :less_than => 10.kilobytes
+        build_validator greater_than: 5.kilobytes,
+          less_than: 10.kilobytes
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        :message => "must be less than 10240 Bytes"
+        message: "must be less than 10240 Bytes"
       should_not_allow_attachment_file_size 4.kilobytes,
-        :message => "must be greater than 5120 Bytes"
+        message: "must be greater than 5120 Bytes"
     end
 
     context "given a size range" do
       setup do
-        build_validator :in => (5.kilobytes..10.kilobytes)
+        build_validator in: (5.kilobytes..10.kilobytes)
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        :message => "must be in between 5120 Bytes and 10240 Bytes"
+        message: "must be in between 5120 Bytes and 10240 Bytes"
       should_not_allow_attachment_file_size 4.kilobytes,
-        :message => "must be in between 5120 Bytes and 10240 Bytes"
+        message: "must be in between 5120 Bytes and 10240 Bytes"
     end
   end
 
   context "using the helper" do
     setup do
-      Dummy.validates_attachment_size :avatar, :in => (5.kilobytes..10.kilobytes)
+      Dummy.validates_attachment_size :avatar, in: (5.kilobytes..10.kilobytes)
     end
 
     should "add the validator to the class" do
@@ -205,7 +205,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
   context "given options" do
     should "raise argument error if no required argument was given" do
       assert_raises(ArgumentError) do
-        build_validator :message => "Some message"
+        build_validator message: "Some message"
       end
     end
 
@@ -216,7 +216,7 @@ class AttachmentSizeValidatorTest < Test::Unit::TestCase
     end
 
     should "not raise argument error if :in was given" do
-      build_validator :in => (5.kilobytes..10.kilobytes)
+      build_validator in: (5.kilobytes..10.kilobytes)
     end
   end
 end

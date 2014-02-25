@@ -14,7 +14,7 @@ module Paperclip
     #   make a symlink to the capistrano-created system directory from inside your app's
     #   public directory.
     #   See Paperclip::Attachment#interpolate for more information on variable interpolaton.
-    #     :path => "/var/app/attachments/:class/:id/:style/:basename.:extension"
+    #     path: "/var/app/attachments/:class/:id/:style/:basename.:extension"
     # * +override_file_permissions+: This allows you to override the file permissions for files
     #   saved by paperclip. If you set this to an explicit octal value (0755, 0644, etc) then
     #   that value will be used to set the permissions for an uploaded file. The default is 0666.
@@ -62,7 +62,7 @@ module Paperclip
           begin
             log("deleting #{path}")
             FileUtils.rm(path) if File.exist?(path)
-          rescue Errno::ENOENT => e
+          rescue Errno:ENOENT: e
             # ignore file-not-found, let everything else pass
           end
           begin

@@ -6,11 +6,11 @@ unless ENV["S3_BUCKET"].blank?
     context "when assigning an S3 attachment directly to another model" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => @s3_credentials
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: @s3_credentials
 
         @file = File.new(fixture_file("5k.png"))
       end
@@ -41,11 +41,11 @@ unless ENV["S3_BUCKET"].blank?
     context "Generating an expiring url on a nonexistant attachment" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => @s3_credentials
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: @s3_credentials
 
         @dummy = Dummy.new
       end
@@ -58,11 +58,11 @@ unless ENV["S3_BUCKET"].blank?
     context "Using S3 for real, an attachment with S3 storage" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => @s3_credentials
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: @s3_credentials
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -100,10 +100,10 @@ unless ENV["S3_BUCKET"].blank?
     context "An attachment that uses S3 for storage and has spaces in file name" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-          :storage => :s3,
-          :bucket => ENV["S3_BUCKET"],
-          :s3_credentials => @s3_credentials
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+          storage: :s3,
+          bucket: ENV["S3_BUCKET"],
+          s3_credentials: @s3_credentials
 
         Dummy.delete_all
         @file = File.new(fixture_file('spaced file.png'), 'rb')
@@ -140,12 +140,12 @@ unless ENV["S3_BUCKET"].blank?
     context "An attachment that uses S3 for storage and uses AES256 encryption" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => @s3_credentials,
-                      :s3_server_side_encryption => :aes256
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: @s3_credentials,
+                      s3_server_side_encryption: :aes256
 
         Dummy.delete_all
         @dummy = Dummy.new

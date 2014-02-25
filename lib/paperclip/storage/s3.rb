@@ -31,11 +31,11 @@ module Paperclip
     #   code. eg.
     #     class User
     #       has_attached_file :download,
-    #                         :storage => :s3,
-    #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
+    #                         storage: :s3,
+    #                         s3_credentials: Proc.new{|a| a.instance.s3_credentials }
     #
     #       def s3_credentials
-    #         {:bucket => "xxx", :access_key_id => "xxx", :secret_access_key => "xxx"}
+    #         {bucket: "xxx", access_key_id: "xxx", secret_access_key: "xxx"}
     #       end
     #     end
     # * +s3_permissions+: This is a String that should be one of the "canned" access
@@ -44,11 +44,11 @@ module Paperclip
     #   The default for Paperclip is :public_read.
     #
     #   You can set permission on a per style bases by doing the following:
-    #     :s3_permissions => {
-    #       :original => :private
+    #     s3_permissions: {
+    #       original: :private
     #     }
     #   Or globally:
-    #     :s3_permissions => :private
+    #     s3_permissions: :private
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
     #   'http', 'https', or an empty string to generate scheme-less URLs. Defaults to 'http'
@@ -174,7 +174,7 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
+          base_options = { expires: time, secure: use_secure_protocol?(style_name) }
           s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
         else
           url(style_name)
@@ -212,11 +212,11 @@ module Paperclip
 
       def s3_interface
         @s3_interface ||= begin
-          config = { :s3_endpoint => s3_host_name }
+          config = { s3_endpoint: s3_host_name }
 
           if using_http_proxy?
 
-            proxy_opts = { :host => http_proxy_host }
+            proxy_opts = { host: http_proxy_host }
             proxy_opts[:port] = http_proxy_port if http_proxy_port
             if http_proxy_user
               userinfo = http_proxy_user.to_s
@@ -268,8 +268,8 @@ module Paperclip
       end
 
       def set_permissions permissions
-        permissions = { :default => permissions } unless permissions.respond_to?(:merge)
-        permissions.merge :default => (permissions[:default] || :public_read)
+        permissions = { default: permissions } unless permissions.respond_to?(:merge)
+        permissions.merge default: (permissions[:default] || :public_read)
       end
 
       def parse_credentials creds
@@ -285,7 +285,7 @@ module Paperclip
         else
           false
         end
-      rescue AWS::Errors::Base => e
+      rescue AWS::Errors:Base: e
         false
       end
 
@@ -317,8 +317,8 @@ module Paperclip
             acl = @s3_permissions[style] || @s3_permissions[:default]
             acl = acl.call(self, style) if acl.respond_to?(:call)
             write_options = {
-              :content_type => file.content_type,
-              :acl => acl
+              content_type: file.content_type,
+              acl: acl
             }
             if @s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
@@ -335,7 +335,7 @@ module Paperclip
             write_options.merge!(@s3_headers)
 
             s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket => e
+          rescue AWS::S3::Errors:NoSuchBucket: e
             create_bucket
             retry
           ensure
@@ -353,7 +353,7 @@ module Paperclip
           begin
             log("deleting #{path}")
             s3_bucket.objects[path.sub(%r{\A/},'')].delete
-          rescue AWS::Errors::Base => e
+          rescue AWS::Errors:Base: e
             # Ignore this.
           end
         end
@@ -366,7 +366,7 @@ module Paperclip
         file = s3_object(style)
         local_file.write(file.read)
         local_file.close
-      rescue AWS::Errors::Base => e
+      rescue AWS::Errors:Base: e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end

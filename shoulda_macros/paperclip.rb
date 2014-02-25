@@ -75,7 +75,7 @@ module Paperclip
       end
 
       begin
-        FakeWeb.register_uri(:put, Regexp.new(path), :body => "OK")
+        FakeWeb.register_uri(:put, Regexp.new(path), body: "OK")
       rescue NameError
         raise NameError, "the stub_paperclip_s3 shoulda macro requires the fakeweb gem."
       end
@@ -91,7 +91,7 @@ module Paperclip
     #     When I attach a "demo_tape" "mp3" file to a "band" on S3
     #
     # @example
-    #   Factory.define :band_with_demo_tape, :parent => :band do |band|
+    #   Factory.define :band_with_demo_tape, parent: :band do |band|
     #     band.demo_tape { band.paperclip_fixture("band", "demo_tape", "png") }
     #   end
     def paperclip_fixture(model, attachment, extension)

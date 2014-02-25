@@ -28,9 +28,9 @@ module Paperclip
               error_message_key = options[:in] ? :in_between : option
               [ attr_name, base_attr_name ].each do |error_attr_name|
                 record.errors.add(error_attr_name, error_message_key, filtered_options(value).merge(
-                  :min => min_value_in_human_size(record),
-                  :max => max_value_in_human_size(record),
-                  :count => human_size(option_value)
+                  min: min_value_in_human_size(record),
+                  max: max_value_in_human_size(record),
+                  count: human_size(option_value)
                 ))
               end
             end
@@ -71,8 +71,8 @@ module Paperclip
       end
 
       def human_size(size)
-        storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
-        unit = I18n.translate(:'number.human.storage_units.units.byte', :locale => options[:locale], :count => size.to_i, :raise => true)
+        storage_units_format = I18n.translate(:'number.human.storage_units.format', locale: options[:locale], raise: true)
+        unit = I18n.translate(:'number.human.storage_units.units.byte', locale: options[:locale], count: size.to_i, raise: true)
         storage_units_format.gsub(/%n/, size.to_i.to_s).gsub(/%u/, unit).html_safe
       end
 
@@ -95,8 +95,8 @@ module Paperclip
       # Places ActiveModel validations on the size of the file assigned. The
       # possible options are:
       # * +in+: a Range of bytes (i.e. +1..1.megabyte+),
-      # * +less_than+: equivalent to :in => 0..options[:less_than]
-      # * +greater_than+: equivalent to :in => options[:greater_than]..Infinity
+      # * +less_than+: equivalent to in: 0..options[:less_than]
+      # * +greater_than+: equivalent to in: options[:greater_than]..Infinity
       # * +message+: error message to display, use :min and :max as replacements
       # * +if+: A lambda or name of an instance method. Validation will only
       #   be run if this lambda or method returns true.

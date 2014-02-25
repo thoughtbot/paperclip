@@ -46,7 +46,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the extension of the file as the format if defined in the style" do
     attachment = mock
     attachment.expects(:original_filename).never
-    attachment.expects(:styles).twice.returns({:style => {:format => "png"}})
+    attachment.expects(:styles).twice.returns({style: {format: "png"}})
 
     [:style, 'style'].each do |style|
       assert_equal "png", Paperclip::Interpolations.extension(attachment, style)
@@ -83,7 +83,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the format if defined in the style, ignoring the content type" do
     attachment = mock
     attachment.expects(:content_type).returns('image/jpeg')
-    attachment.expects(:styles).returns({:style => {:format => "png"}})
+    attachment.expects(:styles).returns({style: {format: "png"}})
     interpolations = Paperclip::Interpolations
     interpolations.expects(:extension).returns('random')
     assert_equal "png", interpolations.content_type_extension(attachment, :style)
@@ -91,7 +91,7 @@ class InterpolationsTest < Test::Unit::TestCase
 
   should "be able to handle numeric style names" do
     attachment = mock(
-      :styles => {:"4" => {:format => :expected_extension}}
+      styles: {:"4" => {format: :expected_extension}}
     )
     assert_equal :expected_extension, Paperclip::Interpolations.extension(attachment, 4)
   end
@@ -156,7 +156,7 @@ class InterpolationsTest < Test::Unit::TestCase
 
   should "reinterpolate :url" do
     attachment = mock
-    attachment.expects(:url).with(:style, :timestamp => false, :escape => false).returns("1234")
+    attachment.expects(:url).with(:style, timestamp: false, escape: false).returns("1234")
     assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
   end
 
@@ -179,7 +179,7 @@ class InterpolationsTest < Test::Unit::TestCase
 
   should "return the filename as basename.extension when format supplied" do
     attachment = mock
-    attachment.expects(:styles).returns({:style => {:format => :png}})
+    attachment.expects(:styles).returns({style: {format: :png}})
     attachment.expects(:original_filename).returns("one.jpg").times(2)
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end

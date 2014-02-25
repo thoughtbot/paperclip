@@ -8,9 +8,9 @@ Given /^I generate a new rails application$/ do
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", :platform => :ruby
-      gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
-      gem "jruby-openssl", :platform => :jruby
+      gem "sqlite3", platform: :ruby
+      gem "activerecord-jdbcsqlite3-adapter", platform: :jruby
+      gem "jruby-openssl", platform: :jruby
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
@@ -105,7 +105,7 @@ Given /^I update my new user view to include the file upload field$/ do
   steps %{
     Given I overwrite "app/views/users/new.html.erb" with:
       """
-      <%= form_for @user, :html => { :multipart => true } do |f| %>
+      <%= form_for @user, html: { multipart: true } do |f| %>
         <%= f.label :name %>
         <%= f.text_field :name %>
         <%= f.label :attachment %>
@@ -170,7 +170,7 @@ Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, pat
 end
 
 When /^I configure the application to use "([^\"]+)" from this project$/ do |name|
-  append_to_gemfile "gem '#{name}', :path => '#{PROJECT_ROOT}'"
+  append_to_gemfile "gem '#{name}', path: '#{PROJECT_ROOT}'"
   steps %{And I run `bundle install --local`}
 end
 

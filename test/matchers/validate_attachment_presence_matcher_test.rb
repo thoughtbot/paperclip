@@ -33,7 +33,7 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
 
         Dummy.class_eval do
           validates_attachment_presence :avatar
-          validates_attachment_content_type :avatar, :content_type => 'image/gif'
+          validates_attachment_content_type :avatar, content_type: 'image/gif'
         end
 
         @dummy = Dummy.new
@@ -49,7 +49,7 @@ class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
     context "using an :if to control the validation" do
       setup do
         Dummy.class_eval do
-          validates_attachment_presence :avatar, :if => :go
+          validates_attachment_presence :avatar, if: :go
           attr_accessor :go
         end
         @dummy = Dummy.new

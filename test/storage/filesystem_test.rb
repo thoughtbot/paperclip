@@ -4,7 +4,7 @@ class FileSystemTest < Test::Unit::TestCase
   context "Filesystem" do
     context "normal file" do
       setup do
-        rebuild_model :styles => { :thumbnail => "25x25#" }
+        rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
         @file = File.open(fixture_file('5k.png'))
@@ -53,7 +53,7 @@ class FileSystemTest < Test::Unit::TestCase
 
     context "with file that has space in file name" do
       setup do
-        rebuild_model :styles => { :thumbnail => "25x25#" }
+        rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
         @file = File.open(fixture_file('spaced file.png'))

@@ -23,7 +23,7 @@ When /^I modify my attachment definition to:$/ do |definition|
 end
 
 When /^I upload the fixture "([^"]*)"$/ do |filename|
-  run_simple %(bundle exec #{runner_command} "User.create!(:attachment => File.open('#{fixture_path(filename)}'))")
+  run_simple %(bundle exec #{runner_command} "User.create!(attachment: File.open('#{fixture_path(filename)}'))")
 end
 
 Then /^the attachment "([^"]*)" should have a dimension of (\d+x\d+)$/ do |filename, dimension|
