@@ -1,6 +1,6 @@
 New in 4.1.1:
 
-* Improvement: Add defauly translations for spoof validation
+* Improvement: Add default translations for spoof validation
 * Bug Fix: Don't check for spoofs if the file hasn't changed
 * Bug Fix: Callback chain terminator is different in Rails 4.1, remove warnings
 * Improvement: Fixed various Ruby warnings
