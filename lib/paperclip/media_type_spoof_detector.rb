@@ -52,7 +52,7 @@ module Paperclip
 
     def type_from_file_command
       begin
-        Paperclip.run("file", "-b --mime-type :file", :file => @file.path)
+        Paperclip.run("file", "-b --mime :file", :file => @file.path)
       rescue Cocaine::CommandLineError
         ""
       end
