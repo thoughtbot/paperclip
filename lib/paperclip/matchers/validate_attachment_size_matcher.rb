@@ -45,7 +45,7 @@ module Paperclip
           "Attachment #{@attachment_name} must be between #{@low} and #{@high} bytes"
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "Attachment #{@attachment_name} cannot be between #{@low} and #{@high} bytes"
         end
 
