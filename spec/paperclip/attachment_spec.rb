@@ -4,27 +4,19 @@ class Dummy; end
 
 describe Paperclip::Attachment do
 
-  context "presence" do
-    before do
-      rebuild_class
-      @dummy = Dummy.new
-    end
+  it "is not present when file not set" do
+    rebuild_class
+    dummy = Dummy.new
+    expect(dummy.avatar).to be_blank
+    expect(dummy.avatar).to_not be_present
+  end
 
-    context "when file not set" do
-      it "is not present" do
-        assert @dummy.avatar.blank?
-        refute @dummy.avatar.present?
-      end
-    end
-
-    context "when file set" do
-      before { @dummy.avatar = File.new(fixture_file("50x50.png"), "rb") }
-
-      it "is present" do
-        refute @dummy.avatar.blank?
-        assert @dummy.avatar.present?
-      end
-    end
+  it "is present when the file is set" do
+    rebuild_class
+    dummy = Dummy.new
+    dummy.avatar = File.new(fixture_file("50x50.png"), "rb") 
+    expect(dummy.avatar).to_not be_blank
+    expect(dummy.avatar).to be_present
   end
 
   it "processes :original style first" do
@@ -35,7 +27,7 @@ describe Paperclip::Attachment do
     dummy.save
 
     # :small avatar should be 42px wide (processed original), not 50px (preprocessed original)
-    assert_equal `identify -format "%w" "#{dummy.avatar.path(:small)}"`.strip, "42"
+    expect(`identify -format "%w" "#{dummy.avatar.path(:small)}"`.strip).to eq "42"
 
     file.close
   end
@@ -49,15 +41,15 @@ describe Paperclip::Attachment do
     dummy.avatar = file
     dummy.save
 
-    assert_file_exists(dummy.avatar.path(:small))
-    assert_file_exists(dummy.avatar.path(:large))
-    assert_file_exists(dummy.avatar.path(:original))
+    expect(dummy.avatar.path(:small)).to exist
+    expect(dummy.avatar.path(:large)).to exist
+    expect(dummy.avatar.path(:original)).to exist
 
     dummy.avatar.reprocess!(:small)
 
-    assert_file_exists(dummy.avatar.path(:small))
-    assert_file_exists(dummy.avatar.path(:large))
-    assert_file_exists(dummy.avatar.path(:original))
+    expect(dummy.avatar.path(:small)).to exist
+    expect(dummy.avatar.path(:large)).to exist
+    expect(dummy.avatar.path(:original)).to exist
   end
 
   context "having a not empty hash as a default option" do
@@ -75,20 +67,19 @@ describe Paperclip::Attachment do
       new_options = { :convert_options => { :thumb => "-thumbnailize" } }
       attachment = Paperclip::Attachment.new(:name, :instance, new_options)
 
-      assert_equal Paperclip::Attachment.default_options.deep_merge(new_options),
-                   attachment.instance_variable_get("@options")
+      expect(Paperclip::Attachment.default_options.deep_merge(new_options)).to eq attachment.instance_variable_get("@options")
     end
   end
 
-  it "handle a boolean second argument to #url" do
+  it "handles a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
 
     attachment.url(:style_name, true)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => true, :escape => true)
+    expect(mock_url_generator_builder.has_generated_url_with_options?(:timestamp => true, :escape => true)).to be_true
 
     attachment.url(:style_name, false)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:timestamp => false, :escape => true)
+    expect(mock_url_generator_builder.has_generated_url_with_options?(:timestamp => false, :escape => true)).to be_true
   end
 
   it "pass the style and options through to the URL generator on #url" do
@@ -96,7 +87,7 @@ describe Paperclip::Attachment do
     attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
 
     attachment.url(:style_name, :options => :values)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:options => :values)
+    expect(mock_url_generator_builder.has_generated_url_with_options?(:options => :values)).to be_true
   end
 
   it "pass default options through when #url is given one argument" do
@@ -270,7 +261,7 @@ describe Paperclip::Attachment do
         it "be the default_options for #{key}" do
           assert_equal @old_default_options[key],
                        @attachment.instance_variable_get("@options")[key],
-                       key
+                       key.to_s
         end
       end
 
@@ -285,7 +276,7 @@ describe Paperclip::Attachment do
           it "be the new default_options for #{key}" do
             assert_equal @new_default_options[key],
                          @attachment.instance_variable_get("@options")[key],
-                         key
+                         key.to_s
           end
         end
       end
@@ -669,8 +660,8 @@ describe Paperclip::Attachment do
 
         @dummy.avatar = @file
 
-        assert_received(Paperclip::Thumbnail, :make)
-        assert_received(Paperclip::Test, :make)
+        expect(Paperclip::Thumbnail).to have_received(:make)
+        expect(Paperclip::Test).to have_received(:make)
       end
 
       it "call #make with the right parameters passed as second argument" do
@@ -684,7 +675,7 @@ describe Paperclip::Attachment do
 
         @dummy.avatar = @file
 
-        assert_received(Paperclip::Thumbnail, :make){|o| o.with(anything, expected_params, anything) }
+        expect(Paperclip::Thumbnail).to have_received(:make).with(anything, expected_params, anything)
       end
 
       it "call #make with attachment passed as third argument" do
@@ -692,7 +683,7 @@ describe Paperclip::Attachment do
 
         @dummy.avatar = @file
 
-        assert_received(Paperclip::Test, :make){|o| o.with(anything, anything, @dummy.avatar) }
+        expect(Paperclip::Test).to have_received(:make).with(anything, anything, @dummy.avatar)
       end
     end
   end
@@ -716,10 +707,9 @@ describe Paperclip::Attachment do
   it "convert underscored storage name to camelcase" do
     rebuild_model :storage => :not_here
     @dummy = Dummy.new
-    exception = assert_raises(Paperclip::Errors::StorageMethodNotFound) do
+    exception = assert_raises(Paperclip::Errors::StorageMethodNotFound, /NotHere/) do
       @dummy.avatar
     end
-    assert exception.message.include?("NotHere")
   end
 
   it "raise an error if you try to include a storage module that doesn't exist" do
@@ -1010,12 +1000,12 @@ describe Paperclip::Attachment do
     end
 
     it "should have matching to_s and url methods" do
-      assert_match @attachment.to_s, @attachment.url
-      assert_match @attachment.to_s(:small), @attachment.url(:small)
+      assert_equal @attachment.to_s, @attachment.url
+      assert_equal @attachment.to_s(:small), @attachment.url(:small)
     end
 
     it "have matching expiring_url and url methods when using the filesystem storage" do
-      assert_match @attachment.expiring_url, @attachment.url
+      assert_equal @attachment.expiring_url, @attachment.url
     end
   end
 
@@ -1125,7 +1115,7 @@ describe Paperclip::Attachment do
 
             it "commit the files to disk" do
               [:large, :medium, :small].each do |style|
-                assert_file_exists(@attachment.path(style))
+                expect(@attachment.path(style)).to exist
               end
             end
 
@@ -1287,7 +1277,7 @@ describe Paperclip::Attachment do
         Time.stubs(:now).returns(now)
         @dummy.avatar = @file
         assert_equal creation.to_i, @dummy.avatar.created_at
-        refute_equal now.to_i, @dummy.avatar.created_at
+        assert_not_equal now.to_i, @dummy.avatar.created_at
       end
 
       it "set changed? to true on attachment assignment" do

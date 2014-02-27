@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'rspec'
-require 'rspec/unit'
 require 'active_record'
 require 'active_record/version'
 require 'mocha/api'
@@ -36,23 +35,20 @@ end
 Rails = FakeRails.new('test', Pathname.new(ROOT).join('tmp'))
 ActiveSupport::Deprecation.silenced = true
 
-Spec::Runner.configure do |config|
+Dir[File.join(ROOT, 'spec', 'support', '**', '*.rb')].each{|f| require f }
+Dir[File.join(ROOT, 'test', 'support', '**', '*.rb')].each{|f| require f }
+
+Rspec.configure do |config|
+  config.include Assertions
+  config.mock_framework = :mocha
   config.before(:all) do
-    include RSpec::Unit::Assertions
+    rebuild_model
   end
 end
 
 def using_protected_attributes?
   ActiveRecord::VERSION::MAJOR < 4
 end
-
-def require_everything_in_directory(directory_name)
-  Dir[File.join(File.dirname(__FILE__), directory_name, '*')].each do |f|
-    require f
-  end
-end
-
-require_everything_in_directory('support')
 
 def reset_class class_name
   ActiveRecord::Base.send(:include, Paperclip::Glue)
