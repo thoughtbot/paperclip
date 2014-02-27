@@ -3,13 +3,13 @@ rvm:
   - jruby-19mode
   - rbx
   - 2.0.0
-  - 2.1.0
+  - 2.1.1
 
 install:
   - "travis_retry bundle install"
 
 before_script: "sudo ntpdate -ub ntp.ubuntu.com pool.ntp.org; true"
-script: "bundle exec rake clean test cucumber"
+script: "bundle exec rake clean spec cucumber"
 
 gemfile:
   - gemfiles/3.2.gemfile
@@ -21,3 +21,4 @@ matrix:
   allow_failures:
     - rvm: jruby-19mode
     - rvm: rbx-19mode
+    - rvm: 2.1.1
