@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ValidateAttachmentPresenceMatcherTest < Test::Unit::TestCase
+class ValidateAttachmentPresenceMatcherTest < Minitest::Should::TestCase
   context "validate_attachment_presence" do
     setup do
       reset_table("dummies") do |d|

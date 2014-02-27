@@ -1,6 +1,6 @@
 require './test/helper'
 
-class DataUriAdapterTest < Test::Unit::TestCase
+class DataUriAdapterTest < Minitest::Should::TestCase
 
   def teardown
     if @subject

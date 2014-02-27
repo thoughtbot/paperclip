@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
+class ValidateAttachmentSizeMatcherTest < Minitest::Should::TestCase
   context "validate_attachment_size" do
     setup do
       reset_table("dummies") do |d|

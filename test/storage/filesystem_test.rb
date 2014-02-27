@@ -1,6 +1,6 @@
 require './test/helper'
 
-class FileSystemTest < Test::Unit::TestCase
+class FileSystemTest < Minitest::Should::TestCase
   context "Filesystem" do
     context "normal file" do
       setup do

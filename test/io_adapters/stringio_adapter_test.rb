@@ -1,6 +1,6 @@
 require './test/helper'
 
-class StringioFileProxyTest < Test::Unit::TestCase
+class StringioFileProxyTest < Minitest::Should::TestCase
   context "a new instance" do
     setup do
       @contents = "abc123"

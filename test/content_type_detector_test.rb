@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ContentTypeDetectorTest < Test::Unit::TestCase
+class ContentTypeDetectorTest < Minitest::Should::TestCase
   should 'give a sensible default when the name is empty' do
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new("").detect
   end

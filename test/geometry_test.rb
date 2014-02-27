@@ -1,6 +1,6 @@
 require './test/helper'
 
-class GeometryTest < Test::Unit::TestCase
+class GeometryTest < Minitest::Should::TestCase
   context "Paperclip::Geometry" do
     should "correctly report its given dimensions" do
       assert @geo = Paperclip::Geometry.new(1024, 768)
@@ -82,19 +82,26 @@ class GeometryTest < Test::Unit::TestCase
       assert_equal 456, @upper.height
     end
 
-    ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
-      should "ensure the modifier #{mod.inspect} is preserved" do
-        assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
+    {
+      '>' => 'less than',
+      '<' => 'greater than',
+      '#' => 'pound',
+      '@' => 'at sign',
+      '%' => 'percent sign',
+      '^' => 'caret',
+      '!' => 'exclamation point',
+      nil => 'nothing'
+    }.each do |(modifier, description)|
+      should "ensure the modifier #{description} is preserved" do
+        assert @geo = Paperclip::Geometry.parse("123x456#{modifier}")
         assert_equal mod, @geo.modifier
-        assert_equal "123x456#{mod}", @geo.to_s
+        assert_equal "123x456#{modifier}", @geo.to_s
       end
-    end
 
-    ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
-      should "ensure the modifier #{mod.inspect} is preserved with no height" do
-        assert @geo = Paperclip::Geometry.parse("123x#{mod}")
+      should "ensure the modifier #{description} is preserved with no height" do
+        assert @geo = Paperclip::Geometry.parse("123x#{modifier}")
         assert_equal mod, @geo.modifier
-        assert_equal "123#{mod}", @geo.to_s
+        assert_equal "123#{modifier}", @geo.to_s
       end
     end
 

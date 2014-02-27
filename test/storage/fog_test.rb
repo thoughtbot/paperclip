@@ -1,7 +1,7 @@
 require './test/helper'
 require 'fog'
 
-class FogTest < Test::Unit::TestCase
+class FogTest < Minitest::Should::TestCase
   context "" do
     setup { Fog.mock! }
 

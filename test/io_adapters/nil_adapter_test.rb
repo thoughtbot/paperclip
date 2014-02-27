@@ -1,6 +1,6 @@
 require './test/helper'
 
-class NilAdapterTest < Test::Unit::TestCase
+class NilAdapterTest < Minitest::Should::TestCase
   context 'a new instance' do
     setup do
       @subject = Paperclip.io_adapters.for(nil)

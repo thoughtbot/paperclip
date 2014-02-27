@@ -1,7 +1,7 @@
 require './test/helper'
 require 'paperclip/has_attached_file'
 
-class HasAttachedFileTest < Test::Unit::TestCase
+class HasAttachedFileTest < Minitest::Should::TestCase
   context '#define_on' do
     should 'define a setter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar=')
@@ -52,7 +52,7 @@ class HasAttachedFileTest < Test::Unit::TestCase
 
   class AttachmentAdder
     include Mocha::API
-    include Test::Unit::Assertions
+    include Minitest::Assertions
 
     def initialize(attachment_name)
       @attachment_name = attachment_name

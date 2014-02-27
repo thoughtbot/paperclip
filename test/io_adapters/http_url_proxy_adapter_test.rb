@@ -1,6 +1,6 @@
 require './test/helper'
 
-class HttpUrlProxyAdapterTest < Test::Unit::TestCase
+class HttpUrlProxyAdapterTest < Minitest::Should::TestCase
   context "a new instance" do
     setup do
       @open_return = StringIO.new("xxx")

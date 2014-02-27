@@ -2,7 +2,7 @@ require './test/helper'
 require 'paperclip/schema'
 require 'active_support/testing/deprecation'
 
-class SchemaTest < Test::Unit::TestCase
+class SchemaTest < Minitest::Should::TestCase
   include ActiveSupport::Testing::Deprecation
 
   def setup
@@ -106,7 +106,7 @@ class SchemaTest < Test::Unit::TestCase
 
       context "with no attachment" do
         should "raise an error" do
-          assert_raise ArgumentError do
+          assert_raises ArgumentError do
             Dummy.connection.add_attachment :dummies
           rebuild_class
           end
@@ -136,10 +136,10 @@ class SchemaTest < Test::Unit::TestCase
 
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-          assert_not_includes columns, ['avatar_file_name', :string]
-          assert_not_includes columns, ['avatar_content_type', :string]
-          assert_not_includes columns, ['avatar_file_size', :integer]
-          assert_not_includes columns, ['avatar_updated_at', :datetime]
+          refute_includes columns, ['avatar_file_name', :string]
+          refute_includes columns, ['avatar_content_type', :string]
+          refute_includes columns, ['avatar_file_size', :integer]
+          refute_includes columns, ['avatar_updated_at', :datetime]
         end
 
         should "display a deprecation warning" do
@@ -159,10 +159,10 @@ class SchemaTest < Test::Unit::TestCase
           should "remove the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-            assert_not_includes columns, ['avatar_file_name', :string]
-            assert_not_includes columns, ['avatar_content_type', :string]
-            assert_not_includes columns, ['avatar_file_size', :integer]
-            assert_not_includes columns, ['avatar_updated_at', :datetime]
+            refute_includes columns, ['avatar_file_name', :string]
+            refute_includes columns, ['avatar_content_type', :string]
+            refute_includes columns, ['avatar_file_size', :integer]
+            refute_includes columns, ['avatar_updated_at', :datetime]
           end
         end
 
@@ -182,20 +182,20 @@ class SchemaTest < Test::Unit::TestCase
           should "remove the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-            assert_not_includes columns, ['avatar_file_name', :string]
-            assert_not_includes columns, ['avatar_content_type', :string]
-            assert_not_includes columns, ['avatar_file_size', :integer]
-            assert_not_includes columns, ['avatar_updated_at', :datetime]
-            assert_not_includes columns, ['photo_file_name', :string]
-            assert_not_includes columns, ['photo_content_type', :string]
-            assert_not_includes columns, ['photo_file_size', :integer]
-            assert_not_includes columns, ['photo_updated_at', :datetime]
+            refute_includes columns, ['avatar_file_name', :string]
+            refute_includes columns, ['avatar_content_type', :string]
+            refute_includes columns, ['avatar_file_size', :integer]
+            refute_includes columns, ['avatar_updated_at', :datetime]
+            refute_includes columns, ['photo_file_name', :string]
+            refute_includes columns, ['photo_content_type', :string]
+            refute_includes columns, ['photo_file_size', :integer]
+            refute_includes columns, ['photo_updated_at', :datetime]
           end
         end
 
         context "with no attachment" do
           should "raise an error" do
-            assert_raise ArgumentError do
+            assert_raises ArgumentError do
               Dummy.connection.remove_attachment :dummies
             end
           end

@@ -1,6 +1,6 @@
 require './test/helper'
 
-class UploadedFileAdapterTest < Test::Unit::TestCase
+class UploadedFileAdapterTest < Minitest::Should::TestCase
   context "a new instance" do
     context "with UploadedFile responding to #tempfile" do
       setup do

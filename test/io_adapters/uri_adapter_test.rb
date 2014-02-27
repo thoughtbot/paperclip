@@ -1,6 +1,6 @@
 require './test/helper'
 
-class UriProxyTest < Test::Unit::TestCase
+class UriProxyTest < Minitest::Should::TestCase
   context "a new instance" do
     setup do
       @open_return = StringIO.new("xxx")

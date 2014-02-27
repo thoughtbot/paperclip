@@ -1,6 +1,6 @@
 require './test/helper'
 
-class FileCommandContentTypeDetectorTest < Test::Unit::TestCase
+class FileCommandContentTypeDetectorTest < Minitest::Should::TestCase
   should 'return a content type based on the content of the file' do
     tempfile = Tempfile.new("something")
     tempfile.write("This is a file.")

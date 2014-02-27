@@ -1,6 +1,6 @@
 require './test/helper'
 
-class AttachmentContentTypeValidatorTest < Test::Unit::TestCase
+class AttachmentContentTypeValidatorTest < Minitest::Should::TestCase
   def setup
     rebuild_model
     @dummy = Dummy.new

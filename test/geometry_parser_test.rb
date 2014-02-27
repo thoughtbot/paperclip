@@ -1,6 +1,6 @@
 require './test/helper'
 
-class GeometryParserTest < Test::Unit::TestCase
+class GeometryParserTest < Minitest::Should::TestCase
   should 'identify an image and extract its dimensions with no orientation' do
     Paperclip::Geometry.stubs(:new).with(
       :height => '73',

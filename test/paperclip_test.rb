@@ -1,6 +1,6 @@
 require './test/helper'
 
-class PaperclipTest < Test::Unit::TestCase
+class PaperclipTest < Minitest::Should::TestCase
   context "Calling Paperclip.run" do
     setup do
       Paperclip.options[:log_command] = false
@@ -102,7 +102,7 @@ class PaperclipTest < Test::Unit::TestCase
   should "raise when class doesn't exist in specified namespace" do
     class ::Three; end
     class ::Four; end
-    assert_raise NameError do
+    assert_raises NameError do
       Paperclip.class_for("Three::Four")
     end
   end
@@ -167,11 +167,11 @@ class PaperclipTest < Test::Unit::TestCase
       end
     end
 
-    should "have an #avatar method" do
+    should "have an avatar getter method" do
       assert Dummy.new.respond_to?(:avatar)
     end
 
-    should "have an #avatar= method" do
+    should "have an avatar setter method" do
       assert Dummy.new.respond_to?(:avatar=)
     end
 

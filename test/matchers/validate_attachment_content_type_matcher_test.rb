@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
+class ValidateAttachmentContentTypeMatcherTest < Minitest::Should::TestCase
   context "validate_attachment_content_type" do
     setup do
       reset_table("dummies") do |d|

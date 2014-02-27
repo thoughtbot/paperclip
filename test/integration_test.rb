@@ -3,7 +3,7 @@
 require './test/helper'
 require 'open-uri'
 
-class IntegrationTest < Test::Unit::TestCase
+class IntegrationTest < Minitest::Should::TestCase
   context "Many models at once" do
     setup do
       rebuild_model
@@ -74,7 +74,7 @@ class IntegrationTest < Test::Unit::TestCase
       end
 
       should "change the timestamp" do
-        assert_not_equal @original_timestamp, @d2.avatar_updated_at
+        refute_equal @original_timestamp, @d2.avatar_updated_at
       end
     end
   end
@@ -156,7 +156,7 @@ class IntegrationTest < Test::Unit::TestCase
     end
 
     should "report the file size of the processed file and not the original" do
-      assert_not_equal File.size(@file.path), @dummy.avatar.size
+      refute_equal File.size(@file.path), @dummy.avatar.size
     end
 
     teardown { @file.close }
@@ -198,9 +198,15 @@ class IntegrationTest < Test::Unit::TestCase
           assert_file_not_exists(File.dirname(@saved_path))
           assert_file_not_exists(File.dirname(File.dirname(@saved_path)))
         end
+      end
 
-        before_should "not die if an unexpected SystemCallError happens" do
+      context 'and deleted where the delete fails' do
+        should "not die if an unexpected SystemCallError happens" do
           FileUtils.stubs(:rmdir).raises(Errno::EPIPE)
+          assert_nothing_raised do
+            @dummy.avatar.clear
+            @dummy.save
+          end
         end
       end
     end
@@ -372,8 +378,8 @@ class IntegrationTest < Test::Unit::TestCase
       teardown { @file2.close }
 
       should "work when assigned a file" do
-        assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
-                         `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
+        refute_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
+                     `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
 
         assert @dummy.avatar = @dummy2.avatar
         @dummy.save

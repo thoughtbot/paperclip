@@ -2,7 +2,7 @@
 require './test/helper'
 require 'paperclip/url_generator'
 
-class UrlGeneratorTest < Test::Unit::TestCase
+class UrlGeneratorTest < Minitest::Should::TestCase
   should "use the given interpolator" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new

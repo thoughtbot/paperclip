@@ -1,6 +1,6 @@
 require './test/helper'
 
-class Paperclip::TempfileFactoryTest < Test::Unit::TestCase
+class Paperclip::TempfileFactoryTest < Minitest::Should::TestCase
   should "be able to generate a tempfile with the right name" do
     file = subject.generate("omg.png")
     assert File.extname(file.path), "png"

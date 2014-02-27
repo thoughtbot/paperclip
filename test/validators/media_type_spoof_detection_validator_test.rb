@@ -1,6 +1,6 @@
 require './test/helper'
 
-class MediaTypeSpoofDetectionValidatorTest < Test::Unit::TestCase
+class MediaTypeSpoofDetectionValidatorTest < Minitest::Should::TestCase
   def setup
     rebuild_model
     @dummy = Dummy.new

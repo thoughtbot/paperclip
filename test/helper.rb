@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'tempfile'
 require 'pathname'
-require 'test/unit'
+require 'minitest/autorun'
+require 'minitest/should'
 require 'active_record'
 require 'active_record/version'
 require 'active_support'
@@ -33,7 +34,7 @@ end
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
 $previous_count = 0
-class Test::Unit::TestCase
+class Minitest::Should::TestCase
   def setup
     silence_warnings do
       Object.const_set(:Rails, stub('Rails'))
@@ -58,6 +59,15 @@ class Test::Unit::TestCase
       end
     end
     $previous_count = files.count
+  end
+
+  def assert_nothing_raised(*args, &block)
+    block.call
+    assert true
+  rescue *args => e
+    assert false, "Expected to raise nothing. Raised #{e.class}: #{e.message}"
+  rescue => e
+    assert false, "Expected to raise nothing. Raised #{e.class}: #{e.message}"
   end
 end
 

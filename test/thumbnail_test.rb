@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ThumbnailTest < Test::Unit::TestCase
+class ThumbnailTest < Minitest::Should::TestCase
 
   context "A Paperclip Tempfile" do
     setup do

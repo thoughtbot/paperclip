@@ -1,6 +1,6 @@
 require './test/helper'
 
-class AbstractAdapterTest < Test::Unit::TestCase
+class AbstractAdapterTest < Minitest::Should::TestCase
   class TestAdapter < Paperclip::AbstractAdapter
     attr_accessor :tempfile
 
@@ -33,8 +33,8 @@ class AbstractAdapterTest < Test::Unit::TestCase
       @adapter.tempfile = stub("Tempfile")
     end
 
-    [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each do |method|
-      should "delegate #{method} to @tempfile" do
+    [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each_with_index do |method, i|
+      should "delegate #{method}-#{i} to @tempfile" do
         @adapter.tempfile.stubs(method)
         @adapter.public_send(method)
         assert_received @adapter.tempfile, method

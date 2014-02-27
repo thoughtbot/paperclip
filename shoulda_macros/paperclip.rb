@@ -122,14 +122,3 @@ else
     include Paperclip::Shoulda  #:nodoc:
   end
 end
-
-if defined?(Minitest)
-  class Minitest::Unit::TestCase #:nodoc:
-    extend Paperclip::Shoulda
-  end
-elsif defined?(Test)
-  class Test::Unit::TestCase #:nodoc:
-    extend Paperclip::Shoulda
-  end
-end
-

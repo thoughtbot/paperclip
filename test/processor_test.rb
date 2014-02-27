@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ProcessorTest < Test::Unit::TestCase
+class ProcessorTest < Minitest::Should::TestCase
   should "instantiate and call #make when sent #make to the class" do
     processor = mock
     processor.expects(:make).with()

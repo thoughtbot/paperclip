@@ -1,7 +1,7 @@
 # encoding: utf-8
 require './test/helper'
 
-class FilenameCleanerTest < Test::Unit::TestCase
+class FilenameCleanerTest < Minitest::Should::TestCase
   should 'convert invalid characters to underscores' do
     cleaner = Paperclip::FilenameCleaner.new(/[aeiou]/)
     assert_equal "b_s_b_ll", cleaner.call("baseball")

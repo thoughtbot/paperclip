@@ -1,6 +1,6 @@
 require './test/helper'
 
-class InterpolationsTest < Test::Unit::TestCase
+class InterpolationsTest < Minitest::Should::TestCase
   should "return all methods but the infrastructure when sent #all" do
     methods = Paperclip::Interpolations.all
     assert ! methods.include?(:[])
@@ -225,7 +225,7 @@ class InterpolationsTest < Test::Unit::TestCase
     attachment = mock
     fake_hash = "a_wicked_secure_hash"
     attachment.expects(:hash_key).never.returns(fake_hash)
-    assert_not_equal fake_hash, Paperclip::Interpolations.hash
+    refute_equal fake_hash, Paperclip::Interpolations.hash
   end
 
   should "call all expected interpolations with the given arguments" do

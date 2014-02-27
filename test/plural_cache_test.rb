@@ -1,6 +1,6 @@
 require './test/helper'
 
-class PluralCacheTest < Test::Unit::TestCase
+class PluralCacheTest < Minitest::Should::TestCase
   should 'cache pluralizations' do
     cache = Paperclip::Interpolations::PluralCache.new
     word = "box"

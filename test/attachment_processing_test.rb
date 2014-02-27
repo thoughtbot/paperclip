@@ -2,7 +2,7 @@
 require './test/helper'
 require 'paperclip/attachment'
 
-class AttachmentProcessingTest < Test::Unit::TestCase
+class AttachmentProcessingTest < Minitest::Should::TestCase
   def setup
     rebuild_model
   end

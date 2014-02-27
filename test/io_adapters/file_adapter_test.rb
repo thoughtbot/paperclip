@@ -1,6 +1,6 @@
 require './test/helper'
 
-class FileAdapterTest < Test::Unit::TestCase
+class FileAdapterTest < Minitest::Should::TestCase
   context "a new instance" do
     context "with normal file" do
       setup do

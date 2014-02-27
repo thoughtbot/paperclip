@@ -2,7 +2,7 @@ require './test/helper'
 require 'aws'
 
 unless ENV["S3_BUCKET"].blank?
-  class S3LiveTest < Test::Unit::TestCase
+  class S3LiveTest < Minitest::Should::TestCase
     context "when assigning an S3 attachment directly to another model" do
       setup do
         @s3_credentials = File.new(fixture_file("s3.yml"))

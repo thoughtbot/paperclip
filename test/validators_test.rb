@@ -1,6 +1,6 @@
 require './test/helper'
 
-class ValidatorsTest < Test::Unit::TestCase
+class ValidatorsTest < Minitest::Should::TestCase
   include ActiveSupport::Testing::Deprecation
 
   def setup

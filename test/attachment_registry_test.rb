@@ -1,7 +1,7 @@
 require './test/helper'
 require 'paperclip/attachment_registry'
 
-class AttachmentRegistryTest < Test::Unit::TestCase
+class AttachmentRegistryTest < Minitest::Should::TestCase
   def setup
     Paperclip::AttachmentRegistry.clear
   end

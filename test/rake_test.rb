@@ -2,7 +2,7 @@ require './test/helper'
 require 'rake'
 load './lib/tasks/paperclip.rake'
 
-class RakeTest < Test::Unit::TestCase
+class RakeTest < Minitest::Should::TestCase
   context "calling `rake paperclip:refresh:thumbnails`" do
     setup do
       rebuild_model

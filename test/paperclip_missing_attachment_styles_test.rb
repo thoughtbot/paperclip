@@ -1,6 +1,6 @@
 require './test/helper'
 
-class PaperclipMissingAttachmentStylesTest < Test::Unit::TestCase
+class PaperclipMissingAttachmentStylesTest < Minitest::Should::TestCase
   def setup
     Paperclip::AttachmentRegistry.clear
   end

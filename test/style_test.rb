@@ -1,7 +1,7 @@
 # encoding: utf-8
 require './test/helper'
 
-class StyleTest < Test::Unit::TestCase
+class StyleTest < Minitest::Should::TestCase
 
   context "A style rule" do
     setup do
@@ -160,7 +160,7 @@ class StyleTest < Test::Unit::TestCase
 
     should "not get processors from the attachment" do
       @attachment.expects(:processors).never
-      assert_not_equal [:thumbnail], @style.processors
+      refute_equal [:thumbnail], @style.processors
     end
 
     should "report its own processors" do

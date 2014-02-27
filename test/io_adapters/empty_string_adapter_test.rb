@@ -1,6 +1,6 @@
 require './test/helper'
 
-class EmptyStringAdapterTest < Test::Unit::TestCase
+class EmptyStringAdapterTest < Minitest::Should::TestCase
 
   context 'a new instance' do
     setup do

@@ -1,7 +1,7 @@
 require './test/helper'
 require 'aws'
 
-class S3Test < Test::Unit::TestCase
+class S3Test < Minitest::Should::TestCase
   def rails_env(env)
     silence_warnings do
       Object.const_set(:Rails, stub('Rails', :env => env))

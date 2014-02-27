@@ -1,6 +1,6 @@
 require './test/helper'
 
-class MediaTypeSpoofDetectorTest < Test::Unit::TestCase
+class MediaTypeSpoofDetectorTest < Minitest::Should::TestCase
   should 'reject a file that is named .html and identifies as PNG' do
     file = File.open(fixture_file("5k.png"))
     assert Paperclip::MediaTypeSpoofDetector.using(file, "5k.html").spoofed?

@@ -1,6 +1,6 @@
 require './test/helper'
 
-class HaveAttachedFileMatcherTest < Test::Unit::TestCase
+class HaveAttachedFileMatcherTest < Minitest::Should::TestCase
   context "have_attached_file" do
     setup do
       reset_class "Dummy"

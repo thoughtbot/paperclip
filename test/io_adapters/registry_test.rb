@@ -1,6 +1,6 @@
 require './test/helper'
 
-class AdapterRegistryTest < Test::Unit::TestCase
+class AdapterRegistryTest < Minitest::Should::TestCase
   context "for" do
     setup do
       class AdapterTest

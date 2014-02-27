@@ -1,7 +1,7 @@
 require './test/helper'
 require 'pp'
 
-class AttachmentAdapterTest < Test::Unit::TestCase
+class AttachmentAdapterTest < Minitest::Should::TestCase
 
   def setup
     rebuild_model :path => "tmp/:class/:attachment/:style/:filename", :styles => {:thumb => '50x50'}

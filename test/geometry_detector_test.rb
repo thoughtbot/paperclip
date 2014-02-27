@@ -1,6 +1,6 @@
 require './test/helper'
 
-class GeometryDetectorTest < Test::Unit::TestCase
+class GeometryDetectorTest < Minitest::Should::TestCase
   should 'identify an image and extract its dimensions' do
     Paperclip::GeometryParser.stubs(:new).with("434x66,").returns(stub(:make => :correct))
     file = fixture_file("5k.png")
