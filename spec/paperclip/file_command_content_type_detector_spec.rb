@@ -1,7 +1,7 @@
-require './test/helper'
+require 'spec_helper'
 
-class FileCommandContentTypeDetectorTest < Minitest::Should::TestCase
-  should 'return a content type based on the content of the file' do
+describe Paperclip::FileCommandContentTypeDetector do
+  it 'return a content type based on the content of the file' do
     tempfile = Tempfile.new("something")
     tempfile.write("This is a file.")
     tempfile.rewind
@@ -11,14 +11,14 @@ class FileCommandContentTypeDetectorTest < Minitest::Should::TestCase
     tempfile.close
   end
 
-  should 'return a sensible default when the file command is missing' do
+  it 'return a sensible default when the file command is missing' do
     Paperclip.stubs(:run).raises(Cocaine::CommandLineError.new)
     @filename = "/path/to/something"
     assert_equal "application/octet-stream",
       Paperclip::FileCommandContentTypeDetector.new(@filename).detect
   end
 
-  should 'return a sensible default on the odd chance that run returns nil' do
+  it 'return a sensible default on the odd chance that run returns nil' do
     Paperclip.stubs(:run).returns(nil)
     assert_equal "application/octet-stream",
       Paperclip::FileCommandContentTypeDetector.new("windows").detect

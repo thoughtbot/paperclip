@@ -1,45 +1,44 @@
-require './test/helper'
-require 'paperclip/has_attached_file'
+require 'spec_helper'
 
-class HasAttachedFileTest < Minitest::Should::TestCase
+describe Paperclip::HasAttachedFile do
   context '#define_on' do
-    should 'define a setter on the class object' do
+    it 'define a setter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar=')
     end
 
-    should 'define a getter on the class object' do
+    it 'define a getter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar')
     end
 
-    should 'define a query on the class object' do
+    it 'define a query on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar?')
     end
 
-    should 'define a method on the class to get all of its attachments' do
+    it 'define a method on the class to get all of its attachments' do
       assert_adding_attachment('avatar').defines_class_method('attachment_definitions')
     end
 
-    should 'flush errors as part of validations' do
+    it 'flush errors as part of validations' do
       assert_adding_attachment('avatar').defines_validation
     end
 
-    should 'register the attachment with Paperclip::AttachmentRegistry' do
+    it 'register the attachment with Paperclip::AttachmentRegistry' do
       assert_adding_attachment('avatar').registers_attachment
     end
 
-    should 'define an after_save callback' do
+    it 'define an after_save callback' do
       assert_adding_attachment('avatar').defines_callback('after_save')
     end
 
-    should 'define a before_destroy callback' do
+    it 'define a before_destroy callback' do
       assert_adding_attachment('avatar').defines_callback('before_destroy')
     end
 
-    should 'define an after_commit callback' do
+    it 'define an after_commit callback' do
       assert_adding_attachment('avatar').defines_callback('after_commit')
     end
 
-    should 'define the Paperclip-specific callbacks' do
+    it 'define the Paperclip-specific callbacks' do
       assert_adding_attachment('avatar').defines_callback('define_paperclip_callbacks')
     end
   end
@@ -52,7 +51,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
   class AttachmentAdder
     include Mocha::API
-    include Minitest::Assertions
+    include RSpec::Matchers
 
     def initialize(attachment_name)
       @attachment_name = attachment_name
@@ -63,9 +62,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
-      assert_received(a_class, :define_method) do |expect|
-        expect.with(method_name)
-      end
+      expect(a_class).to have_received(:define_method).with(method_name)
     end
 
     def defines_class_method(method_name)
@@ -74,9 +71,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
-      assert_received(a_class, :extend) do |expect|
-        expect.with(Paperclip::HasAttachedFile::ClassMethods)
-      end
+      expect(a_class).to have_received(:extend).with(Paperclip::HasAttachedFile::ClassMethods)
     end
 
     def defines_validation
@@ -84,9 +79,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
-      assert_received(a_class, :validates_each) do |expect|
-        expect.with(@attachment_name)
-      end
+      expect(a_class).to have_received(:validates_each).with(@attachment_name)
     end
 
     def registers_attachment
@@ -95,9 +88,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {size: 1})
 
-      assert_received(Paperclip::AttachmentRegistry, :register) do |expect|
-        expect.with(a_class, @attachment_name, {size: 1})
-      end
+      expect(Paperclip::AttachmentRegistry).to have_received(:register).with(a_class, @attachment_name, {size: 1})
     end
 
     def defines_callback(callback_name)
@@ -105,7 +96,7 @@ class HasAttachedFileTest < Minitest::Should::TestCase
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
-      assert_received(a_class, callback_name.to_sym)
+      expect(a_class).to have_received(callback_name.to_sym)
     end
 
     private

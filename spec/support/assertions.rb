@@ -1,6 +1,6 @@
 module Assertions
-  def assert(truthy)
-    expect(truthy).to be_true
+  def assert(truthy, message = nil)
+    expect(truthy).to(be_true, message)
   end
 
   def assert_equal(expected, actual, message = nil)
@@ -37,5 +37,9 @@ module Assertions
 
   def assert_file_not_exists(path_to_file)
     expect(path_to_file).to_not exist
+  end
+
+  def assert_empty(object)
+    expect(object).to be_empty
   end
 end

@@ -1,20 +1,19 @@
-require './test/helper'
-require 'paperclip/attachment_registry'
+require 'spec_helper'
 
-class AttachmentRegistryTest < Minitest::Should::TestCase
-  def setup
+describe 'Attachment Registry' do
+  before do
     Paperclip::AttachmentRegistry.clear
   end
 
   context '.names_for' do
-    should 'include attachment names for the given class' do
+    it 'include attachment names for the given class' do
       foo = Class.new
       Paperclip::AttachmentRegistry.register(foo, :avatar, {})
 
       assert_equal [:avatar], Paperclip::AttachmentRegistry.names_for(foo)
     end
 
-    should 'not include attachment names for other classes' do
+    it 'not include attachment names for other classes' do
       foo = Class.new
       bar = Class.new
       Paperclip::AttachmentRegistry.register(foo, :avatar, {})
@@ -23,13 +22,13 @@ class AttachmentRegistryTest < Minitest::Should::TestCase
       assert_equal [:lover], Paperclip::AttachmentRegistry.names_for(bar)
     end
 
-    should 'produce the empty array for a missing key' do
+    it 'produce the empty array for a missing key' do
       assert_empty Paperclip::AttachmentRegistry.names_for(Class.new)
     end
   end
 
   context '.each_definition' do
-    should 'call the block with the class, attachment name, and options' do
+    it 'call the block with the class, attachment name, and options' do
       foo = Class.new
       expected_accumulations = [
         [foo, :avatar, { yo: 'greeting' }],
@@ -49,7 +48,7 @@ class AttachmentRegistryTest < Minitest::Should::TestCase
   end
 
   context '.definitions_for' do
-    should 'produce the attachment name and options' do
+    it 'produce the attachment name and options' do
       expected_definitions = {
         avatar: { yo: 'greeting' },
         greeter: { ciao: 'greeting' }
@@ -63,7 +62,7 @@ class AttachmentRegistryTest < Minitest::Should::TestCase
       assert_equal expected_definitions, definitions
     end
 
-    should "produce defintions for subclasses" do
+    it "produce defintions for subclasses" do
       expected_definitions = { avatar: { yo: 'greeting' } }
       Foo = Class.new
       Bar = Class.new(Foo)
@@ -76,7 +75,7 @@ class AttachmentRegistryTest < Minitest::Should::TestCase
   end
 
   context '.clear' do
-    should 'remove all of the existing attachment definitions' do
+    it 'remove all of the existing attachment definitions' do
       foo = Class.new
       Paperclip::AttachmentRegistry.register(foo, :greeter, { ciao: 'greeting' })
 

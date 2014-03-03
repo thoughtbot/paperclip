@@ -1,19 +1,19 @@
-require './test/helper'
+require 'spec_helper'
 require 'rails/generators'
 require 'generators/paperclip/paperclip_generator'
 
-class GeneratorTest < Rails::Generators::TestCase
+describe PaperclipGenerator do
   tests PaperclipGenerator
   destination File.expand_path("../tmp", File.dirname(__FILE__))
-  setup :prepare_destination
+  before :prepare_destination
 
   context 'running migration' do
     context 'with single attachment name' do
-      setup do
+      before do
         run_generator %w(user avatar)
       end
 
-      should 'create a correct migration file' do
+      it 'create a correct migration file' do
         assert_migration 'db/migrate/add_attachment_avatar_to_users.rb' do |migration|
           assert_match /class AddAttachmentAvatarToUsers/, migration
 
@@ -39,11 +39,11 @@ class GeneratorTest < Rails::Generators::TestCase
     end
 
     context 'with multiple attachment names' do
-      setup do
+      before do
         run_generator %w(user avatar photo)
       end
 
-      should 'create a correct migration file' do
+      it 'create a correct migration file' do
         assert_migration 'db/migrate/add_attachment_avatar_photo_to_users.rb' do |migration|
           assert_match /class AddAttachmentAvatarPhotoToUsers/, migration
 
@@ -71,7 +71,7 @@ class GeneratorTest < Rails::Generators::TestCase
     end
 
     context 'without required arguments' do
-      should 'not create the migration' do
+      it 'not create the migration' do
         begin
           silence_stream(STDERR) { run_generator %w() }
           assert_no_migration 'db/migrate/add_attachment_avatar_to_users.rb'
