@@ -1,7 +1,7 @@
-require './test/helper'
+require 'spec_helper'
 
-class AttachmentDefinitionsTest < Minitest::Should::TestCase
-  should 'return all of the attachments on the class' do
+describe "Attachment Definitions" do
+  it 'returns all of the attachments on the class' do
     reset_class "Dummy"
     Dummy.has_attached_file :avatar, {:path => "abc"}
     Dummy.has_attached_file :other_attachment, {:url => "123"}
