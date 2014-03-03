@@ -2,9 +2,12 @@ require 'rubygems'
 require 'rspec'
 require 'active_record'
 require 'active_record/version'
+require 'active_support'
+require 'active_support/core_ext'
 require 'mocha/api'
 require 'bourne'
 require 'ostruct'
+require 'pry'
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
@@ -38,7 +41,7 @@ ActiveSupport::Deprecation.silenced = true
 Dir[File.join(ROOT, 'spec', 'support', '**', '*.rb')].each{|f| require f }
 Dir[File.join(ROOT, 'test', 'support', '**', '*.rb')].each{|f| require f }
 
-Rspec.configure do |config|
+RSpec.configure do |config|
   config.include Assertions
   config.mock_framework = :mocha
   config.before(:all) do
