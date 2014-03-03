@@ -1,24 +1,24 @@
-require './test/helper'
+require 'spec_helper'
 require 'paperclip/schema'
 require 'active_support/testing/deprecation'
 
-class SchemaTest < Minitest::Should::TestCase
+describe Paperclip::Schema do
   include ActiveSupport::Testing::Deprecation
 
-  def setup
+  before do
     rebuild_class
   end
 
-  def teardown
+  after do
     Dummy.connection.drop_table :dummies rescue nil
   end
 
   context "within table definition" do
     context "using #has_attached_file" do
-      setup do
+      before do
         ActiveSupport::Deprecation.silenced = false
       end
-      should "create attachment columns" do
+      it "create attachment columns" do
         Dummy.connection.create_table :dummies, :force => true do |t|
           ActiveSupport::Deprecation.silence do
             t.has_attached_file :avatar
@@ -28,13 +28,13 @@ class SchemaTest < Minitest::Should::TestCase
 
         columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-        assert_includes columns, ['avatar_file_name', :string]
-        assert_includes columns, ['avatar_content_type', :string]
-        assert_includes columns, ['avatar_file_size', :integer]
-        assert_includes columns, ['avatar_updated_at', :datetime]
+        expect(columns).to include(['avatar_file_name', :string])
+        expect(columns).to include(['avatar_content_type', :string])
+        expect(columns).to include(['avatar_file_size', :integer])
+        expect(columns).to include(['avatar_updated_at', :datetime])
       end
 
-      should "display deprecation warning" do
+      it "display deprecation warning" do
         Dummy.connection.create_table :dummies, :force => true do |t|
           assert_deprecated do
             t.has_attached_file :avatar
@@ -44,68 +44,68 @@ class SchemaTest < Minitest::Should::TestCase
     end
 
     context "using #attachment" do
-      setup do
+      before do
         Dummy.connection.create_table :dummies, :force => true do |t|
           t.attachment :avatar
         end
         rebuild_class
       end
 
-      should "create attachment columns" do
+      it "create attachment columns" do
         columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-        assert_includes columns, ['avatar_file_name', :string]
-        assert_includes columns, ['avatar_content_type', :string]
-        assert_includes columns, ['avatar_file_size', :integer]
-        assert_includes columns, ['avatar_updated_at', :datetime]
+        expect(columns).to include(['avatar_file_name', :string])
+        expect(columns).to include(['avatar_content_type', :string])
+        expect(columns).to include(['avatar_file_size', :integer])
+        expect(columns).to include(['avatar_updated_at', :datetime])
       end
     end
   end
 
   context "within schema statement" do
-    setup do
+    before do
       Dummy.connection.create_table :dummies, :force => true
     end
 
     context "migrating up" do
       context "with single attachment" do
-        setup do
+        before do
           Dummy.connection.add_attachment :dummies, :avatar
           rebuild_class
         end
 
-        should "create attachment columns" do
+        it "create attachment columns" do
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-          assert_includes columns, ['avatar_file_name', :string]
-          assert_includes columns, ['avatar_content_type', :string]
-          assert_includes columns, ['avatar_file_size', :integer]
-          assert_includes columns, ['avatar_updated_at', :datetime]
+          expect(columns).to include(['avatar_file_name', :string])
+          expect(columns).to include(['avatar_content_type', :string])
+          expect(columns).to include(['avatar_file_size', :integer])
+          expect(columns).to include(['avatar_updated_at', :datetime])
         end
       end
 
       context "with multiple attachments" do
-        setup do
+        before do
           Dummy.connection.add_attachment :dummies, :avatar, :photo
           rebuild_class
         end
 
-        should "create attachment columns" do
+        it "create attachment columns" do
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-          assert_includes columns, ['avatar_file_name', :string]
-          assert_includes columns, ['avatar_content_type', :string]
-          assert_includes columns, ['avatar_file_size', :integer]
-          assert_includes columns, ['avatar_updated_at', :datetime]
-          assert_includes columns, ['photo_file_name', :string]
-          assert_includes columns, ['photo_content_type', :string]
-          assert_includes columns, ['photo_file_size', :integer]
-          assert_includes columns, ['photo_updated_at', :datetime]
+          expect(columns).to include(['avatar_file_name', :string])
+          expect(columns).to include(['avatar_content_type', :string])
+          expect(columns).to include(['avatar_file_size', :integer])
+          expect(columns).to include(['avatar_updated_at', :datetime])
+          expect(columns).to include(['photo_file_name', :string])
+          expect(columns).to include(['photo_content_type', :string])
+          expect(columns).to include(['photo_file_size', :integer])
+          expect(columns).to include(['photo_updated_at', :datetime])
         end
       end
 
       context "with no attachment" do
-        should "raise an error" do
+        it "raise an error" do
           assert_raises ArgumentError do
             Dummy.connection.add_attachment :dummies
           rebuild_class
@@ -115,7 +115,7 @@ class SchemaTest < Minitest::Should::TestCase
     end
 
     context "migrating down" do
-      setup do
+      before do
         Dummy.connection.change_table :dummies do |t|
           t.column :avatar_file_name, :string
           t.column :avatar_content_type, :string
@@ -125,10 +125,10 @@ class SchemaTest < Minitest::Should::TestCase
       end
 
       context "using #drop_attached_file" do
-        setup do
+        before do
           ActiveSupport::Deprecation.silenced = false
         end
-        should "remove the attachment columns" do
+        it "remove the attachment columns" do
           ActiveSupport::Deprecation.silence do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
@@ -136,13 +136,13 @@ class SchemaTest < Minitest::Should::TestCase
 
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-          refute_includes columns, ['avatar_file_name', :string]
-          refute_includes columns, ['avatar_content_type', :string]
-          refute_includes columns, ['avatar_file_size', :integer]
-          refute_includes columns, ['avatar_updated_at', :datetime]
+          expect(columns).to_not include(['avatar_file_name', :string])
+          expect(columns).to_not include(['avatar_content_type', :string])
+          expect(columns).to_not include(['avatar_file_size', :integer])
+          expect(columns).to_not include(['avatar_updated_at', :datetime])
         end
 
-        should "display a deprecation warning" do
+        it "display a deprecation warning" do
           assert_deprecated do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
@@ -151,23 +151,23 @@ class SchemaTest < Minitest::Should::TestCase
 
       context "using #remove_attachment" do
         context "with single attachment" do
-          setup do
+          before do
             Dummy.connection.remove_attachment :dummies, :avatar
             rebuild_class
           end
 
-          should "remove the attachment columns" do
+          it "remove the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-            refute_includes columns, ['avatar_file_name', :string]
-            refute_includes columns, ['avatar_content_type', :string]
-            refute_includes columns, ['avatar_file_size', :integer]
-            refute_includes columns, ['avatar_updated_at', :datetime]
+            expect(columns).to_not include(['avatar_file_name', :string])
+            expect(columns).to_not include(['avatar_content_type', :string])
+            expect(columns).to_not include(['avatar_file_size', :integer])
+            expect(columns).to_not include(['avatar_updated_at', :datetime])
           end
         end
 
         context "with multiple attachments" do
-          setup do
+          before do
             Dummy.connection.change_table :dummies do |t|
               t.column :photo_file_name, :string
               t.column :photo_content_type, :string
@@ -179,22 +179,22 @@ class SchemaTest < Minitest::Should::TestCase
             rebuild_class
           end
 
-          should "remove the attachment columns" do
+          it "remove the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
-            refute_includes columns, ['avatar_file_name', :string]
-            refute_includes columns, ['avatar_content_type', :string]
-            refute_includes columns, ['avatar_file_size', :integer]
-            refute_includes columns, ['avatar_updated_at', :datetime]
-            refute_includes columns, ['photo_file_name', :string]
-            refute_includes columns, ['photo_content_type', :string]
-            refute_includes columns, ['photo_file_size', :integer]
-            refute_includes columns, ['photo_updated_at', :datetime]
+            expect(columns).to_not include(['avatar_file_name', :string])
+            expect(columns).to_not include(['avatar_content_type', :string])
+            expect(columns).to_not include(['avatar_file_size', :integer])
+            expect(columns).to_not include(['avatar_updated_at', :datetime])
+            expect(columns).to_not include(['photo_file_name', :string])
+            expect(columns).to_not include(['photo_content_type', :string])
+            expect(columns).to_not include(['photo_file_size', :integer])
+            expect(columns).to_not include(['photo_updated_at', :datetime])
           end
         end
 
         context "with no attachment" do
-          should "raise an error" do
+          it "raise an error" do
             assert_raises ArgumentError do
               Dummy.connection.remove_attachment :dummies
             end

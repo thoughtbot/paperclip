@@ -1,13 +1,13 @@
-require './test/helper'
+require 'spec_helper'
 
-class MetaClassTest < Minitest::Should::TestCase
+describe 'Metaclasses' do
   context "A meta-class of dummy" do
-    setup do
+    before do
       rebuild_model("Dummy")
       reset_class("Dummy")
     end
 
-    should "be able to use Paperclip like a normal class" do
+    it "be able to use Paperclip like a normal class" do
       @dummy = Dummy.new
 
       assert_nothing_raised do
@@ -15,7 +15,7 @@ class MetaClassTest < Minitest::Should::TestCase
       end
     end
 
-    should "work like any other instance" do
+    it "work like any other instance" do
       @dummy = Dummy.new
       rebuild_meta_class_of(@dummy)
 

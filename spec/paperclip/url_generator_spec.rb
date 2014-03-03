@@ -1,9 +1,8 @@
 # encoding: utf-8
-require './test/helper'
-require 'paperclip/url_generator'
+require 'spec_helper'
 
-class UrlGeneratorTest < Minitest::Should::TestCase
-  should "use the given interpolator" do
+describe Paperclip::UrlGenerator do
+  it "use the given interpolator" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -17,7 +16,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert mock_interpolator.has_interpolated_style_name?(:style_name)
   end
 
-  should "use the default URL when no file is assigned" do
+  it "use the default URL when no file is assigned" do
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new
     default_url = "the default url"
@@ -30,7 +29,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
       "expected the interpolator to be passed #{default_url.inspect} but it wasn't"
   end
 
-  should "execute the default URL lambda when no file is assigned" do
+  it "execute the default URL lambda when no file is assigned" do
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new
     default_url = lambda {|attachment| "the #{attachment.class.name} default url" }
@@ -43,7 +42,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
       %{expected the interpolator to be passed "the MockAttachment default url", but it wasn't}
   end
 
-  should "execute the method named by the symbol as the default URL when no file is assigned" do
+  it "execute the method named by the symbol as the default URL when no file is assigned" do
     mock_model = MockModel.new
     mock_attachment = MockAttachment.new(:model => mock_model)
     mock_interpolator = MockInterpolator.new
@@ -57,7 +56,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
       %{expected the interpolator to be passed #{mock_model.to_s}, but it wasn't}
   end
 
-  should "URL-escape spaces if asked to" do
+  it "URL-escape spaces if asked to" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -69,7 +68,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "the%20expected%20result", result
   end
 
-  should "escape the result of the interpolator using a method on the object, if asked to escape" do
+  it "escape the result of the interpolator using a method on the object, if asked to escape" do
     expected = Class.new do
       def escape
         "the escaped result"
@@ -85,7 +84,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "the escaped result", result
   end
 
-  should "leave spaces unescaped as asked to" do
+  it "leave spaces unescaped as asked to" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -97,7 +96,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "the expected result", result
   end
 
-  should "default to leaving spaces unescaped" do
+  it "default to leaving spaces unescaped" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -109,7 +108,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "the expected result", result
   end
 
-  should "produce URLs without the updated_at value when the object does not respond to updated_at" do
+  it "produce URLs without the updated_at value when the object does not respond to updated_at" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:responds_to_updated_at => false)
@@ -121,7 +120,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal expected, result
   end
 
-  should "produce URLs without the updated_at value when the updated_at value is nil" do
+  it "produce URLs without the updated_at value when the updated_at value is nil" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(:result => expected)
     mock_attachment = MockAttachment.new(:responds_to_updated_at => true, :updated_at => nil)
@@ -133,7 +132,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal expected, result
   end
 
-  should "produce URLs with the updated_at when it exists" do
+  it "produce URLs with the updated_at when it exists" do
     expected = "the expected result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -146,7 +145,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "#{expected}?#{updated_at}", result
   end
 
-  should "produce URLs with the updated_at when it exists, separated with a & if a ? follow by = already exists" do
+  it "produce URLs with the updated_at when it exists, separated with a & if a ? follow by = already exists" do
     expected = "the?expected=result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -159,7 +158,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal "#{expected}&#{updated_at}", result
   end
 
-  should "produce URLs without the updated_at when told to do as much" do
+  it "produce URLs without the updated_at when told to do as much" do
     expected = "the expected result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(:result => expected)
@@ -172,7 +171,7 @@ class UrlGeneratorTest < Minitest::Should::TestCase
     assert_equal expected, result
   end
 
-  should "produce the correct URL when the instance has a file name" do
+  it "produce the correct URL when the instance has a file name" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new(:original_filename => 'exists')
     mock_interpolator = MockInterpolator.new
