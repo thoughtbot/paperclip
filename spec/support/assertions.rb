@@ -31,6 +31,10 @@ module Assertions
     expect(value).to match(pattern)
   end
 
+  def assert_no_match(pattern, value)
+    expect(value).to_not match(pattern)
+  end
+
   def assert_file_exists(path_to_file)
     expect(path_to_file).to exist
   end

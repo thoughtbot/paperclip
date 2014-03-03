@@ -21,25 +21,10 @@ ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
-class FakeRails
-  def initialize(env, root)
-    @env = env
-    @root = root
-  end
+Dir[File.join(ROOT, 'spec', 'support', '**', '*.rb')].each{|f| require f }
 
-  attr_reader :env, :root
-
-  def const_defined?(const)
-    if const.to_sym == :Railtie
-      false
-    end
-  end
-end
 Rails = FakeRails.new('test', Pathname.new(ROOT).join('tmp'))
 ActiveSupport::Deprecation.silenced = true
-
-Dir[File.join(ROOT, 'spec', 'support', '**', '*.rb')].each{|f| require f }
-Dir[File.join(ROOT, 'test', 'support', '**', '*.rb')].each{|f| require f }
 
 RSpec.configure do |config|
   config.include Assertions
@@ -138,22 +123,22 @@ ensure
 end
 
 def should_accept_dummy_class
-  should "accept the class" do
-    assert_accepts @matcher, Dummy
+  it "accepts the class" do
+    expect(@matcher).to accept(Dummy)
   end
 
-  should "accept an instance of that class" do
-    assert_accepts @matcher, Dummy.new
+  it "accepts an instance of that class" do
+    expect(@matcher).to accept(Dummy.new)
   end
 end
 
 def should_reject_dummy_class
-  should "reject the class" do
-    assert_rejects @matcher, Dummy
+  it "rejects the class" do
+    expect(@matcher).to_not accept(Dummy)
   end
 
-  should "reject an instance of that class" do
-    assert_rejects @matcher, Dummy.new
+  it "rejects an instance of that class" do
+    expect(@matcher).to_not accept(Dummy.new)
   end
 end
 
