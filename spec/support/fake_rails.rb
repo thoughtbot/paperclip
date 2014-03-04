@@ -4,7 +4,7 @@ class FakeRails
     @root = root
   end
 
-  attr_reader :env, :root
+  attr_accessor :env, :root
 
   def const_defined?(const)
     if const.to_sym == :Railtie

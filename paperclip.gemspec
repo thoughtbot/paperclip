@@ -47,4 +47,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('railties')
   s.add_development_dependency('actionmailer', '>= 3.0.0')
+  s.add_development_dependency('generator_spec')
 end

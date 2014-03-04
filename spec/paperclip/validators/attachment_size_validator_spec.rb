@@ -1,7 +1,7 @@
-require './test/helper'
+require 'spec_helper'
 
-class AttachmentSizeValidatorTest < Minitest::Should::TestCase
-  def setup
+describe Paperclip::Validators::AttachmentSizeValidator do
+  before do
     rebuild_model
     @dummy = Dummy.new
   end
@@ -14,14 +14,14 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   def self.should_allow_attachment_file_size(size)
     context "when the attachment size is #{size}" do
-      should "add error to dummy object" do
+      it "add error to dummy object" do
         @dummy.stubs(:avatar_file_size).returns(size)
         @validator.validate(@dummy)
         assert @dummy.errors[:avatar_file_size].blank?,
           "Expect an error message on :avatar_file_size, got none."
       end
 
-      should "not add error to the base dummy object" do
+      it "not add error to the base dummy object" do
         assert @dummy.errors[:avatar].blank?,
           "Error added to base attribute"
       end
@@ -30,29 +30,28 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   def self.should_not_allow_attachment_file_size(size, options = {})
     context "when the attachment size is #{size}" do
-      setup do
+      before do
         @dummy.stubs(:avatar_file_size).returns(size)
         @validator.validate(@dummy)
       end
 
-      should "add error to dummy object" do
+      it "add error to dummy object" do
         assert @dummy.errors[:avatar_file_size].present?,
           "Unexpected error message on :avatar_file_size"
       end
 
-      should "add error to the base dummy object" do
+      it "add error to the base dummy object" do
         assert @dummy.errors[:avatar].present?,
           "Error not added to base attribute"
       end
 
-      should "add error to base object as a string" do
-        assert_kind_of String, @dummy.errors[:avatar].first,
-          "Error added to base attribute as something other than a String"
+      it "add error to base object as a string" do
+        expect(@dummy.errors[:avatar].first).to be_a String
       end
 
       if options[:message]
-        should "return a correct error message" do
-          assert_includes @dummy.errors[:avatar_file_size], options[:message]
+        it "return a correct error message" do
+          expect(@dummy.errors[:avatar_file_size]).to include options[:message]
         end
       end
     end
@@ -60,7 +59,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "with :in option" do
     context "as a range" do
-      setup do
+      before do
         build_validator :in => (5.kilobytes..10.kilobytes)
       end
 
@@ -70,7 +69,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "as a proc" do
-      setup do
+      before do
         build_validator :in => lambda { |avatar| (5.kilobytes..10.kilobytes) }
       end
 
@@ -82,7 +81,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "with :greater_than option" do
     context "as number" do
-      setup do
+      before do
         build_validator :greater_than => 10.kilobytes
       end
 
@@ -91,7 +90,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "as a proc" do
-      setup do
+      before do
         build_validator :greater_than => lambda { |avatar| 10.kilobytes }
       end
 
@@ -102,7 +101,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "with :less_than option" do
     context "as number" do
-      setup do
+      before do
         build_validator :less_than => 10.kilobytes
       end
 
@@ -111,7 +110,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "as a proc" do
-      setup do
+      before do
         build_validator :less_than => lambda { |avatar| 10.kilobytes }
       end
 
@@ -122,7 +121,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "with :greater_than and :less_than option" do
     context "as numbers" do
-      setup do
+      before do
         build_validator :greater_than => 5.kilobytes,
           :less_than => 10.kilobytes
       end
@@ -133,7 +132,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "as a proc" do
-      setup do
+      before do
         build_validator :greater_than => lambda { |avatar| 5.kilobytes },
           :less_than => lambda { |avatar| 10.kilobytes }
       end
@@ -146,7 +145,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "with :message option" do
     context "given a range" do
-      setup do
+      before do
         build_validator :in => (5.kilobytes..10.kilobytes),
           :message => "is invalid. (Between %{min} and %{max} please.)"
       end
@@ -156,7 +155,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "given :less_than and :greater_than" do
-      setup do
+      before do
         build_validator :less_than => 10.kilobytes,
           :greater_than => 5.kilobytes,
           :message => "is invalid. (Between %{min} and %{max} please.)"
@@ -169,7 +168,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
 
   context "default error messages" do
     context "given :less_than and :greater_than" do
-      setup do
+      before do
         build_validator :greater_than => 5.kilobytes,
           :less_than => 10.kilobytes
       end
@@ -181,7 +180,7 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
     end
 
     context "given a size range" do
-      setup do
+      before do
         build_validator :in => (5.kilobytes..10.kilobytes)
       end
 
@@ -193,29 +192,29 @@ class AttachmentSizeValidatorTest < Minitest::Should::TestCase
   end
 
   context "using the helper" do
-    setup do
+    before do
       Dummy.validates_attachment_size :avatar, :in => (5.kilobytes..10.kilobytes)
     end
 
-    should "add the validator to the class" do
+    it "add the validator to the class" do
       assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_size }
     end
   end
 
   context "given options" do
-    should "raise argument error if no required argument was given" do
+    it "raise argument error if no required argument was given" do
       assert_raises(ArgumentError) do
         build_validator :message => "Some message"
       end
     end
 
     (Paperclip::Validators::AttachmentSizeValidator::AVAILABLE_CHECKS).each do |argument|
-      should "not raise arguemnt error if #{argument} was given" do
+      it "not raise arguemnt error if #{argument} was given" do
         build_validator argument => 5.kilobytes
       end
     end
 
-    should "not raise argument error if :in was given" do
+    it "not raise argument error if :in was given" do
       build_validator :in => (5.kilobytes..10.kilobytes)
     end
   end

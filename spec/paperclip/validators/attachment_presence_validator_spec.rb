@@ -1,7 +1,7 @@
-require './test/helper'
+require 'spec_helper'
 
-class AttachmentPresenceValidatorTest < Minitest::Should::TestCase
-  def setup
+describe Paperclip::Validators::AttachmentPresenceValidator do
+  before do
     rebuild_model
     @dummy = Dummy.new
   end
@@ -13,44 +13,44 @@ class AttachmentPresenceValidatorTest < Minitest::Should::TestCase
   end
 
   context "nil attachment" do
-    setup do
+    before do
       @dummy.avatar = nil
     end
 
     context "with default options" do
-      setup do
+      before do
         build_validator
         @validator.validate(@dummy)
       end
 
-      should "add error on the attachment" do
+      it "add error on the attachment" do
         assert @dummy.errors[:avatar].present?
       end
 
-      should "not add an error on the file_name attribute" do
+      it "not add an error on the file_name attribute" do
         assert @dummy.errors[:avatar_file_name].blank?
       end
     end
 
     context "with :if option" do
       context "returning true" do
-        setup do
+        before do
           build_validator :if => true
           @validator.validate(@dummy)
         end
 
-        should "perform a validation" do
+        it "perform a validation" do
           assert @dummy.errors[:avatar].present?
         end
       end
 
       context "returning false" do
-        setup do
+        before do
           build_validator :if => false
           @validator.validate(@dummy)
         end
 
-        should "perform a validation" do
+        it "perform a validation" do
           assert @dummy.errors[:avatar].present?
         end
       end
@@ -58,27 +58,27 @@ class AttachmentPresenceValidatorTest < Minitest::Should::TestCase
   end
 
   context "with attachment" do
-    setup do
+    before do
       build_validator
       @dummy.avatar = StringIO.new('.\n')
       @validator.validate(@dummy)
     end
 
-    should "not add error on the attachment" do
+    it "not add error on the attachment" do
       assert @dummy.errors[:avatar].blank?
     end
 
-    should "not add an error on the file_name attribute" do
+    it "not add an error on the file_name attribute" do
       assert @dummy.errors[:avatar_file_name].blank?
     end
   end
 
   context "using the helper" do
-    setup do
+    before do
       Dummy.validates_attachment_presence :avatar
     end
 
-    should "add the validator to the class" do
+    it "add the validator to the class" do
       assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_presence }
     end
   end

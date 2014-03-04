@@ -1,50 +1,62 @@
 require 'spec_helper'
+require 'aws-sdk'
 
 describe Paperclip::Storage::S3 do
   def rails_env(env)
-    silence_warnings do
-      Object.const_set(:Rails, stub('Rails', :env => env))
+    stored_env, Rails.env = Rails.env, env
+    begin
+      yield
+    ensure
+      Rails.env = stored_env
     end
+  end
+
+  before do
+    AWS.stub!
   end
 
   context "Parsing S3 credentials" do
     before do
       @proxy_settings = {:host => "127.0.0.1", :port => 8888, :user => "foo", :password => "bar"}
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :http_proxy => @proxy_settings,
-                    :s3_credentials => {:not => :important}
+        :bucket => "testing",
+        :http_proxy => @proxy_settings,
+        :s3_credentials => {:not => :important}
 
       @dummy = Dummy.new
       @avatar = @dummy.avatar
     end
 
     it "get the correct credentials when RAILS_ENV is production" do
-      rails_env("production")
-      assert_equal({:key => "12345"},
-                   @avatar.parse_credentials('production' => {:key => '12345'},
-                                             :development => {:key => "54321"}))
+      rails_env("production") do
+        assert_equal({:key => "12345"},
+                     @avatar.parse_credentials('production' => {:key => '12345'},
+                                               :development => {:key => "54321"}))
+      end
     end
 
     it "get the correct credentials when RAILS_ENV is development" do
-      rails_env("development")
-      assert_equal({:key => "54321"},
-                   @avatar.parse_credentials('production' => {:key => '12345'},
-                                             :development => {:key => "54321"}))
+      rails_env("development") do
+        assert_equal({:key => "54321"},
+                     @avatar.parse_credentials('production' => {:key => '12345'},
+                                               :development => {:key => "54321"}))
+      end
     end
 
     it "return the argument if the key does not exist" do
-      rails_env("not really an env")
-      assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
+      rails_env("not really an env") do
+        assert_equal({:test => "12345"}, @avatar.parse_credentials(:test => "12345"))
+      end
     end
 
     it "support HTTP proxy settings" do
-      rails_env("development")
-      assert_equal(true, @avatar.using_http_proxy?)
-      assert_equal(@proxy_settings[:host], @avatar.http_proxy_host)
-      assert_equal(@proxy_settings[:port], @avatar.http_proxy_port)
-      assert_equal(@proxy_settings[:user], @avatar.http_proxy_user)
-      assert_equal(@proxy_settings[:password], @avatar.http_proxy_password)
+      rails_env("development") do
+        assert_equal(true, @avatar.using_http_proxy?)
+        assert_equal(@proxy_settings[:host], @avatar.http_proxy_host)
+        assert_equal(@proxy_settings[:port], @avatar.http_proxy_port)
+        assert_equal(@proxy_settings[:user], @avatar.http_proxy_user)
+        assert_equal(@proxy_settings[:password], @avatar.http_proxy_password)
+      end
     end
 
   end
@@ -79,8 +91,8 @@ describe Paperclip::Storage::S3 do
 
     before do
       rebuild_model :storage => :s3,
-                    :http_proxy => @proxy_settings,
-                    :s3_credentials => {:not => :important}
+        :http_proxy => @proxy_settings,
+        :s3_credentials => {:not => :important}
 
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
@@ -96,10 +108,10 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_path_url"
+        :s3_credentials => {},
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :url => ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -136,10 +148,10 @@ describe Paperclip::Storage::S3 do
   context ":s3_protocol => 'https'" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => 'https',
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+        :s3_credentials => {},
+        :s3_protocol => 'https',
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -152,10 +164,10 @@ describe Paperclip::Storage::S3 do
   context ":s3_protocol => :https" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => :https,
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+        :s3_credentials => {},
+        :s3_protocol => :https,
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -168,10 +180,10 @@ describe Paperclip::Storage::S3 do
   context ":s3_protocol => ''" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :s3_protocol => '',
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension"
+        :s3_credentials => {},
+        :s3_protocol => '',
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -184,19 +196,19 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has the style in the path" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :styles => {
-                       :thumb => "80x80>"
-                    },
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    }
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :styles => {
+          :thumb => "80x80>"
+        },
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        }
 
-      @dummy = Dummy.new
-      @dummy.avatar = stringy_file
-      @avatar = @dummy.avatar
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+        @avatar = @dummy.avatar
     end
 
     it "use an S3 object based on the correct path for the default style" do
@@ -211,10 +223,10 @@ describe Paperclip::Storage::S3 do
   context "s3_host_name" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_host_name => "s3-ap-northeast-1.amazonaws.com"
+        :s3_credentials => {},
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :s3_host_name => "s3-ap-northeast-1.amazonaws.com"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -231,10 +243,10 @@ describe Paperclip::Storage::S3 do
   context "dynamic s3_host_name" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_host_name => lambda {|a| a.instance.value }
+        :s3_credentials => {},
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :s3_host_name => lambda {|a| a.instance.value }
       @dummy = Dummy.new
       class << @dummy
         attr_accessor :value
@@ -251,18 +263,18 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     before do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    }
+        :storage => :s3,
+        :bucket  => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        }
 
-      File.open(fixture_file('5k.png'), 'rb') do |file|
-        @dummy = Dummy.new
-        @dummy.avatar = file
-      end
+        File.open(fixture_file('5k.png'), 'rb') do |file|
+          @dummy = Dummy.new
+          @dummy.avatar = file
+        end
     end
 
     it "return a url containing the correct original file mime type" do
@@ -285,33 +297,33 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has a proc for styles" do
     before do
       rebuild_model :styles  => lambda { |attachment| attachment.instance.counter; {:thumbnail => { :geometry => "50x50#", :s3_headers => {'Cache-Control' => 'max-age=31557600'}} }},
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    }
+        :storage => :s3,
+        :bucket  => "bucket",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        }
 
-      @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file('5k.png'), 'rb')
 
-      Dummy.class_eval do
-        def counter
-          @counter ||= 0
-          @counter += 1
-          @counter
+        Dummy.class_eval do
+          def counter
+            @counter ||= 0
+            @counter += 1
+            @counter
+          end
         end
-      end
 
-      @dummy = Dummy.new
-      @dummy.avatar = @file
+        @dummy = Dummy.new
+        @dummy.avatar = @file
 
-      object = stub
-      @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
-      @dummy.avatar.stubs(:s3_object).with(:thumbnail).returns(object)
-      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read)
-      object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read, :cache_control => 'max-age=31557600')
-      @dummy.save
+        object = stub
+        @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
+        @dummy.avatar.stubs(:s3_object).with(:thumbnail).returns(object)
+        object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read)
+        object.expects(:write).with(anything, :content_type => 'image/png', :acl => :public_read, :cache_control => 'max-age=31557600')
+        @dummy.save
     end
 
     after { @file.close }
@@ -324,17 +336,17 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has spaces in file name" do
     before do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    }
+        :storage => :s3,
+        :bucket  => "bucket",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        }
 
-      File.open(fixture_file('spaced file.png'), 'rb') do |file|
-        @dummy = Dummy.new
-        @dummy.avatar = file
-      end
+        File.open(fixture_file('spaced file.png'), 'rb') do |file|
+          @dummy = Dummy.new
+          @dummy.avatar = file
+        end
     end
 
     it "return a replaced version for path" do
@@ -349,23 +361,23 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has a question mark in file name" do
     before do
       rebuild_model :styles  => { :large => ['500x500#', :jpg] },
-                    :storage => :s3,
-                    :bucket  => "bucket",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    }
+        :storage => :s3,
+        :bucket  => "bucket",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        }
 
-      stringio = stringy_file
-      class << stringio
-        def original_filename
-          "question?mark.png"
+        stringio = stringy_file
+        class << stringio
+          def original_filename
+            "question?mark.png"
+          end
         end
-      end
-      file = Paperclip.io_adapters.for(stringio)
-      @dummy = Dummy.new
-      @dummy.avatar = file
-      @dummy.save
+        file = Paperclip.io_adapters.for(stringio)
+        @dummy = Dummy.new
+        @dummy.avatar = file
+        @dummy.save
     end
 
     it "return a replaced version for path" do
@@ -380,10 +392,10 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_domain_url"
+        :s3_credentials => {},
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :url => ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -396,13 +408,13 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
-                    },
-                    :s3_host_alias => "something.something.com",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_alias_url"
+        :s3_credentials => {
+        :production   => { :bucket => "prod_bucket" },
+        :development  => { :bucket => "dev_bucket" }
+      },
+      :s3_host_alias => "something.something.com",
+      :path => ":attachment/:basename.:extension",
+      :url => ":s3_alias_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -415,10 +427,10 @@ describe Paperclip::Storage::S3 do
   context "generating a url with a proc as the host alias" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => { :bucket => "prod_bucket" },
-                    :s3_host_alias => Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":s3_alias_url"
+        :s3_credentials => { :bucket => "prod_bucket" },
+        :s3_host_alias => Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
+        :path => ":attachment/:basename.:extension",
+        :url => ":s3_alias_url"
       Dummy.class_eval do
         def counter
           @counter ||= 0
@@ -444,10 +456,10 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {},
-                    :bucket => "bucket",
-                    :path => ":attachment/:basename.:extension",
-                    :url => ":asset_host"
+        :s3_credentials => {},
+        :bucket => "bucket",
+        :path => ":attachment/:basename.:extension",
+        :url => ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
@@ -480,53 +492,53 @@ describe Paperclip::Storage::S3 do
     it "use default options" do
       @build_model_with_options[{}]
 
-      rails_env("production")
+      rails_env("production") do
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
 
-      @dummy = Dummy.new
-      @dummy.avatar = stringy_file
+        object = stub
+        @dummy.avatar.stubs(:s3_object).returns(object)
+        object.expects(:url_for).with(:read, :expires => 3600, :secure => true)
 
-      object = stub
-      @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true)
-
-      @dummy.avatar.expiring_url
+        @dummy.avatar.expiring_url
+      end
     end
 
     it "allow overriding s3_url_options" do
       @build_model_with_options[:s3_url_options => { :response_content_disposition => "inline" }]
 
-      rails_env("production")
+      rails_env("production") do
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
 
-      @dummy = Dummy.new
-      @dummy.avatar = stringy_file
+        object = stub
+        @dummy.avatar.stubs(:s3_object).returns(object)
+        object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_disposition => "inline")
 
-      object = stub
-      @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_disposition => "inline")
-
-      @dummy.avatar.expiring_url
+        @dummy.avatar.expiring_url
+      end
     end
 
     it "allow overriding s3_object options with a proc" do
       @build_model_with_options[:s3_url_options => lambda {|attachment| { :response_content_type => attachment.avatar_content_type } }]
 
-      rails_env("production")
+      rails_env("production") do
+        @dummy = Dummy.new
 
-      @dummy = Dummy.new
+        @file = stringy_file
+        @file.stubs(:original_filename).returns("5k.png\n\n")
+        Paperclip.stubs(:run).returns('image/png')
+        @file.stubs(:content_type).returns("image/png\n\n")
+        @file.stubs(:to_tempfile).returns(@file)
 
-      @file = stringy_file
-      @file.stubs(:original_filename).returns("5k.png\n\n")
-      Paperclip.stubs(:run).returns('image/png')
-      @file.stubs(:content_type).returns("image/png\n\n")
-      @file.stubs(:to_tempfile).returns(@file)
+        @dummy.avatar = @file
 
-      @dummy.avatar = @file
+        object = stub
+        @dummy.avatar.stubs(:s3_object).returns(object)
+        object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_type => "image/png")
 
-      object = stub
-      @dummy.avatar.stubs(:s3_object).returns(object)
-      object.expects(:url_for).with(:read, :expires => 3600, :secure => true, :response_content_type => "image/png")
-
-      @dummy.avatar.expiring_url
+        @dummy.avatar.expiring_url
+      end
     end
   end
 
@@ -553,19 +565,19 @@ describe Paperclip::Storage::S3 do
   context "Generating a url with an expiration for each style" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
-                    },
-                    :s3_permissions => :private,
-                    :s3_host_alias => "something.something.com",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :url => ":s3_alias_url"
+        :s3_credentials => {
+        :production   => { :bucket => "prod_bucket" },
+        :development  => { :bucket => "dev_bucket" }
+      },
+      :s3_permissions => :private,
+      :s3_host_alias => "something.something.com",
+      :path => ":attachment/:style/:basename.:extension",
+      :url => ":s3_alias_url"
 
-      rails_env("production")
-
-      @dummy = Dummy.new
-      @dummy.avatar = stringy_file
+      rails_env("production") do
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+      end
     end
 
     it "should generate a url for the thumb" do
@@ -586,65 +598,70 @@ describe Paperclip::Storage::S3 do
   context "Parsing S3 credentials with a bucket in them" do
     before do
       rebuild_model :storage => :s3,
-                    :s3_credentials => {
-                      :production   => { :bucket => "prod_bucket" },
-                      :development  => { :bucket => "dev_bucket" }
-                    }
-      @dummy = Dummy.new
+        :s3_credentials => {
+        :production   => { :bucket => "prod_bucket" },
+        :development  => { :bucket => "dev_bucket" }
+      }
+        @dummy = Dummy.new
     end
 
     it "get the right bucket in production" do
-      rails_env("production")
-      assert_equal "prod_bucket", @dummy.avatar.bucket_name
-      assert_equal "prod_bucket", @dummy.avatar.s3_bucket.name
+      rails_env("production") do
+        assert_equal "prod_bucket", @dummy.avatar.bucket_name
+        assert_equal "prod_bucket", @dummy.avatar.s3_bucket.name
+      end
     end
 
     it "get the right bucket in development" do
-      rails_env("development")
-      assert_equal "dev_bucket", @dummy.avatar.bucket_name
-      assert_equal "dev_bucket", @dummy.avatar.s3_bucket.name
+      rails_env("development") do
+        assert_equal "dev_bucket", @dummy.avatar.bucket_name
+        assert_equal "dev_bucket", @dummy.avatar.s3_bucket.name
+      end
     end
   end
 
   context "Parsing S3 credentials with a s3_host_name in them" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => 'testing',
-                    :s3_credentials => {
-                      :production   => { :s3_host_name => "s3-world-end.amazonaws.com" },
-                      :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }
-                    }
-      @dummy = Dummy.new
+        :bucket => 'testing',
+        :s3_credentials => {
+          :production   => { :s3_host_name => "s3-world-end.amazonaws.com" },
+          :development  => { :s3_host_name => "s3-ap-northeast-1.amazonaws.com" }
+        }
+        @dummy = Dummy.new
     end
 
     it "get the right s3_host_name in production" do
-      rails_env("production")
-      assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
-      assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      rails_env("production") do
+        assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
+        assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      end
     end
 
     it "get the right s3_host_name in development" do
-      rails_env("development")
-      assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
-      assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      rails_env("development") do
+        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
+        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      end
     end
 
     it "get the right s3_host_name if the key does not exist" do
-      rails_env("test")
-      assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
-      assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      rails_env("test") do
+        assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
+        assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
+      end
     end
   end
 
   context "An attachment with S3 storage" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      :aws_access_key_id => "12345",
-                      :aws_secret_access_key => "54321"
-                    }
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          :aws_access_key_id => "12345",
+          :aws_secret_access_key => "54321"
+        }
     end
 
     it "be extended by the S3 module" do
@@ -670,12 +687,12 @@ describe Paperclip::Storage::S3 do
         assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
-      it "be rewinded after flush_writes" do
+      it "be rewound after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
 
         files = @dummy.avatar.queued_for_write.values.each(&:read)
         @dummy.save
-        assert files.none?(&:eof?), "Expect all the files to be rewinded."
+        assert files.none?(&:eof?), "Expect all the files to be rewound."
       end
 
       it "be removed after after_flush_writes" do
@@ -707,7 +724,7 @@ describe Paperclip::Storage::S3 do
             raises(AWS::S3::Errors::NoSuchBucket.new(stub,
                                                      stub(:status => 404,
                                                           :body => "<foo/>"))).
-            then.returns(nil)
+                                                          then.returns(nil)
           @dummy.save
         end
 
@@ -743,8 +760,8 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and bucket defined as a Proc" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => lambda { |attachment| "bucket_#{attachment.instance.other}" },
-                    :s3_credentials => {:not => :important}
+        :bucket => lambda { |attachment| "bucket_#{attachment.instance.other}" },
+        :s3_credentials => {:not => :important}
     end
 
     it "get the right bucket name" do
@@ -758,10 +775,10 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and S3 credentials defined as a Proc" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => {:not => :important},
-                    :s3_credentials => lambda { |attachment|
-                      Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
-                    }
+        :bucket => {:not => :important},
+        :s3_credentials => lambda { |attachment|
+          Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
+        }
     end
 
     it "get the right credentials" do
@@ -775,11 +792,11 @@ describe Paperclip::Storage::S3 do
       class DummyCredentialProvider; end
 
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :s3_credentials => {
-                      :credential_provider => DummyCredentialProvider.new
-                    }
-      @dummy = Dummy.new
+        :bucket => "testing",
+        :s3_credentials => {
+          :credential_provider => DummyCredentialProvider.new
+        }
+        @dummy = Dummy.new
     end
 
     it "set the credential-provider" do
@@ -814,13 +831,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and specific s3 headers set" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_headers => {'Cache-Control' => 'max-age=31557600'}
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_headers => {'Cache-Control' => 'max-age=31557600'}
     end
 
     context "when assigned" do
@@ -853,13 +870,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and metadata set using header names" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_headers => {'x-amz-meta-color' => 'red'}
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_headers => {'x-amz-meta-color' => 'red'}
     end
 
     context "when assigned" do
@@ -892,13 +909,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and metadata set using the :s3_metadata option" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_metadata => { "color" => "red" }
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_metadata => { "color" => "red" }
     end
 
     context "when assigned" do
@@ -931,13 +948,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and storage class set using the header name" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_headers => { "x-amz-storage-class" => "reduced_redundancy" }
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_headers => { "x-amz-storage-class" => "reduced_redundancy" }
     end
 
     context "when assigned" do
@@ -977,7 +994,7 @@ describe Paperclip::Storage::S3 do
           :s3_credentials            => {
             'access_key_id'          => "12345",
             'secret_access_key'      => "54321"},
-          :s3_server_side_encryption => tech)
+            :s3_server_side_encryption => tech)
       end
 
       context "when assigned" do
@@ -994,8 +1011,8 @@ describe Paperclip::Storage::S3 do
             object = stub
             @dummy.avatar.stubs(:s3_object).returns(object)
             object.expects(:write).with(anything,
-              :content_type => "image/png",
-              :acl => :public_read)
+                                        :content_type => "image/png",
+                                        :acl => :public_read)
             @dummy.save
           end
 
@@ -1010,13 +1027,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and using AES256 encryption" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_server_side_encryption => :aes256
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_server_side_encryption => :aes256
     end
 
     context "when assigned" do
@@ -1049,13 +1066,13 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and storage class set using the :storage_class option" do
     before do
       rebuild_model :storage => :s3,
-                    :bucket => "testing",
-                    :path => ":attachment/:style/:basename.:extension",
-                    :s3_credentials => {
-                      'access_key_id' => "12345",
-                      'secret_access_key' => "54321"
-                    },
-                    :s3_storage_class => :reduced_redundancy
+        :bucket => "testing",
+        :path => ":attachment/:style/:basename.:extension",
+        :s3_credentials => {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        :s3_storage_class => :reduced_redundancy
     end
 
     context "when assigned" do
@@ -1091,13 +1108,13 @@ describe Paperclip::Storage::S3 do
       ENV['S3_BUCKET'] = 'pathname_bucket'
       ENV['S3_SECRET'] = 'pathname_secret'
 
-      rails_env('test')
+      rails_env('test') do
+        rebuild_model :storage        => :s3,
+          :s3_credentials => Pathname.new(fixture_file('s3.yml'))
 
-      rebuild_model :storage        => :s3,
-                    :s3_credentials => Pathname.new(fixture_file('s3.yml'))
-
-      Dummy.delete_all
-      @dummy = Dummy.new
+        Dummy.delete_all
+        @dummy = Dummy.new
+      end
     end
 
     it "parse the credentials" do
@@ -1113,14 +1130,14 @@ describe Paperclip::Storage::S3 do
       ENV['S3_BUCKET'] = 'env_bucket'
       ENV['S3_SECRET'] = 'env_secret'
 
-      rails_env('test')
+      rails_env('test') do
+        rebuild_model :storage        => :s3,
+          :s3_credentials => File.new(fixture_file('s3.yml'))
 
-      rebuild_model :storage        => :s3,
-                    :s3_credentials => File.new(fixture_file('s3.yml'))
+        Dummy.delete_all
 
-      Dummy.delete_all
-
-      @dummy = Dummy.new
+        @dummy = Dummy.new
+      end
     end
 
     it "run the file through ERB" do
@@ -1134,12 +1151,12 @@ describe Paperclip::Storage::S3 do
     context "defaults to :public_read" do
       before do
         rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :s3_credentials => {
-                        'access_key_id' => "12345",
-                        'secret_access_key' => "54321"
-                      }
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          }
       end
 
       context "when assigned" do
@@ -1171,13 +1188,13 @@ describe Paperclip::Storage::S3 do
     context "string permissions set" do
       before do
         rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :s3_credentials => {
-                        'access_key_id' => "12345",
-                        'secret_access_key' => "54321"
-                      },
-                      :s3_permissions => :private
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          :s3_permissions => :private
       end
 
       context "when assigned" do
@@ -1209,19 +1226,19 @@ describe Paperclip::Storage::S3 do
     context "hash permissions set" do
       before do
         rebuild_model :storage => :s3,
-                      :bucket => "testing",
-                      :path => ":attachment/:style/:basename.:extension",
-                      :styles => {
-                         :thumb => "80x80>"
-                      },
-                      :s3_credentials => {
-                        'access_key_id' => "12345",
-                        'secret_access_key' => "54321"
-                      },
-                      :s3_permissions => {
-                        :original => :private,
-                        :thumb => :public_read
-                      }
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :styles => {
+            :thumb => "80x80>"
+          },
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          :s3_permissions => {
+            :original => :private,
+            :thumb => :public_read
+          }
       end
 
       context "when assigned" do
@@ -1259,7 +1276,7 @@ describe Paperclip::Storage::S3 do
           :bucket => "testing",
           :path => ":attachment/:style/:basename.:extension",
           :styles => {
-             :thumb => "80x80>"
+            :thumb => "80x80>"
           },
           :s3_credentials => {
             'access_key_id' => "12345",

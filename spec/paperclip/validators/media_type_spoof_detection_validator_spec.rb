@@ -1,7 +1,7 @@
-require './test/helper'
+require 'spec_helper'
 
-class MediaTypeSpoofDetectionValidatorTest < Minitest::Should::TestCase
-  def setup
+describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
+  before do
     rebuild_model
     @dummy = Dummy.new
   end
@@ -12,11 +12,11 @@ class MediaTypeSpoofDetectionValidatorTest < Minitest::Should::TestCase
     ))
   end
 
-  should "be on the attachment without being explicitly added" do
+  it "be on the attachment without being explicitly added" do
     assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :media_type_spoof_detection }
   end
 
-  should "return default error message for spoofed media type" do
+  it "return default error message for spoofed media type" do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
@@ -28,7 +28,7 @@ class MediaTypeSpoofDetectionValidatorTest < Minitest::Should::TestCase
     assert_equal "has an extension that does not match its contents", @dummy.errors[:avatar].first
   end
 
-  should "run when attachment is dirty" do
+  it "run when attachment is dirty" do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
@@ -39,7 +39,7 @@ class MediaTypeSpoofDetectionValidatorTest < Minitest::Should::TestCase
     assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.once }
   end
 
-  should "not run when attachment is not dirty" do
+  it "not run when attachment is not dirty" do
     Paperclip::MediaTypeSpoofDetector.stubs(:using).never
     @dummy.valid?
     assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }
