@@ -71,7 +71,7 @@ module Paperclip
     # Arguments other than the standard geometry, format etc are just passed through from
     # initialization and any procs are called here, just before post-processing.
     def processor_options
-      args = {}
+      args = {:style => name}
       @other_args.each do |k,v|
         args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end

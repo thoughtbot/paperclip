@@ -31,6 +31,10 @@ class StyleTest < Test::Unit::TestCase
       assert_equal [:thumbnail], @style[:processors]
       assert_equal "100x100#", @style[:geometry]
     end
+
+    should "return the name of the style in processor options" do
+      assert_equal :foo, @style.processor_options[:style]
+    end
   end
 
   context "A style rule with properties supplied as procs" do
@@ -67,6 +71,7 @@ class StyleTest < Test::Unit::TestCase
       @attachment = attachment :path => ":basename.:extension",
                                :styles => styles
     end
+
     should "have the right number of styles" do
       assert_kind_of Hash, @attachment.styles
       assert_equal 3, @attachment.styles.size
