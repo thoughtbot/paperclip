@@ -18,11 +18,11 @@ Feature: Rails integration
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
-    And I attach the file "test/fixtures/5k.png" to "Attachment"
+    And I attach the file "spec/fixtures/5k.png" to "Attachment"
     And I press "Submit"
     Then I should see "Name: something"
     And I should see an image with a path of "/paperclip/custom/attachments/original/5k.png"
-    And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
+    And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "spec/fixtures/5k.png"
 
   Scenario: Filesystem integration test
     Given I attach :attachment with:
@@ -32,11 +32,11 @@ Feature: Rails integration
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
-    And I attach the file "test/fixtures/5k.png" to "Attachment"
+    And I attach the file "spec/fixtures/5k.png" to "Attachment"
     And I press "Submit"
     Then I should see "Name: something"
     And I should see an image with a path of "/system/attachments/original/5k.png"
-    And the file at "/system/attachments/original/5k.png" should be the same as "test/fixtures/5k.png"
+    And the file at "/system/attachments/original/5k.png" should be the same as "spec/fixtures/5k.png"
 
   Scenario: S3 Integration test
     Given I attach :attachment with:
@@ -55,7 +55,7 @@ Feature: Rails integration
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
-    And I attach the file "test/fixtures/5k.png" to "Attachment" on S3
+    And I attach the file "spec/fixtures/5k.png" to "Attachment" on S3
     And I press "Submit"
     Then I should see "Name: something"
     And I should see an image with a path of "http://s3.amazonaws.com/paperclip/attachments/original/5k.png"
