@@ -71,9 +71,7 @@ module Paperclip
       end
 
       def human_size(size)
-        storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
-        unit = I18n.translate(:'number.human.storage_units.units.byte', :locale => options[:locale], :count => size.to_i, :raise => true)
-        storage_units_format.gsub(/%n/, size.to_i.to_s).gsub(/%u/, unit).html_safe
+        ActiveSupport::NumberHelper.number_to_human_size(size)
       end
 
       def min_value_in_human_size(record)
