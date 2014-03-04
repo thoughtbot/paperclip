@@ -8,7 +8,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
 
   def build_validator(options={})
     @validator = Paperclip::Validators::AttachmentPresenceValidator.new(options.merge(
-      :attributes => :avatar
+      attributes: :avatar
     ))
   end
 
@@ -35,7 +35,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
     context "with :if option" do
       context "returning true" do
         before do
-          build_validator :if => true
+          build_validator if: true
           @validator.validate(@dummy)
         end
 
@@ -46,7 +46,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
 
       context "returning false" do
         before do
-          build_validator :if => false
+          build_validator if: false
           @validator.validate(@dummy)
         end
 

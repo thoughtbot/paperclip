@@ -61,7 +61,7 @@ describe Paperclip do
   context "Calling Paperclip.run with a logger" do
     it "pass the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
-      Cocaine::CommandLine.expects(:new).with("convert", "stuff", :logger => Paperclip.logger).returns(stub(:run))
+      Cocaine::CommandLine.expects(:new).with("convert", "stuff", logger: Paperclip.logger).returns(stub(:run))
       Paperclip.run("convert", "stuff")
     end
   end
@@ -69,9 +69,9 @@ describe Paperclip do
   context "Paperclip.each_instance_with_attachment" do
     before do
       @file = File.new(fixture_file("5k.png"), 'rb')
-      d1 = Dummy.create(:avatar => @file)
+      d1 = Dummy.create(avatar: @file)
       d2 = Dummy.create
-      d3 = Dummy.create(:avatar => @file)
+      d3 = Dummy.create(avatar: @file)
       @expected = [d1, d3]
     end
 
@@ -109,7 +109,7 @@ describe Paperclip do
 
   context "An ActiveRecord model with an 'avatar' attachment" do
     before do
-      rebuild_model :path => "tmp/:class/omg/:style.:extension"
+      rebuild_model path: "tmp/:class/omg/:style.:extension"
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
@@ -133,8 +133,8 @@ describe Paperclip do
         end
 
         it "not assign the avatar on mass-set" do
-          @dummy.attributes = { :other => "I'm set!",
-                                :avatar => @file }
+          @dummy.attributes = { other: "I'm set!",
+                                avatar: @file }
 
           assert_equal "I'm set!", @dummy.other
           assert ! @dummy.avatar?
@@ -157,7 +157,7 @@ describe Paperclip do
 
       it "be able to use the attachment from the subclass" do
         assert_nothing_raised do
-          @subdummy = SubDummy.create(:avatar => @file)
+          @subdummy = SubDummy.create(avatar: @file)
         end
       end
 

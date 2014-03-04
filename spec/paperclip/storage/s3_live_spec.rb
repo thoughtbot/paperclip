@@ -4,13 +4,13 @@ unless ENV["S3_BUCKET"].blank?
   describe Paperclip::Storage::S3, 'Live S3' do
     context "when assigning an S3 attachment directly to another model" do
       before do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => {
-                        :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-                        :aws_secre_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: {
+                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         @file = File.new(fixture_file("5k.png"))
@@ -41,13 +41,13 @@ unless ENV["S3_BUCKET"].blank?
 
     context "Generating an expiring url on a nonexistant attachment" do
       before do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => {
-                        :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-                        :aws_secre_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: {
+                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         @dummy = Dummy.new
@@ -60,13 +60,13 @@ unless ENV["S3_BUCKET"].blank?
 
     context "Using S3 for real, an attachment with S3 storage" do
       before do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => {
-                        :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-                        :aws_secre_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: {
+                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         Dummy.delete_all
@@ -102,12 +102,12 @@ unless ENV["S3_BUCKET"].blank?
 
     context "An attachment that uses S3 for storage and has spaces in file name" do
       before do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-          :storage => :s3,
-          :bucket => ENV["S3_BUCKET"],
-          :s3_credentials => {
-            :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-            :aws_secre_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+          storage: :s3,
+          bucket: ENV["S3_BUCKET"],
+          s3_credentials: {
+            aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+            aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
           }
 
         Dummy.delete_all
@@ -142,15 +142,15 @@ unless ENV["S3_BUCKET"].blank?
 
     context "An attachment that uses S3 for storage and uses AES256 encryption" do
       before do
-        rebuild_model :styles => { :thumb => "100x100", :square => "32x32#" },
-                      :storage => :s3,
-                      :bucket => ENV["S3_BUCKET"],
-                      :path => ":class/:attachment/:id/:style.:extension",
-                      :s3_credentials => {
-                        :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
-                        :aws_secre_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+        rebuild_model styles: { thumb: "100x100", square: "32x32#" },
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      path: ":class/:attachment/:id/:style.:extension",
+                      s3_credentials: {
+                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       },
-                      :s3_server_side_encryption => :aes256
+                      s3_server_side_encryption: :aes256
 
         Dummy.delete_all
         @dummy = Dummy.new

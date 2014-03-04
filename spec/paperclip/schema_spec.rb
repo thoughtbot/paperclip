@@ -19,7 +19,7 @@ describe Paperclip::Schema do
         ActiveSupport::Deprecation.silenced = false
       end
       it "create attachment columns" do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           ActiveSupport::Deprecation.silence do
             t.has_attached_file :avatar
           end
@@ -35,7 +35,7 @@ describe Paperclip::Schema do
       end
 
       it "display deprecation warning" do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           assert_deprecated do
             t.has_attached_file :avatar
           end
@@ -45,7 +45,7 @@ describe Paperclip::Schema do
 
     context "using #attachment" do
       before do
-        Dummy.connection.create_table :dummies, :force => true do |t|
+        Dummy.connection.create_table :dummies, force: true do |t|
           t.attachment :avatar
         end
         rebuild_class
@@ -64,7 +64,7 @@ describe Paperclip::Schema do
 
   context "within schema statement" do
     before do
-      Dummy.connection.create_table :dummies, :force => true
+      Dummy.connection.create_table :dummies, force: true
     end
 
     context "migrating up" do

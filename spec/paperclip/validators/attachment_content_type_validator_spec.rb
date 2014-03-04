@@ -8,14 +8,14 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
   def build_validator(options)
     @validator = Paperclip::Validators::AttachmentContentTypeValidator.new(options.merge(
-      :attributes => :avatar
+      attributes: :avatar
     ))
   end
 
   context "with a nil content type" do
     before do
-      build_validator :content_type => "image/jpg"
-      @dummy.stubs(:avatar_content_type => nil)
+      build_validator content_type: "image/jpg"
+      @dummy.stubs(avatar_content_type: nil)
       @validator.validate(@dummy)
     end
 
@@ -27,8 +27,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "with :allow_nil option" do
     context "as true" do
       before do
-        build_validator :content_type => "image/png", :allow_nil => true
-        @dummy.stubs(:avatar_content_type => nil)
+        build_validator content_type: "image/png", allow_nil: true
+        @dummy.stubs(avatar_content_type: nil)
         @validator.validate(@dummy)
       end
 
@@ -39,8 +39,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
     context "as false" do
       before do
-        build_validator :content_type => "image/png", :allow_nil => false
-        @dummy.stubs(:avatar_content_type => nil)
+        build_validator content_type: "image/png", allow_nil: false
+        @dummy.stubs(avatar_content_type: nil)
         @validator.validate(@dummy)
       end
 
@@ -52,8 +52,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
   context "with a failing validation" do
     before do
-      build_validator :content_type => "image/png", :allow_nil => false
-      @dummy.stubs(:avatar_content_type => nil)
+      build_validator content_type: "image/png", allow_nil: false
+      @dummy.stubs(avatar_content_type: nil)
       @validator.validate(@dummy)
     end
 
@@ -69,8 +69,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
   context "with a successful validation" do
     before do
-      build_validator :content_type => "image/png", :allow_nil => false
-      @dummy.stubs(:avatar_content_type => "image/png")
+      build_validator content_type: "image/png", allow_nil: false
+      @dummy.stubs(avatar_content_type: "image/png")
       @validator.validate(@dummy)
     end
 
@@ -83,8 +83,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "with :allow_blank option" do
     context "as true" do
       before do
-        build_validator :content_type => "image/png", :allow_blank => true
-        @dummy.stubs(:avatar_content_type => "")
+        build_validator content_type: "image/png", allow_blank: true
+        @dummy.stubs(avatar_content_type: "")
         @validator.validate(@dummy)
       end
 
@@ -95,8 +95,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
     context "as false" do
       before do
-        build_validator :content_type => "image/png", :allow_blank => false
-        @dummy.stubs(:avatar_content_type => "")
+        build_validator content_type: "image/png", allow_blank: false
+        @dummy.stubs(avatar_content_type: "")
         @validator.validate(@dummy)
       end
 
@@ -110,8 +110,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "with an allowed type" do
       context "as a string" do
         before do
-          build_validator :content_type => "image/jpg"
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator content_type: "image/jpg"
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -122,8 +122,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as an regexp" do
         before do
-          build_validator :content_type => /^image\/.*/
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator content_type: /^image\/.*/
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -134,8 +134,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as a list" do
         before do
-          build_validator :content_type => ["image/png", "image/jpg", "image/jpeg"]
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator content_type: ["image/png", "image/jpg", "image/jpeg"]
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -148,8 +148,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "with a disallowed type" do
       context "as a string" do
         before do
-          build_validator :content_type => "image/png"
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator content_type: "image/png"
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -161,8 +161,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as a regexp" do
         before do
-          build_validator :content_type => /^text\/.*/
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator content_type: /^text\/.*/
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -175,8 +175,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "with :message option" do
         context "without interpolation" do
           before do
-            build_validator :content_type => "image/png", :message => "should be a PNG image"
-            @dummy.stubs(:avatar_content_type => "image/jpg")
+            build_validator content_type: "image/png", message: "should be a PNG image"
+            @dummy.stubs(avatar_content_type: "image/jpg")
             @validator.validate(@dummy)
           end
 
@@ -187,8 +187,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
         context "with interpolation" do
           before do
-            build_validator :content_type => "image/png", :message => "should have content type %{types}"
-            @dummy.stubs(:avatar_content_type => "image/jpg")
+            build_validator content_type: "image/png", message: "should have content type %{types}"
+            @dummy.stubs(avatar_content_type: "image/jpg")
             @validator.validate(@dummy)
           end
 
@@ -204,8 +204,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "with an allowed type" do
       context "as a string" do
         before do
-          build_validator :not => "image/gif"
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator not: "image/gif"
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -216,8 +216,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as an regexp" do
         before do
-          build_validator :not => /^text\/.*/
-          @dummy.stubs(:avatar_content_type => "image/jpg")
+          build_validator not: /^text\/.*/
+          @dummy.stubs(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -228,8 +228,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as a list" do
         before do
-          build_validator :not => ["image/png", "image/jpg", "image/jpeg"]
-          @dummy.stubs(:avatar_content_type => "image/gif")
+          build_validator not: ["image/png", "image/jpg", "image/jpeg"]
+          @dummy.stubs(avatar_content_type: "image/gif")
           @validator.validate(@dummy)
         end
 
@@ -242,8 +242,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "with a disallowed type" do
       context "as a string" do
         before do
-          build_validator :not => "image/png"
-          @dummy.stubs(:avatar_content_type => "image/png")
+          build_validator not: "image/png"
+          @dummy.stubs(avatar_content_type: "image/png")
           @validator.validate(@dummy)
         end
 
@@ -255,8 +255,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "as a regexp" do
         before do
-          build_validator :not => /^text\/.*/
-          @dummy.stubs(:avatar_content_type => "text/plain")
+          build_validator not: /^text\/.*/
+          @dummy.stubs(avatar_content_type: "text/plain")
           @validator.validate(@dummy)
         end
 
@@ -269,8 +269,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "with :message option" do
         context "without interpolation" do
           before do
-            build_validator :not => "image/png", :message => "should not be a PNG image"
-            @dummy.stubs(:avatar_content_type => "image/png")
+            build_validator not: "image/png", message: "should not be a PNG image"
+            @dummy.stubs(avatar_content_type: "image/png")
             @validator.validate(@dummy)
           end
 
@@ -281,8 +281,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
         context "with interpolation" do
           before do
-            build_validator :not => "image/png", :message => "should not have content type %{types}"
-            @dummy.stubs(:avatar_content_type => "image/png")
+            build_validator not: "image/png", message: "should not have content type %{types}"
+            @dummy.stubs(avatar_content_type: "image/png")
             @validator.validate(@dummy)
           end
 
@@ -296,7 +296,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
   context "using the helper" do
     before do
-      Dummy.validates_attachment_content_type :avatar, :content_type => "image/jpg"
+      Dummy.validates_attachment_content_type :avatar, content_type: "image/jpg"
     end
 
     it "add the validator to the class" do
@@ -307,16 +307,16 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "given options" do
     it "raise argument error if no required argument was given" do
       assert_raises(ArgumentError) do
-        build_validator :message => "Some message"
+        build_validator message: "Some message"
       end
     end
 
     it "not raise argument error if :content_type was given" do
-      build_validator :content_type => "image/jpg"
+      build_validator content_type: "image/jpg"
     end
 
     it "not raise argument error if :not was given" do
-      build_validator :not => "image/jpg"
+      build_validator not: "image/jpg"
     end
   end
 end

@@ -4,7 +4,7 @@ describe Paperclip::Storage::Filesystem do
   context "Filesystem" do
     context "normal file" do
       before do
-        rebuild_model :styles => { :thumbnail => "25x25#" }
+        rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
         @file = File.open(fixture_file('5k.png'))
@@ -53,7 +53,7 @@ describe Paperclip::Storage::Filesystem do
 
     context "with file that has space in file name" do
       before do
-        rebuild_model :styles => { :thumbnail => "25x25#" }
+        rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
         @file = File.open(fixture_file('spaced file.png'))

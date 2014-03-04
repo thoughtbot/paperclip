@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Paperclip::Validators do
   context "using the helper" do
     before do
-      Dummy.validates_attachment :avatar, :presence => true, :content_type => { :content_type => "image/jpeg" }, :size => { :in => 0..10240 }
+      Dummy.validates_attachment :avatar, presence: true, content_type: { content_type: "image/jpeg" }, size: { in: 0..10240 }
     end
 
     it "adds the attachment_presence validator to the class" do
@@ -20,7 +20,7 @@ describe Paperclip::Validators do
 
     it 'prevents you from attaching a file that violates that validation' do
       Dummy.class_eval{ validate(:name) { raise "DO NOT RUN THIS" } }
-      dummy = Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      dummy = Dummy.new(avatar: File.new(fixture_file("12k.png")))
       assert_equal [:avatar_content_type, :avatar, :avatar_file_size], dummy.errors.keys
       assert_raises(RuntimeError){ dummy.valid? }
     end
@@ -29,10 +29,10 @@ describe Paperclip::Validators do
   context "using the helper with a conditional" do
     before do
       rebuild_class
-      Dummy.validates_attachment :avatar, :presence => true,
-        :content_type => { :content_type => "image/jpeg" },
-        :size => { :in => 0..10240 },
-        :if => :title_present?
+      Dummy.validates_attachment :avatar, presence: true,
+        content_type: { content_type: "image/jpeg" },
+        size: { in: 0..10240 },
+        if: :title_present?
     end
 
     it "validates the attachment if title is present" do
@@ -41,7 +41,7 @@ describe Paperclip::Validators do
           true
         end
       end
-      dummy = Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+      dummy = Dummy.new(avatar: File.new(fixture_file("12k.png")))
       assert_equal [:avatar_content_type, :avatar, :avatar_file_size], dummy.errors.keys
     end
 
@@ -65,31 +65,31 @@ describe Paperclip::Validators do
 
     it 'raises an error when no content_type validation exists' do
       assert_raises(Paperclip::Errors::MissingRequiredValidatorError) do
-        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
       end
     end
 
     it 'does not raise an error when a content_type validation exists' do
-      Dummy.validates_attachment :avatar, :content_type => { :content_type => "image/jpeg" }
+      Dummy.validates_attachment :avatar, content_type: { content_type: "image/jpeg" }
 
       assert_nothing_raised do
-        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
       end
     end
 
     it 'does not raise an error when a file_name validation exists' do
-      Dummy.validates_attachment :avatar, :file_name => { :matches => /png$/ }
+      Dummy.validates_attachment :avatar, file_name: { matches: /png$/ }
 
       assert_nothing_raised do
-        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
       end
     end
 
     it 'does not raise an error when a the validation has been explicitly rejected' do
-      Dummy.validates_attachment :avatar, :file_type_ignorance => true
+      Dummy.validates_attachment :avatar, file_type_ignorance: true
 
       assert_nothing_raised do
-        Dummy.new(:avatar => File.new(fixture_file("12k.png")))
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
       end
     end
   end

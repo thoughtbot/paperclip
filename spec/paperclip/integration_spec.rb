@@ -8,11 +8,11 @@ describe 'Paperclip' do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
       300.times do |i|
-        Dummy.create! :avatar => @file
+        Dummy.create! avatar: @file
       end
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "not exceed the open file limit" do
        assert_nothing_raised do
@@ -23,14 +23,14 @@ describe 'Paperclip' do
 
   context "An attachment" do
     before do
-      rebuild_model :styles => { :thumb => "50x50#" }
+      rebuild_model styles: { thumb: "50x50#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
       assert @dummy.save
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "create its thumbnails properly" do
       assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
@@ -53,13 +53,13 @@ describe 'Paperclip' do
         end
       end
 
-      # after { File.chmod(0644, @dummy.avatar.path) }
+      after { File.chmod(0644, @dummy.avatar.path) }
     end
 
     context "redefining its attachment styles" do
       before do
         Dummy.class_eval do
-          has_attached_file :avatar, :styles => { :thumb => "150x25#", :dynamic => lambda { |a| '50x50#' } }
+          has_attached_file :avatar, styles: { thumb: "150x25#", dynamic: lambda { |a| '50x50#' } }
         end
         @d2 = Dummy.find(@dummy.id)
         @original_timestamp = @d2.avatar_updated_at
@@ -82,13 +82,13 @@ describe 'Paperclip' do
     before do
       @thumb_path = "tmp/public/system/dummies/avatars/000/000/001/thumb/5k.png"
       File.delete(@thumb_path) if File.exists?(@thumb_path)
-      rebuild_model :styles => { :thumb => "50x50#" }
+      rebuild_model styles: { thumb: "50x50#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
 
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "not create the thumbnails upon saving when post-processing is disabled" do
       @dummy.avatar.post_processing = false
@@ -111,7 +111,7 @@ describe 'Paperclip' do
       @thumb_large_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
       File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
       File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
-      rebuild_model :styles => { :thumb_small => "50x50#", :thumb_large => "60x60#" }
+      rebuild_model styles: { thumb_small: "50x50#", thumb_large: "60x60#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
 
@@ -121,7 +121,7 @@ describe 'Paperclip' do
       @dummy.avatar.post_processing = true
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "allow us to create all thumbnails in one go" do
       assert_file_not_exists(@thumb_small_path)
@@ -148,7 +148,7 @@ describe 'Paperclip' do
 
   context "A model that modifies its original" do
     before do
-      rebuild_model :styles => { :original => "2x2#" }
+      rebuild_model styles: { original: "2x2#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
@@ -158,20 +158,20 @@ describe 'Paperclip' do
       assert_not_equal File.size(@file.path), @dummy.avatar.size
     end
 
-    # after { @file.close }
+    after { @file.close }
   end
 
   context "A model with attachments scoped under an id" do
     before do
-      rebuild_model :styles => { :large => "100x100",
-                                 :medium => "50x50" },
-                    :path => ":rails_root/tmp/:id/:attachments/:style.:extension"
+      rebuild_model styles: { large: "100x100",
+                                 medium: "50x50" },
+                    path: ":rails_root/tmp/:id/:attachments/:style.:extension"
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     context "when saved" do
       before do
@@ -220,10 +220,10 @@ describe 'Paperclip' do
         @umask = File.umask(umask)
       end
 
-      # after do
-      #   File.umask @umask
-      #   @file.close
-      # end
+      after do
+        File.umask @umask
+        @file.close
+      end
 
       it "respect the current umask" do
         @dummy.avatar = @file
@@ -236,14 +236,14 @@ describe 'Paperclip' do
   [0666,0664,0640].each do |perms|
     context "when the perms are #{perms}" do
       before do
-        rebuild_model :override_file_permissions => perms
+        rebuild_model override_file_permissions: perms
         @dummy = Dummy.new
         @file  = File.new(fixture_file("5k.png"), 'rb')
       end
 
-      # after do
-      #   @file.close
-      # end
+      after do
+        @file.close
+      end
 
       it "respect the current perms" do
         @dummy.avatar = @file
@@ -256,7 +256,7 @@ describe 'Paperclip' do
   it "skip chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
     FileUtils.expects(:chmod).never
 
-    rebuild_model :override_file_permissions => false
+    rebuild_model override_file_permissions: false
     dummy = Dummy.create!
     dummy.avatar = @file
     dummy.save
@@ -264,12 +264,12 @@ describe 'Paperclip' do
 
   context "A model with a filesystem attachment" do
     before do
-      rebuild_model :styles => { :large => "300x300>",
-                                 :medium => "100x100",
-                                 :thumb => ["32x32#", :gif] },
-                    :default_style => :medium,
-                    :url => "/:attachment/:class/:style/:id/:basename.:extension",
-                    :path => ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+      rebuild_model styles: { large: "300x300>",
+                                 medium: "100x100",
+                                 thumb: ["32x32#", :gif] },
+                    default_style: :medium,
+                    url: "/:attachment/:class/:style/:id/:basename.:extension",
+                    path: ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       @dummy     = Dummy.new
       @file      = File.new(fixture_file("5k.png"), 'rb')
       @bad_file  = File.new(fixture_file("bad.png"), 'rb')
@@ -279,7 +279,7 @@ describe 'Paperclip' do
       assert @dummy.save
     end
 
-    # after { [@file, @bad_file].each(&:close) }
+    after { [@file, @bad_file].each(&:close) }
 
     it "write and delete its files" do
       [["434x66", :original],
@@ -374,7 +374,7 @@ describe 'Paperclip' do
         @dummy2.save
       end
 
-      # after { @file2.close }
+      after { @file2.close }
 
       it "work when assigned a file" do
         assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
@@ -393,7 +393,7 @@ describe 'Paperclip' do
   context "A model with an attachments association and a Paperclip attachment" do
     before do
       Dummy.class_eval do
-        has_many :attachments, :class_name => 'Dummy'
+        has_many :attachments, class_name: 'Dummy'
       end
 
       @file = File.new(fixture_file("5k.png"), 'rb')
@@ -401,7 +401,7 @@ describe 'Paperclip' do
       @dummy.avatar = @file
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "should not error when saving" do
       @dummy.save!
@@ -410,20 +410,20 @@ describe 'Paperclip' do
 
   context "A model with an attachment with hash in file name" do
     before do
-      @settings = { :styles => { :thumb => "50x50#" },
-        :path => ":rails_root/public/system/:attachment/:id_partition/:style/:hash.:extension",
-        :url => "/system/:attachment/:id_partition/:style/:hash.:extension",
-        :hash_secret => "somesecret" }
+      @settings = { styles: { thumb: "50x50#" },
+        path: ":rails_root/public/system/:attachment/:id_partition/:style/:hash.:extension",
+        url: "/system/:attachment/:id_partition/:style/:hash.:extension",
+        hash_secret: "somesecret" }
 
       rebuild_model @settings
 
       @file = File.new(fixture_file("5k.png"), 'rb')
-      @dummy = Dummy.create! :avatar => @file
+      @dummy = Dummy.create! avatar: @file
     end
 
-    # after do
-    #   @file.close
-    # end
+    after do
+      @file.close
+    end
 
     it "be accessible" do
       assert_file_exists(@dummy.avatar.path(:original))
@@ -434,7 +434,7 @@ describe 'Paperclip' do
       before do
         @dummy.avatar.options[:styles][:mini] = "25x25#"
         @dummy.avatar.instance_variable_set :@normalized_styles, nil
-        Time.stubs(:now => Time.now + 10)
+        Time.stubs(now: Time.now + 10)
         @dummy.avatar.reprocess!
         @dummy.reload
       end
@@ -470,21 +470,24 @@ describe 'Paperclip' do
 
     context "A model with an S3 attachment" do
       before do
-        rebuild_model :styles => { :large => "300x300>",
-                                   :medium => "100x100",
-                                   :thumb => ["32x32#", :gif],
-                                   :custom => {
-                                     :geometry => "32x32#",
-                                     :s3_headers => { 'Cache-Control' => 'max-age=31557600' },
-                                     :s3_metadata => { 'foo' => 'bar'}
-                                   }
-                                 },
-                      :storage => :s3,
-                      :s3_credentials => File.new(fixture_file('s3.yml')),
-                      :s3_options => { :logger => Paperclip.logger },
-                      :default_style => :medium,
-                      :bucket => ENV['S3_BUCKET'],
-                      :path => ":class/:attachment/:id/:style/:basename.:extension"
+        rebuild_model(
+          styles: {
+            large: "300x300>",
+            medium: "100x100",
+            thumb: ["32x32#", :gif],
+            custom: {
+              geometry: "32x32#",
+              s3_headers: { 'Cache-Control' => 'max-age=31557600' },
+              s3_metadata: { 'foo' => 'bar'}
+            }
+          },
+          storage: :s3,
+          s3_credentials: File.new(fixture_file('s3.yml')),
+          s3_options: { logger: Paperclip.logger },
+          default_style: :medium,
+          bucket: ENV['S3_BUCKET'],
+          path: ":class/:attachment/:id/:style/:basename.:extension"
+        )
 
         @dummy     = Dummy.new
         @file      = File.new(fixture_file('5k.png'), 'rb')
@@ -497,11 +500,11 @@ describe 'Paperclip' do
         @files_on_s3 = s3_files_for(@dummy.avatar)
       end
 
-      # after do
-      #   @file.close
-      #   @bad_file.close
-      #   @files_on_s3.values.each(&:close) if @files_on_s3
-      # end
+      after do
+        @file.close
+        @bad_file.close
+        @files_on_s3.values.each(&:close) if @files_on_s3
+      end
 
       context 'assigning itself to a new model' do
         before do
@@ -634,7 +637,7 @@ describe 'Paperclip' do
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
 
-    # after { @file.close }
+    after { @file.close }
 
     it "succeed when original attachment is a file" do
       original = Dummy.new
