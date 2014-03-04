@@ -25,17 +25,17 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
       end
 
       context "given a class with a validation that's too high" do
-        before { Dummy.validates_attachment_size :avatar, :in => 256..2048 }
+        before { Dummy.validates_attachment_size :avatar, in: 256..2048 }
         should_reject_dummy_class
       end
 
       context "given a class with a validation that's too low" do
-        before { Dummy.validates_attachment_size :avatar, :in => 0..1024 }
+        before { Dummy.validates_attachment_size :avatar, in: 0..1024 }
         should_reject_dummy_class
       end
 
       context "given a class with a validation that matches" do
-        before { Dummy.validates_attachment_size :avatar, :in => 256..1024 }
+        before { Dummy.validates_attachment_size :avatar, in: 256..1024 }
         should_accept_dummy_class
       end
     end
@@ -46,12 +46,12 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
       end
 
       context "given a class with an upper limit" do
-        before { Dummy.validates_attachment_size :avatar, :less_than => 1 }
+        before { Dummy.validates_attachment_size :avatar, less_than: 1 }
         should_accept_dummy_class
       end
 
       context "given a class with a lower limit" do
-        before { Dummy.validates_attachment_size :avatar, :greater_than => 1 }
+        before { Dummy.validates_attachment_size :avatar, greater_than: 1 }
         should_accept_dummy_class
       end
     end
@@ -59,7 +59,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
     context "using an :if to control the validation" do
       before do
         Dummy.class_eval do
-          validates_attachment_size :avatar, :greater_than => 1024, :if => :go
+          validates_attachment_size :avatar, greater_than: 1024, if: :go
           attr_accessor :go
         end
         @dummy = Dummy.new
@@ -79,7 +79,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
 
     context "post processing" do
       before do
-        Dummy.validates_attachment_size :avatar, :greater_than => 1024
+        Dummy.validates_attachment_size :avatar, greater_than: 1024
 
         @dummy = Dummy.new
         @matcher = self.class.validate_attachment_size(:avatar).greater_than(1024)

@@ -46,7 +46,7 @@ describe Paperclip::Thumbnail do
     ].each do |args|
       context "being thumbnailed with a geometry of #{args[0]}" do
         before do
-          @thumb = Paperclip::Thumbnail.new(@file, :geometry => args[0])
+          @thumb = Paperclip::Thumbnail.new(@file, geometry: args[0])
         end
 
         it "start with dimensions of 434x66" do
@@ -73,7 +73,7 @@ describe Paperclip::Thumbnail do
 
     context "being thumbnailed at 100x50 with cropping" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "100x50#")
       end
 
       it "let us know when a command isn't found versus a processing error" do
@@ -129,19 +129,19 @@ describe Paperclip::Thumbnail do
 
     it 'properly crop a EXIF-rotated image' do
       file = File.new(fixture_file('rotated.jpg'))
-      thumb = Paperclip::Thumbnail.new(file, :geometry => "50x50#")
+      thumb = Paperclip::Thumbnail.new(file, geometry: "50x50#")
 
       output_file = thumb.make
 
       command = Cocaine::CommandLine.new("identify", "-format %wx%h :file")
-      assert_equal "50x50", command.run(:file => output_file.path).strip
+      assert_equal "50x50", command.run(file: output_file.path).strip
     end
 
     context "being thumbnailed with source file options set" do
       before do
         @thumb = Paperclip::Thumbnail.new(@file,
-                                          :geometry            => "100x50#",
-                                          :source_file_options => "-strip")
+                                          geometry: "100x50#",
+                                          source_file_options: "-strip")
       end
 
       it "have source_file_options value set" do
@@ -164,8 +164,8 @@ describe Paperclip::Thumbnail do
       context "redefined to have bad source_file_options setting" do
         before do
           @thumb = Paperclip::Thumbnail.new(@file,
-                                            :geometry => "100x50#",
-                                            :source_file_options => "-this-aint-no-option")
+                                            geometry: "100x50#",
+                                            source_file_options: "-this-aint-no-option")
         end
 
         it "error when trying to create the thumbnail" do
@@ -181,8 +181,8 @@ describe Paperclip::Thumbnail do
     context "being thumbnailed with convert options set" do
       before do
         @thumb = Paperclip::Thumbnail.new(@file,
-                                          :geometry        => "100x50#",
-                                          :convert_options => "-strip -depth 8")
+                                          geometry: "100x50#",
+                                          convert_options: "-strip -depth 8")
       end
 
       it "have convert_options value set" do
@@ -205,8 +205,8 @@ describe Paperclip::Thumbnail do
       context "redefined to have bad convert_options setting" do
         before do
           @thumb = Paperclip::Thumbnail.new(@file,
-                                            :geometry => "100x50#",
-                                            :convert_options => "-this-aint-no-option")
+                                            geometry: "100x50#",
+                                            convert_options: "-this-aint-no-option")
         end
 
         it "error when trying to create the thumbnail" do
@@ -238,8 +238,8 @@ describe Paperclip::Thumbnail do
     context "being thumbnailed with a blank geometry string" do
       before do
         @thumb = Paperclip::Thumbnail.new(@file,
-                                          :geometry        => "",
-                                          :convert_options => "-gravity center -crop \"300x300+0-0\"")
+                                          geometry: "",
+                                          convert_options: "-gravity center -crop \"300x300+0-0\"")
       end
 
       it "not get resized by default" do
@@ -249,7 +249,7 @@ describe Paperclip::Thumbnail do
 
     context "being thumbnailed with default animated option (true)" do
       it "call identify to check for animated images when sent #make" do
-        thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x50#")
+        thumb = Paperclip::Thumbnail.new(@file, geometry: "100x50#")
         thumb.expects(:identify).at_least_once.with do |*arg|
           arg[0] == '-format %m :file' &&
           arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
@@ -274,7 +274,7 @@ describe Paperclip::Thumbnail do
           end
         end
 
-        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :file_geometry_parser => ::GeoParser)
+        thumb = Paperclip::Thumbnail.new(@file, geometry: '50x50', file_geometry_parser: ::GeoParser)
 
         transformation_command = thumb.transformation_command
 
@@ -305,7 +305,7 @@ describe Paperclip::Thumbnail do
           end
         end
 
-        thumb = Paperclip::Thumbnail.new(@file, :geometry => '50x50', :string_geometry_parser => ::GeoParser)
+        thumb = Paperclip::Thumbnail.new(@file, geometry: '50x50', string_geometry_parser: ::GeoParser)
 
         transformation_command = thumb.transformation_command
 
@@ -329,7 +329,7 @@ describe Paperclip::Thumbnail do
 
     context "being thumbnailed at 100x100 with cropping" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "100x100#", :format => :png)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "100x100#", format: :png)
       end
 
       it "report its correct current and target geometries" do
@@ -362,7 +362,7 @@ describe Paperclip::Thumbnail do
 
     context "with static output" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :jpg)
+       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :jpg)
       end
 
       it "create the single frame thumbnail when sent #make" do
@@ -374,7 +374,7 @@ describe Paperclip::Thumbnail do
 
     context "with animated output format" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :format => :gif)
+       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :gif)
       end
 
       it "create the 12 frames thumbnail when sent #make" do
@@ -396,7 +396,7 @@ describe Paperclip::Thumbnail do
 
     context "with omitted output format" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50")
+       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
       end
 
       it "create the 12 frames thumbnail when sent #make" do
@@ -419,7 +419,7 @@ describe Paperclip::Thumbnail do
     context "with unidentified source format" do
       before do
         @unidentified_file = File.new(fixture_file("animated.unknown"), 'rb')
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "60x60")
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "60x60")
       end
 
       it "create the 12 frames thumbnail when sent #make" do
@@ -442,7 +442,7 @@ describe Paperclip::Thumbnail do
     context "with no source format" do
       before do
         @unidentified_file = File.new(fixture_file("animated"), 'rb')
-        @thumb = Paperclip::Thumbnail.new(@file, :geometry => "70x70")
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "70x70")
       end
 
       it "create the 12 frames thumbnail when sent #make" do
@@ -464,7 +464,7 @@ describe Paperclip::Thumbnail do
 
     context "with animated option set to false" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, :geometry => "50x50", :animated => false)
+       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", animated: false)
       end
 
       it "output the gif format" do

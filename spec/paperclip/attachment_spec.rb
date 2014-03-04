@@ -21,7 +21,7 @@ describe Paperclip::Attachment do
 
   it "processes :original style first" do
     file = File.new(fixture_file("50x50.png"), 'rb')
-    rebuild_class :styles => { :small => '100x>', :original => '42x42#' }
+    rebuild_class styles: { small: '100x>', original: '42x42#' }
     dummy = Dummy.new
     dummy.avatar = file
     dummy.save
@@ -34,9 +34,12 @@ describe Paperclip::Attachment do
 
   it "not delete styles that don't get reprocessed" do
     file = File.new(fixture_file("50x50.png"), 'rb')
-    rebuild_class :styles => { :small => '100x>',
-                               :large => '500x>',
-                               :original => '42x42#' }
+    rebuild_class styles: {
+      small: '100x>',
+      large: '500x>',
+      original: '42x42#' 
+    }
+
     dummy = Dummy.new
     dummy.avatar = file
     dummy.save
@@ -55,7 +58,7 @@ describe Paperclip::Attachment do
   context "having a not empty hash as a default option" do
     before do
       @old_default_options = Paperclip::Attachment.default_options.dup
-      @new_default_options = { :convert_options => { :all => "-background white" } }
+      @new_default_options = { convert_options: { all: "-background white" } }
       Paperclip::Attachment.default_options.merge!(@new_default_options)
     end
 
@@ -64,7 +67,7 @@ describe Paperclip::Attachment do
     end
 
     it "deep merge when it is overridden" do
-      new_options = { :convert_options => { :thumb => "-thumbnailize" } }
+      new_options = { convert_options: { thumb: "-thumbnailize" } }
       attachment = Paperclip::Attachment.new(:name, :instance, new_options)
 
       expect(Paperclip::Attachment.default_options.deep_merge(new_options)).to eq attachment.instance_variable_get("@options")
@@ -73,115 +76,115 @@ describe Paperclip::Attachment do
 
   it "handles a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, true)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(:timestamp => true, :escape => true)).to be_true
+    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to be_true
 
     attachment.url(:style_name, false)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(:timestamp => false, :escape => true)).to be_true
+    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: false, escape: true)).to be_true
   end
 
   it "pass the style and options through to the URL generator on #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, :url_generator => mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
 
-    attachment.url(:style_name, :options => :values)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(:options => :values)).to be_true
+    attachment.url(:style_name, options: :values)
+    expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to be_true
   end
 
   it "pass default options through when #url is given one argument" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :use_timestamp => true)
+                                           url_generator: mock_url_generator_builder,
+                                           use_timestamp: true)
 
     attachment.url(:style_name)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true, timestamp: true)
   end
 
   it "pass default style and options through when #url is given no arguments" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :default_style => 'default style',
-                                           :url_generator => mock_url_generator_builder,
-                                           :use_timestamp => true)
+                                           default_style: 'default style',
+                                           url_generator: mock_url_generator_builder,
+                                           use_timestamp: true)
 
     attachment.url
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true, timestamp: true)
     assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
   end
 
-  it "pass the option :timestamp => true if :use_timestamp is true and :timestamp is not passed" do
+  it "pass the option timestamp: true if :use_timestamp is true and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :use_timestamp => true)
+                                           url_generator: mock_url_generator_builder,
+                                           use_timestamp: true)
 
     attachment.url(:style_name)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true, timestamp: true)
   end
 
-  it "pass the option :timestamp => false if :use_timestamp is false and :timestamp is not passed" do
+  it "pass the option timestamp: false if :use_timestamp is false and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :use_timestamp => false)
+                                           url_generator: mock_url_generator_builder,
+                                           use_timestamp: false)
 
     attachment.url(:style_name)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => false)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true, timestamp: false)
   end
 
   it "not change the :timestamp if :timestamp is passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :use_timestamp => false)
+                                           url_generator: mock_url_generator_builder,
+                                           use_timestamp: false)
 
-    attachment.url(:style_name, :timestamp => true)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true, :timestamp => true)
+    attachment.url(:style_name, timestamp: true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true, timestamp: true)
   end
 
   it "render JSON as default style" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :default_style => 'default style',
-                                           :url_generator => mock_url_generator_builder)
+                                           default_style: 'default style',
+                                           url_generator: mock_url_generator_builder)
 
     attachment.as_json
     assert mock_url_generator_builder.has_generated_url_with_style_name?('default style')
   end
 
-  it "pass the option :escape => true if :escape_url is true and :escape is not passed" do
+  it "pass the option escape: true if :escape_url is true and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :escape_url => true)
+                                           url_generator: mock_url_generator_builder,
+                                           escape_url: true)
 
     attachment.url(:style_name)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => true)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: true)
   end
 
-  it "pass the option :escape => false if :escape_url is false and :escape is not passed" do
+  it "pass the option escape: false if :escape_url is false and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
                                            :instance,
-                                           :url_generator => mock_url_generator_builder,
-                                           :escape_url => false)
+                                           url_generator: mock_url_generator_builder,
+                                           escape_url: false)
 
     attachment.url(:style_name)
-    assert mock_url_generator_builder.has_generated_url_with_options?(:escape => false)
+    assert mock_url_generator_builder.has_generated_url_with_options?(escape: false)
   end
 
   it "return the path based on the url by default" do
-    @attachment = attachment :url => "/:class/:id/:basename"
+    @attachment = attachment url: "/:class/:id/:basename"
     @model = @attachment.instance
     @model.id = 1234
     @model.avatar_file_name = "fake.jpg"
@@ -215,7 +218,7 @@ describe Paperclip::Attachment do
       expected_string = %({"dummy":#{expected_string}})
     end
     # active_model pre-3.2 checks only by calling any? on it, thus it doesn't work if it is empty
-    assert_equal expected_string, dummy.to_json(:only => [:dummy_key_for_old_active_model], :methods => [:avatar])
+    assert_equal expected_string, dummy.to_json(only: [:dummy_key_for_old_active_model], methods: [:avatar])
   end
 
   context "Attachment default_options" do
@@ -223,9 +226,9 @@ describe Paperclip::Attachment do
       rebuild_model
       @old_default_options = Paperclip::Attachment.default_options.dup
       @new_default_options = @old_default_options.merge({
-        :path => "argle/bargle",
-        :url => "fooferon",
-        :default_url => "not here.png"
+        path: "argle/bargle",
+        url: "fooferon",
+        default_url: "not here.png"
       })
     end
 
@@ -285,7 +288,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with similarly named interpolations" do
     before do
-      rebuild_model :path => ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"
+      rebuild_model path: ":id.omg/:id-bbq/:idwhat/:id_partition.wtf"
       @dummy = Dummy.new
       @dummy.stubs(:id).returns(1024)
       @file = File.new(fixture_file("5k.png"), 'rb')
@@ -310,7 +313,7 @@ describe Paperclip::Attachment do
 
     context "using default time zone" do
       before do
-        rebuild_model :path => ":timestamp", :use_default_time_zone => true
+        rebuild_model path: ":timestamp", use_default_time_zone: true
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -322,7 +325,7 @@ describe Paperclip::Attachment do
 
     context "using per-thread time zone" do
       before do
-        rebuild_model :path => ":timestamp", :use_default_time_zone => false
+        rebuild_model path: ":timestamp", use_default_time_zone: false
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -339,7 +342,7 @@ describe Paperclip::Attachment do
     end
 
     it "raise if no secret is provided" do
-      rebuild_model :path => ":hash"
+      rebuild_model path: ":hash"
       @attachment = Dummy.new.avatar
       @attachment.assign @file
 
@@ -350,9 +353,9 @@ describe Paperclip::Attachment do
 
     context "when secret is set" do
       before do
-        rebuild_model :path => ":hash",
-          :hash_secret => "w00t",
-          :hash_data => ":class/:attachment/:style/:filename"
+        rebuild_model path: ":hash",
+          hash_secret: "w00t",
+          hash_data: ":class/:attachment/:style/:filename"
         @attachment = Dummy.new.avatar
         @attachment.assign @file
       end
@@ -375,7 +378,7 @@ describe Paperclip::Attachment do
     before do
       @rails_env = "blah"
       @id = 1024
-      rebuild_model :path => ":rails_env/:id.png"
+      rebuild_model path: ":rails_env/:id.png"
       @dummy = Dummy.new
       @dummy.stubs(:id).returns(@id)
       @file = StringIO.new(".")
@@ -390,9 +393,9 @@ describe Paperclip::Attachment do
 
   context "An attachment with a default style and an extension interpolation" do
     before do
-      rebuild_model :path => ":basename.:extension",
-        :styles => { :default => ["100x100", :jpg] },
-        :default_style => :default
+      rebuild_model path: ":basename.:extension",
+        styles: { default: ["100x100", :jpg] },
+        default_style: :default
       @attachment = Dummy.new.avatar
       @file = File.open(fixture_file("5k.png"))
       @file.stubs(:original_filename).returns("file.png")
@@ -405,13 +408,13 @@ describe Paperclip::Attachment do
 
   context "An attachment with :convert_options" do
     before do
-      rebuild_model :styles => {
-                      :thumb => "100x100",
-                      :large => "400x400"
+      rebuild_model styles: {
+                      thumb: "100x100",
+                      large: "400x400"
                     },
-                    :convert_options => {
-                      :all => "-do_stuff",
-                      :thumb => "-thumbnailize"
+                    convert_options: {
+                      all: "-do_stuff",
+                      thumb: "-thumbnailize"
                     }
       @dummy = Dummy.new
       @dummy.avatar
@@ -428,13 +431,13 @@ describe Paperclip::Attachment do
 
   context "An attachment with :source_file_options" do
     before do
-      rebuild_model :styles => {
-                      :thumb => "100x100",
-                      :large => "400x400"
+      rebuild_model styles: {
+                      thumb: "100x100",
+                      large: "400x400"
                     },
-                    :source_file_options => {
-                      :all => "-density 400",
-                      :thumb => "-depth 8"
+                    source_file_options: {
+                      all: "-density 400",
+                      thumb: "-depth 8"
                     }
       @dummy = Dummy.new
       @dummy.avatar
@@ -451,11 +454,11 @@ describe Paperclip::Attachment do
 
   context "An attachment with :only_process" do
     before do
-      rebuild_model :styles => {
-                      :thumb => "100x100",
-                      :large => "400x400"
+      rebuild_model styles: {
+                      thumb: "100x100",
+                      large: "400x400"
                     },
-                    :only_process => [:thumb]
+                    only_process: [:thumb]
       @file = StringIO.new("...")
       @attachment = Dummy.new.avatar
     end
@@ -469,11 +472,11 @@ describe Paperclip::Attachment do
 
   context "An attachment with :only_process that is a proc" do
     before do
-      rebuild_model :styles => {
-                      :thumb => "100x100",
-                      :large => "400x400"
+      rebuild_model styles: {
+                      thumb: "100x100",
+                      large: "400x400"
                     },
-                    :only_process => lambda { |attachment| [:thumb] }
+                    only_process: lambda { |attachment| [:thumb] }
 
       @file = StringIO.new("...")
       @attachment = Dummy.new.avatar
@@ -488,13 +491,13 @@ describe Paperclip::Attachment do
 
   context "An attachment with :convert_options that is a proc" do
     before do
-      rebuild_model :styles => {
-                      :thumb => "100x100",
-                      :large => "400x400"
+      rebuild_model styles: {
+                      thumb: "100x100",
+                      large: "400x400"
                     },
-                    :convert_options => {
-                      :all => lambda{|i| i.all },
-                      :thumb => lambda{|i| i.thumb }
+                    convert_options: {
+                      all: lambda{|i| i.all },
+                      thumb: lambda{|i| i.thumb }
                     }
       Dummy.class_eval do
         def all;   "-all";   end
@@ -515,12 +518,12 @@ describe Paperclip::Attachment do
 
   context "An attachment with :path that is a proc" do
     before do
-      rebuild_model :path => lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
+      rebuild_model path: lambda{ |attachment| "path/#{attachment.instance.other}.:extension" }
 
       @file = File.new(fixture_file("5k.png"), 'rb')
-      @dummyA = Dummy.new(:other => 'a')
+      @dummyA = Dummy.new(other: 'a')
       @dummyA.avatar = @file
-      @dummyB = Dummy.new(:other => 'b')
+      @dummyB = Dummy.new(other: 'b')
       @dummyB.avatar = @file
     end
 
@@ -534,7 +537,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with :styles that is a proc" do
     before do
-      rebuild_model :styles => lambda{ |attachment| {:thumb => "50x50#", :large => "400x400"} }
+      rebuild_model styles: lambda{ |attachment| {thumb: "50x50#", large: "400x400"} }
 
       @attachment = Dummy.new.avatar
     end
@@ -546,9 +549,9 @@ describe Paperclip::Attachment do
 
   context "An attachment with conditional :styles that is a proc" do
     before do
-      rebuild_model :styles => lambda{ |attachment| attachment.instance.other == 'a' ? {:thumb => "50x50#"} : {:large => "400x400"} }
+      rebuild_model styles: lambda{ |attachment| attachment.instance.other == 'a' ? {thumb: "50x50#"} : {large: "400x400"} }
 
-      @dummy = Dummy.new(:other => 'a')
+      @dummy = Dummy.new(other: 'a')
     end
 
     it "have the correct styles for the assigned instance values" do
@@ -565,12 +568,12 @@ describe Paperclip::Attachment do
   geometry_specs = [
     [ lambda{|z| "50x50#" }, :png ],
     lambda{|z| "50x50#" },
-    { :geometry => lambda{|z| "50x50#" } }
+    { geometry: lambda{|z| "50x50#" } }
   ]
   geometry_specs.each do |geometry_spec|
     context "An attachment geometry like #{geometry_spec}" do
       before do
-        rebuild_model :styles => { :normal => geometry_spec }
+        rebuild_model styles: { normal: geometry_spec }
         @attachment = Dummy.new.avatar
       end
 
@@ -589,9 +592,9 @@ describe Paperclip::Attachment do
 
   context "An attachment with both 'normal' and hash-style styles" do
     before do
-      rebuild_model :styles => {
-                      :normal => ["50x50#", :png],
-                      :hash => { :geometry => "50x50#", :format => :png }
+      rebuild_model styles: {
+                      normal: ["50x50#", :png],
+                      hash: { geometry: "50x50#", format: :png }
                     }
       @dummy = Dummy.new
       @attachment = @dummy.avatar
@@ -610,7 +613,7 @@ describe Paperclip::Attachment do
       @file = StringIO.new("...")
       Paperclip::Test.stubs(:make).returns(@file)
 
-      rebuild_model :styles => { :normal => '' }, :processors => lambda { |a| [ :test ] }
+      rebuild_model styles: { normal: '' }, processors: lambda { |a| [ :test ] }
       @attachment = Dummy.new.avatar
     end
 
@@ -627,7 +630,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with erroring processor" do
     before do
-      rebuild_model :processor => [:thumbnail], :styles => { :small => '' }, :whiny_thumbnails => true
+      rebuild_model processor: [:thumbnail], styles: { small: '' }, whiny_thumbnails: true
       @dummy = Dummy.new
       Paperclip::Thumbnail.expects(:make).raises(Paperclip::Error, "cannot be processed.")
       @file = StringIO.new("...")
@@ -644,8 +647,8 @@ describe Paperclip::Attachment do
   context "An attachment with multiple processors" do
     before do
       class Paperclip::Test < Paperclip::Processor; end
-      @style_params = { :once => {:one => 1, :two => 2} }
-      rebuild_model :processors => [:thumbnail, :test], :styles => @style_params
+      @style_params = { once: {one: 1, two: 2} }
+      rebuild_model processors: [:thumbnail, :test], styles: @style_params
       @dummy = Dummy.new
       @file = StringIO.new("...")
       @file.stubs(:close)
@@ -666,10 +669,10 @@ describe Paperclip::Attachment do
 
       it "call #make with the right parameters passed as second argument" do
         expected_params = @style_params[:once].merge({
-          :processors => [:thumbnail, :test],
-          :whiny => true,
-          :convert_options => "",
-          :source_file_options => ""
+          processors: [:thumbnail, :test],
+          whiny: true,
+          convert_options: "",
+          source_file_options: ""
         })
         Paperclip::Thumbnail.stubs(:make).returns(@file)
 
@@ -689,23 +692,23 @@ describe Paperclip::Attachment do
   end
 
   it "include the filesystem module when loading the filesystem storage" do
-    rebuild_model :storage => :filesystem
+    rebuild_model storage: :filesystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
   end
 
   it "include the filesystem module even if capitalization is wrong" do
-    rebuild_model :storage => :FileSystem
+    rebuild_model storage: :FileSystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
 
-    rebuild_model :storage => :Filesystem
+    rebuild_model storage: :Filesystem
     @dummy = Dummy.new
     assert @dummy.avatar.is_a?(Paperclip::Storage::Filesystem)
   end
 
   it "convert underscored storage name to camelcase" do
-    rebuild_model :storage => :not_here
+    rebuild_model storage: :not_here
     @dummy = Dummy.new
     exception = assert_raises(Paperclip::Errors::StorageMethodNotFound, /NotHere/) do
       @dummy.avatar
@@ -713,7 +716,7 @@ describe Paperclip::Attachment do
   end
 
   it "raise an error if you try to include a storage module that doesn't exist" do
-    rebuild_model :storage => :not_here
+    rebuild_model storage: :not_here
     @dummy = Dummy.new
     assert_raises(Paperclip::Errors::StorageMethodNotFound) do
       @dummy.avatar
@@ -722,7 +725,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with styles but no processors defined" do
     before do
-      rebuild_model :processors => [], :styles => {:something => '1'}
+      rebuild_model processors: [], styles: {something: '1'}
       @dummy = Dummy.new
       @file = StringIO.new("...")
     end
@@ -733,7 +736,7 @@ describe Paperclip::Attachment do
 
   context "An attachment without styles and with no processors defined" do
     before do
-      rebuild_model :processors => [], :styles => {}
+      rebuild_model processors: [], styles: {}
       @dummy = Dummy.new
       @file = StringIO.new("...")
     end
@@ -744,7 +747,7 @@ describe Paperclip::Attachment do
 
   context "Assigning an attachment with post_process hooks" do
     before do
-      rebuild_class :styles => { :something => "100x100#" }
+      rebuild_class styles: { something: "100x100#" }
       Dummy.class_eval do
         before_avatar_post_process :do_before_avatar
         after_avatar_post_process :do_after_avatar
@@ -801,7 +804,7 @@ describe Paperclip::Attachment do
 
   context "Assigning an attachment" do
     before do
-      rebuild_model :styles => { :something => "100x100#" }
+      rebuild_model styles: { something: "100x100#" }
       @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
       @dummy.avatar = @file
@@ -818,7 +821,7 @@ describe Paperclip::Attachment do
 
   context "Assigning an attachment" do
     before do
-      rebuild_model :styles => { :something => "100x100#" }
+      rebuild_model styles: { something: "100x100#" }
       @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
       @dummy.avatar = @file
@@ -908,7 +911,7 @@ describe Paperclip::Attachment do
 
       context 'as another regexp' do
         before do
-          Paperclip::Attachment.default_options.merge! :restricted_characters => /o/
+          Paperclip::Attachment.default_options.merge! restricted_characters: /o/
 
           @file.stubs(:original_filename).returns("goood.png")
           @dummy = Dummy.new
@@ -922,7 +925,7 @@ describe Paperclip::Attachment do
 
       context 'as nil' do
         before do
-          Paperclip::Attachment.default_options.merge! :restricted_characters => nil
+          Paperclip::Attachment.default_options.merge! restricted_characters: nil
 
           @file.stubs(:original_filename).returns("goood.png")
           @dummy = Dummy.new
@@ -975,13 +978,13 @@ describe Paperclip::Attachment do
     before do
       @old_defaults = Paperclip::Attachment.default_options.dup
       Paperclip::Attachment.default_options.merge!({
-        :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
+        path: ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
-      rebuild_model :styles => { :large  => ["400x400", :jpg],
-                             :medium => ["100x100", :jpg],
-                             :small => ["32x32#", :jpg]},
-                    :default_style => :small
+      rebuild_model styles: { large: ["400x400", :jpg],
+                             medium: ["100x100", :jpg],
+                             small: ["32x32#", :jpg]},
+                    default_style: :small
       @instance = Dummy.new
       @instance.stubs(:id).returns 123
       @file = File.new(fixture_file("uppercase.PNG"), 'rb')
@@ -1013,7 +1016,7 @@ describe Paperclip::Attachment do
     before do
       @old_defaults = Paperclip::Attachment.default_options.dup
       Paperclip::Attachment.default_options.merge!({
-        :path => ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
+        path: ":rails_root/:attachment/:class/:style/:id/:basename.:extension"
       })
       FileUtils.rm_rf("tmp")
       rebuild_model
@@ -1086,10 +1089,10 @@ describe Paperclip::Attachment do
 
       context "when expecting three styles" do
         before do
-          rebuild_class :styles => {
-            :large  => ["400x400", :png],
-            :medium => ["100x100", :gif],
-            :small => ["32x32#", :jpg]
+          rebuild_class styles: {
+            large: ["400x400", :png],
+            medium: ["100x100", :gif],
+            small: ["32x32#", :jpg]
           }
           @instance = Dummy.new
           @instance.stubs(:id).returns 123
@@ -1216,7 +1219,7 @@ describe Paperclip::Attachment do
 
     context "when trying a nonexistant storage type" do
       before do
-        rebuild_model :storage => :not_here
+        rebuild_model storage: :not_here
       end
 
       it "not be able to find the module" do
@@ -1227,7 +1230,7 @@ describe Paperclip::Attachment do
 
   context "An attachment with only a avatar_file_name column" do
     before do
-      ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+      ActiveRecord::Base.connection.create_table :dummies, force: true do |table|
         table.column :avatar_file_name, :string
       end
       rebuild_class
@@ -1380,7 +1383,7 @@ describe Paperclip::Attachment do
 
   context "an attachment with delete_file option set to false" do
     before do
-      rebuild_model :preserve_files => true
+      rebuild_model preserve_files: true
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file

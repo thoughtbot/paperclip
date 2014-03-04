@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Paperclip::AttachmentAdapter do
   before do
-    rebuild_model :path => "tmp/:class/:attachment/:style/:filename", :styles => {:thumb => '50x50'}
+    rebuild_model path: "tmp/:class/:attachment/:style/:filename", styles: {thumb: '50x50'}
     @attachment = Dummy.new.avatar
   end
 

@@ -25,7 +25,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class with a validation that doesn't match" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{audio/.*}
       end
 
       should_reject_dummy_class
@@ -33,7 +33,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class with a matching validation" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{image/.*}
       end
 
       should_accept_dummy_class
@@ -42,7 +42,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
     context "given a class with other validations but matching types" do
       before do
         Dummy.validates_presence_of :title
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{image/.*}
       end
 
       should_accept_dummy_class
@@ -50,7 +50,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class that matches and a matcher that only specifies 'allowing'" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{image/.*}
         @matcher     = self.class.validate_attachment_content_type(:avatar).
           allowing(%w(image/png image/jpeg))
       end
@@ -60,7 +60,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class that does not match and a matcher that only specifies 'allowing'" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{audio/.*}
         @matcher     = self.class.validate_attachment_content_type(:avatar).
           allowing(%w(image/png image/jpeg))
       end
@@ -70,7 +70,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class that matches and a matcher that only specifies 'rejecting'" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{image/.*}
         @matcher     = self.class.validate_attachment_content_type(:avatar).
           rejecting(%w(audio/mp3 application/octet-stream))
       end
@@ -80,7 +80,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
 
     context "given a class that does not match and a matcher that only specifies 'rejecting'" do
       before do
-        Dummy.validates_attachment_content_type :avatar, :content_type => %r{audio/.*}
+        Dummy.validates_attachment_content_type :avatar, content_type: %r{audio/.*}
         @matcher     = self.class.validate_attachment_content_type(:avatar).
           rejecting(%w(audio/mp3 application/octet-stream))
       end
@@ -91,7 +91,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
     context "using an :if to control the validation" do
       before do
         Dummy.class_eval do
-          validates_attachment_content_type :avatar, :content_type => %r{image/*} , :if => :go
+          validates_attachment_content_type :avatar, content_type: %r{image/*} , if: :go
           attr_accessor :go
         end
         @matcher = self.class.validate_attachment_content_type(:avatar).
