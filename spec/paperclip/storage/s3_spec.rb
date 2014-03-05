@@ -2,15 +2,6 @@ require 'spec_helper'
 require 'aws-sdk'
 
 describe Paperclip::Storage::S3 do
-  def rails_env(env)
-    stored_env, Rails.env = Rails.env, env
-    begin
-      yield
-    ensure
-      Rails.env = stored_env
-    end
-  end
-
   before do
     AWS.stub!
   end
@@ -1355,10 +1346,22 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
     end
   end
+
+  private
+
+  def rails_env(env)
+    stored_env, Rails.env = Rails.env, env
+    begin
+      yield
+    ensure
+      Rails.env = stored_env
+    end
+  end
+
 end
