@@ -23,11 +23,11 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
         @validator.validate(@dummy)
       end
 
-      it "add error on the attachment" do
+      it "adds error on the attachment" do
         assert @dummy.errors[:avatar].present?
       end
 
-      it "not add an error on the file_name attribute" do
+      it "does not add an error on the file_name attribute" do
         assert @dummy.errors[:avatar_file_name].blank?
       end
     end
@@ -39,7 +39,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
           @validator.validate(@dummy)
         end
 
-        it "perform a validation" do
+        it "performs a validation" do
           assert @dummy.errors[:avatar].present?
         end
       end
@@ -50,7 +50,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
           @validator.validate(@dummy)
         end
 
-        it "perform a validation" do
+        it "performs a validation" do
           assert @dummy.errors[:avatar].present?
         end
       end
@@ -64,11 +64,11 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
       @validator.validate(@dummy)
     end
 
-    it "not add error on the attachment" do
+    it "does not add error on the attachment" do
       assert @dummy.errors[:avatar].blank?
     end
 
-    it "not add an error on the file_name attribute" do
+    it "does not add an error on the file_name attribute" do
       assert @dummy.errors[:avatar_file_name].blank?
     end
   end
@@ -78,7 +78,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
       Dummy.validates_attachment_presence :avatar
     end
 
-    it "add the validator to the class" do
+    it "adds the validator to the class" do
       assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_presence }
     end
   end

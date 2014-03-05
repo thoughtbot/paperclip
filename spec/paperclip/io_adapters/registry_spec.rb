@@ -10,7 +10,7 @@ describe Paperclip::AttachmentRegistry do
       @subject.register(AdapterTest){|t| Symbol === t }
     end
 
-    it "return the class registered for the adapted type" do
+    it "returns the class registered for the adapted type" do
       assert_equal AdapterTest, @subject.for(:target).class
     end
   end
@@ -24,11 +24,11 @@ describe Paperclip::AttachmentRegistry do
       @subject.register(AdapterTest){|t| Symbol === t }
     end
 
-    it "return true when the class of this adapter has been registered" do
+    it "returns true when the class of this adapter has been registered" do
       assert @subject.registered?(AdapterTest.new(:target))
     end
 
-    it "return false when the adapter has not been registered" do
+    it "returns false when the adapter has not been registered" do
       assert ! @subject.registered?(Object)
     end
   end

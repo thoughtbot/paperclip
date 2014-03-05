@@ -71,13 +71,13 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
       end
     end
 
-    it "run the validation if the control is true" do
+    it "runs the validation if the control is true" do
       dummy = Dummy.new
       dummy.go = true
       expect(matcher).to accept(dummy)
     end
 
-    it "not run the validation if the control is false" do
+    it "does not run the validation if the control is false" do
       dummy = Dummy.new
       dummy.go = false
       expect(matcher).to_not accept(dummy)

@@ -13,17 +13,17 @@ describe Paperclip do
       Cocaine::CommandLine.path = @original_command_line_path
     end
 
-    it "run the command with Cocaine" do
+    it "runs the command with Cocaine" do
       Paperclip.run("convert", "stuff")
     end
 
-    it "save Cocaine::CommandLine.path that set before" do
+    it "saves Cocaine::CommandLine.path that set before" do
       Cocaine::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
       assert_equal [Cocaine::CommandLine.path].flatten.include?("/opt/my_app/bin"), true
     end
 
-    it "not duplicate Cocaine::CommandLine.path on multiple runs" do
+    it "does not duplicate Cocaine::CommandLine.path on multiple runs" do
       Cocaine::CommandLine.expects(:new).with("convert", "more_stuff", {}).returns(stub(:run))
       Cocaine::CommandLine.path = nil
       Paperclip.options[:command_path] = "/opt/my_app/bin"
@@ -33,7 +33,7 @@ describe Paperclip do
     end
   end
 
-  it 'not raise errors when doing a lot of running' do
+  it 'does not raise errors when doing a lot of running' do
     Paperclip.options[:command_path] = ["/usr/local/bin"] * 1024
     Cocaine::CommandLine.path = "/something/else"
     100.times do |x|
@@ -52,14 +52,14 @@ describe Paperclip do
       Paperclip.logger = ActiveRecord::Base.logger
     end
 
-    it "not raise an error when log is called" do
+    it "does not raise an error when log is called" do
       silence_stream(STDOUT) do
         Paperclip.log('something')
       end
     end
   end
   context "Calling Paperclip.run with a logger" do
-    it "pass the defined logger if :log_command is set" do
+    it "passes the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
       Cocaine::CommandLine.expects(:new).with("convert", "stuff", logger: Paperclip.logger).returns(stub(:run))
       Paperclip.run("convert", "stuff")
@@ -77,7 +77,7 @@ describe Paperclip do
 
     after { @file.close }
 
-    it "yield every instance of a model that has an attachment" do
+    it "yields every instance of a model that has an attachment" do
       actual = []
       Paperclip.each_instance_with_attachment("Dummy", "avatar") do |instance|
         actual << instance
@@ -86,20 +86,20 @@ describe Paperclip do
     end
   end
 
-  it "raise when sent #processor and the name of a class that doesn't exist" do
+  it "raises when sent #processor and the name of a class that doesn't exist" do
     assert_raises(LoadError){ Paperclip.processor(:boogey_man) }
   end
 
-  it "return a class when sent #processor and the name of a class under Paperclip" do
+  it "returns a class when sent #processor and the name of a class under Paperclip" do
     assert_equal ::Paperclip::Thumbnail, Paperclip.processor(:thumbnail)
   end
 
-  it "get a class from a namespaced class name" do
+  it "gets a class from a namespaced class name" do
     class ::One; class Two; end; end
     assert_equal ::One::Two, Paperclip.class_for("One::Two")
   end
 
-  it "raise when class doesn't exist in specified namespace" do
+  it "raises when class doesn't exist in specified namespace" do
     class ::Three; end
     class ::Four; end
     assert_raises NameError do
@@ -115,7 +115,7 @@ describe Paperclip do
 
     after { @file.close }
 
-    it "not error when trying to also create a 'blah' attachment" do
+    it "does not error when trying to also create a 'blah' attachment" do
       assert_nothing_raised do
         Dummy.class_eval do
           has_attached_file :blah
@@ -132,7 +132,7 @@ describe Paperclip do
           @dummy = Dummy.new
         end
 
-        it "not assign the avatar on mass-set" do
+        it "does not assign the avatar on mass-set" do
           @dummy.attributes = { other: "I'm set!",
                                 avatar: @file }
 
@@ -140,7 +140,7 @@ describe Paperclip do
           assert ! @dummy.avatar?
         end
 
-        it "still allow assigment on normal set" do
+        it "allows assigment on normal set" do
           @dummy.other  = "I'm set!"
           @dummy.avatar = @file
 
@@ -155,7 +155,7 @@ describe Paperclip do
         class ::SubDummy < Dummy; end
       end
 
-      it "be able to use the attachment from the subclass" do
+      it "is able to use the attachment from the subclass" do
         assert_nothing_raised do
           @subdummy = SubDummy.create(avatar: @file)
         end
@@ -167,11 +167,11 @@ describe Paperclip do
       end
     end
 
-    it "have an avatar getter method" do
+    it "has an avatar getter method" do
       assert Dummy.new.respond_to?(:avatar)
     end
 
-    it "have an avatar setter method" do
+    it "has an avatar setter method" do
       assert Dummy.new.respond_to?(:avatar=)
     end
 
@@ -181,12 +181,12 @@ describe Paperclip do
         @dummy.avatar = @file
       end
 
-      it "be valid" do
+      it "is valid" do
         assert @dummy.valid?
       end
     end
 
-    it "not have Attachment in the ActiveRecord::Base namespace" do
+    it "does not have Attachment in the ActiveRecord::Base namespace" do
       assert_raises(NameError) do
         ActiveRecord::Base::Attachment
       end
@@ -206,7 +206,7 @@ describe Paperclip do
       end
     end
 
-    it "be able to find the custom processor" do
+    it "is able to find the custom processor" do
       assert_equal @freedom_processor, Paperclip.processor(:freedom)
     end
 

@@ -7,7 +7,7 @@ describe 'Metaclasses' do
       reset_class("Dummy")
     end
 
-    it "be able to use Paperclip like a normal class" do
+    it "is able to use Paperclip like a normal class" do
       @dummy = Dummy.new
 
       assert_nothing_raised do
@@ -15,7 +15,7 @@ describe 'Metaclasses' do
       end
     end
 
-    it "work like any other instance" do
+    it "works like any other instance" do
       @dummy = Dummy.new
       rebuild_meta_class_of(@dummy)
 

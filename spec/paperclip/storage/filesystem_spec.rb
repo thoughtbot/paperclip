@@ -13,21 +13,21 @@ describe Paperclip::Storage::Filesystem do
 
       after { @file.close }
 
-      it "allow file assignment" do
+      it "allows file assignment" do
         assert @dummy.save
       end
 
-      it "store the original" do
+      it "stores the original" do
         @dummy.save
         assert_file_exists(@dummy.avatar.path)
       end
 
-      it "store the thumbnail" do
+      it "stores the thumbnail" do
         @dummy.save
         assert_file_exists(@dummy.avatar.path(:thumbnail))
       end
 
-      it "be rewinded after flush_writes" do
+      it "is rewinded after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
 
         files = @dummy.avatar.queued_for_write.values
@@ -35,14 +35,14 @@ describe Paperclip::Storage::Filesystem do
         assert files.none?(&:eof?), "Expect all the files to be rewinded."
       end
 
-      it "be removed after after_flush_writes" do
+      it "is removed after after_flush_writes" do
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
         assert paths.none?{ |path| File.exists?(path) },
           "Expect all the files to be deleted."
       end
 
-      it 'copy the file to a known location with copy_to_local_file' do
+      it 'copies the file to a known location with copy_to_local_file' do
         tempfile = Tempfile.new("known_location")
         @dummy.avatar.copy_to_local_file(:original, tempfile.path)
         tempfile.rewind
@@ -63,15 +63,15 @@ describe Paperclip::Storage::Filesystem do
 
       after { @file.close }
 
-      it "store the file" do
+      it "stores the file" do
         assert_file_exists(@dummy.avatar.path)
       end
 
-      it "return a replaced version for path" do
+      it "returns a replaced version for path" do
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
       end
 
-      it "return a replaced version for url" do
+      it "returns a replaced version for url" do
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
     end

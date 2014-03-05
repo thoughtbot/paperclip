@@ -19,7 +19,7 @@ describe Paperclip::Storage::Fog do
 
       after { @file.close }
 
-      it "have the proper information loading credentials from a file" do
+      it "has the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
@@ -38,7 +38,7 @@ describe Paperclip::Storage::Fog do
 
       after { @file.close }
 
-      it "have the proper information loading credentials from a file" do
+      it "has the proper information loading credentials from a file" do
         assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
       end
     end
@@ -61,7 +61,7 @@ describe Paperclip::Storage::Fog do
 
       after { @file.close }
 
-      it "be able to interpolate the path without blowing up" do
+      it "is able to interpolate the path without blowing up" do
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../../tmp/public/avatars/5k.png")),
           @dummy.avatar.path
       end
@@ -85,7 +85,7 @@ describe Paperclip::Storage::Fog do
 
       after { @file.close }
 
-      it "have correct path and url from interpolated defaults" do
+      it "has correct path and url from interpolated defaults" do
         assert_equal "dummies/avatars/000/000/001/original/5k.png", @dummy.avatar.path
       end
     end
@@ -106,7 +106,7 @@ describe Paperclip::Storage::Fog do
         @dummy = Dummy.new
       end
 
-      it "be able to evaluate correct values for file headers" do
+      it "is able to evaluate correct values for file headers" do
         assert_equal @dummy.avatar.send(:fog_file), { custom_header: 'foobar' }
       end
     end
@@ -137,7 +137,7 @@ describe Paperclip::Storage::Fog do
       rebuild_model(@options)
     end
 
-    it "be extended by the Fog module" do
+    it "is extended by the Fog module" do
       assert Dummy.new.avatar.is_a?(Paperclip::Storage::Fog)
     end
 
@@ -155,7 +155,7 @@ describe Paperclip::Storage::Fog do
         directory.destroy
       end
 
-      it "be rewinded after flush_writes" do
+      it "is rewound after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
 
         files = @dummy.avatar.queued_for_write.values
@@ -163,14 +163,14 @@ describe Paperclip::Storage::Fog do
         assert files.none?(&:eof?), "Expect all the files to be rewinded."
       end
 
-      it "be removed after after_flush_writes" do
+      it "is removed after after_flush_writes" do
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
         assert paths.none?{ |path| File.exists?(path) },
           "Expect all the files to be deleted."
       end
 
-      it 'be able to be copied to a local file' do
+      it 'is able to be copied to a local file' do
         @dummy.save
         tempfile = Tempfile.new("known_location")
         tempfile.binmode
@@ -181,7 +181,7 @@ describe Paperclip::Storage::Fog do
         tempfile.close
       end
 
-      it "pass the content type to the Fog::Storage::AWS::Files instance" do
+      it "passes the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]
         end
@@ -193,14 +193,14 @@ describe Paperclip::Storage::Fog do
           @connection.directories.get(@fog_directory).destroy
         end
 
-        it "create the bucket" do
+        it "creates the bucket" do
           assert @dummy.save
           assert @connection.directories.get(@fog_directory)
         end
       end
 
       context "with a bucket" do
-        it "succeed" do
+        it "succeeds" do
           assert @dummy.save
         end
       end
@@ -213,7 +213,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert !@dummy.avatar.url.nil?
         end
       end
@@ -226,7 +226,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert @dummy.avatar.url =~ /^http:\/\/example\.com\/avatars\/data\.txt\?\d*$/
         end
       end
@@ -245,7 +245,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/data\.txt\?\d*$/
         end
       end
@@ -258,7 +258,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it 'set the @fog_public instance variable to false' do
+        it 'sets the @fog_public instance variable to false' do
           assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
           assert_equal false, @dummy.avatar.fog_public
         end
@@ -273,7 +273,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it 'set the @fog_public for a particular style to false' do
+        it 'sets the @fog_public for a particular style to false' do
           assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
           assert_equal false, @dummy.avatar.fog_public(:thumb)
         end
@@ -288,7 +288,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it 'set the fog_public for a particular style to correct value' do
+        it 'sets the fog_public for a particular style to correct value' do
           assert_equal false, @dummy.avatar.fog_public(:medium)
           assert_equal true, @dummy.avatar.fog_public(:thumb)
         end
@@ -302,23 +302,23 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "default fog_public to true" do
+        it "defaults fog_public to true" do
           assert_equal true, @dummy.avatar.fog_public
         end
       end
 
       context "with a valid bucket name for a subdomain" do
-        it "provide an url in subdomain style" do
+        it "provides an url in subdomain style" do
           assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
         end
 
-        it "provide an url that expires in subdomain style" do
+        it "provides an url that expires in subdomain style" do
           assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
         end
       end
 
       context "generating an expiring url" do
-        it "generate the same url when using Times and Integer offsets" do
+        it "generates the same url when using Times and Integer offsets" do
           rebuild_model(@options)
           dummy = Dummy.new
           dummy.avatar = StringIO.new('.')
@@ -326,12 +326,12 @@ describe Paperclip::Storage::Fog do
           assert_equal dummy.avatar.expiring_url(1234), dummy.avatar.expiring_url(Time.now + 1234)
         end
 
-        it 'match the default url if there is no assignment' do
+        it 'matches the default url if there is no assignment' do
           dummy = Dummy.new
           assert_equal dummy.avatar.url, dummy.avatar.expiring_url
         end
 
-        it 'match the default url when given a style if there is no assignment' do
+        it 'matches the default url when given a style if there is no assignment' do
           dummy = Dummy.new
           assert_equal dummy.avatar.url(:thumb), dummy.avatar.expiring_url(3600, :thumb)
         end
@@ -345,18 +345,18 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "not match the bucket-subdomain restrictions" do
+        it "does not match the bucket-subdomain restrictions" do
           invalid_subdomains = %w(this_is_invalid in iamareallylongbucketnameiamareallylongbucketnameiamareallylongbu invalid- inval..id inval-.id inval.-id -invalid 192.168.10.2)
           invalid_subdomains.each do |name|
             assert_no_match Paperclip::Storage::Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX, name
           end
         end
 
-        it "provide an url in folder style" do
+        it "provides an url in folder style" do
           assert_match(/^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url)
         end
 
-        it "provide a url that expires in folder style" do
+        it "provides a url that expires in folder style" do
           assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
         end
 
@@ -372,7 +372,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "have created the bucket" do
+        it "has created the bucket" do
           assert @connection.directories.get(@dynamic_fog_directory).inspect
         end
 
@@ -387,7 +387,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.url)
         end
 
@@ -401,11 +401,11 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.url)
         end
 
-        it "provide an expiring url" do
+        it "provides an expiring url" do
           assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url)
         end
 
@@ -417,7 +417,7 @@ describe Paperclip::Storage::Fog do
             @dummy.save
           end
 
-          it "provide an expiring url" do
+          it "provides an expiring url" do
             assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url)
           end
         end
@@ -438,7 +438,7 @@ describe Paperclip::Storage::Fog do
           @dummy.save
         end
 
-        it "provide a public url" do
+        it "provides a public url" do
           assert_equal @dummy.avatar.fog_credentials, @dynamic_fog_credentials
         end
       end
@@ -466,7 +466,7 @@ describe Paperclip::Storage::Fog do
       Fog.mock!
     end
 
-    it "return the public url in place of the expiring url" do
+    it "returns the public url in place of the expiring url" do
       assert_match @dummy.avatar.public_url, @dummy.avatar.expiring_url
     end
   end

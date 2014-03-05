@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Paperclip::Processor do
-  it "instantiate and call #make when sent #make to the class" do
+  it "instantiates and call #make when sent #make to the class" do
     processor = mock
     processor.expects(:make).with()
     Paperclip::Processor.expects(:new).with(:one, :two, :three).returns(processor)
@@ -9,7 +9,7 @@ describe Paperclip::Processor do
   end
 
   context "Calling #convert" do
-    it "run the convert command with Cocaine" do
+    it "runs the convert command with Cocaine" do
       Paperclip.options[:log_command] = false
       Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
       Paperclip::Processor.new('filename').convert("stuff")
@@ -17,7 +17,7 @@ describe Paperclip::Processor do
   end
 
   context "Calling #identify" do
-    it "run the identify command with Cocaine" do
+    it "runs the identify command with Cocaine" do
       Paperclip.options[:log_command] = false
       Cocaine::CommandLine.expects(:new).with("identify", "stuff", {}).returns(stub(:run))
       Paperclip::Processor.new('filename').identify("stuff")

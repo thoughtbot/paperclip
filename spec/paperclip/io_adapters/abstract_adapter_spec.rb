@@ -16,13 +16,13 @@ describe Paperclip::AbstractAdapter do
       Paperclip.stubs(:run).returns("image/png\n")
     end
 
-    it "return the content type without newline" do
+    it "returns the content type without newline" do
       assert_equal "image/png", @adapter.content_type
     end
   end
 
   context "nil?" do
-    it "return false" do
+    it "returns false" do
       assert !TestAdapter.new.nil?
     end
   end
@@ -34,7 +34,7 @@ describe Paperclip::AbstractAdapter do
     end
 
     [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each do |method|
-      it "delegate #{method} to @tempfile" do
+      it "delegates #{method} to @tempfile" do
         @adapter.tempfile.stubs(method)
         @adapter.public_send(method)
         assert_received @adapter.tempfile, method
@@ -42,18 +42,18 @@ describe Paperclip::AbstractAdapter do
     end
   end
 
-  it 'get rid of slashes and colons in filenames' do
+  it 'gets rid of slashes and colons in filenames' do
     @adapter = TestAdapter.new
     @adapter.original_filename = "awesome/file:name.png"
 
     assert_equal "awesome_file_name.png", @adapter.original_filename
   end
 
-  it 'be an assignment' do
+  it 'is an assignment' do
     assert TestAdapter.new.assignment?
   end
 
-  it 'not be nil' do
+  it 'is not nil' do
     assert !TestAdapter.new.nil?
   end
 end

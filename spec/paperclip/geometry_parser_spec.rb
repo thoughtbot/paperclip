@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Paperclip::GeometryParser do
-  it 'identify an image and extract its dimensions with no orientation' do
+  it 'identifies an image and extract its dimensions with no orientation' do
     Paperclip::Geometry.stubs(:new).with(
       height: '73',
       width: '434',
@@ -15,7 +15,7 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identify an image and extract its dimensions with an empty orientation' do
+  it 'identifies an image and extract its dimensions with an empty orientation' do
     Paperclip::Geometry.stubs(:new).with(
       height: '73',
       width: '434',
@@ -29,7 +29,7 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identify an image and extract its dimensions and orientation' do
+  it 'identifies an image and extract its dimensions and orientation' do
     Paperclip::Geometry.stubs(:new).with(
       height: '200',
       width: '300',
@@ -43,7 +43,7 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identify an image and extract its dimensions and modifier' do
+  it 'identifies an image and extract its dimensions and modifier' do
     Paperclip::Geometry.stubs(:new).with(
       height: '64',
       width: '64',
@@ -57,7 +57,7 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identify an image and extract its dimensions, orientation, and modifier' do
+  it 'identifies an image and extract its dimensions, orientation, and modifier' do
     Paperclip::Geometry.stubs(:new).with(
       height: '50',
       width: '100',

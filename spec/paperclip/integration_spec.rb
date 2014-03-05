@@ -14,7 +14,7 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "not exceed the open file limit" do
+    it "does not exceed the open file limit" do
        assert_nothing_raised do
          Dummy.all.each { |dummy| dummy.avatar }
        end
@@ -32,14 +32,14 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "create its thumbnails properly" do
+    it "creates its thumbnails properly" do
       assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
     end
 
     context 'reprocessing with unreadable original' do
       before { File.chmod(0000, @dummy.avatar.path) }
 
-      it "not raise an error" do
+      it "does not raise an error" do
         assert_nothing_raised do
           silence_stream(STDERR) do
             @dummy.avatar.reprocess!
@@ -47,7 +47,7 @@ describe 'Paperclip' do
         end
       end
 
-      it "return false" do
+      it "returns false" do
         silence_stream(STDERR) do
           assert !@dummy.avatar.reprocess!
         end
@@ -67,12 +67,12 @@ describe 'Paperclip' do
         @d2.save
       end
 
-      it "create its thumbnails properly" do
+      it "creates its thumbnails properly" do
         assert_match(/\b150x25\b/, `identify "#{@dummy.avatar.path(:thumb)}"`)
         assert_match(/\b50x50\b/, `identify "#{@dummy.avatar.path(:dynamic)}"`)
       end
 
-      it "change the timestamp" do
+      it "changes the timestamp" do
         assert_not_equal @original_timestamp, @d2.avatar_updated_at
       end
     end
@@ -90,14 +90,14 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "not create the thumbnails upon saving when post-processing is disabled" do
+    it "does not create the thumbnails upon saving when post-processing is disabled" do
       @dummy.avatar.post_processing = false
       @dummy.avatar = @file
       assert @dummy.save
       assert_file_not_exists @thumb_path
     end
 
-    it "create the thumbnails upon saving when post_processing is enabled" do
+    it "creates the thumbnails upon saving when post_processing is enabled" do
       @dummy.avatar.post_processing = true
       @dummy.avatar = @file
       assert @dummy.save
@@ -123,7 +123,7 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "allow us to create all thumbnails in one go" do
+    it "allows us to create all thumbnails in one go" do
       assert_file_not_exists(@thumb_small_path)
       assert_file_not_exists(@thumb_large_path)
 
@@ -133,7 +133,7 @@ describe 'Paperclip' do
       assert_file_exists(@thumb_large_path)
     end
 
-    it "allow us to selectively create each thumbnail" do
+    it "allows us to selectively create each thumbnail" do
       assert_file_not_exists(@thumb_small_path)
       assert_file_not_exists(@thumb_large_path)
 
@@ -154,7 +154,7 @@ describe 'Paperclip' do
       @dummy.avatar = @file
     end
 
-    it "report the file size of the processed file and not the original" do
+    it "reports the file size of the processed file and not the original" do
       assert_not_equal File.size(@file.path), @dummy.avatar.size
     end
 
@@ -179,7 +179,7 @@ describe 'Paperclip' do
         @saved_path = @dummy.avatar.path(:large)
       end
 
-      it "have a large file in the right place" do
+      it "has a large file in the right place" do
         assert_file_exists(@dummy.avatar.path(:large))
       end
 
@@ -189,18 +189,18 @@ describe 'Paperclip' do
           @dummy.save
         end
 
-        it "not have a large file in the right place anymore" do
+        it "does not have a large file in the right place anymore" do
           assert_file_not_exists(@saved_path)
         end
 
-        it "not have its next two parent directories" do
+        it "does not have its next two parent directories" do
           assert_file_not_exists(File.dirname(@saved_path))
           assert_file_not_exists(File.dirname(File.dirname(@saved_path)))
         end
       end
 
       context 'and deleted where the delete fails' do
-        it "not die if an unexpected SystemCallError happens" do
+        it "does not die if an unexpected SystemCallError happens" do
           FileUtils.stubs(:rmdir).raises(Errno::EPIPE)
           assert_nothing_raised do
             @dummy.avatar.clear
@@ -225,7 +225,7 @@ describe 'Paperclip' do
         @file.close
       end
 
-      it "respect the current umask" do
+      it "respects the current umask" do
         @dummy.avatar = @file
         @dummy.save
         assert_equal 0666&~umask, 0666&File.stat(@dummy.avatar.path).mode
@@ -245,7 +245,7 @@ describe 'Paperclip' do
         @file.close
       end
 
-      it "respect the current perms" do
+      it "respects the current perms" do
         @dummy.avatar = @file
         @dummy.save
         assert_equal perms, File.stat(@dummy.avatar.path).mode & 0777
@@ -253,7 +253,7 @@ describe 'Paperclip' do
     end
   end
 
-  it "skip chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
+  it "skips chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
     FileUtils.expects(:chmod).never
 
     rebuild_model override_file_permissions: false
@@ -281,7 +281,7 @@ describe 'Paperclip' do
 
     after { [@file, @bad_file].each(&:close) }
 
-    it "write and delete its files" do
+    it "writes and delete its files" do
       [["434x66", :original],
        ["300x46", :large],
        ["100x15", :medium],
@@ -319,7 +319,7 @@ describe 'Paperclip' do
       assert_nil @d2.avatar_file_name
     end
 
-    it "work exactly the same when new as when reloaded" do
+    it "works exactly the same when new as when reloaded" do
       @d2 = Dummy.find(@dummy.id)
 
       assert_equal @dummy.avatar_file_name, @d2.avatar_file_name
@@ -337,18 +337,18 @@ describe 'Paperclip' do
       end
     end
 
-    it "not abide things that don't have adapters" do
+    it "does not abide things that don't have adapters" do
       assert_raises(Paperclip::AdapterRegistry::NoHandlerError) do
         @dummy.avatar = "not a file"
       end
     end
 
-    it "not be ok with bad files" do
+    it "is not ok with bad files" do
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
     end
 
-    it "know the difference between good files, bad files, and not files when validating" do
+    it "knows the difference between good files, bad files, and not files when validating" do
       Dummy.validates_attachment_presence :avatar
       @d2 = Dummy.find(@dummy.id)
       @d2.avatar = @file
@@ -357,7 +357,7 @@ describe 'Paperclip' do
       assert ! @d2.valid?
     end
 
-    it "be able to reload without saving and not have the file disappear" do
+    it "is able to reload without saving and not have the file disappear" do
       @dummy.avatar = @file
       assert @dummy.save, @dummy.errors.full_messages.inspect
       @dummy.avatar.clear
@@ -376,7 +376,7 @@ describe 'Paperclip' do
 
       after { @file2.close }
 
-      it "work when assigned a file" do
+      it "works when assigned a file" do
         assert_not_equal `identify -format "%wx%h" "#{@dummy.avatar.path(:original)}"`,
           `identify -format "%wx%h" "#{@dummy2.avatar.path(:original)}"`
 
@@ -403,7 +403,7 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "should not error when saving" do
+    it "does not error when saving" do
       @dummy.save!
     end
   end
@@ -425,7 +425,7 @@ describe 'Paperclip' do
       @file.close
     end
 
-    it "be accessible" do
+    it "is accessible" do
       assert_file_exists(@dummy.avatar.path(:original))
       assert_file_exists(@dummy.avatar.path(:thumb))
     end
@@ -439,7 +439,7 @@ describe 'Paperclip' do
         @dummy.reload
       end
 
-      it "make all the styles accessible" do
+      it "makes all the styles accessible" do
         assert_file_exists(@dummy.avatar.path(:original))
         assert_file_exists(@dummy.avatar.path(:thumb))
         assert_file_exists(@dummy.avatar.path(:mini))
@@ -513,16 +513,16 @@ describe 'Paperclip' do
           @d2.save
         end
 
-        it "have the same name as the old file" do
+        it "has the same name as the old file" do
           assert_equal @d2.avatar.original_filename, @dummy.avatar.original_filename
         end
       end
 
-      it "have the same contents as the original" do
+      it "has the same contents as the original" do
         assert_equal @file.read, @files_on_s3[:original].read
       end
 
-      it "write and delete its files" do
+      it "writes and delete its files" do
         [["434x66", :original],
          ["300x46", :large],
          ["100x15", :medium],
@@ -554,7 +554,7 @@ describe 'Paperclip' do
         assert_nil @d2.avatar_file_name
       end
 
-      it "work exactly the same when new as when reloaded" do
+      it "works exactly the same when new as when reloaded" do
         @d2 = Dummy.find(@dummy.id)
 
         assert_equal @dummy.avatar_file_name, @d2.avatar_file_name
@@ -578,7 +578,7 @@ describe 'Paperclip' do
         end
       end
 
-      it "know the difference between good files, bad files, and nil" do
+      it "knows the difference between good files, bad files, and nil" do
         @dummy.avatar = @bad_file
         assert ! @dummy.valid?
         @dummy.avatar = nil
@@ -594,7 +594,7 @@ describe 'Paperclip' do
         assert ! @d2.valid?
       end
 
-      it "be able to reload without saving and not have the file disappear" do
+      it "is able to reload without saving and not have the file disappear" do
         @dummy.avatar = @file
         assert @dummy.save
         @dummy.avatar = nil
@@ -603,17 +603,17 @@ describe 'Paperclip' do
         assert_equal "5k.png", @dummy.avatar_file_name
       end
 
-      it "have the right content type" do
+      it "has the right content type" do
         headers = s3_headers_for(@dummy.avatar, :original)
         assert_equal 'image/png', headers['content-type']
       end
 
-      it "have the right style-specific headers" do
+      it "has the right style-specific headers" do
         headers = s3_headers_for(@dummy.avatar, :custom)
         assert_equal 'max-age=31557600', headers['cache-control']
       end
 
-      it "have the right style-specific metadata" do
+      it "has the right style-specific metadata" do
         headers = s3_headers_for(@dummy.avatar, :custom)
         assert_equal 'bar', headers['x-amz-meta-foo']
       end
@@ -624,7 +624,7 @@ describe 'Paperclip' do
           @dummy.avatar = @file
         end
 
-        it "not raise any error" do
+        it "does not raise any error" do
           @dummy.save!
         end
       end
@@ -639,7 +639,7 @@ describe 'Paperclip' do
 
     after { @file.close }
 
-    it "succeed when original attachment is a file" do
+    it "succeeds when original attachment is a file" do
       original = Dummy.new
       original.avatar = @file
       assert original.save
@@ -651,7 +651,7 @@ describe 'Paperclip' do
       assert copy.avatar.present?
     end
 
-    it "succeed when original attachment is empty" do
+    it "succeeds when original attachment is empty" do
       original = Dummy.create!
 
       copy = Dummy.new

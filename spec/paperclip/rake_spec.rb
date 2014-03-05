@@ -20,18 +20,18 @@ describe Rake do
         @bogus_instance.avatar.stubs(:reprocess!).raises
       end
 
-      it "catch the exception" do
+      it "catches the exception" do
         assert_nothing_raised do
           ::Rake::Task['paperclip:refresh:thumbnails'].execute
         end
       end
 
-      it "continue to the next instance" do
+      it "continues to the next instance" do
         @valid_instance.avatar.expects(:reprocess!)
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the exception" do
+      it "prints the exception" do
         exception_msg = 'Some Exception'
         @bogus_instance.avatar.stubs(:reprocess!).raises(exception_msg)
         Paperclip::Task.expects(:log_error).with do |str|
@@ -40,14 +40,14 @@ describe Rake do
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the class name" do
+      it "prints the class name" do
         Paperclip::Task.expects(:log_error).with do |str|
           str.match 'Dummy'
         end
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the instance ID" do
+      it "prints the instance ID" do
         Paperclip::Task.expects(:log_error).with do |str|
           str.match "ID #{@bogus_instance.id}"
         end
@@ -63,12 +63,12 @@ describe Rake do
         @bogus_instance.stubs(:errors).returns(@errors)
       end
 
-      it "continue to the next instance" do
+      it "continues to the next instance" do
         @valid_instance.avatar.expects(:reprocess!)
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the error" do
+      it "prints the error" do
         error_msg = 'Some Error'
         @errors.stubs(:full_messages).returns([error_msg])
         Paperclip::Task.expects(:log_error).with do |str|
@@ -77,14 +77,14 @@ describe Rake do
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the class name" do
+      it "prints the class name" do
         Paperclip::Task.expects(:log_error).with do |str|
           str.match 'Dummy'
         end
         ::Rake::Task['paperclip:refresh:thumbnails'].execute
       end
 
-      it "print the instance ID" do
+      it "prints the instance ID" do
         Paperclip::Task.expects(:log_error).with do |str|
           str.match "ID #{@bogus_instance.id}"
         end
@@ -94,7 +94,7 @@ describe Rake do
   end
 
   context "Paperclip::Task.log_error method" do
-    it "print its argument to STDERR" do
+    it "prints its argument to STDERR" do
       msg = 'Some Message'
       $stderr.expects(:puts).with(msg)
       Paperclip::Task.log_error(msg)

@@ -2,43 +2,43 @@ require 'spec_helper'
 
 describe Paperclip::HasAttachedFile do
   context '#define_on' do
-    it 'define a setter on the class object' do
+    it 'defines a setter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar=')
     end
 
-    it 'define a getter on the class object' do
+    it 'defines a getter on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar')
     end
 
-    it 'define a query on the class object' do
+    it 'defines a query on the class object' do
       assert_adding_attachment('avatar').defines_method('avatar?')
     end
 
-    it 'define a method on the class to get all of its attachments' do
+    it 'defines a method on the class to get all of its attachments' do
       assert_adding_attachment('avatar').defines_class_method('attachment_definitions')
     end
 
-    it 'flush errors as part of validations' do
+    it 'flushes errors as part of validations' do
       assert_adding_attachment('avatar').defines_validation
     end
 
-    it 'register the attachment with Paperclip::AttachmentRegistry' do
+    it 'registers the attachment with Paperclip::AttachmentRegistry' do
       assert_adding_attachment('avatar').registers_attachment
     end
 
-    it 'define an after_save callback' do
+    it 'defines an after_save callback' do
       assert_adding_attachment('avatar').defines_callback('after_save')
     end
 
-    it 'define a before_destroy callback' do
+    it 'defines a before_destroy callback' do
       assert_adding_attachment('avatar').defines_callback('before_destroy')
     end
 
-    it 'define an after_commit callback' do
+    it 'defines an after_commit callback' do
       assert_adding_attachment('avatar').defines_callback('after_commit')
     end
 
-    it 'define the Paperclip-specific callbacks' do
+    it 'defines the Paperclip-specific callbacks' do
       assert_adding_attachment('avatar').defines_callback('define_paperclip_callbacks')
     end
   end

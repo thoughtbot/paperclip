@@ -18,36 +18,36 @@ describe Paperclip::FileAdapter do
           @subject = Paperclip.io_adapters.for(@file)
         end
 
-        it "get the right filename" do
+        it "gets the right filename" do
           assert_equal "5k.png", @subject.original_filename
         end
 
-        it "force binmode on tempfile" do
+        it "forces binmode on tempfile" do
           assert @subject.instance_variable_get("@tempfile").binmode?
         end
 
-        it "get the content type" do
+        it "gets the content type" do
           assert_equal "image/png", @subject.content_type
         end
 
-        it "return content type as a string" do
+        it "returns content type as a string" do
           expect(@subject.content_type).to be_a String
         end
 
-        it "get the file's size" do
+        it "gets the file's size" do
           assert_equal 4456, @subject.size
         end
 
-        it "return false for a call to nil?" do
+        it "returns false for a call to nil?" do
           assert ! @subject.nil?
         end
 
-        it "generate a MD5 hash of the contents" do
+        it "generates a MD5 hash of the contents" do
           expected = Digest::MD5.file(@file.path).to_s
           assert_equal expected, @subject.fingerprint
         end
 
-        it "read the contents of the file" do
+        it "reads the contents of the file" do
           expected = @file.read
           assert expected.length > 0
           assert_equal expected, @subject.read
@@ -60,11 +60,11 @@ describe Paperclip::FileAdapter do
           @subject = Paperclip.io_adapters.for(@file)
         end
 
-        it "prefer officially registered mime type" do
+        it "prefers officially registered mime type" do
           assert_equal "image/png", @subject.content_type
         end
 
-        it "return content type as a string" do
+        it "returns content type as a string" do
           expect(@subject.content_type).to be_a String
         end
       end
@@ -76,7 +76,7 @@ describe Paperclip::FileAdapter do
           @subject = Paperclip.io_adapters.for(@file)
         end
 
-        it "return content type without newline character" do
+        it "returns content type without newline character" do
           assert_equal "application/vnd.ms-office", @subject.content_type
         end
       end
@@ -96,11 +96,11 @@ describe Paperclip::FileAdapter do
         @subject.close
       end
 
-      it "not generate filenames that include restricted characters" do
+      it "does not generate filenames that include restricted characters" do
         assert_equal 'image_restricted.gif', @subject.original_filename
       end
 
-      it "not generate paths that include restricted characters" do
+      it "does not generate paths that include restricted characters" do
         expect(@subject.path).to_not match(/:/)
       end
     end
@@ -116,7 +116,7 @@ describe Paperclip::FileAdapter do
         @subject.close
       end
 
-      it "provide correct mime-type" do
+      it "provides correct mime-type" do
         assert_match %r{.*/x-empty}, @subject.content_type
       end
     end
