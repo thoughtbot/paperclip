@@ -46,4 +46,26 @@ module Assertions
   def assert_empty(object)
     expect(object).to be_empty
   end
+
+  def assert_success_response(url)
+    Net::HTTP.get_response(URI.parse(url)) do |response|
+      assert_equal "200", response.code,
+        "Expected HTTP response code 200, got #{response.code}"
+    end
+  end
+
+  def assert_not_found_response(url)
+    Net::HTTP.get_response(URI.parse(url)) do |response|
+      assert_equal "404", response.code,
+        "Expected HTTP response code 404, got #{response.code}"
+    end
+  end
+
+  def assert_frame_dimensions(range, frames)
+    frames.each_with_index do |frame, frame_index|
+      frame.split('x').each_with_index do |dimension, dimension_index |
+        assert range.include?(dimension.to_i), "Frame #{frame_index}[#{dimension_index}] should have been within #{range.inspect}, but was #{dimension}"
+      end
+    end
+  end
 end
