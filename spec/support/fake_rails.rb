@@ -7,8 +7,6 @@ class FakeRails
   attr_accessor :env, :root
 
   def const_defined?(const)
-    if const.to_sym == :Railtie
-      false
-    end
+    false
   end
 end
