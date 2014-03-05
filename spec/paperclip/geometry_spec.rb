@@ -2,54 +2,54 @@ require 'spec_helper'
 
 describe Paperclip::Geometry do
   context "Paperclip::Geometry" do
-    it "correctly report its given dimensions" do
+    it "correctly reports its given dimensions" do
       assert @geo = Paperclip::Geometry.new(1024, 768)
       assert_equal 1024, @geo.width
       assert_equal 768, @geo.height
     end
 
-    it "set height to 0 if height dimension is missing" do
+    it "sets height to 0 if height dimension is missing" do
       assert @geo = Paperclip::Geometry.new(1024)
       assert_equal 1024, @geo.width
       assert_equal 0, @geo.height
     end
 
-    it "set width to 0 if width dimension is missing" do
+    it "sets width to 0 if width dimension is missing" do
       assert @geo = Paperclip::Geometry.new(nil, 768)
       assert_equal 0, @geo.width
       assert_equal 768, @geo.height
     end
 
-    it "be generated from a WxH-formatted string" do
+    it "is generated from a WxH-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800x600")
       assert_equal 800, @geo.width
       assert_equal 600, @geo.height
     end
 
-    it "be generated from a xH-formatted string" do
+    it "is generated from a xH-formatted string" do
       assert @geo = Paperclip::Geometry.parse("x600")
       assert_equal 0, @geo.width
       assert_equal 600, @geo.height
     end
 
-    it "be generated from a Wx-formatted string" do
+    it "is generated from a Wx-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800x")
       assert_equal 800, @geo.width
       assert_equal 0, @geo.height
     end
 
-    it "be generated from a W-formatted string" do
+    it "is generated from a W-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800")
       assert_equal 800, @geo.width
       assert_equal 0, @geo.height
     end
 
-    it "ensure the modifier is nil if not present" do
+    it "ensures the modifier is nil if not present" do
       assert @geo = Paperclip::Geometry.parse("123x456")
       assert_nil @geo.modifier
     end
 
-    it "recognize an EXIF orientation and not rotate with auto_orient if not necessary" do
+    it "recognizes an EXIF orientation and not rotate with auto_orient if not necessary" do
       geo = Paperclip::Geometry.new(width: 1024, height: 768, orientation: 1)
       assert geo
       assert_equal 1024, geo.width
@@ -61,7 +61,7 @@ describe Paperclip::Geometry do
       assert_equal 768, geo.height
     end
 
-    it "recognize an EXIF orientation and rotate with auto_orient if necessary" do
+    it "recognizes an EXIF orientation and rotate with auto_orient if necessary" do
       geo = Paperclip::Geometry.new(width: 1024, height: 768, orientation: 6)
       assert geo
       assert_equal 1024, geo.width
@@ -73,7 +73,7 @@ describe Paperclip::Geometry do
       assert_equal 1024, geo.height
     end
 
-    it "treat x and X the same in geometries" do
+    it "treats x and X the same in geometries" do
       @lower = Paperclip::Geometry.parse("123x456")
       @upper = Paperclip::Geometry.parse("123X456")
       assert_equal 123, @lower.width
@@ -83,46 +83,46 @@ describe Paperclip::Geometry do
     end
 
     ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
-      it "ensure the modifier #{description} is preserved" do
+      it "ensures the modifier #{description} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
         assert_equal mod, @geo.modifier
         assert_equal "123x456#{mod}", @geo.to_s
       end
 
-      it "ensure the modifier #{description} is preserved with no height" do
+      it "ensures the modifier #{description} is preserved with no height" do
         assert @geo = Paperclip::Geometry.parse("123x#{mod}")
         assert_equal mod, @geo.modifier
         assert_equal "123#{mod}", @geo.to_s
       end
     end
 
-    it "make sure the modifier gets passed during transformation_to" do
+    it "makes sure the modifier gets passed during transformation_to" do
       assert @src = Paperclip::Geometry.parse("123x456")
       assert @dst = Paperclip::Geometry.parse("123x456>")
       assert_equal ["123x456>", nil], @src.transformation_to(@dst)
     end
 
-    it "generate correct ImageMagick formatting string for W-formatted string" do
+    it "generates correct ImageMagick formatting string for W-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800")
       assert_equal "800", @geo.to_s
     end
 
-    it "generate correct ImageMagick formatting string for Wx-formatted string" do
+    it "generates correct ImageMagick formatting string for Wx-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800x")
       assert_equal "800", @geo.to_s
     end
 
-    it "generate correct ImageMagick formatting string for xH-formatted string" do
+    it "generates correct ImageMagick formatting string for xH-formatted string" do
       assert @geo = Paperclip::Geometry.parse("x600")
       assert_equal "x600", @geo.to_s
     end
 
-    it "generate correct ImageMagick formatting string for WxH-formatted string" do
+    it "generates correct ImageMagick formatting string for WxH-formatted string" do
       assert @geo = Paperclip::Geometry.parse("800x600")
       assert_equal "800x600", @geo.to_s
     end
 
-    it "be generated from a file" do
+    it "is generated from a file" do
       file = fixture_file("5k.png")
       file = File.new(file, 'rb')
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
@@ -130,14 +130,14 @@ describe Paperclip::Geometry do
       assert_equal 434, @geo.width
     end
 
-    it "be generated from a file path" do
+    it "is generated from a file path" do
       file = fixture_file("5k.png")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       assert_equal 66, @geo.height
       assert_equal 434, @geo.width
     end
 
-    it 'calculate an EXIF-rotated image dimensions from a path' do
+    it 'calculates an EXIF-rotated image dimensions from a path' do
       file = fixture_file("rotated.jpg")
       assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
       @geo.auto_orient
@@ -145,28 +145,28 @@ describe Paperclip::Geometry do
       assert_equal 200, @geo.width
     end
 
-    it "not generate from a bad file" do
+    it "does not generate from a bad file" do
       file = "/home/This File Does Not Exist.omg"
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end
 
-    it "not generate from a blank filename" do
+    it "does not generate from a blank filename" do
       file = ""
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end
 
-    it "not generate from a nil file" do
+    it "does not generate from a nil file" do
       file = nil
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end
 
-    it "not generate from a file with no path" do
+    it "does not generate from a file with no path" do
       file = mock("file", path: "")
       file.stubs(:respond_to?).with(:path).returns(true)
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end
 
-    it "let us know when a command isn't found versus a processing error" do
+    it "lets us know when a command isn't found versus a processing error" do
       old_path = ENV['PATH']
       begin
         ENV['PATH'] = ''
@@ -187,27 +187,27 @@ describe Paperclip::Geometry do
           @geo = Paperclip::Geometry.new(args[1], args[2])
         end
 
-        it "#{args[3] ? "" : "not"} be vertical" do
+        it "is #{args[3]s ? "" : "not"} vertical" do
           assert_equal args[3], @geo.vertical?
         end
 
-        it "#{args[4] ? "" : "not"} be horizontal" do
+        it "is #{args[4] ? "" : "not"} horizontal" do
           assert_equal args[4], @geo.horizontal?
         end
 
-        it "#{args[5] ? "" : "not"} be square" do
+        it "is #{args[5] ? "" : "not"} square" do
           assert_equal args[5], @geo.square?
         end
 
-        it "report that #{args[6]} is the larger dimension" do
+        it "reports that #{args[6]} is the larger dimension" do
           assert_equal args[6], @geo.larger
         end
 
-        it "report that #{args[7]} is the smaller dimension" do
+        it "reports that #{args[7]} is the smaller dimension" do
           assert_equal args[7], @geo.smaller
         end
 
-        it "have an aspect ratio of #{args[8]}" do
+        it "has an aspect ratio of #{args[8]}" do
           expect(@geo.aspect).to be_within(0.0001).of(args[8])
         end
       end
@@ -223,11 +223,11 @@ describe Paperclip::Geometry do
           @scale, @crop = @geo.transformation_to @dst, true
         end
 
-        it "be able to return the correct scaling transformation geometry #{args[2]}" do
+        it "is able to return the correct scaling transformation geometry #{args[2]}" do
           assert_equal args[2], @scale
         end
 
-        it "be able to return the correct crop transformation geometry #{args[3]}" do
+        it "is able to return the correct crop transformation geometry #{args[3]}" do
           assert_equal args[3], @crop
         end
       end
@@ -242,10 +242,10 @@ describe Paperclip::Geometry do
             @source = Paperclip::Geometry.parse original_size
             @new_geometry = @source.resize_to size
           end
-          it "have #{dimensions.first} width" do
+          it "has #{dimensions.first} width" do
             assert_equal dimensions.first, @new_geometry.width
           end
-          it "have #{dimensions.last} height" do
+          it "has #{dimensions.last} height" do
             assert_equal dimensions.last, @new_geometry.height
           end
         end

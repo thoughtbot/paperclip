@@ -18,7 +18,7 @@ describe Paperclip::Schema do
       before do
         ActiveSupport::Deprecation.silenced = false
       end
-      it "create attachment columns" do
+      it "creates attachment columns" do
         Dummy.connection.create_table :dummies, force: true do |t|
           ActiveSupport::Deprecation.silence do
             t.has_attached_file :avatar
@@ -34,7 +34,7 @@ describe Paperclip::Schema do
         expect(columns).to include(['avatar_updated_at', :datetime])
       end
 
-      it "display deprecation warning" do
+      it "displays deprecation warning" do
         Dummy.connection.create_table :dummies, force: true do |t|
           assert_deprecated do
             t.has_attached_file :avatar
@@ -51,7 +51,7 @@ describe Paperclip::Schema do
         rebuild_class
       end
 
-      it "create attachment columns" do
+      it "creates attachment columns" do
         columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
         expect(columns).to include(['avatar_file_name', :string])
@@ -74,7 +74,7 @@ describe Paperclip::Schema do
           rebuild_class
         end
 
-        it "create attachment columns" do
+        it "creates attachment columns" do
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
           expect(columns).to include(['avatar_file_name', :string])
@@ -90,7 +90,7 @@ describe Paperclip::Schema do
           rebuild_class
         end
 
-        it "create attachment columns" do
+        it "creates attachment columns" do
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
           expect(columns).to include(['avatar_file_name', :string])
@@ -105,7 +105,7 @@ describe Paperclip::Schema do
       end
 
       context "with no attachment" do
-        it "raise an error" do
+        it "raises an error" do
           assert_raises ArgumentError do
             Dummy.connection.add_attachment :dummies
           rebuild_class
@@ -128,7 +128,7 @@ describe Paperclip::Schema do
         before do
           ActiveSupport::Deprecation.silenced = false
         end
-        it "remove the attachment columns" do
+        it "removes the attachment columns" do
           ActiveSupport::Deprecation.silence do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
@@ -142,7 +142,7 @@ describe Paperclip::Schema do
           expect(columns).to_not include(['avatar_updated_at', :datetime])
         end
 
-        it "display a deprecation warning" do
+        it "displays a deprecation warning" do
           assert_deprecated do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
@@ -156,7 +156,7 @@ describe Paperclip::Schema do
             rebuild_class
           end
 
-          it "remove the attachment columns" do
+          it "removes the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
             expect(columns).to_not include(['avatar_file_name', :string])
@@ -179,7 +179,7 @@ describe Paperclip::Schema do
             rebuild_class
           end
 
-          it "remove the attachment columns" do
+          it "removes the attachment columns" do
             columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
             expect(columns).to_not include(['avatar_file_name', :string])
@@ -194,7 +194,7 @@ describe Paperclip::Schema do
         end
 
         context "with no attachment" do
-          it "raise an error" do
+          it "raises an error" do
             assert_raises ArgumentError do
               Dummy.connection.remove_attachment :dummies
             end

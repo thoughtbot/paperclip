@@ -19,7 +19,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       @validator.validate(@dummy)
     end
 
-    it "not set an error message" do
+    it "does not set an error message" do
       assert @dummy.errors[:avatar_content_type].blank?
     end
   end
@@ -32,7 +32,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         @validator.validate(@dummy)
       end
 
-      it "allow avatar_content_type as nil" do
+      it "allows avatar_content_type as nil" do
         assert @dummy.errors[:avatar_content_type].blank?
       end
     end
@@ -44,7 +44,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         @validator.validate(@dummy)
       end
 
-      it "not allow avatar_content_type as nil" do
+      it "does not allow avatar_content_type as nil" do
         assert @dummy.errors[:avatar_content_type].present?
       end
     end
@@ -57,12 +57,12 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       @validator.validate(@dummy)
     end
 
-    it "add error to the base object" do
+    it "adds error to the base object" do
       assert @dummy.errors[:avatar].present?,
         "Error not added to base attribute"
     end
 
-    it "add error to base object as a string" do
+    it "adds error to base object as a string" do
       expect(@dummy.errors[:avatar].first).to be_a String
     end
   end
@@ -74,7 +74,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       @validator.validate(@dummy)
     end
 
-    it "not add error to the base object" do
+    it "does not add error to the base object" do
       assert @dummy.errors[:avatar].blank?,
         "Error was added to base attribute"
     end
@@ -88,7 +88,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         @validator.validate(@dummy)
       end
 
-      it "allow avatar_content_type as blank" do
+      it "allows avatar_content_type as blank" do
         assert @dummy.errors[:avatar_content_type].blank?
       end
     end
@@ -100,7 +100,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         @validator.validate(@dummy)
       end
 
-      it "not allow avatar_content_type as blank" do
+      it "does not allow avatar_content_type as blank" do
         assert @dummy.errors[:avatar_content_type].present?
       end
     end
@@ -115,7 +115,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -127,7 +127,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -139,7 +139,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -153,7 +153,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "set a correct default error message" do
+        it "sets a correct default error message" do
           assert @dummy.errors[:avatar_content_type].present?
           expect(@dummy.errors[:avatar_content_type]).to include "is invalid"
         end
@@ -166,7 +166,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "set a correct default error message" do
+        it "sets a correct default error message" do
           assert @dummy.errors[:avatar_content_type].present?
           expect(@dummy.errors[:avatar_content_type]).to include "is invalid"
         end
@@ -180,7 +180,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
             @validator.validate(@dummy)
           end
 
-          it "set a correct error message" do
+          it "sets a correct error message" do
             expect(@dummy.errors[:avatar_content_type]).to include "should be a PNG image"
           end
         end
@@ -192,7 +192,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
             @validator.validate(@dummy)
           end
 
-          it "set a correct error message" do
+          it "sets a correct error message" do
             expect(@dummy.errors[:avatar_content_type]).to include "should have content type image/png"
           end
         end
@@ -209,7 +209,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -221,7 +221,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -233,7 +233,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "not set an error message" do
+        it "does not set an error message" do
           assert @dummy.errors[:avatar_content_type].blank?
         end
       end
@@ -247,7 +247,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "set a correct default error message" do
+        it "sets a correct default error message" do
           assert @dummy.errors[:avatar_content_type].present?
           expect(@dummy.errors[:avatar_content_type]).to include "is invalid"
         end
@@ -260,7 +260,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           @validator.validate(@dummy)
         end
 
-        it "set a correct default error message" do
+        it "sets a correct default error message" do
           assert @dummy.errors[:avatar_content_type].present?
           expect(@dummy.errors[:avatar_content_type]).to include "is invalid"
         end
@@ -274,7 +274,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
             @validator.validate(@dummy)
           end
 
-          it "set a correct error message" do
+          it "sets a correct error message" do
             expect(@dummy.errors[:avatar_content_type]).to include "should not be a PNG image"
           end
         end
@@ -286,7 +286,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
             @validator.validate(@dummy)
           end
 
-          it "set a correct error message" do
+          it "sets a correct error message" do
             expect(@dummy.errors[:avatar_content_type]).to include "should not have content type image/png"
           end
         end
@@ -299,23 +299,23 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       Dummy.validates_attachment_content_type :avatar, content_type: "image/jpg"
     end
 
-    it "add the validator to the class" do
+    it "adds the validator to the class" do
       assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_content_type }
     end
   end
 
   context "given options" do
-    it "raise argument error if no required argument was given" do
+    it "raises argument error if no required argument was given" do
       assert_raises(ArgumentError) do
         build_validator message: "Some message"
       end
     end
 
-    it "not raise argument error if :content_type was given" do
+    it "does not raise argument error if :content_type was given" do
       build_validator content_type: "image/jpg"
     end
 
-    it "not raise argument error if :not was given" do
+    it "does not raise argument error if :not was given" do
       build_validator not: "image/jpg"
     end
   end

@@ -18,7 +18,7 @@ describe Paperclip::Storage::S3 do
       @avatar = @dummy.avatar
     end
 
-    it "get the correct credentials when RAILS_ENV is production" do
+    it "gets the correct credentials when RAILS_ENV is production" do
       rails_env("production") do
         assert_equal({key: "12345"},
                      @avatar.parse_credentials('production' => {key: '12345'},
@@ -26,7 +26,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "get the correct credentials when RAILS_ENV is development" do
+    it "gets the correct credentials when RAILS_ENV is development" do
       rails_env("development") do
         assert_equal({key: "54321"},
                      @avatar.parse_credentials('production' => {key: '12345'},
@@ -34,13 +34,13 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "return the argument if the key does not exist" do
+    it "returns the argument if the key does not exist" do
       rails_env("not really an env") do
         assert_equal({test: "12345"}, @avatar.parse_credentials(test: "12345"))
       end
     end
 
-    it "support HTTP proxy settings" do
+    it "supports HTTP proxy settings" do
       rails_env("development") do
         assert_equal(true, @avatar.using_http_proxy?)
         assert_equal(@proxy_settings[:host], @avatar.http_proxy_host)
@@ -59,7 +59,7 @@ describe Paperclip::Storage::S3 do
       @dummy = Dummy.new
     end
 
-    it "populate #bucket_name" do
+    it "populates #bucket_name" do
       assert_equal @dummy.avatar.bucket_name, 'testing'
     end
 
@@ -72,7 +72,7 @@ describe Paperclip::Storage::S3 do
       @dummy = Dummy.new
     end
 
-    it "populate #bucket_name" do
+    it "populates #bucket_name" do
       assert_equal @dummy.avatar.bucket_name, 'testing'
     end
 
@@ -90,7 +90,7 @@ describe Paperclip::Storage::S3 do
 
     end
 
-    it "raise an argument error" do
+    it "raises an argument error" do
       expect { @dummy.save }.to raise_error(ArgumentError, /missing required :bucket option/)
     end
 
@@ -107,15 +107,15 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an S3 path" do
+    it "returns a url based on an S3 path" do
       assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
 
-    it "use the correct bucket" do
+    it "uses the correct bucket" do
       assert_equal "bucket", @dummy.avatar.s3_bucket.name
     end
 
-    it "use the correct key" do
+    it "uses the correct key" do
       assert_equal "avatars/data.txt", @dummy.avatar.s3_object.key
     end
   end
@@ -129,7 +129,7 @@ describe Paperclip::Storage::S3 do
           @dummy = Dummy.new
         end
 
-        it "return the s3_protocol in string" do
+        it "returns the s3_protocol in string" do
           assert_equal protocol.to_s, @dummy.avatar.s3_protocol
         end
       end
@@ -147,7 +147,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an S3 path" do
+    it "returns a url based on an S3 path" do
       assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
@@ -163,7 +163,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an S3 path" do
+    it "returns a url based on an S3 path" do
       assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
@@ -179,7 +179,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an S3 path" do
+    it "returns a url based on an S3 path" do
       assert_match %r{^//s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
   end
@@ -202,11 +202,11 @@ describe Paperclip::Storage::S3 do
         @avatar = @dummy.avatar
     end
 
-    it "use an S3 object based on the correct path for the default style" do
+    it "uses an S3 object based on the correct path for the default style" do
       assert_equal("avatars/original/data.txt", @dummy.avatar.s3_object.key)
     end
 
-    it "use an S3 object based on the correct path for the custom style" do
+    it "uses an S3 object based on the correct path for the custom style" do
       assert_equal("avatars/thumb/data.txt", @dummy.avatar.s3_object(:thumb).key)
     end
   end
@@ -222,11 +222,11 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an :s3_host_name path" do
+    it "returns a url based on an :s3_host_name path" do
       assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
     end
 
-    it "use the S3 bucket with the correct host name" do
+    it "uses the S3 bucket with the correct host name" do
       assert_equal "s3-ap-northeast-1.amazonaws.com", @dummy.avatar.s3_bucket.config.s3_endpoint
     end
   end
@@ -245,7 +245,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "use s3_host_name as a proc if available" do
+    it "uses s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
       assert_equal "http://s3.something.com/bucket/avatars/data.txt", @dummy.avatar.url(:original, timestamp: false)
     end
@@ -268,19 +268,19 @@ describe Paperclip::Storage::S3 do
         end
     end
 
-    it "return a url containing the correct original file mime type" do
+    it "returns a url containing the correct original file mime type" do
       assert_match /.+\/5k.png/, @dummy.avatar.url
     end
 
-    it 'use the correct key for the original file mime type' do
+    it 'uses the correct key for the original file mime type' do
       assert_match /.+\/5k.png/, @dummy.avatar.s3_object.key
     end
 
-    it "return a url containing the correct processed file mime type" do
+    it "returns a url containing the correct processed file mime type" do
       assert_match /.+\/5k.jpg/, @dummy.avatar.url(:large)
     end
 
-    it "use the correct key for the processed file mime type" do
+    it "uses the correct key for the processed file mime type" do
       assert_match /.+\/5k.jpg/, @dummy.avatar.s3_object(:large).key
     end
   end
@@ -319,7 +319,7 @@ describe Paperclip::Storage::S3 do
 
     after { @file.close }
 
-    it "succeed" do
+    it "succeeds" do
       assert_equal @dummy.counter, 7
     end
   end
@@ -340,11 +340,11 @@ describe Paperclip::Storage::S3 do
         end
     end
 
-    it "return a replaced version for path" do
+    it "returns a replaced version for path" do
       assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
     end
 
-    it "return a replaced version for url" do
+    it "returns a replaced version for url" do
       assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
     end
   end
@@ -371,11 +371,11 @@ describe Paperclip::Storage::S3 do
         @dummy.save
     end
 
-    it "return a replaced version for path" do
+    it "returns a replaced version for path" do
       assert_match /.+\/question_mark\.png/, @dummy.avatar.path
     end
 
-    it "return a replaced version for url" do
+    it "returns a replaced version for url" do
       assert_match /.+\/question_mark\.png/, @dummy.avatar.url
     end
   end
@@ -391,7 +391,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on an S3 subdomain" do
+    it "returns a url based on an S3 subdomain" do
       assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data.txt}, @dummy.avatar.url
     end
   end
@@ -410,7 +410,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on the host_alias" do
+    it "returns a url based on the host_alias" do
       assert_match %r{^http://something.something.com/avatars/data.txt}, @dummy.avatar.url
     end
   end
@@ -433,12 +433,12 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a url based on the host_alias" do
+    it "returns a url based on the host_alias" do
       assert_match %r{^http://cdn1.example.com/avatars/data.txt}, @dummy.avatar.url
       assert_match %r{^http://cdn2.example.com/avatars/data.txt}, @dummy.avatar.url
     end
 
-    it "still return the bucket name" do
+    it "still returns the bucket name" do
       assert_equal "prod_bucket", @dummy.avatar.bucket_name
     end
 
@@ -455,7 +455,7 @@ describe Paperclip::Storage::S3 do
       @dummy.avatar = stringy_file
     end
 
-    it "return a relative URL for Rails to calculate assets host" do
+    it "returns a relative URL for Rails to calculate assets host" do
       assert_match %r{^avatars/data\.txt}, @dummy.avatar.url
     end
 
@@ -480,7 +480,7 @@ describe Paperclip::Storage::S3 do
       }
     end
 
-    it "use default options" do
+    it "uses default options" do
       @build_model_with_options[{}]
 
       rails_env("production") do
@@ -495,7 +495,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "allow overriding s3_url_options" do
+    it "allows overriding s3_url_options" do
       @build_model_with_options[s3_url_options: { response_content_disposition: "inline" }]
 
       rails_env("production") do
@@ -510,7 +510,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "allow overriding s3_object options with a proc" do
+    it "allows overriding s3_object options with a proc" do
       @build_model_with_options[s3_url_options: lambda {|attachment| { response_content_type: attachment.avatar_content_type } }]
 
       rails_env("production") do
@@ -539,16 +539,16 @@ describe Paperclip::Storage::S3 do
     context "with no attachment" do
       before { assert(!@dummy.avatar.exists?) }
 
-      it "return the default URL" do
+      it "returns the default URL" do
         assert_equal(@dummy.avatar.url, @dummy.avatar.expiring_url)
       end
 
-      it 'generate a url for a style when a file does not exist' do
+      it 'generates a url for a style when a file does not exist' do
         assert_equal(@dummy.avatar.url(:thumb), @dummy.avatar.expiring_url(3600, :thumb))
       end
     end
 
-    it "generate the same url when using Times and Integer offsets" do
+    it "generates the same url when using Times and Integer offsets" do
       assert_equal @dummy.avatar.expiring_url(1234), @dummy.avatar.expiring_url(Time.now + 1234)
     end
   end
@@ -571,14 +571,14 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "should generate a url for the thumb" do
+    it "generates a url for the thumb" do
       object = stub
       @dummy.avatar.stubs(:s3_object).with(:thumb).returns(object)
       object.expects(:url_for).with(:read, expires: 1800, secure: true)
       @dummy.avatar.expiring_url(1800, :thumb)
     end
 
-    it "should generate a url for the default style" do
+    it "generates a url for the default style" do
       object = stub
       @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
       object.expects(:url_for).with(:read, expires: 1800, secure: true)
@@ -596,14 +596,14 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
     end
 
-    it "get the right bucket in production" do
+    it "gets the right bucket in production" do
       rails_env("production") do
         assert_equal "prod_bucket", @dummy.avatar.bucket_name
         assert_equal "prod_bucket", @dummy.avatar.s3_bucket.name
       end
     end
 
-    it "get the right bucket in development" do
+    it "gets the right bucket in development" do
       rails_env("development") do
         assert_equal "dev_bucket", @dummy.avatar.bucket_name
         assert_equal "dev_bucket", @dummy.avatar.s3_bucket.name
@@ -622,21 +622,21 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
     end
 
-    it "get the right s3_host_name in production" do
+    it "gets the right s3_host_name in production" do
       rails_env("production") do
         assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
         assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
       end
     end
 
-    it "get the right s3_host_name in development" do
+    it "gets the right s3_host_name in development" do
       rails_env("development") do
         assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
         assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
       end
     end
 
-    it "get the right s3_host_name if the key does not exist" do
+    it "gets the right s3_host_name if the key does not exist" do
       rails_env("test") do
         assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
         assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint
@@ -655,11 +655,11 @@ describe Paperclip::Storage::S3 do
         }
     end
 
-    it "be extended by the S3 module" do
+    it "is extended by the S3 module" do
       assert Dummy.new.avatar.is_a?(Paperclip::Storage::S3)
     end
 
-    it "not be extended by the Filesystem module" do
+    it "won't be extended by the Filesystem module" do
       assert ! Dummy.new.avatar.is_a?(Paperclip::Storage::Filesystem)
     end
 
@@ -672,13 +672,13 @@ describe Paperclip::Storage::S3 do
 
       after { @file.close }
 
-      it "not get a bucket to get a URL" do
+      it "does not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
         assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
-      it "be rewound after flush_writes" do
+      it "is rewound after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
         @dummy.avatar.stubs(:s3_object).returns(stub(write: true))
 
@@ -687,7 +687,7 @@ describe Paperclip::Storage::S3 do
         assert files.none?(&:eof?), "Expect all the files to be rewound."
       end
 
-      it "be removed after after_flush_writes" do
+      it "is removed after after_flush_writes" do
         @dummy.avatar.stubs(:s3_object).returns(stub(write: true))
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
@@ -705,7 +705,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -721,7 +721,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -733,7 +733,7 @@ describe Paperclip::Storage::S3 do
           @dummy.destroy
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -743,7 +743,7 @@ describe Paperclip::Storage::S3 do
           AWS::S3::S3Object.any_instance.stubs(:exists?).raises(AWS::Errors::Base)
         end
 
-        it 'return false on exists?' do
+        it 'returns false on exists?' do
           assert !@dummy.avatar.exists?
         end
       end
@@ -757,7 +757,7 @@ describe Paperclip::Storage::S3 do
         s3_credentials: {not: :important}
     end
 
-    it "get the right bucket name" do
+    it "gets the right bucket name" do
       assert "bucket_a", Dummy.new(other: 'a').avatar.bucket_name
       assert "bucket_a", Dummy.new(other: 'a').avatar.s3_bucket.name
       assert "bucket_b", Dummy.new(other: 'b').avatar.bucket_name
@@ -774,7 +774,7 @@ describe Paperclip::Storage::S3 do
         }
     end
 
-    it "get the right credentials" do
+    it "gets the right credentials" do
       assert "access1234", Dummy.new(other: '1234').avatar.s3_credentials[:access_key_id]
       assert "secret1234", Dummy.new(other: '1234').avatar.s3_credentials[:secret_access_key]
     end
@@ -792,7 +792,7 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
     end
 
-    it "set the credential-provider" do
+    it "sets the credential-provider" do
       expect(@dummy.avatar.s3_bucket.config.credential_provider).to be_a DummyCredentialProvider
     end
   end
@@ -803,7 +803,7 @@ describe Paperclip::Storage::S3 do
       @dummy = Dummy.new
     end
 
-    it "not accept the credentials" do
+    it "does not accept the credentials" do
       assert_raises(ArgumentError) do
         @dummy.avatar.s3_credentials
       end
@@ -816,7 +816,7 @@ describe Paperclip::Storage::S3 do
       @dummy = Dummy.new
     end
 
-    it "not parse any credentials" do
+    it "does not parse any credentials" do
       assert_equal({}, @dummy.avatar.s3_credentials)
     end
   end
@@ -853,7 +853,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -892,7 +892,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -931,7 +931,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -970,7 +970,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -1009,7 +1009,7 @@ describe Paperclip::Storage::S3 do
             @dummy.save
           end
 
-          it "succeed" do
+          it "succeeds" do
             assert true
           end
         end
@@ -1049,7 +1049,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -1088,7 +1088,7 @@ describe Paperclip::Storage::S3 do
           @dummy.save
         end
 
-        it "succeed" do
+        it "succeeds" do
           assert true
         end
       end
@@ -1110,7 +1110,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "parse the credentials" do
+    it "parses the credentials" do
       assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
       assert_equal 'pathname_key', @dummy.avatar.s3_bucket.config.access_key_id
       assert_equal 'pathname_secret', @dummy.avatar.s3_bucket.config.secret_access_key
@@ -1133,7 +1133,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "run the file through ERB" do
+    it "runs the file through ERB" do
       assert_equal 'env_bucket', @dummy.avatar.bucket_name
       assert_equal 'env_key', @dummy.avatar.s3_bucket.config.access_key_id
       assert_equal 'env_secret', @dummy.avatar.s3_bucket.config.secret_access_key
@@ -1171,7 +1171,7 @@ describe Paperclip::Storage::S3 do
             @dummy.save
           end
 
-          it "succeed" do
+          it "succeeds" do
             assert true
           end
         end
@@ -1209,7 +1209,7 @@ describe Paperclip::Storage::S3 do
             @dummy.save
           end
 
-          it "succeed" do
+          it "succeeds" do
             assert true
           end
         end
@@ -1255,7 +1255,7 @@ describe Paperclip::Storage::S3 do
             @dummy.save
           end
 
-          it "succeed" do
+          it "succeeds" do
             assert true
           end
         end
@@ -1296,7 +1296,7 @@ describe Paperclip::Storage::S3 do
             @dummy.save
           end
 
-          it "succeed" do
+          it "succeeds" do
             assert @dummy.avatar.url().include?       "https://"
             assert @dummy.avatar.url(:thumb).include? "http://"
           end

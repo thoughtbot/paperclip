@@ -6,14 +6,14 @@ describe 'Attachment Registry' do
   end
 
   context '.names_for' do
-    it 'include attachment names for the given class' do
+    it 'includes attachment names for the given class' do
       foo = Class.new
       Paperclip::AttachmentRegistry.register(foo, :avatar, {})
 
       assert_equal [:avatar], Paperclip::AttachmentRegistry.names_for(foo)
     end
 
-    it 'not include attachment names for other classes' do
+    it 'does not include attachment names for other classes' do
       foo = Class.new
       bar = Class.new
       Paperclip::AttachmentRegistry.register(foo, :avatar, {})
@@ -22,13 +22,13 @@ describe 'Attachment Registry' do
       assert_equal [:lover], Paperclip::AttachmentRegistry.names_for(bar)
     end
 
-    it 'produce the empty array for a missing key' do
+    it 'produces the empty array for a missing key' do
       assert_empty Paperclip::AttachmentRegistry.names_for(Class.new)
     end
   end
 
   context '.each_definition' do
-    it 'call the block with the class, attachment name, and options' do
+    it 'calls the block with the class, attachment name, and options' do
       foo = Class.new
       expected_accumulations = [
         [foo, :avatar, { yo: 'greeting' }],
@@ -48,7 +48,7 @@ describe 'Attachment Registry' do
   end
 
   context '.definitions_for' do
-    it 'produce the attachment name and options' do
+    it 'produces the attachment name and options' do
       expected_definitions = {
         avatar: { yo: 'greeting' },
         greeter: { ciao: 'greeting' }
@@ -62,7 +62,7 @@ describe 'Attachment Registry' do
       assert_equal expected_definitions, definitions
     end
 
-    it "produce defintions for subclasses" do
+    it "produces defintions for subclasses" do
       expected_definitions = { avatar: { yo: 'greeting' } }
       Foo = Class.new
       Bar = Class.new(Foo)
@@ -75,7 +75,7 @@ describe 'Attachment Registry' do
   end
 
   context '.clear' do
-    it 'remove all of the existing attachment definitions' do
+    it 'removes all of the existing attachment definitions' do
       foo = Class.new
       Paperclip::AttachmentRegistry.register(foo, :greeter, { ciao: 'greeting' })
 

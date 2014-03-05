@@ -12,11 +12,11 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     ))
   end
 
-  it "be on the attachment without being explicitly added" do
+  it "is on the attachment without being explicitly added" do
     assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :media_type_spoof_detection }
   end
 
-  it "return default error message for spoofed media type" do
+  it "returns default error message for spoofed media type" do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
@@ -28,7 +28,7 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     assert_equal "has an extension that does not match its contents", @dummy.errors[:avatar].first
   end
 
-  it "run when attachment is dirty" do
+  it "runs when attachment is dirty" do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
@@ -39,7 +39,7 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.once }
   end
 
-  it "not run when attachment is not dirty" do
+  it "does not run when attachment is not dirty" do
     Paperclip::MediaTypeSpoofDetector.stubs(:using).never
     @dummy.valid?
     assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }

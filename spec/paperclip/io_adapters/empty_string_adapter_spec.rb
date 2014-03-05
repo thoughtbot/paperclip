@@ -6,11 +6,11 @@ describe Paperclip::EmptyStringAdapter do
       @subject = Paperclip.io_adapters.for('')
     end
 
-    it "return false for a call to nil?" do
+    it "returns false for a call to nil?" do
       assert !@subject.nil?
     end
 
-    it 'return false for a call to assignment?' do
+    it 'returns false for a call to assignment?' do
       assert !@subject.assignment?
     end
   end

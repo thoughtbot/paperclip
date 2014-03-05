@@ -14,14 +14,14 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
   def self.should_allow_attachment_file_size(size)
     context "when the attachment size is #{size}" do
-      it "add error to dummy object" do
+      it "adds error to dummy object" do
         @dummy.stubs(:avatar_file_size).returns(size)
         @validator.validate(@dummy)
         assert @dummy.errors[:avatar_file_size].blank?,
           "Expect an error message on :avatar_file_size, got none."
       end
 
-      it "not add error to the base dummy object" do
+      it "does not add error to the base dummy object" do
         assert @dummy.errors[:avatar].blank?,
           "Error added to base attribute"
       end
@@ -35,22 +35,22 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         @validator.validate(@dummy)
       end
 
-      it "add error to dummy object" do
+      it "adds error to dummy object" do
         assert @dummy.errors[:avatar_file_size].present?,
           "Unexpected error message on :avatar_file_size"
       end
 
-      it "add error to the base dummy object" do
+      it "adds error to the base dummy object" do
         assert @dummy.errors[:avatar].present?,
           "Error not added to base attribute"
       end
 
-      it "add error to base object as a string" do
+      it "adds error to base object as a string" do
         expect(@dummy.errors[:avatar].first).to be_a String
       end
 
       if options[:message]
-        it "return a correct error message" do
+        it "returns a correct error message" do
           expect(@dummy.errors[:avatar_file_size]).to include options[:message]
         end
       end
@@ -196,25 +196,25 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       Dummy.validates_attachment_size :avatar, in: (5.kilobytes..10.kilobytes)
     end
 
-    it "add the validator to the class" do
+    it "adds the validator to the class" do
       assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_size }
     end
   end
 
   context "given options" do
-    it "raise argument error if no required argument was given" do
+    it "raises argument error if no required argument was given" do
       assert_raises(ArgumentError) do
         build_validator message: "Some message"
       end
     end
 
     (Paperclip::Validators::AttachmentSizeValidator::AVAILABLE_CHECKS).each do |argument|
-      it "not raise arguemnt error if #{argument} was given" do
+      it "does not raise arguemnt error if #{argument} was given" do
         build_validator argument => 5.kilobytes
       end
     end
 
-    it "not raise argument error if :in was given" do
+    it "does not raise argument error if :in was given" do
       build_validator in: (5.kilobytes..10.kilobytes)
     end
   end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'Plural cache' do
-  it 'cache pluralizations' do
+  it 'caches pluralizations' do
     cache = Paperclip::Interpolations::PluralCache.new
     word = "box"
 
@@ -11,7 +11,7 @@ describe 'Plural cache' do
     cache.pluralize(word)
   end
 
-  it 'cache pluralizations and underscores' do
+  it 'caches pluralizations and underscores' do
     cache = Paperclip::Interpolations::PluralCache.new
     word = "BigBox"
 
@@ -22,13 +22,13 @@ describe 'Plural cache' do
     cache.underscore_and_pluralize(word)
   end
 
-  it 'pluralize words' do
+  it 'pluralizes words' do
     cache = Paperclip::Interpolations::PluralCache.new
     word = "box"
     assert_equal "boxes", cache.pluralize(word)
   end
 
-  it 'pluralize and underscore words' do
+  it 'pluralizes and underscore words' do
     cache = Paperclip::Interpolations::PluralCache.new
     word = "BigBox"
     assert_equal "big_boxes", cache.underscore_and_pluralize(word)

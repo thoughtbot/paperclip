@@ -16,7 +16,7 @@ unless ENV["S3_BUCKET"].blank?
         @file = File.new(fixture_file("5k.png"))
       end
 
-      it "not raise any error" do
+      it "does not raise any error" do
         @attachment = Dummy.new.avatar
         @attachment.assign(@file)
         @attachment.save
@@ -26,7 +26,7 @@ unless ENV["S3_BUCKET"].blank?
         @attachment2.save
       end
 
-      it "allow assignment from another S3 object" do
+      it "allows assignment from another S3 object" do
         @attachment = Dummy.new.avatar
         @attachment.assign(@file)
         @attachment.save
@@ -73,7 +73,7 @@ unless ENV["S3_BUCKET"].blank?
         @dummy = Dummy.new
       end
 
-      it "be extended by the S3 module" do
+      it "is extended by the S3 module" do
         assert Dummy.new.avatar.is_a?(Paperclip::Storage::S3)
       end
 
@@ -93,7 +93,7 @@ unless ENV["S3_BUCKET"].blank?
             @dummy.save
           end
 
-          it "be on S3" do
+          it "is on S3" do
             assert true
           end
         end
@@ -117,23 +117,23 @@ unless ENV["S3_BUCKET"].blank?
         @dummy.save
       end
 
-      it "return a replaced version for path" do
+      it "returns a replaced version for path" do
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.path
       end
 
-      it "return a replaced version for url" do
+      it "returns a replaced version for url" do
         assert_match /.+\/spaced_file\.png/, @dummy.avatar.url
       end
 
-      it "be accessible" do
+      it "is accessible" do
         assert_success_response @dummy.avatar.url
       end
 
-      it "be reprocessable" do
+      it "is reprocessable" do
         assert @dummy.avatar.reprocess!
       end
 
-      it "be destroyable" do
+      it "is destroyable" do
         url = @dummy.avatar.url
         @dummy.destroy
         assert_not_found_response url
@@ -172,7 +172,7 @@ unless ENV["S3_BUCKET"].blank?
             @dummy.save
           end
 
-          it "be encrypted on S3" do
+          it "is encrypted on S3" do
             assert @dummy.avatar.s3_object.server_side_encryption == :aes256
           end
         end

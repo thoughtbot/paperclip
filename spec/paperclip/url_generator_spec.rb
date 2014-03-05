@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 describe Paperclip::UrlGenerator do
-  it "use the given interpolator" do
+  it "uses the given interpolator" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -16,7 +16,7 @@ describe Paperclip::UrlGenerator do
     assert mock_interpolator.has_interpolated_style_name?(:style_name)
   end
 
-  it "use the default URL when no file is assigned" do
+  it "uses the default URL when no file is assigned" do
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new
     default_url = "the default url"
@@ -29,7 +29,7 @@ describe Paperclip::UrlGenerator do
       "expected the interpolator to be passed #{default_url.inspect} but it wasn't"
   end
 
-  it "execute the default URL lambda when no file is assigned" do
+  it "executes the default URL lambda when no file is assigned" do
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new
     default_url = lambda {|attachment| "the #{attachment.class.name} default url" }
@@ -42,7 +42,7 @@ describe Paperclip::UrlGenerator do
       %{expected the interpolator to be passed "the MockAttachment default url", but it wasn't}
   end
 
-  it "execute the method named by the symbol as the default URL when no file is assigned" do
+  it "executes the method named by the symbol as the default URL when no file is assigned" do
     mock_model = MockModel.new
     mock_attachment = MockAttachment.new(model: mock_model)
     mock_interpolator = MockInterpolator.new
@@ -56,7 +56,7 @@ describe Paperclip::UrlGenerator do
       %{expected the interpolator to be passed #{mock_model.to_s}, but it wasn't}
   end
 
-  it "URL-escape spaces if asked to" do
+  it "URL-escapes spaces if asked to" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -68,7 +68,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "the%20expected%20result", result
   end
 
-  it "escape the result of the interpolator using a method on the object, if asked to escape" do
+  it "escapes the result of the interpolator using a method on the object, if asked to escape" do
     expected = Class.new do
       def escape
         "the escaped result"
@@ -84,7 +84,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "the escaped result", result
   end
 
-  it "leave spaces unescaped as asked to" do
+  it "leaves spaces unescaped as asked to" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -96,7 +96,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "the expected result", result
   end
 
-  it "default to leaving spaces unescaped" do
+  it "defaults to leaving spaces unescaped" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -108,7 +108,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "the expected result", result
   end
 
-  it "produce URLs without the updated_at value when the object does not respond to updated_at" do
+  it "produces URLs without the updated_at value when the object does not respond to updated_at" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(result: expected)
     mock_attachment = MockAttachment.new(responds_to_updated_at: false)
@@ -120,7 +120,7 @@ describe Paperclip::UrlGenerator do
     assert_equal expected, result
   end
 
-  it "produce URLs without the updated_at value when the updated_at value is nil" do
+  it "produces URLs without the updated_at value when the updated_at value is nil" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(result: expected)
     mock_attachment = MockAttachment.new(responds_to_updated_at: true, updated_at: nil)
@@ -132,7 +132,7 @@ describe Paperclip::UrlGenerator do
     assert_equal expected, result
   end
 
-  it "produce URLs with the updated_at when it exists" do
+  it "produces URLs with the updated_at when it exists" do
     expected = "the expected result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -145,7 +145,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "#{expected}?#{updated_at}", result
   end
 
-  it "produce URLs with the updated_at when it exists, separated with a & if a ? follow by = already exists" do
+  it "produces URLs with the updated_at when it exists, separated with a & if a ? follow by = already exists" do
     expected = "the?expected=result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -158,7 +158,7 @@ describe Paperclip::UrlGenerator do
     assert_equal "#{expected}&#{updated_at}", result
   end
 
-  it "produce URLs without the updated_at when told to do as much" do
+  it "produces URLs without the updated_at when told to do as much" do
     expected = "the expected result"
     updated_at = 1231231234
     mock_interpolator = MockInterpolator.new(result: expected)
@@ -171,7 +171,7 @@ describe Paperclip::UrlGenerator do
     assert_equal expected, result
   end
 
-  it "produce the correct URL when the instance has a file name" do
+  it "produces the correct URL when the instance has a file name" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new(original_filename: 'exists')
     mock_interpolator = MockInterpolator.new

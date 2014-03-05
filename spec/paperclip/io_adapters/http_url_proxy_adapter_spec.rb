@@ -14,45 +14,45 @@ describe Paperclip::HttpUrlProxyAdapter do
       @subject.close
     end
 
-    it "return a file name" do
+    it "returns a file name" do
       assert_equal "thoughtbot-logo.png", @subject.original_filename
     end
 
-    it 'close open handle after reading' do
+    it 'closes open handle after reading' do
       assert_equal true, @open_return.closed?
     end
 
-    it "return a content type" do
+    it "returns a content type" do
       assert_equal "image/png", @subject.content_type
     end
 
-    it "return the size of the data" do
+    it "returns the size of the data" do
       assert_equal @open_return.size, @subject.size
     end
 
-    it "generate an MD5 hash of the contents" do
+    it "generates an MD5 hash of the contents" do
       assert_equal Digest::MD5.hexdigest("xxx"), @subject.fingerprint
     end
 
-    it "generate correct fingerprint after read" do
+    it "generates correct fingerprint after read" do
       fingerprint = Digest::MD5.hexdigest(@subject.read)
       assert_equal fingerprint, @subject.fingerprint
     end
 
-    it "generate same fingerprint" do
+    it "generates same fingerprint" do
       assert_equal @subject.fingerprint, @subject.fingerprint
     end
 
-    it "return the data contained in the StringIO" do
+    it "returns the data contained in the StringIO" do
       assert_equal "xxx", @subject.read
     end
 
-    it 'accept a content_type' do
+    it 'accepts a content_type' do
       @subject.content_type = 'image/png'
       assert_equal 'image/png', @subject.content_type
     end
 
-    it 'accept an original_filename' do
+    it 'accepts an original_filename' do
       @subject.original_filename = 'image.png'
       assert_equal 'image.png', @subject.original_filename
     end
@@ -69,7 +69,7 @@ describe Paperclip::HttpUrlProxyAdapter do
       @subject.close
     end
 
-    it "return a file name" do
+    it "returns a file name" do
       assert_equal "paperclip", @subject.original_filename
     end
   end
@@ -89,11 +89,11 @@ describe Paperclip::HttpUrlProxyAdapter do
       end
     end
 
-    it "not generate filenames that include restricted characters" do
+    it "does not generate filenames that include restricted characters" do
       assert_equal "paper_clip.jpg", @subject.original_filename
     end
 
-    it "not generate paths that include restricted characters" do
+    it "does not generate paths that include restricted characters" do
       expect(@subject.path).to_not match(/:/)
     end
   end
