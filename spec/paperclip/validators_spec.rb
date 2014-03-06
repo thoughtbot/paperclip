@@ -19,7 +19,6 @@ describe Paperclip::Validators do
     end
 
     it 'prevents you from attaching a file that violates that validation' do
-      I18n.enforce_available_locales = false
       Dummy.class_eval{ validate(:name) { raise "DO NOT RUN THIS" } }
       dummy = Dummy.new(avatar: File.new(fixture_file("12k.png")))
       assert_equal [:avatar_content_type, :avatar, :avatar_file_size], dummy.errors.keys

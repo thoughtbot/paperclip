@@ -1,6 +1,5 @@
+# encoding: utf-8
 require 'spec_helper'
-
-class Dummy; end
 
 describe Paperclip::Attachment do
 
