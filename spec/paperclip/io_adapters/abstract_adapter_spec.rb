@@ -56,4 +56,10 @@ describe Paperclip::AbstractAdapter do
   it 'is not nil' do
     assert !TestAdapter.new.nil?
   end
+
+  should 'use the original filename to generate the tempfile' do
+    @adapter = TestAdapter.new
+    @adapter.original_filename = "file.png"
+    assert @adapter.send(:destination).path.ends_with?(".png")
+  end
 end
