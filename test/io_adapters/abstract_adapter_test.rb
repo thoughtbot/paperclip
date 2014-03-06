@@ -57,6 +57,11 @@ class AbstractAdapterTest < Test::Unit::TestCase
     assert !TestAdapter.new.nil?
   end
 
+  should "can generate a destination filename with no original filename" do
+    @adapter = TestAdapter.new
+    assert_not_nil @adapter.send(:destination).path
+  end
+
   should 'use the original filename to generate the tempfile' do
     @adapter = TestAdapter.new
     @adapter.original_filename = "file.png"
