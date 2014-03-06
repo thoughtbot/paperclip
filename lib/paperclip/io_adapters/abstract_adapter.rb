@@ -34,7 +34,7 @@ module Paperclip
     private
 
     def destination
-      @destination ||= TempfileFactory.new.generate
+      @destination ||= TempfileFactory.new.generate(@original_filename)
     end
 
     def copy_to_tempfile(src)
