@@ -680,6 +680,7 @@ describe Paperclip::Storage::S3 do
 
       it "is rewound after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
+        @dummy.avatar.stubs(:s3_object).returns(stub(write: true))
 
         files = @dummy.avatar.queued_for_write.values.each(&:read)
         @dummy.save
@@ -687,6 +688,7 @@ describe Paperclip::Storage::S3 do
       end
 
       it "is removed after after_flush_writes" do
+        @dummy.avatar.stubs(:s3_object).returns(stub(write: true))
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
         assert paths.none?{ |path| File.exists?(path) },
