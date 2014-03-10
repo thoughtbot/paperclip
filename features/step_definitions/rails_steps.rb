@@ -8,12 +8,14 @@ Given /^I generate a new rails application$/ do
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", :platform => :ruby
+      gem "sqlite3", "1.3.8", :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
+      gem "racc", :platform => :rbx
+      gem "rubysl", :platform => :rbx
       """
     And I remove turbolinks
     And I empty the application.js file

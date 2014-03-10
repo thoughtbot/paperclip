@@ -2,7 +2,8 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'sqlite3', '~> 1.3.4', :platform => :ruby
+gem 'sqlite3', '1.3.8', :platform => [:ruby, :rbx]
+gem 'racc', :platform => :rbx
 gem 'jruby-openssl', :platform => :jruby
 gem 'activerecord-jdbcsqlite3-adapter', :platform => :jruby
 gem 'rubysl', :platform => :rbx

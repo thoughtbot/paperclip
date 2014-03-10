@@ -260,7 +260,7 @@ describe Paperclip::Thumbnail do
 
     context "passing a custom file geometry parser" do
       after do
-        Object.send(:remove_const, :GeoParser)
+        Object.send(:remove_const, :GeoParser) if Object.const_defined?(:GeoParser)
       end
 
       it "produces the appropriate transformation_command" do
@@ -291,7 +291,7 @@ describe Paperclip::Thumbnail do
 
     context "passing a custom geometry string parser" do
       after do
-        Object.send(:remove_const, :GeoParser)
+        Object.send(:remove_const, :GeoParser) if Object.const_defined?(:GeoParser)
       end
 
       it "produces the appropriate transformation_command" do
