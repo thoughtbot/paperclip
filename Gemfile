@@ -2,10 +2,13 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'sqlite3', '~> 1.3.4', :platform => :ruby
-gem 'jruby-openssl', :platform => :jruby
-gem 'activerecord-jdbcsqlite3-adapter', :platform => :jruby
-gem 'rubysl', :platform => :rbx
+gem 'sqlite3', '1.3.8', :platforms => :ruby
+
+gem 'jruby-openssl', :platforms => :jruby
+gem 'activerecord-jdbcsqlite3-adapter', :platforms => :jruby
+
+gem 'rubysl', :platforms => :rbx
+gem 'racc', :platforms => :rbx
 
 # Hinting at development dependencies
 # Prevents bundler from taking a long-time to resolve

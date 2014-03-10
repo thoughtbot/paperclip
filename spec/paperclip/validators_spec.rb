@@ -21,7 +21,7 @@ describe Paperclip::Validators do
     it 'prevents you from attaching a file that violates that validation' do
       Dummy.class_eval{ validate(:name) { raise "DO NOT RUN THIS" } }
       dummy = Dummy.new(avatar: File.new(fixture_file("12k.png")))
-      assert_equal [:avatar_content_type, :avatar, :avatar_file_size], dummy.errors.keys
+      expect(dummy.errors.keys).to match_array [:avatar_content_type, :avatar, :avatar_file_size]
       assert_raises(RuntimeError){ dummy.valid? }
     end
   end
@@ -42,7 +42,7 @@ describe Paperclip::Validators do
         end
       end
       dummy = Dummy.new(avatar: File.new(fixture_file("12k.png")))
-      assert_equal [:avatar_content_type, :avatar, :avatar_file_size], dummy.errors.keys
+      expect(dummy.errors.keys).to match_array [:avatar_content_type, :avatar, :avatar_file_size]
     end
 
     it "does not validate attachment if title is not present" do
