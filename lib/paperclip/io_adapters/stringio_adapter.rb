@@ -13,7 +13,7 @@ module Paperclip
     def cache_current_values
       @content_type = ContentTypeDetector.new(@tempfile.path).detect
       original_filename = @target.original_filename if @target.respond_to?(:original_filename)
-      original_filename ||= "data.#{extension_for(@content_type)}"
+      original_filename ||= "data"
       self.original_filename = original_filename.strip
       @size = @target.size
     end
@@ -24,11 +24,6 @@ module Paperclip
       end
       destination.rewind
       destination
-    end
-
-    def extension_for(content_type)
-      type = MIME::Types[content_type].first
-      type && type.extensions.first
     end
 
   end

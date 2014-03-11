@@ -18,8 +18,8 @@ describe Paperclip::DataUriAdapter do
       @subject = Paperclip.io_adapters.for(@contents)
     end
 
-    it "returns a file name based on the content type" do
-      assert_equal "data.png", @subject.original_filename
+    it "returns a nondescript file name" do
+      assert_equal "data", @subject.original_filename
     end
 
     it "returns a content type" do

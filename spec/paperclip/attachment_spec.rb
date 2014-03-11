@@ -337,7 +337,11 @@ describe Paperclip::Attachment do
 
   context "An attachment with :hash interpolations" do
     before do
-      @file = StringIO.new("...\n")
+      @file = File.open(fixture_file("5k.png"))
+    end
+
+    after do
+      @file.close
     end
 
     it "raises if no secret is provided" do
@@ -360,15 +364,15 @@ describe Paperclip::Attachment do
       end
 
       it "results in the correct interpolation" do
-        assert_equal "dummies/avatars/original/data.txt",
+        assert_equal "dummies/avatars/original/5k.png",
           @attachment.send(:interpolate, @attachment.options[:hash_data])
-        assert_equal "dummies/avatars/thumb/data.txt",
+        assert_equal "dummies/avatars/thumb/5k.png",
           @attachment.send(:interpolate, @attachment.options[:hash_data], :thumb)
       end
 
       it "results in a correct hash" do
-        assert_equal "e1079a5c34ddbd197ebd0280d07952d98a57fb30", @attachment.path
-        assert_equal "d740189bd3e49ef226fab84c8d45f7ae4126d043", @attachment.path(:thumb)
+        assert_equal "0a59e9142bba11576de1d353d8747b1acad5ad34", @attachment.path
+        assert_equal "b39a062c1e62e85a6c785ed00cf3bebf5f850e2b", @attachment.path(:thumb)
       end
     end
   end

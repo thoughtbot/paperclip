@@ -71,6 +71,20 @@ describe Paperclip::Interpolations do
     assert_equal "jpe", interpolations.content_type_extension(attachment, :style)
   end
 
+  it "returns the extension of the file with a dot" do
+    attachment = mock
+    attachment.expects(:original_filename).returns("one.jpg")
+    attachment.expects(:styles).returns({})
+    assert_equal ".jpg", Paperclip::Interpolations.dotextension(attachment, :style)
+  end
+
+  it "returns the extension of the file without a dot if the extension is empty" do
+    attachment = mock
+    attachment.expects(:original_filename).returns("one")
+    attachment.expects(:styles).returns({})
+    assert_equal "", Paperclip::Interpolations.dotextension(attachment, :style)
+  end
+
   it "returns the latter half of the content type of the extension if no match found" do
     attachment = mock
     attachment.expects(:content_type).at_least_once().returns('not/found')
