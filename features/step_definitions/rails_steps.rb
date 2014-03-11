@@ -20,8 +20,6 @@ Given /^I generate a new rails application$/ do
     And I remove turbolinks
     And I empty the application.js file
     And I configure the application to use "paperclip" from this project
-    And I reset Bundler environment variable
-    And I successfully run `bundle install --local`
   }
 end
 
