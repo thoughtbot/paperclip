@@ -101,14 +101,14 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         url: ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the correct bucket" do
@@ -116,7 +116,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "uses the correct key" do
-      assert_equal "avatars/data.txt", @dummy.avatar.s3_object.key
+      assert_equal "avatars/data", @dummy.avatar.s3_object.key
     end
   end
 
@@ -142,13 +142,13 @@ describe Paperclip::Storage::S3 do
         s3_credentials: {},
         s3_protocol: 'https',
         bucket: "bucket",
-        path: ":attachment/:basename.:extension"
+        path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -158,13 +158,13 @@ describe Paperclip::Storage::S3 do
         s3_credentials: {},
         s3_protocol: :https,
         bucket: "bucket",
-        path: ":attachment/:basename.:extension"
+        path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^https://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -174,13 +174,13 @@ describe Paperclip::Storage::S3 do
         s3_credentials: {},
         s3_protocol: '',
         bucket: "bucket",
-        path: ":attachment/:basename.:extension"
+        path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -188,7 +188,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         styles: {
           thumb: "80x80>"
         },
@@ -203,11 +203,11 @@ describe Paperclip::Storage::S3 do
     end
 
     it "uses an S3 object based on the correct path for the default style" do
-      assert_equal("avatars/original/data.txt", @dummy.avatar.s3_object.key)
+      assert_equal("avatars/original/data", @dummy.avatar.s3_object.key)
     end
 
     it "uses an S3 object based on the correct path for the custom style" do
-      assert_equal("avatars/thumb/data.txt", @dummy.avatar.s3_object(:thumb).key)
+      assert_equal("avatars/thumb/data", @dummy.avatar.s3_object(:thumb).key)
     end
   end
 
@@ -216,14 +216,14 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         s3_host_name: "s3-ap-northeast-1.amazonaws.com"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an :s3_host_name path" do
-      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the S3 bucket with the correct host name" do
@@ -236,7 +236,7 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         s3_host_name: lambda {|a| a.instance.value }
       @dummy = Dummy.new
       class << @dummy
@@ -247,7 +247,7 @@ describe Paperclip::Storage::S3 do
 
     it "uses s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
-      assert_equal "http://s3.something.com/bucket/avatars/data.txt", @dummy.avatar.url(:original, timestamp: false)
+      assert_equal "http://s3.something.com/bucket/avatars/data", @dummy.avatar.url(:original, timestamp: false)
     end
   end
 
@@ -256,7 +256,7 @@ describe Paperclip::Storage::S3 do
       rebuild_model styles: { large: ['500x500#', :jpg] },
         storage: :s3,
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -290,7 +290,7 @@ describe Paperclip::Storage::S3 do
       rebuild_model styles: lambda { |attachment| attachment.instance.counter; {thumbnail: { geometry: "50x50#", s3_headers: {'Cache-Control' => 'max-age=31557600'}} }},
         storage: :s3,
         bucket: "bucket",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -385,14 +385,14 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         url: ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an S3 subdomain" do
-      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -404,14 +404,14 @@ describe Paperclip::Storage::S3 do
         development: { bucket: "dev_bucket" }
       },
       s3_host_alias: "something.something.com",
-      path: ":attachment/:basename.:extension",
+      path: ":attachment/:basename:dotextension",
       url: ":s3_alias_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://something.something.com/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://something.something.com/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -420,7 +420,7 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: { bucket: "prod_bucket" },
         s3_host_alias: Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         url: ":s3_alias_url"
       Dummy.class_eval do
         def counter
@@ -434,8 +434,8 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://cdn1.example.com/avatars/data.txt}, @dummy.avatar.url
-      assert_match %r{^http://cdn2.example.com/avatars/data.txt}, @dummy.avatar.url
+      assert_match %r{^http://cdn1.example.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^http://cdn2.example.com/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "still returns the bucket name" do
@@ -449,14 +449,14 @@ describe Paperclip::Storage::S3 do
       rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         url: ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a relative URL for Rails to calculate assets host" do
-      assert_match %r{^avatars/data\.txt}, @dummy.avatar.url
+      assert_match %r{^avatars/data[^\.]}, @dummy.avatar.url
     end
 
   end
@@ -472,7 +472,7 @@ describe Paperclip::Storage::S3 do
           },
           s3_host_alias: "something.something.com",
           s3_permissions: "private",
-          path: ":attachment/:basename.:extension",
+          path: ":attachment/:basename:dotextension",
           url: ":s3_alias_url"
         }
 
@@ -562,7 +562,7 @@ describe Paperclip::Storage::S3 do
       },
       s3_permissions: :private,
       s3_host_alias: "something.something.com",
-      path: ":attachment/:style/:basename.:extension",
+      path: ":attachment/:style/:basename:dotextension",
       url: ":s3_alias_url"
 
       rails_env("production") do
@@ -648,7 +648,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           aws_access_key_id: "12345",
           aws_secret_access_key: "54321"
@@ -825,7 +825,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -864,7 +864,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -903,7 +903,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -942,7 +942,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -983,7 +983,7 @@ describe Paperclip::Storage::S3 do
         rebuild_model(
           storage: :s3,
           bucket: "testing",
-          path: ":attachment/:style/:basename.:extension",
+          path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
             'access_key_id'          => "12345",
             'secret_access_key'      => "54321"},
@@ -1021,7 +1021,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -1060,7 +1060,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
@@ -1145,7 +1145,7 @@ describe Paperclip::Storage::S3 do
       before do
         rebuild_model storage: :s3,
           bucket: "testing",
-          path: ":attachment/:style/:basename.:extension",
+          path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
             'access_key_id' => "12345",
             'secret_access_key' => "54321"
@@ -1182,7 +1182,7 @@ describe Paperclip::Storage::S3 do
       before do
         rebuild_model storage: :s3,
           bucket: "testing",
-          path: ":attachment/:style/:basename.:extension",
+          path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
             'access_key_id' => "12345",
             'secret_access_key' => "54321"
@@ -1220,7 +1220,7 @@ describe Paperclip::Storage::S3 do
       before do
         rebuild_model storage: :s3,
           bucket: "testing",
-          path: ":attachment/:style/:basename.:extension",
+          path: ":attachment/:style/:basename:dotextension",
           styles: {
             thumb: "80x80>"
           },
@@ -1267,7 +1267,7 @@ describe Paperclip::Storage::S3 do
         rebuild_model(
           storage: :s3,
           bucket: "testing",
-          path: ":attachment/:style/:basename.:extension",
+          path: ":attachment/:style/:basename:dotextension",
           styles: {
             thumb: "80x80>"
           },
@@ -1311,7 +1311,7 @@ describe Paperclip::Storage::S3 do
       rebuild_model(
         storage: :s3,
         bucket: "testing",
-        path: ":attachment/:style/:basename.:extension",
+        path: ":attachment/:style/:basename:dotextension",
         styles: {
           thumb: "80x80>"
         },

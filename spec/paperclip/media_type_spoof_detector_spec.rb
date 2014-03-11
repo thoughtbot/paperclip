@@ -21,6 +21,11 @@ describe Paperclip::MediaTypeSpoofDetector do
     assert ! Paperclip::MediaTypeSpoofDetector.using(file, "").spoofed?
   end
 
+  it 'does not reject a file that does have an extension' do
+    file = File.open(fixture_file("empty.html"))
+    assert ! Paperclip::MediaTypeSpoofDetector.using(file, "data").spoofed?
+  end
+
   it 'does not reject when the supplied file is an IOAdapter' do
     adapter = Paperclip.io_adapters.for(File.new(fixture_file("5k.png")))
     assert ! Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename).spoofed?

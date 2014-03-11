@@ -9,7 +9,7 @@ describe Paperclip::StringioAdapter do
     end
 
     it "returns a file name" do
-      assert_equal "data.txt", @subject.original_filename
+      assert_equal "data", @subject.original_filename
     end
 
     it "returns a content type" do

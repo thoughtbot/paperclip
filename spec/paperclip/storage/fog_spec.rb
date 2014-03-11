@@ -130,7 +130,7 @@ describe Paperclip::Storage::Fog do
         fog_credentials: @credentials,
         fog_host: nil,
         fog_file: {cache_control: 1234},
-        path: ":attachment/:basename.:extension",
+        path: ":attachment/:basename:dotextension",
         storage: :fog
       }
 
@@ -227,7 +227,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides a public url" do
-          assert @dummy.avatar.url =~ /^http:\/\/example\.com\/avatars\/data\.txt\?\d*$/
+          expect(@dummy.avatar.url).to match(/^http:\/\/example\.com\/avatars\/data\?\d*$/)
         end
       end
 
@@ -237,7 +237,7 @@ describe Paperclip::Storage::Fog do
             fog_directory: @fog_directory,
             fog_credentials: @credentials,
             fog_host: 'http://img%d.example.com',
-            path: ":attachment/:basename.:extension",
+            path: ":attachment/:basename:dotextension",
             storage: :fog
           )
           @dummy = Dummy.new
@@ -246,7 +246,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides a public url" do
-          assert @dummy.avatar.url =~ /^http:\/\/img[0123]\.example\.com\/avatars\/data\.txt\?\d*$/
+          expect(@dummy.avatar.url).to match(/^http:\/\/img[0123]\.example\.com\/avatars\/data\?\d*$/)
         end
       end
 
