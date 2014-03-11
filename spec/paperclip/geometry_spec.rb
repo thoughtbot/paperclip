@@ -187,7 +187,7 @@ describe Paperclip::Geometry do
           @geo = Paperclip::Geometry.new(args[1], args[2])
         end
 
-        it "is #{args[3]s ? "" : "not"} vertical" do
+        it "is #{args[3] ? "" : "not"} vertical" do
           assert_equal args[3], @geo.vertical?
         end
 
