@@ -16,8 +16,6 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
     migration_template "paperclip_migration.rb.erb", "db/migrate/#{migration_file_name}"
   end
 
-  protected
-
   def migration_name
     "add_attachment_#{attachment_names.join("_")}_to_#{name.underscore.pluralize}"
   end

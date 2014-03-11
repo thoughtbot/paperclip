@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "paperclip"
 
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
@@ -29,12 +29,12 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency('activerecord', '>= 3.0.0')
   s.add_development_dependency('shoulda')
+  s.add_development_dependency('rspec')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
   s.add_development_dependency('aws-sdk', '>= 1.5.7')
   s.add_development_dependency('bourne')
-  s.add_development_dependency('sqlite3', '~> 1.3.4')
-  s.add_development_dependency('cucumber', '~> 1.2.1')
+  s.add_development_dependency('cucumber', '~> 1.3.11')
   s.add_development_dependency('aruba')
   s.add_development_dependency('nokogiri')
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
@@ -46,4 +46,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('railties')
   s.add_development_dependency('actionmailer', '>= 3.0.0')
+  s.add_development_dependency('generator_spec')
 end
