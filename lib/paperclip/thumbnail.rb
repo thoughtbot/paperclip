@@ -31,14 +31,14 @@ module Paperclip
       geometry             = options[:geometry] # this is not an option
       @file                = file
       @crop                = geometry[-1,1] == '#'
-      @target_geometry     = (options[:string_geometry_parser] || Geometry).parse(geometry)
-      @current_geometry    = (options[:file_geometry_parser] || Geometry).from_file(@file)
+      @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
+      @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
-      @whiny               = options[:whiny].nil? ? true : options[:whiny]
+      @whiny               = options.fetch(:whiny, true)
       @format              = options[:format]
-      @animated            = options[:animated].nil? ? true : options[:animated]
-      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
+      @animated            = options.fetch(:animated, true)
+      @auto_orient         = options.fetch(:auto_orient, true)
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
