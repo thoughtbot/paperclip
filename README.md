@@ -64,7 +64,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 3.0"
+gem "paperclip", "~> 4.1"
 ```
 
 If you're still using Rails 2.3.x, you should do this instead:
@@ -88,24 +88,36 @@ For Non-Rails usage:
 
 ```ruby
 class ModuleName < ActiveRecord::Base
-    include Paperclip::Glue
-    ...
+  include Paperclip::Glue
+  ...
 end
 ```
 
 Quick Start
 -----------
 
-In your model:
+### Models
+
+**Rails 3**
 
 ```ruby
 class User < ActiveRecord::Base
   attr_accessible :avatar
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
+  validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
 ```
 
-In your migrations:
+**Rails 4**
+
+```ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
+  validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
+end
+```
+
+### Migrations
 
 ```ruby
 class AddAvatarColumnsToUsers < ActiveRecord::Migration
@@ -121,7 +133,7 @@ end
 
 (Or you can use migration generator: `rails generate paperclip user avatar`)
 
-In your edit and new views:
+### Edit and New Views
 
 ```erb
 <%= form_for @user, :url => users_path, :html => { :multipart => true } do |form| %>
@@ -129,7 +141,9 @@ In your edit and new views:
 <% end %>
 ```
 
-In your controller:
+### Controller
+
+**Rails 3**
 
 ```ruby
 def create
@@ -137,7 +151,24 @@ def create
 end
 ```
 
-In your show view:
+**Rails 4**
+
+```ruby
+def create
+  @user = User.create( user_params )
+end
+
+private
+
+# Use strong_parameters for attribute whitelisting
+# Be sure to update your create() and update() controller methods.
+
+def user_params
+  params.require(:user).permit(:avatar)
+end
+```
+
+### Show View
 
 ```erb
 <%= image_tag @user.avatar.url %>
@@ -145,7 +176,9 @@ In your show view:
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
 
-To detach a file, simply set the attribute to `nil`:
+### Deleting an Attachment
+
+Set the attribute to `nil` and save.
 
 ```ruby
 @user.avatar = nil
@@ -158,7 +191,7 @@ Usage
 The basics of paperclip are quite simple: Declare that your model has an
 attachment with the `has_attached_file` method, and give it a name.
 
-Paperclip will wrap up up to four attributes (all prefixed with that attachment's name,
+Paperclip will wrap up to four attributes (all prefixed with that attachment's name,
 so you can have multiple attachments per model if you wish) and give them a
 friendly front end. These attributes are:
 
@@ -252,6 +285,60 @@ class BooksController < ApplicationController
   end
 end
 ```
+
+**A note on content_type validations and security**
+
+You should ensure that you validate files to be only those MIME types you
+explicitly want to support.  If you don't, you could be open to
+<a href="https://www.owasp.org/index.php/Testing_for_Stored_Cross_site_scripting_(OWASP-DV-002)">XSS attacks</a>
+if a user uploads a file with a malicious HTML payload.
+
+If you're only interested in images, restrict your allowed content_types to
+image-y ones:
+
+```ruby
+validates_attachment :avatar,
+  :content_type => { :content_type => ["image/jpg", "image/gif", "image/png"] }
+```
+
+`Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
+inferred content_type, regardless of the actual contents of the file.
+
+Security Validations
+====================
+
+Thanks to a report from [Egor Homakov](http://homakov.blogspot.com/) we have
+taken steps to prevent people from spoofing Content-Types and getting data
+you weren't expecting onto your server.
+
+NOTE: Starting at version 4.0.0, all attachments are *required* to include a
+content_type validation, a file_name validation, or to explicitly state that
+they're not going to have either. *Paperclip will raise an error* if you do not
+do this.
+
+```ruby
+class ActiveRecord::Base
+  has_attached_file :avatar
+# Validate content type
+  validates_attachment_content_type :avatar, :content_type => /\Aimage/
+# Validate filename
+  validates_attachment_file_name :avatar, :matches => [/png\Z/, /jpe?g\Z/]
+# Explicitly do not validate
+  do_not_validate_attachment_file_type :avatar
+end
+```
+
+This keeps Paperclip secure-by-default, and will prevent people trying to mess
+with your filesystem.
+
+NOTE: Also starting at version 4.0.0, Paperclip has another validation that
+cannot be turned off. This validation will prevent content type spoofing. That
+is, uploading a PHP document (for example) as part of the EXIF tags of a
+well-formed JPEG. This check is limited to the media type (the first part of the
+MIME type, so, 'text' in 'text/plain'). This will prevent HTML documents from
+being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
+.jpg extension. This validation will only add validation errors to the form. It
+will not cause Errors to be raised.
 
 Defaults
 --------
@@ -440,7 +527,7 @@ _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
 If you're interested in caching your thumbnail's width, height and size in the
-database, take a look at the [paperclip-meta](https://github.com/y8/paperclip-meta) gem.
+database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta) gem.
 
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
@@ -556,7 +643,7 @@ look as follows where a boss will receive a `300x300` thumbnail otherwise a
 
 ```ruby
 class User < ActiveRecord::Base
-  has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") }
+  has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") } }
 end
 ```
 
@@ -683,11 +770,11 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Ask on the [mailing list](http://groups.google.com/group/paperclip-plugin), or
-   post a new [GitHub Issue](http://github.com/thoughtbot/paperclip/issues).
+1. Post a [pull request](https://github.com/thoughtbot/paperclip/compare/).
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
-   about writing tests for paperclip, please ask the mailing list.
+   about writing tests for paperclip, please open a
+   [GitHub issue](https://github.com/thoughtbot/paperclip/issues/new).
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
@@ -705,5 +792,5 @@ The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 License
 -------
 
-Paperclip is Copyright © 2008-2013 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright © 2008-2014 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.

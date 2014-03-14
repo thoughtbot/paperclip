@@ -12,6 +12,10 @@ module Paperclip
         super
       end
 
+      def self.helper_method_name
+        :validates_attachment_size
+      end
+
       def validate_each(record, attr_name, value)
         attr_name = "#{attr_name}_file_size".to_sym
         value = record.send(:read_attribute_for_validation, attr_name)

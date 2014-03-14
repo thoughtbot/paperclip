@@ -7,7 +7,7 @@ module Paperclip
 
     module Defining
       def define_paperclip_callbacks(*callbacks)
-        define_callbacks *[callbacks, {:terminator => "result == false"}].flatten
+        define_callbacks(*[callbacks, {:terminator => callback_terminator}].flatten)
         callbacks.each do |callback|
           eval <<-end_callbacks
             def before_#{callback}(*args, &blk)
@@ -17,6 +17,16 @@ module Paperclip
               set_callback(:#{callback}, :after, *args, &blk)
             end
           end_callbacks
+        end
+      end
+
+      private
+
+      def callback_terminator
+        if ::ActiveSupport::VERSION::STRING >= '4.1'
+          lambda { |target, result| result == false }
+        else
+          'result == false'
         end
       end
     end

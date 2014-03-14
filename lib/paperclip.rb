@@ -43,6 +43,7 @@ require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callbacks'
 require 'paperclip/file_command_content_type_detector'
+require 'paperclip/media_type_spoof_detector'
 require 'paperclip/content_type_detector'
 require 'paperclip/glue'
 require 'paperclip/errors'
@@ -76,12 +77,13 @@ module Paperclip
   #   nil, which uses the first executable found in the user's search path.
   def self.options
     @options ||= {
-      :whiny             => true,
+      :whiny => true,
       :image_magick_path => nil,
-      :command_path      => nil,
-      :log               => true,
-      :log_command       => true,
-      :swallow_stderr    => true
+      :command_path => nil,
+      :log => true,
+      :log_command => true,
+      :swallow_stderr => true,
+      :content_type_mappings => {}
     }
   end
 
@@ -129,8 +131,9 @@ module Paperclip
     #                       :default_style => :normal
     #     user.avatar.url # => "/avatars/23/normal_me.png"
     # * +keep_old_files+: Keep the existing attachment files (original + resized) from
-    #   being automatically deleted when an attachment is cleared or updated.
-    #   Defaults to +false+.#
+    #   being automatically deleted when an attachment is cleared or updated. Defaults to +false+.
+    # * +preserve_files+: Keep the existing attachment files in all cases, even if the parent 
+    #   record is destroyed. Defaults to +false+.
     # * +whiny+: Will raise an error if Paperclip cannot post_process an uploaded file due
     #   to a command line error. This will override the global setting for this attachment.
     #   Defaults to true.

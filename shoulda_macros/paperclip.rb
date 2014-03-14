@@ -103,7 +103,11 @@ module Paperclip
   end
 end
 
-if defined?(ActionController::Integration::Session)
+if defined?(ActionDispatch::Integration::Session)
+  class ActionDispatch::IntegrationTest::Session  #:nodoc:
+    include Paperclip::Shoulda
+  end
+elsif defined?(ActionController::Integration::Session)
   class ActionController::Integration::Session  #:nodoc:
     include Paperclip::Shoulda
   end
@@ -119,6 +123,12 @@ else
   end
 end
 
-class Test::Unit::TestCase #:nodoc:
- extend  Paperclip::Shoulda
+if defined?(Minitest)
+  class Minitest::Unit::TestCase #:nodoc:
+    extend Paperclip::Shoulda
+  end
+elsif defined?(Test)
+  class Test::Unit::TestCase #:nodoc:
+    extend Paperclip::Shoulda
+  end
 end

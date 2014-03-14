@@ -1,10 +1,10 @@
 require 'aruba/cucumber'
 require 'capybara/cucumber'
-require 'test/unit/assertions'
+require 'rspec/matchers'
 
 $CUCUMBER=1
 
-World(Test::Unit::Assertions)
+World(RSpec::Matchers)
 
 Before do
   @aruba_timeout_seconds = 120
