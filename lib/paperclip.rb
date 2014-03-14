@@ -43,6 +43,7 @@ require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callbacks'
 require 'paperclip/file_command_content_type_detector'
+require 'paperclip/media_type_spoof_detector'
 require 'paperclip/content_type_detector'
 require 'paperclip/glue'
 require 'paperclip/errors'
@@ -76,12 +77,13 @@ module Paperclip
   #   nil, which uses the first executable found in the user's search path.
   def self.options
     @options ||= {
-      :whiny             => true,
+      :whiny => true,
       :image_magick_path => nil,
-      :command_path      => nil,
-      :log               => true,
-      :log_command       => true,
-      :swallow_stderr    => true
+      :command_path => nil,
+      :log => true,
+      :log_command => true,
+      :swallow_stderr => true,
+      :content_type_mappings => {}
     }
   end
 

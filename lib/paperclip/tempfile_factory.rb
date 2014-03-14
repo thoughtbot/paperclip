@@ -1,7 +1,7 @@
 module Paperclip
   class TempfileFactory
 
-    def generate(name)
+    def generate(name = random_name)
       @name = name
       file = Tempfile.new([basename, extension])
       file.binmode
@@ -14,6 +14,10 @@ module Paperclip
 
     def basename
       Digest::MD5.hexdigest(File.basename(@name, extension))
+    end
+
+    def random_name
+      SecureRandom.uuid
     end
   end
 end

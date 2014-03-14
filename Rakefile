@@ -1,6 +1,6 @@
 require 'bundler/gem_tasks'
 require 'appraisal'
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 require 'cucumber/rake/task'
 
 desc 'Default: run unit tests.'
@@ -9,19 +9,17 @@ task :default => [:clean, :all]
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
   if ENV['BUNDLE_GEMFILE']
-    exec('rake test cucumber')
+    exec('rake spec cucumber')
   else
+    exec("rm gemfiles/*.lock")
+    Rake::Task["appraisal:gemfiles"].execute
     Rake::Task["appraisal:install"].execute
-    exec('rake appraisal test cucumber')
+    exec('rake appraisal')
   end
 end
 
 desc 'Test the paperclip plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib' << 'profile'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
+RSpec::Core::RakeTask.new(:spec)
 
 desc 'Run integration test'
 Cucumber::Rake::Task.new do |t|

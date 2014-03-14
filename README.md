@@ -64,7 +64,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 3.0"
+gem "paperclip", "~> 4.1"
 ```
 
 If you're still using Rails 2.3.x, you should do this instead:
@@ -104,6 +104,7 @@ Quick Start
 class User < ActiveRecord::Base
   attr_accessible :avatar
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
+  validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
 ```
 
@@ -112,6 +113,7 @@ end
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
+  validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
 ```
 
@@ -189,7 +191,7 @@ Usage
 The basics of paperclip are quite simple: Declare that your model has an
 attachment with the `has_attached_file` method, and give it a name.
 
-Paperclip will wrap up up to four attributes (all prefixed with that attachment's name,
+Paperclip will wrap up to four attributes (all prefixed with that attachment's name,
 so you can have multiple attachments per model if you wish) and give them a
 friendly front end. These attributes are:
 
@@ -301,6 +303,42 @@ validates_attachment :avatar,
 
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
 inferred content_type, regardless of the actual contents of the file.
+
+Security Validations
+====================
+
+Thanks to a report from [Egor Homakov](http://homakov.blogspot.com/) we have
+taken steps to prevent people from spoofing Content-Types and getting data
+you weren't expecting onto your server.
+
+NOTE: Starting at version 4.0.0, all attachments are *required* to include a
+content_type validation, a file_name validation, or to explicitly state that
+they're not going to have either. *Paperclip will raise an error* if you do not
+do this.
+
+```ruby
+class ActiveRecord::Base
+  has_attached_file :avatar
+# Validate content type
+  validates_attachment_content_type :avatar, :content_type => /\Aimage/
+# Validate filename
+  validates_attachment_file_name :avatar, :matches => [/png\Z/, /jpe?g\Z/]
+# Explicitly do not validate
+  do_not_validate_attachment_file_type :avatar
+end
+```
+
+This keeps Paperclip secure-by-default, and will prevent people trying to mess
+with your filesystem.
+
+NOTE: Also starting at version 4.0.0, Paperclip has another validation that
+cannot be turned off. This validation will prevent content type spoofing. That
+is, uploading a PHP document (for example) as part of the EXIF tags of a
+well-formed JPEG. This check is limited to the media type (the first part of the
+MIME type, so, 'text' in 'text/plain'). This will prevent HTML documents from
+being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
+.jpg extension. This validation will only add validation errors to the form. It
+will not cause Errors to be raised.
 
 Defaults
 --------
@@ -489,7 +527,7 @@ _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
 If you're interested in caching your thumbnail's width, height and size in the
-database, take a look at the [paperclip-meta](https://github.com/y8/paperclip-meta) gem.
+database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta) gem.
 
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
@@ -754,5 +792,5 @@ The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 License
 -------
 
-Paperclip is Copyright © 2008-2013 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright © 2008-2014 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.

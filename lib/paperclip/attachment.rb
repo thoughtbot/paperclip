@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'uri'
 require 'paperclip/url_generator'
+require 'active_support/deprecation'
 
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
@@ -93,6 +94,7 @@ module Paperclip
     #   new_user.avatar = old_user.avatar
     def assign uploaded_file
       ensure_required_accessors!
+      ensure_required_validations!
       file = Paperclip.io_adapters.for(uploaded_file)
 
       return nil if not file.assignment?
@@ -164,6 +166,18 @@ module Paperclip
     def path(style_name = default_style)
       path = original_filename.nil? ? nil : interpolate(path_option, style_name)
       path.respond_to?(:unescape) ? path.unescape : path
+    end
+
+    # :nodoc:
+    def staged_path(style_name = default_style)
+      if staged?
+        @queued_for_write[style_name].path
+      end
+    end
+
+    # :nodoc:
+    def staged?
+      ! @queued_for_write.empty?
     end
 
     # Alias to +url+
@@ -373,6 +387,16 @@ module Paperclip
       @options[:path].respond_to?(:call) ? @options[:path].call(self) : @options[:path]
     end
 
+    def active_validator_classes
+      @instance.class.validators.map(&:class)
+    end
+
+    def ensure_required_validations!
+      if (active_validator_classes & Paperclip::REQUIRED_VALIDATORS).empty?
+        raise Paperclip::Errors::MissingRequiredValidatorError
+      end
+    end
+
     def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|
         unless @instance.respond_to?("#{name}_#{field}") && @instance.respond_to?("#{name}_#{field}=")
@@ -434,11 +458,8 @@ module Paperclip
     def post_process_style(name, style) #:nodoc:
       begin
         raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
-        original_file = @queued_for_write[:original]
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
-          new_file = Paperclip.processor(processor).make(file, style.processor_options, self)
-          file.close unless file == original_file
-          new_file
+          Paperclip.processor(processor).make(file, style.processor_options, self)
         end
         unadapted_file = @queued_for_write[name]
         @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
@@ -485,7 +506,7 @@ module Paperclip
       end
     end
 
-    # called by storage after the writes are flushed and before @queued_for_writes is cleared
+    # called by storage after the writes are flushed and before @queued_for_write is cleared
     def after_flush_writes
       @queued_for_write.each do |style, file|
         file.close unless file.closed?
