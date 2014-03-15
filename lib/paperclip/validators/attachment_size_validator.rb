@@ -30,8 +30,8 @@ module Paperclip
               error_message_key = options[:in] ? :in_between : option
               [ attr_name, base_attr_name ].each do |error_attr_name|
                 record.errors.add(error_attr_name, error_message_key, filtered_options(value).merge(
-                  :min => min_value_in_human_size(record),
-                  :max => max_value_in_human_size(record),
+                  :min => min_value_in_human_size(record, options[:unit]),
+                  :max => max_value_in_human_size(record, options[:unit]),
                   :count => human_size(option_value, options[:unit])
                 ))
               end
@@ -85,18 +85,18 @@ module Paperclip
         storage_units_format.gsub(/%n/, (size.to_i / unit_size).to_s).gsub(/%u/, unit).html_safe
       end
 
-      def min_value_in_human_size(record)
+      def min_value_in_human_size(record, unit = nil)
         value = options[:greater_than_or_equal_to] || options[:greater_than]
         value = value.call(record) if value.respond_to?(:call)
         value = value.min if value.respond_to?(:min)
-        human_size(value)
+        human_size(value, unit)
       end
 
-      def max_value_in_human_size(record)
+      def max_value_in_human_size(record, unit = nil)
         value = options[:less_than_or_equal_to] || options[:less_than]
         value = value.call(record) if value.respond_to?(:call)
         value = value.max if value.respond_to?(:max)
-        human_size(value)
+        human_size(value, unit)
       end
     end
 

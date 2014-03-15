@@ -169,17 +169,17 @@ describe Paperclip::Validators::AttachmentSizeValidator do
   context "with :unit option" do
     context "given unit is :byte" do
       before do
-        build_validator in: (5.bytes..10.bytes), unit: :byte, locale: :en
+        build_validator in: (5.bytes..10.bytes), unit: :byte
       end
 
-      should_allow_attachment_file_size(7.kilobytes)
-      should_not_allow_attachment_file_size(4.kilobytes, message: 'must be in between 5 Bytes and 10 Bytes')
-      should_not_allow_attachment_file_size(11.kilobytes, message: 'must be in between 5 Bytes and 10 Bytes')
+      should_allow_attachment_file_size(7.bytes)
+      should_not_allow_attachment_file_size(4.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
+      should_not_allow_attachment_file_size(11.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
     end
 
     context "given unit is :kb" do
       before do
-        build_validator in: (5.kilobytes..10.kilobytes), unit: :kb, locale: :en
+        build_validator in: (5.kilobytes..10.kilobytes), unit: :kb
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -189,7 +189,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :mb" do
       before do
-        build_validator in: (5.megabytes..10.megabytes), unit: :mb, locale: :en
+        build_validator in: (5.megabytes..10.megabytes), unit: :mb
       end
 
       should_allow_attachment_file_size(7.megabytes)
@@ -199,7 +199,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :gb" do
       before do
-        build_validator in: (5.gigabytes..10.gigabytes), unit: :gb, locale: :en
+        build_validator in: (5.gigabytes..10.gigabytes), unit: :gb
       end
 
       should_allow_attachment_file_size(7.gigabytes)
@@ -209,7 +209,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :tb" do
       before do
-        build_validator in: (5.terabytes..10.terabytes), unit: :tb, locale: :en
+        build_validator in: (5.terabytes..10.terabytes), unit: :tb
       end
 
       should_allow_attachment_file_size(7.terabytes)
@@ -219,7 +219,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :invalid" do
       before do
-        build_validator in: (5.bytes..10.bytes), unit: :invalid_unit, locale: :en
+        build_validator in: (5.bytes..10.bytes), unit: :invalid_unit
       end
 
       should_allow_attachment_file_size(7.bytes)
