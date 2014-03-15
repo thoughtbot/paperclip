@@ -169,7 +169,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
   context "with :unit option" do
     context "given unit is :byte" do
       before do
-        build_validator in: (5.bytes..10.bytes), unit: :byte
+        build_validator in: (5.bytes..10.bytes), unit: :byte, locale: :en
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -179,7 +179,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :kb" do
       before do
-        build_validator in: (5.kilobytes..10.kilobytes), unit: :kb
+        build_validator in: (5.kilobytes..10.kilobytes), unit: :kb, locale: :en
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -189,7 +189,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :mb" do
       before do
-        build_validator in: (5.megabytes..10.megabytes), unit: :mb
+        build_validator in: (5.megabytes..10.megabytes), unit: :mb, locale: :en
       end
 
       should_allow_attachment_file_size(7.megabytes)
@@ -199,7 +199,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :gb" do
       before do
-        build_validator in: (5.gigabytes..10.gigabytes), unit: :gb
+        build_validator in: (5.gigabytes..10.gigabytes), unit: :gb, locale: :en
       end
 
       should_allow_attachment_file_size(7.gigabytes)
@@ -209,7 +209,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :tb" do
       before do
-        build_validator in: (5.terabytes..10.terabytes), unit: :tb
+        build_validator in: (5.terabytes..10.terabytes), unit: :tb, locale: :en
       end
 
       should_allow_attachment_file_size(7.terabytes)
@@ -219,7 +219,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "given unit is :invalid" do
       before do
-        build_validator in: (5.bytes..10.bytes), unit: :invalid_unit
+        build_validator in: (5.bytes..10.bytes), unit: :invalid_unit, locale: :en
       end
 
       should_allow_attachment_file_size(7.bytes)
