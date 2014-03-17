@@ -166,6 +166,68 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     end
   end
 
+  context "with :unit option" do
+    context "given unit is :byte" do
+      before do
+        build_validator in: (5.bytes..10.bytes), unit: :byte
+      end
+
+      should_allow_attachment_file_size(7.bytes)
+      should_not_allow_attachment_file_size(4.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
+      should_not_allow_attachment_file_size(11.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
+    end
+
+    context "given unit is :kb" do
+      before do
+        build_validator in: (5.kilobytes..10.kilobytes), unit: :kb
+      end
+
+      should_allow_attachment_file_size(7.kilobytes)
+      should_not_allow_attachment_file_size(4.kilobytes, message: 'must be in between 5 KB and 10 KB')
+      should_not_allow_attachment_file_size(11.kilobytes, message: 'must be in between 5 KB and 10 KB')
+    end
+
+    context "given unit is :mb" do
+      before do
+        build_validator in: (5.megabytes..10.megabytes), unit: :mb
+      end
+
+      should_allow_attachment_file_size(7.megabytes)
+      should_not_allow_attachment_file_size(4.megabytes, message: 'must be in between 5 MB and 10 MB')
+      should_not_allow_attachment_file_size(11.megabytes, message: 'must be in between 5 MB and 10 MB')
+    end
+
+    context "given unit is :gb" do
+      before do
+        build_validator in: (5.gigabytes..10.gigabytes), unit: :gb
+      end
+
+      should_allow_attachment_file_size(7.gigabytes)
+      should_not_allow_attachment_file_size(4.gigabytes, message: 'must be in between 5 GB and 10 GB')
+      should_not_allow_attachment_file_size(11.gigabytes, message: 'must be in between 5 GB and 10 GB')
+    end
+
+    context "given unit is :tb" do
+      before do
+        build_validator in: (5.terabytes..10.terabytes), unit: :tb
+      end
+
+      should_allow_attachment_file_size(7.terabytes)
+      should_not_allow_attachment_file_size(4.terabytes, message: 'must be in between 5 TB and 10 TB')
+      should_not_allow_attachment_file_size(11.terabytes, message: 'must be in between 5 TB and 10 TB')
+    end
+
+    context "given unit is :invalid" do
+      before do
+        build_validator in: (5.bytes..10.bytes), unit: :invalid_unit
+      end
+
+      should_allow_attachment_file_size(7.bytes)
+      should_not_allow_attachment_file_size(4.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
+      should_not_allow_attachment_file_size(11.bytes, message: 'must be in between 5 Bytes and 10 Bytes')
+    end
+  end
+
   context "default error messages" do
     context "given :less_than and :greater_than" do
       before do
