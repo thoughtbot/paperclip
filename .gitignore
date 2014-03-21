@@ -7,12 +7,6 @@ tmp
 
 *.log
 
-test/s3.yml
-test/paperclip.db
-test/doc
-test/pkg
-test/tmp
-
 public
 paperclip*.gem
 capybara*.html

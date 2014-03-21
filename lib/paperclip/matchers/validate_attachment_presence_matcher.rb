@@ -26,9 +26,10 @@ module Paperclip
           "Attachment #{@attachment_name} should be required"
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "Attachment #{@attachment_name} should not be required"
         end
+        alias negative_failure_message failure_message_when_negated
 
         def description
           "require presence of attachment #{@attachment_name}"

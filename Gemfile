@@ -2,13 +2,15 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'jruby-openssl', :platform => :jruby
-gem 'activerecord-jdbcsqlite3-adapter', :platform => :jruby
+gem 'sqlite3', '1.3.8', :platforms => :ruby
 
-gem 'pry', :platform => :ruby
-gem 'pry-byebug', :platform => :ruby
+gem 'jruby-openssl', :platforms => :jruby
+gem 'activerecord-jdbcsqlite3-adapter', :platforms => :jruby
 
-gem 'rubysl', :platform => :rbx
+gem 'rubysl', :platforms => :rbx
+gem 'racc', :platforms => :rbx
+
+gem 'pry'
 
 # Hinting at development dependencies
 # Prevents bundler from taking a long-time to resolve
