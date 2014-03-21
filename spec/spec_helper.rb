@@ -10,6 +10,8 @@ require 'ostruct'
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
+puts "Testing against version #{ActiveRecord::VERSION::STRING}"
+
 $LOAD_PATH << File.join(ROOT, 'lib')
 $LOAD_PATH << File.join(ROOT, 'lib', 'paperclip')
 require File.join(ROOT, 'lib', 'paperclip.rb')
@@ -29,6 +31,7 @@ RSpec.configure do |config|
   config.include Assertions
   config.include ModelReconstruction
   config.include TestData
+  config.extend VersionHelper
   config.extend RailsHelpers::ClassMethods
   config.mock_framework = :mocha
   config.before(:all) do

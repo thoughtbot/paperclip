@@ -10,6 +10,8 @@ gem 'activerecord-jdbcsqlite3-adapter', :platforms => :jruby
 gem 'rubysl', :platforms => :rbx
 gem 'racc', :platforms => :rbx
 
+gem 'pry'
+
 # Hinting at development dependencies
 # Prevents bundler from taking a long-time to resolve
 group :development, :test do
