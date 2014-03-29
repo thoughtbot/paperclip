@@ -151,7 +151,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        message: "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
+        message: "is invalid. (Between 5 KB and 10 KB please.)"
     end
 
     context "given :less_than and :greater_than" do
@@ -162,7 +162,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        message: "is invalid. (Between 5120 Bytes and 10240 Bytes please.)"
+        message: "is invalid. (Between 5 KB and 10 KB please.)"
     end
   end
 
@@ -174,9 +174,9 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        message: "must be less than 10240 Bytes"
+        message: "must be less than 10 KB"
       should_not_allow_attachment_file_size 4.kilobytes,
-        message: "must be greater than 5120 Bytes"
+        message: "must be greater than 5 KB"
     end
 
     context "given a size range" do
@@ -185,9 +185,9 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       end
 
       should_not_allow_attachment_file_size 11.kilobytes,
-        message: "must be in between 5120 Bytes and 10240 Bytes"
+        message: "must be in between 5 KB and 10 KB"
       should_not_allow_attachment_file_size 4.kilobytes,
-        message: "must be in between 5120 Bytes and 10240 Bytes"
+        message: "must be in between 5 KB and 10 KB"
     end
   end
 
