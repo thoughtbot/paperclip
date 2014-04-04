@@ -57,14 +57,15 @@ describe Paperclip::AbstractAdapter do
     assert !TestAdapter.new.nil?
   end
 
-  should "can generate a destination filename with no original filename" do
+  it "generates a destination filename with no original filename" do
     @adapter = TestAdapter.new
-    assert_not_nil @adapter.send(:destination).path
+    expect(@adapter.send(:destination).path).to_not be_nil
   end
 
-  should 'use the original filename to generate the tempfile' do
+  it 'uses the original filename to generate the tempfile' do
     @adapter = TestAdapter.new
     @adapter.original_filename = "file.png"
-    assert @adapter.send(:destination).path.ends_with?(".png")
+    require 'pry'; binding.pry
+    expect(@adapter.send(:destination).path).to end_with(".png")
   end
 end
