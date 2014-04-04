@@ -56,6 +56,5 @@ describe Paperclip::StringioAdapter do
       @subject.original_filename = 'image:restricted.png'
       expect(@subject.path).to_not match(/:/)
     end
-
   end
 end

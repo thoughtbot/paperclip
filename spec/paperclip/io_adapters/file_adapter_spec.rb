@@ -18,6 +18,10 @@ describe Paperclip::FileAdapter do
           @subject = Paperclip.io_adapters.for(@file)
         end
 
+        it 'uses the original filename to generate the tempfile' do
+          assert @subject.path.ends_with?(".png")
+        end
+
         it "gets the right filename" do
           assert_equal "5k.png", @subject.original_filename
         end

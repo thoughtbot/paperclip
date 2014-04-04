@@ -65,7 +65,6 @@ describe Paperclip::AbstractAdapter do
   it 'uses the original filename to generate the tempfile' do
     @adapter = TestAdapter.new
     @adapter.original_filename = "file.png"
-    require 'pry'; binding.pry
     expect(@adapter.send(:destination).path).to end_with(".png")
   end
 end
