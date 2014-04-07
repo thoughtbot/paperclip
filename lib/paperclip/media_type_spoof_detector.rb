@@ -31,7 +31,16 @@ module Paperclip
     end
 
     def mapping_override_mismatch?
-      mapped_content_type != calculated_content_type
+
+      if mapped_content_type.kind_of?(Array)
+        mapped_content_type.each do |m|
+          true if m == calculated_content_type
+        end
+        false
+      else
+        mapped_content_type != calculated_content_type
+      end
+
     end
 
     def supplied_file_media_types
