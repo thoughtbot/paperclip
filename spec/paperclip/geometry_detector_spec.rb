@@ -20,5 +20,20 @@ describe Paperclip::GeometryDetector do
 
     expect(output).to eq :correct
   end
+
+  it 'avoids reading EXIF orientation if so configured' do
+    begin
+      Paperclip.options[:use_exif_orientation] = false
+      Paperclip::GeometryParser.stubs(:new).with("300x200,1").returns(stub(make: :correct))
+      file = fixture_file("rotated.jpg")
+      factory = Paperclip::GeometryDetector.new(file)
+
+      output = factory.make
+
+      expect(output).to eq :correct
+    ensure
+      Paperclip.options[:use_exif_orientation] = true
+    end
+  end
 end
 
