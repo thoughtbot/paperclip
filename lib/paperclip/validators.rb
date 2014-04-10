@@ -41,10 +41,11 @@ module Paperclip
             if options.has_key?(validator_kind)
               validator_options = options.delete(validator_kind)
               validator_options = {} if validator_options == true
-              local_options = attributes + [validator_options]
               conditional_options = options.slice(:if, :unless)
-              local_options.last.merge!(conditional_options)
-              send(Paperclip::Validators.const_get(constant.to_s).helper_method_name, *local_options)
+              Array.wrap(validator_options).each do |local_options|
+                method_name = Paperclip::Validators.const_get(constant.to_s).helper_method_name
+                send(method_name, attributes, local_options.merge(conditional_options))
+              end
             end
           end
         end
