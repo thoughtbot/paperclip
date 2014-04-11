@@ -391,8 +391,16 @@ module Paperclip
       @instance.class.validators.map(&:class)
     end
 
+    def required_validator_classes
+      Paperclip::REQUIRED_VALIDATORS + Paperclip::REQUIRED_VALIDATORS.flat_map(&:descendants)
+    end
+
+    def missing_required_validator?
+      (active_validator_classes & required_validator_classes).empty?
+    end
+
     def ensure_required_validations!
-      if (active_validator_classes & Paperclip::REQUIRED_VALIDATORS).empty?
+      if missing_required_validator?
         raise Paperclip::Errors::MissingRequiredValidatorError
       end
     end

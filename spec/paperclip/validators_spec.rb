@@ -77,6 +77,28 @@ describe Paperclip::Validators do
       end
     end
 
+    it 'does not raise an error when a content_type validation exists using validates_with' do
+      Dummy.validates_with Paperclip::Validators::AttachmentContentTypeValidator, attributes: :attachment, content_type: 'images/jpeg'
+
+      assert_nothing_raised do
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
+      end
+    end
+
+    it 'does not raise an error when an inherited validator is used' do
+      class MyValidator < Paperclip::Validators::AttachmentContentTypeValidator
+        def initialize(options)
+          options[:content_type] = "images/jpeg" unless options.has_key?(:content_type)
+          super
+        end
+      end
+      Dummy.validates_with MyValidator, attributes: :attachment
+
+      assert_nothing_raised do
+        Dummy.new(avatar: File.new(fixture_file("12k.png")))
+      end
+    end
+
     it 'does not raise an error when a file_name validation exists' do
       Dummy.validates_attachment :avatar, file_name: { matches: /png$/ }
 
