@@ -32,6 +32,10 @@ module Paperclip
         EMPTY_TYPE
       elsif calculated_type_matches.any?
         calculated_type_matches.first
+      elsif official_type_matches.any?
+        official_type_matches.first
+      elsif unofficial_type_matches.any?
+        unofficial_type_matches.first
       else
         type_from_file_command || SENSIBLE_DEFAULT
       end.to_s
@@ -55,6 +59,14 @@ module Paperclip
 
     def calculated_type_matches
       possible_types.select{|content_type| content_type == type_from_file_command }
+    end
+
+    def official_type_matches
+      possible_types.reject{|content_type| content_type.match(/\/x-/) }
+    end
+
+    def unofficial_type_matches
+      possible_types.select{|content_type| content_type.match(/\/x-/) }
     end
 
     def type_from_file_command
