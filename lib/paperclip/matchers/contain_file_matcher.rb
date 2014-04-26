@@ -6,13 +6,13 @@ module Paperclip
       #
       # Example:
       #   describe User do
-      #     it { should have_attached_file(:avatar) }
+      #     it { should contain_file(:avatar) }
       #   end
-      def have_attached_file name
-        HaveAttachedFileMatcher.new(name)
+      def contain_file name
+        ContainFileMatcher.new(name)
       end
 
-      class HaveAttachedFileMatcher
+      class ContainFileMatcher
         def initialize attachment_name
           @attachment_name = attachment_name
         end
@@ -24,16 +24,16 @@ module Paperclip
         end
 
         def failure_message
-          "Should have an attachment named #{@attachment_name}"
+          "Should contain an attachment named #{@attachment_name}"
         end
 
         def failure_message_when_negated
-          "Should not have an attachment named #{@attachment_name}"
+          "Should not contain an attachment named #{@attachment_name}"
         end
         alias negative_failure_message failure_message_when_negated
 
         def description
-          "have an attachment named #{@attachment_name}"
+          "contain an attachment named #{@attachment_name}"
         end
 
         protected

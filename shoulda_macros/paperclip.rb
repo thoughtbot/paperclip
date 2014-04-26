@@ -13,9 +13,9 @@ module Paperclip
     # This will test whether you have defined your attachment correctly by
     # checking for all the required fields exist after the definition of the
     # attachment.
-    def should_have_attached_file name
+    def should_contain_file name
       klass   = self.name.gsub(/Test$/, '').constantize
-      matcher = have_attached_file name
+      matcher = contain_file name
       should matcher.description do
         assert_accepts(matcher, klass)
       end
