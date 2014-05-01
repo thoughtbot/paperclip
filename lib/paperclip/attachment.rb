@@ -87,37 +87,29 @@ module Paperclip
     end
 
     # What gets called when you call instance.attachment = File. It clears
-    # errors, assigns attributes, and processes the file. It
-    # also queues up the previous file for deletion, to be flushed away on
-    # #save of its host.  In addition to form uploads, you can also assign
-    # another Paperclip attachment:
+    # errors, assigns attributes, and processes the file. It also queues up the
+    # previous file for deletion, to be flushed away on #save of its host.  In
+    # addition to form uploads, you can also assign another Paperclip
+    # attachment:
     #   new_user.avatar = old_user.avatar
-    def assign uploaded_file
+    def assign(uploaded_file)
+      @file = Paperclip.io_adapters.for(uploaded_file)
       ensure_required_accessors!
       ensure_required_validations!
-      file = Paperclip.io_adapters.for(uploaded_file)
 
-      return nil if not file.assignment?
-      self.clear(*only_process)
-      return nil if file.nil?
+      if @file.assignment?
+        clear(*only_process)
 
-      @queued_for_write[:original]   = file
-      instance_write(:file_name,       cleanup_filename(file.original_filename))
-      instance_write(:content_type,    file.content_type.to_s.strip)
-      instance_write(:file_size,       file.size)
-      instance_write(:fingerprint,     file.fingerprint) if instance_respond_to?(:fingerprint)
-      instance_write(:created_at,      Time.now) if has_enabled_but_unset_created_at?
-      instance_write(:updated_at,      Time.now)
-
-      @dirty = true
-
-      post_process(*only_process) if post_processing
-
-      # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size,   @queued_for_write[:original].size)
-      instance_write(:fingerprint, @queued_for_write[:original].fingerprint) if instance_respond_to?(:fingerprint)
-      updater = :"#{name}_file_name_will_change!"
-      instance.send updater if instance.respond_to? updater
+        if @file.nil?
+          nil
+        else
+          assign_attributes
+          post_process_file
+          reset_file_if_original_reprocessed
+        end
+      else
+        nil
+      end
     end
 
     # Returns the public URL of the attachment with a given style. This does
@@ -142,14 +134,20 @@ module Paperclip
     #
     # +#new(Paperclip::Attachment, options_hash)+
     # +#for(style_name, options_hash)+
-    def url(style_name = default_style, options = {})
-      default_options = {:timestamp => @options[:use_timestamp], :escape => @options[:escape_url]}
 
+    def url(style_name = default_style, options = {})
       if options == true || options == false # Backwards compatibility.
         @url_generator.for(style_name, default_options.merge(:timestamp => options))
       else
         @url_generator.for(style_name, default_options.merge(options))
       end
+    end
+
+    def default_options
+      {
+        :timestamp => @options[:use_timestamp],
+        :escape => @options[:escape_url]
+      }
     end
 
     # Alias to +url+ that allows using the expiring_url method provided by the cloud
@@ -417,6 +415,61 @@ module Paperclip
         raise Errors::StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
       end
       self.extend(storage_module)
+    end
+
+    def assign_attributes
+      @queued_for_write[:original] = @file
+      assign_file_information
+      assign_fingerprint(@file.fingerprint)
+      assign_timestamps
+    end
+
+    def assign_file_information
+      instance_write(:file_name, cleanup_filename(@file.original_filename))
+      instance_write(:content_type, @file.content_type.to_s.strip)
+      instance_write(:file_size, @file.size)
+    end
+
+    def assign_fingerprint(fingerprint)
+      if instance_respond_to?(:fingerprint)
+        instance_write(:fingerprint, fingerprint)
+      end
+    end
+
+    def assign_timestamps
+      if has_enabled_but_unset_created_at?
+        instance_write(:created_at, Time.now)
+      end
+
+      instance_write(:updated_at, Time.now)
+    end
+
+    def post_process_file
+      dirty!
+
+      if post_processing
+        post_process(*only_process)
+      end
+    end
+
+    def dirty!
+      @dirty = true
+    end
+
+    def reset_file_if_original_reprocessed
+      instance_write(:file_size, @queued_for_write[:original].size)
+      assign_fingerprint(@queued_for_write[:original].fingerprint)
+      reset_updater
+    end
+
+    def reset_updater
+      if instance.respond_to?(updater)
+        instance.send(updater)
+      end
+    end
+
+    def updater
+      :"#{name}_file_name_will_change!"
     end
 
     def extra_options_for(style) #:nodoc:
