@@ -61,7 +61,7 @@ module Paperclip
 
     def load_processor(name)
       if defined?(Rails.root) && Rails.root
-        require File.expand_path(Rails.root.join("lib", "paperclip_processors", "#{name.underscore}.rb"))
+        require File.expand_path(Rails.root.join("lib", "paperclip", "#{name.underscore}.rb"))
       end
     end
 
