@@ -607,6 +607,19 @@ class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
 end
 ```
 
+File Preservation for Soft-Delete
+-------
+
+An option is available to preserve attachments in order to play nicely with soft-deleted models. (acts_as_paranoid, paranoia, etc.)
+
+```ruby
+has_attached_file :some_attachment, {
+    :preserve_files => "true",
+}
+```
+
+This will prevent ```some_attachment``` from being wiped out when the model gets destroyed, so it will still exist when the object is restored later.
+
 Custom Attachment Processors
 -------
 
