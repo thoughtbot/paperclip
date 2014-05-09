@@ -695,12 +695,14 @@ Here is an example for Capistrano:
 ```ruby
 namespace :deploy do
   desc "build missing paperclip styles"
-  task :build_missing_paperclip_styles, :roles => :app do
-    run "cd #{release_path}; RAILS_ENV=production bundle exec rake paperclip:refresh:missing_styles"
+  task :build_missing_paperclip_styles do
+    on roles(:app) do
+      execute "cd #{current_path}; RAILS_ENV=production bundle exec rake paperclip:refresh:missing_styles"
+    end
   end
 end
 
-after("deploy:update_code", "deploy:build_missing_paperclip_styles")
+after("deploy:compile_assets", "deploy:build_missing_paperclip_styles")
 ```
 
 Now you don't have to remember to refresh thumbnails in production every time you add a new style.
