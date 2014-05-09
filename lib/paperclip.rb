@@ -75,6 +75,8 @@ module Paperclip
   # * command_path: Defines the path at which to find the command line
   #   programs if they are not visible to Rails the system's search path. Defaults to
   #   nil, which uses the first executable found in the user's search path.
+  # * use_exif_orientation: Whether to inspect EXIF data to determine an
+  #   image's orientation. Defaults to true.
   def self.options
     @options ||= {
       :whiny => true,
@@ -83,7 +85,8 @@ module Paperclip
       :log => true,
       :log_command => true,
       :swallow_stderr => true,
-      :content_type_mappings => {}
+      :content_type_mappings => {},
+      :use_exif_orientation => true
     }
   end
 
