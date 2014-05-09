@@ -55,6 +55,9 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 
     brew install gs
 
+### `file` command
+
+The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content type checking.
 
 Installation
 ------------
