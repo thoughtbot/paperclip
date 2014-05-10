@@ -501,9 +501,10 @@ a set of styles for an attachment, by default it is expected that those
 "styles" are actually "thumbnails". However, you can do much more than just
 thumbnail images. By defining a subclass of Paperclip::Processor, you can
 perform any processing you want on the files that are attached. Any file in
-your Rails app's lib/paperclip\_processors directory is automatically loaded by
-paperclip, allowing you to easily define custom processors. You can specify a
-processor with the :processors option to `has_attached_file`:
+your Rails app's `lib/paperclip` and `lib/paperclip_processors` directories is
+automatically loaded by paperclip, allowing you to easily define custom
+processors. You can specify a processor with the :processors option to
+`has_attached_file`:
 
 ```ruby
 has_attached_file :scan, :styles => { :text => { :quality => :better } },
