@@ -196,6 +196,35 @@ Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
   end
 end
 
+Given(/^I add a "(.*?)" processor in "(.*?)"$/) do |processor, directory|
+  filename = "#{directory}/#{processor}.rb"
+  in_current_dir do
+    FileUtils.mkdir_p directory
+    File.open(filename, "w") do |f|
+      f.write(<<-CLASS)
+        module Paperclip
+          class #{processor.capitalize} < Processor
+            def make
+              basename = File.basename(file.path, File.extname(file.path))
+              dst_format = options[:format] ? ".\#{options[:format]}" : ''
+
+              dst = Tempfile.new([basename, dst_format])
+              dst.binmode
+
+              convert(':src :dst',
+                src: File.expand_path(file.path),
+                dst: File.expand_path(dst.path)
+              )
+
+              dst
+            end
+          end
+        end
+      CLASS
+    end
+  end
+end
+
 def transform_file(filename)
   if File.exists?(filename)
     content = File.read(filename)
