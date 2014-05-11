@@ -1,5 +1,6 @@
 require 'active_model'
 require 'active_support/concern'
+require 'active_support/core_ext/array/wrap'
 require 'paperclip/validators/attachment_content_type_validator'
 require 'paperclip/validators/attachment_file_name_validator'
 require 'paperclip/validators/attachment_presence_validator'
