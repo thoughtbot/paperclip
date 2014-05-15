@@ -17,5 +17,4 @@ gem 'pry'
 group :development, :test do
   gem 'mime-types', '~> 1.16'
   gem 'builder', '~> 3.1.4'
-  gem 'timecop', '~> 0.7.1'
 end
