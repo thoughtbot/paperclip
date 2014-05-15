@@ -36,9 +36,9 @@ Paperclip uses [Appraisal](https://github.com/thoughtbot/appraisal) to aid
 testing against multiple version of Ruby on Rails. This helps us to make sure
 that Paperclip performs correctly with them.
 
-Paperclip also uses [RSpec](http://rspec.info) for its unit tests not. If you
-submit tests that are not written for Cucumber or RSpec without a very good
-reason, you will be asked to rewrite them before we'll accept.
+Paperclip also uses [RSpec](http://rspec.info) for its unit tests. If you submit
+tests that are not written for Cucumber or RSpec without a very good reason, you
+will be asked to rewrite them before we'll accept.
 
 ### Bootstrapping your test suite:
 
