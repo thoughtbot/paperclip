@@ -58,6 +58,8 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 ### `file` command
 
 The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content type checking.
+This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), 
+so Windows users must make sure that the devkit is installed and added to system `PATH`.
 
 Installation
 ------------
