@@ -12,6 +12,11 @@ describe Paperclip::DataUriAdapter do
     assert_equal Paperclip::DataUriAdapter, adapter.class
   end
 
+  it 'alows mime type that has dot in it' do
+    adapter = Paperclip.io_adapters.for("data:image/vnd.microsoft.icon;base64,#{original_base64_content}")
+    assert_equal Paperclip::DataUriAdapter, adapter.class
+  end
+
   context "a new instance" do
     before do
       @contents = "data:image/png;base64,#{original_base64_content}"
