@@ -24,4 +24,3 @@ describe Paperclip::FileCommandContentTypeDetector do
       Paperclip::FileCommandContentTypeDetector.new("windows").detect
   end
 end
-

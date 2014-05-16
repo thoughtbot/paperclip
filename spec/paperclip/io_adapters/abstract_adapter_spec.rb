@@ -9,11 +9,12 @@ describe Paperclip::AbstractAdapter do
     end
   end
 
-  context "content type from file command" do
+  context "content type from file contents" do
     before do
       @adapter = TestAdapter.new
       @adapter.stubs(:path).returns("image.png")
       Paperclip.stubs(:run).returns("image/png\n")
+      Paperclip::ContentTypeDetector.any_instance.stubs(:type_from_mime_magic).returns("image/png")
     end
 
     it "returns the content type without newline" do
