@@ -26,6 +26,52 @@ describe Paperclip::Validators do
     end
   end
 
+  context 'using the helper with array of validations' do
+    before do
+      rebuild_class
+      Dummy.validates_attachment :avatar, file_type_ignorance: true, file_name: [
+          { matches: /\A.*\.jpe?g\Z/i, message: :invalid_extension },
+          { matches: /\A.{,8}\..+\Z/i, message: [:too_long, count: 8] },
+      ]
+    end
+
+    it 'adds the attachment_file_name validator to the class' do
+      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_file_name }
+    end
+
+    it 'adds the attachment_file_name validator with two validations' do
+      assert_equal 2, Dummy.validators_on(:avatar).select{ |validator| validator.kind == :attachment_file_name }.size
+    end
+
+    it 'prevents you from attaching a file that violates all of these validations' do
+      Dummy.class_eval{ validate(:name) { raise 'DO NOT RUN THIS' } }
+      dummy = Dummy.new(avatar: File.new(fixture_file('spaced file.png')))
+      expect(dummy.errors.keys).to match_array [:avatar, :avatar_file_name]
+      assert_raises(RuntimeError){ dummy.valid? }
+    end
+
+    it 'prevents you from attaching a file that violates only first of these validations' do
+      Dummy.class_eval{ validate(:name) { raise 'DO NOT RUN THIS' } }
+      dummy = Dummy.new(avatar: File.new(fixture_file('5k.png')))
+      expect(dummy.errors.keys).to match_array [:avatar, :avatar_file_name]
+      assert_raises(RuntimeError){ dummy.valid? }
+    end
+
+    it 'prevents you from attaching a file that violates only second of these validations' do
+      Dummy.class_eval{ validate(:name) { raise 'DO NOT RUN THIS' } }
+      dummy = Dummy.new(avatar: File.new(fixture_file('spaced file.jpg')))
+      expect(dummy.errors.keys).to match_array [:avatar, :avatar_file_name]
+      assert_raises(RuntimeError){ dummy.valid? }
+    end
+
+    it 'allows you to attach a file that does not violates these validations' do
+      dummy = Dummy.new(avatar: File.new(fixture_file('rotated.jpg')))
+      expect(dummy.errors.keys).to match_array []
+      assert dummy.valid?
+    end
+
+  end
+
   context "using the helper with a conditional" do
     before do
       rebuild_class
