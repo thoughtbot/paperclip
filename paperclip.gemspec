@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency('activesupport', '>= 3.0.0')
   s.add_dependency('cocaine', '~> 0.5.3')
   s.add_dependency('mime-types')
+  s.add_dependency('mimemagic')
 
   s.add_development_dependency('activerecord', '>= 3.0.0')
   s.add_development_dependency('shoulda')

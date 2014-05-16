@@ -11,6 +11,12 @@ describe Paperclip::FileCommandContentTypeDetector do
     tempfile.close
   end
 
+  it 'returns a meaningful content type for open xml spreadsheets' do
+    file = File.new(fixture_file("empty.xlsx"))
+    assert_equal "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      Paperclip::FileCommandContentTypeDetector.new(file.path).detect
+  end
+
   it 'returns a sensible default when the file command is missing' do
     Paperclip.stubs(:run).raises(Cocaine::CommandLineError.new)
     @filename = "/path/to/something"
@@ -24,4 +30,3 @@ describe Paperclip::FileCommandContentTypeDetector do
       Paperclip::FileCommandContentTypeDetector.new("windows").detect
   end
 end
-
