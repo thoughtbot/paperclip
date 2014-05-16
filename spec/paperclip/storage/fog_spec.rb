@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'fog'
+require 'timecop'
 
 describe Paperclip::Storage::Fog do
   context "" do
@@ -319,11 +320,15 @@ describe Paperclip::Storage::Fog do
 
       context "generating an expiring url" do
         it "generates the same url when using Times and Integer offsets" do
-          rebuild_model(@options)
-          dummy = Dummy.new
-          dummy.avatar = StringIO.new('.')
+          Timecop.freeze do
+            offset = 1234
+            rebuild_model(@options)
+            dummy = Dummy.new
+            dummy.avatar = StringIO.new('.')
 
-          assert_equal dummy.avatar.expiring_url(1234), dummy.avatar.expiring_url(Time.now + 1234)
+            assert_equal dummy.avatar.expiring_url(offset),
+              dummy.avatar.expiring_url(Time.now + offset )
+          end
         end
 
         it 'matches the default url if there is no assignment' do
