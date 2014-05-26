@@ -10,6 +10,10 @@ module Paperclip
         super
       end
 
+      def self.helper_method_name
+        :validates_attachment_size
+      end
+
       def validate_each(record, attr_name, value)
         attr_name = "#{attr_name}_file_size".to_sym
         value = record.send(:read_attribute_for_validation, attr_name)
@@ -64,9 +68,13 @@ module Paperclip
       end
 
       def human_size(size)
-        storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
-        unit = I18n.translate(:'number.human.storage_units.units.byte', :locale => options[:locale], :count => size.to_i, :raise => true)
-        storage_units_format.gsub(/%n/, size.to_i.to_s).gsub(/%u/, unit).html_safe
+        if defined?(ActiveRecord::NumberHelper) # Rails 4.0+
+          ActiveSupport::NumberHelper.number_to_human_size(size)
+        else
+          storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
+          unit = I18n.translate(:'number.human.storage_units.units.byte', :locale => options[:locale], :count => size.to_i, :raise => true)
+          storage_units_format.gsub(/%n/, size.to_i.to_s).gsub(/%u/, unit).html_safe
+        end
       end
 
       def min_value_in_human_size(record)

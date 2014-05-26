@@ -132,4 +132,3 @@ elsif defined?(Test)
     extend Paperclip::Shoulda
   end
 end
-

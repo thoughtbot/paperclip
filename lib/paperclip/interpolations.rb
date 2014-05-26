@@ -101,6 +101,14 @@ module Paperclip
         File.extname(attachment.original_filename).gsub(/\A\.+/, "")
     end
 
+    # Returns the dot+extension of the file. e.g. ".jpg" for "file.jpg"
+    # If the style has a format defined, it will return the format instead
+    # of the actual extension. If the extension is empty, no dot is added.
+    def dotextension attachment, style_name
+      ext = extension(attachment, style_name)
+      ext.empty? ? "" : ".#{ext}"
+    end
+
     # Returns an extension based on the content type. e.g. "jpeg" for
     # "image/jpeg". If the style has a specified format, it will override the
     # content-type detection.

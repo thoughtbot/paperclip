@@ -1,8 +1,12 @@
 require 'active_model'
 require 'active_support/concern'
+require 'active_support/core_ext/array/wrap'
 require 'paperclip/validators/attachment_content_type_validator'
+require 'paperclip/validators/attachment_file_name_validator'
 require 'paperclip/validators/attachment_presence_validator'
 require 'paperclip/validators/attachment_size_validator'
+require 'paperclip/validators/media_type_spoof_detection_validator'
+require 'paperclip/validators/attachment_file_type_ignorance_validator'
 
 module Paperclip
   module Validators
@@ -12,6 +16,8 @@ module Paperclip
       extend  HelperMethods
       include HelperMethods
     end
+
+    ::Paperclip::REQUIRED_VALIDATORS = [AttachmentFileNameValidator, AttachmentContentTypeValidator, AttachmentFileTypeIgnoranceValidator]
 
     module ClassMethods
       # This method is a shortcut to validator classes that is in
@@ -36,10 +42,11 @@ module Paperclip
             if options.has_key?(validator_kind)
               validator_options = options.delete(validator_kind)
               validator_options = {} if validator_options == true
-              local_options = attributes + [validator_options]
               conditional_options = options.slice(:if, :unless)
-              local_options.last.merge!(conditional_options)
-              send(:"validates_attachment_#{validator_kind}", *local_options)
+              Array.wrap(validator_options).each do |local_options|
+                method_name = Paperclip::Validators.const_get(constant.to_s).helper_method_name
+                send(method_name, attributes, local_options.merge(conditional_options))
+              end
             end
           end
         end

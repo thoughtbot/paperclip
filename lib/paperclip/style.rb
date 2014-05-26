@@ -29,7 +29,7 @@ module Paperclip
         @geometry, @format = [definition, nil].flatten[0..1]
         @other_args = {}
       end
-      @format  = nil if @format.blank?
+      @format = default_format if @format.blank?
     end
 
     # retrieves from the attachment the processors defined in the has_attached_file call
@@ -71,7 +71,7 @@ module Paperclip
     # Arguments other than the standard geometry, format etc are just passed through from
     # initialization and any procs are called here, just before post-processing.
     def processor_options
-      args = {}
+      args = {:style => name}
       @other_args.each do |k,v|
         args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end
@@ -97,6 +97,12 @@ module Paperclip
       else
         @other_args[key] = value
       end
+    end
+
+    # defaults to default format (nil by default)
+    def default_format
+      base = attachment.options[:default_format]
+      base.respond_to?(:call) ? base.call(attachment, name) : base
     end
 
   end

@@ -14,9 +14,11 @@ module Paperclip
 
     def geometry_string
       begin
+        orientation = Paperclip.options[:use_exif_orientation] ?
+          "%[exif:orientation]" : "1"
         Paperclip.run(
           "identify",
-          "-format '%wx%h,%[exif:orientation]' :file", {
+          "-format '%wx%h,#{orientation}' :file", {
             :file => "#{path}[0]"
           }, {
             :swallow_stderr => true
