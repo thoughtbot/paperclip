@@ -48,11 +48,6 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           "Unexpected error message on :avatar_file_size"
       end
 
-      should "add error to dummy object as a string" do
-        assert_kind_of String, @dummy.errors[:avatar_file_size].first,
-          "Error added to base attribute as something other than a String"
-      end
-
       if options[:message]
         it "returns a correct error message" do
           expect(@dummy.errors[:avatar_file_size]).to include options[:message]
