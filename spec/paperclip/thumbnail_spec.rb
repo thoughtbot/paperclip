@@ -42,7 +42,8 @@ describe Paperclip::Thumbnail do
 
     [["600x600>", "434x66"],
      ["400x400>", "400x61"],
-     ["32x32<", "434x66"]
+     ["32x32<", "434x66"],
+     [nil, "434x66"]
     ].each do |args|
       context "being thumbnailed with a geometry of #{args[0]}" do
         before do
@@ -55,7 +56,7 @@ describe Paperclip::Thumbnail do
         end
 
         it "reports the correct target geometry" do
-          assert_equal args[0], @thumb.target_geometry.to_s
+          assert_equal args[0].to_s, @thumb.target_geometry.to_s
         end
 
         context "when made" do
