@@ -71,7 +71,7 @@ module Paperclip
       end
 
       def human_size(size)
-        if defined?(ActiveRecord::NumberHelper) # Rails 4.0+
+        if defined?(ActiveSupport::NumberHelper) # Rails 4.0+
           ActiveSupport::NumberHelper.number_to_human_size(size)
         else
           storage_units_format = I18n.translate(:'number.human.storage_units.format', :locale => options[:locale], :raise => true)
