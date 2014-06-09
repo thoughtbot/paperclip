@@ -938,40 +938,130 @@ describe Paperclip::Storage::S3 do
     end
   end
 
-  context "An attachment with S3 storage and storage class set using the header name" do
-    before do
-      rebuild_model storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_headers: { "x-amz-storage-class" => "reduced_redundancy" }
-    end
-
-    context "when assigned" do
+  context "An attachment with S3 storage and storage class set" do
+    context "using the header name" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
-        @dummy = Dummy.new
-        @dummy.avatar = @file
+        rebuild_model storage: :s3,
+          bucket: "testing",
+          path: ":attachment/:style/:basename:dotextension",
+          s3_credentials: {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          s3_headers: { "x-amz-storage-class" => "reduced_redundancy" }
       end
 
-      after { @file.close }
-
-      context "and saved" do
+      context "when assigned" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:write).with(anything,
-                                      content_type: "image/png",
-                                      acl: :public_read,
-                                      storage_class: "reduced_redundancy")
-          @dummy.save
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
         end
 
-        it "succeeds" do
-          assert true
+        after { @file.close }
+
+        context "and saved" do
+          before do
+            object = stub
+            @dummy.avatar.stubs(:s3_object).returns(object)
+            object.expects(:write).with(anything,
+                                        content_type: "image/png",
+                                        acl: :public_read,
+                                        storage_class: "reduced_redundancy")
+            @dummy.save
+          end
+
+          it "succeeds" do
+            assert true
+          end
+        end
+      end
+    end
+
+    context "using per style hash" do
+      before do
+        rebuild_model :storage => :s3,
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :styles => {
+            :thumb => "80x80>"
+          },
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          :s3_storage_class => {
+            :thumb => :reduced_redundancy
+          }
+      end
+
+      context "when assigned" do
+        before do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        after { @file.close }
+
+        context "and saved" do
+          before do
+            object = stub
+            [:thumb, :original].each do |style|
+              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              expected_options = {:content_type => "image/png", :acl => :public_read}
+              expected_options.merge!(:storage_class => :reduced_redundancy) if style == :thumb
+              object.expects(:write).with(anything, expected_options)
+            end
+            @dummy.save
+          end
+
+          it "succeeds" do
+            assert true
+          end
+        end
+      end
+    end
+
+    context "using global hash option" do
+      before do
+        rebuild_model :storage => :s3,
+          :bucket => "testing",
+          :path => ":attachment/:style/:basename.:extension",
+          :styles => {
+            :thumb => "80x80>"
+          },
+          :s3_credentials => {
+            'access_key_id' => "12345",
+            'secret_access_key' => "54321"
+          },
+          :s3_storage_class => :reduced_redundancy
+      end
+
+      context "when assigned" do
+        before do
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        after { @file.close }
+
+        context "and saved" do
+          before do
+            object = stub
+            [:thumb, :original].each do |style|
+              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              object.expects(:write).with(anything, :content_type => "image/png",
+                                          :acl => :public_read,
+                                          :storage_class => :reduced_redundancy)
+            end
+            @dummy.save
+          end
+
+          it "succeeds" do
+            assert true
+          end
         end
       end
     end

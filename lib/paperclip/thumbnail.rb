@@ -28,7 +28,7 @@ module Paperclip
     def initialize(file, options = {}, attachment = nil)
       super
 
-      geometry             = options[:geometry] # this is not an option
+      geometry             = options[:geometry].to_s
       @file                = file
       @crop                = geometry[-1,1] == '#'
       @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
