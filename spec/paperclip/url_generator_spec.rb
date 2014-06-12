@@ -183,4 +183,17 @@ describe Paperclip::UrlGenerator do
     assert mock_interpolator.has_interpolated_pattern?(expected),
       "expected the interpolator to be passed #{expected.inspect} but it wasn't"
   end
+
+  it "should be able to escape (, ), [, and ]." do
+    expected = "the(expected)result[]"
+    mock_attachment = MockAttachment.new
+    mock_interpolator = MockInterpolator.new(result: expected)
+    options = { interpolator: mock_interpolator }
+    url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
+    def url_generator.respond_to(params)
+      false if params == :escape
+    end
+    result = url_generator.for(:style_name, {escape: true})
+    assert_equal "the%28expected%29result%5B%5D", result
+  end
 end
