@@ -40,7 +40,7 @@ module Paperclip
     private
 
     def empty_file?
-      File.exists?(@filename) && File.size(@filename) == 0
+      File.exist?(@filename) && File.size(@filename) == 0
     end
 
     alias :empty? :empty_file?

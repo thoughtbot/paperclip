@@ -38,7 +38,7 @@ describe Paperclip::Storage::Filesystem do
       it "is removed after after_flush_writes" do
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
-        assert paths.none?{ |path| File.exists?(path) },
+        assert paths.none?{ |path| File.exist?(path) },
           "Expect all the files to be deleted."
       end
 

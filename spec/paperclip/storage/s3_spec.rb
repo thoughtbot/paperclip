@@ -691,7 +691,7 @@ describe Paperclip::Storage::S3 do
         @dummy.avatar.stubs(:s3_object).returns(stub(write: true))
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
-        assert paths.none?{ |path| File.exists?(path) },
+        assert paths.none?{ |path| File.exist?(path) },
           "Expect all the files to be deleted."
       end
 

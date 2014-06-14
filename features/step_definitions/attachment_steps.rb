@@ -35,7 +35,7 @@ end
 
 Then /^the attachment "([^"]*)" should exist$/ do |filename|
   in_current_dir do
-    File.exists?(attachment_path(filename)).should be
+    File.exist?(attachment_path(filename)).should be
   end
 end
 

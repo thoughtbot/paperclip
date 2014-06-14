@@ -24,6 +24,6 @@ describe Paperclip::TempfileFactory do
 
   it 'is able to take nothing as a parameter and not error' do
    file = subject.generate
-   assert File.exists?(file.path)
+   assert File.exist?(file.path)
   end
 end
