@@ -1,5 +1,5 @@
 RSpec::Matchers.define :exist do |expected|
   match do |actual|
-    File.exists?(actual)
+    File.exist?(actual)
   end
 end

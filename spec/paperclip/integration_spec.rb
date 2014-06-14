@@ -81,7 +81,7 @@ describe 'Paperclip' do
   context "Attachment" do
     before do
       @thumb_path = "tmp/public/system/dummies/avatars/000/000/001/thumb/5k.png"
-      File.delete(@thumb_path) if File.exists?(@thumb_path)
+      File.delete(@thumb_path) if File.exist?(@thumb_path)
       rebuild_model styles: { thumb: "50x50#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
@@ -109,8 +109,8 @@ describe 'Paperclip' do
     before do
       @thumb_small_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_small/5k.png"
       @thumb_large_path = "tmp/public/system/dummies/avatars/000/000/001/thumb_large/5k.png"
-      File.delete(@thumb_small_path) if File.exists?(@thumb_small_path)
-      File.delete(@thumb_large_path) if File.exists?(@thumb_large_path)
+      File.delete(@thumb_small_path) if File.exist?(@thumb_small_path)
+      File.delete(@thumb_large_path) if File.exist?(@thumb_large_path)
       rebuild_model styles: { thumb_small: "50x50#", thumb_large: "60x60#" }
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')

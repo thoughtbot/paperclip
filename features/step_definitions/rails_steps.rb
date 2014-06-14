@@ -197,7 +197,7 @@ Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
 end
 
 def transform_file(filename)
-  if File.exists?(filename)
+  if File.exist?(filename)
     content = File.read(filename)
     File.open(filename, "w") do |f|
       content = yield(content)
