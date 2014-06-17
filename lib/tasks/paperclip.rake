@@ -78,8 +78,7 @@ namespace :paperclip do
 
     desc "Regenerates missing thumbnail styles for all classes using Paperclip."
     task :missing_styles => :environment do
-      # Force loading all model classes to never miss any has_attached_file declaration:
-      Dir[Rails.root + 'app/models/**/*.rb'].each { |path| load path }
+      Rails.application.eager_load!
       Paperclip.missing_attachments_styles.each do |klass, attachment_definitions|
         attachment_definitions.each do |attachment_name, missing_styles|
           puts "Regenerating #{klass} -> #{attachment_name} -> #{missing_styles.inspect}"
