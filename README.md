@@ -226,6 +226,8 @@ Example Usage:
 ```ruby
 validates :avatar, :attachment_presence => true
 validates_with AttachmentPresenceValidator, :attributes => :avatar
+validates_with AttachmentSizeValidator, :attributes => :avatar, :less_than => 1.megabytes
+
 ```
 
 Validators can also be defined using the old helper style:
