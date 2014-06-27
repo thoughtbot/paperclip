@@ -78,10 +78,10 @@ describe Paperclip::Attachment do
     attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, true)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to be_true
+    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to eq true
 
     attachment.url(:style_name, false)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: false, escape: true)).to be_true
+    expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: false, escape: true)).to eq true
   end
 
   it "passes the style and options through to the URL generator on #url" do
@@ -89,7 +89,7 @@ describe Paperclip::Attachment do
     attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, options: :values)
-    expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to be_true
+    expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to eq true
   end
 
   it "passes default options through when #url is given one argument" do

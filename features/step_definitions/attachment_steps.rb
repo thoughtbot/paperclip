@@ -85,7 +85,7 @@ Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
       ["#{attachment_name}_updated_at", :datetime]
     ]
 
-    expect_columns.all?{ |column| columns.include? column }.should be_true
+    expect_columns.all?{ |column| columns.include? column }.should eq true
   end
 end
 
@@ -99,6 +99,6 @@ Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
       ["#{attachment_name}_updated_at", :datetime]
     ]
 
-    expect_columns.none?{ |column| columns.include? column }.should be_true
+    expect_columns.none?{ |column| columns.include? column }.should eq true
   end
 end
