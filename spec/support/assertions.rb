@@ -1,6 +1,6 @@
 module Assertions
   def assert(truthy, message = nil)
-    expect(truthy).to(be_true, message)
+    expect(!!truthy).to(eq(true), message)
   end
 
   def assert_equal(expected, actual, message = nil)
