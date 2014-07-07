@@ -20,6 +20,7 @@ module Paperclip
     end
 
     def original_filename=(new_filename)
+      return unless new_filename
       @original_filename = new_filename.gsub(OS_RESTRICTED_CHARACTERS, "_")
     end
 
