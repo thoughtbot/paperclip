@@ -152,6 +152,22 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "s3_protocol: ''" do
+    before do
+      rebuild_model storage: :s3,
+        s3_credentials: {},
+        s3_protocol: '',
+        bucket: "bucket",
+        path: ":attachment/:basename:dotextension"
+      @dummy = Dummy.new
+      @dummy.avatar = stringy_file
+    end
+
+    it "returns a protocol-relative URL" do
+      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+    end
+  end
+
   context "s3_protocol: :https" do
     before do
       rebuild_model storage: :s3,

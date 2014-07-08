@@ -26,7 +26,7 @@ module Paperclip
     #   put your bucket name in this file, instead of adding it to the code directly.
     #   This is useful when you want the same account but a different bucket for
     #   development versus production.
-    #   When using a Proc it provides a single parameter which is the attachment itself. A  
+    #   When using a Proc it provides a single parameter which is the attachment itself. A
     #   method #instance is available on the attachment which will take you back to your
     #   code. eg.
     #     class User
@@ -51,7 +51,7 @@ module Paperclip
     #     :s3_permissions => :private
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http', 'https', or an empty string to generate scheme-less URLs. Defaults to 'http'
+    #   'http', 'https', or an empty string to generate protocol-relative URLs. Defaults to 'http'
     #   when your :s3_permissions are :public_read (the default), and 'https' when your
     #   :s3_permissions are anything else.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
