@@ -13,7 +13,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
   end
 
   def self.storage_units
-    if defined?(ActiveRecord::NumberHelper) # Rails 4.0+
+    if defined?(ActiveSupport::NumberHelper) # Rails 4.0+
       { 5120 => '5 KB',       10240 => '10 KB' }
     else
       { 5120 => '5120 Bytes', 10240 => '10240 Bytes' }
