@@ -1,3 +1,19 @@
+New in 4.2.0:
+
+* Improvement: Converted test suite from test/unit to RSpec
+* Improvement: Refactored Paperclip::Attachment#assign
+* Improvement: Added Spanish and German locales
+* Improvement: Required Validators accept validator subclasses
+* Improvement: EXIF orientation checking can be turned off for performance
+* Improvement: Documentation updates
+* Improvement: Better #human_size method for AttachmentSizeValidators
+* Bug Fix: Allow MIME-types with dots in them
+* Improvement: Travis CI updates
+* Improvement: Validators can take multiple messages
+* Improvement: Per-style options for S3 storage
+* Improvement: Allow `nil` geometry strings
+* Improvement: Use `eager_load!`
+
 New in 4.1.1:
 
 * Improvement: Add default translations for spoof validation
