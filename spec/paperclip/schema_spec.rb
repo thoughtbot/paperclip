@@ -24,7 +24,6 @@ describe Paperclip::Schema do
             t.has_attached_file :avatar
           end
         end
-        rebuild_class
 
         columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
@@ -48,7 +47,6 @@ describe Paperclip::Schema do
         Dummy.connection.create_table :dummies, force: true do |t|
           t.attachment :avatar
         end
-        rebuild_class
       end
 
       it "creates attachment columns" do
@@ -71,7 +69,6 @@ describe Paperclip::Schema do
       context "with single attachment" do
         before do
           Dummy.connection.add_attachment :dummies, :avatar
-          rebuild_class
         end
 
         it "creates attachment columns" do
@@ -87,7 +84,6 @@ describe Paperclip::Schema do
       context "with multiple attachments" do
         before do
           Dummy.connection.add_attachment :dummies, :avatar, :photo
-          rebuild_class
         end
 
         it "creates attachment columns" do
@@ -108,7 +104,6 @@ describe Paperclip::Schema do
         it "raises an error" do
           assert_raises ArgumentError do
             Dummy.connection.add_attachment :dummies
-          rebuild_class
           end
         end
       end
@@ -132,7 +127,6 @@ describe Paperclip::Schema do
           ActiveSupport::Deprecation.silence do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
-          rebuild_class
 
           columns = Dummy.columns.map{ |column| [column.name, column.type] }
 
@@ -153,7 +147,6 @@ describe Paperclip::Schema do
         context "with single attachment" do
           before do
             Dummy.connection.remove_attachment :dummies, :avatar
-            rebuild_class
           end
 
           it "removes the attachment columns" do
@@ -176,7 +169,6 @@ describe Paperclip::Schema do
             end
 
             Dummy.connection.remove_attachment :dummies, :avatar, :photo
-            rebuild_class
           end
 
           it "removes the attachment columns" do
