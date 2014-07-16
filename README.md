@@ -347,6 +347,18 @@ being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
 .jpg extension. This validation will only add validation errors to the form. It
 will not cause Errors to be raised.
 
+This can sometimes cause false validation errors in applications that use custom 
+file extensions. In these cases you may wish to add your custom extension to the
+list of file extensions allowed for your mime type configured by the mime-types 
+gem:
+
+```ruby
+# Allow ".foo" as an extension for files with the mime type "text/plain".
+text_plain = MIME::Types["text/plain"].first
+text_plain.extensions << "foo"
+MIME::Types.index_extensions text_plain
+```
+
 Defaults
 --------
 Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
