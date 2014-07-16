@@ -80,8 +80,9 @@ module Paperclip
 
     def add_required_validations
       name = @name
+      skip_spoof_detection = @options && @options.is_a?(Hash) && @options[:skip_spoof_detection]
       @klass.validates_media_type_spoof_detection name,
-        :if => ->(instance){ instance.send(name).dirty? }
+        :if => ->(instance){ instance.send(name).dirty? && !skip_spoof_detection }
     end
 
     def add_active_record_callbacks

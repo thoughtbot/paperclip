@@ -44,4 +44,16 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     @dummy.valid?
     assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }
   end
+
+  it "does not run when :skip_spoof_detection is set" do
+    rebuild_model skip_spoof_detection: true
+    dummy = Dummy.new
+    build_validator
+    file = File.new(fixture_file("5k.png"), "rb")
+    dummy.avatar.assign(file)
+
+    Paperclip::MediaTypeSpoofDetector.stubs(:using).never
+    dummy.valid?
+    assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }
+  end
 end
