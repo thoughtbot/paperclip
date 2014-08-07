@@ -711,6 +711,15 @@ describe Paperclip::Storage::S3 do
           "Expect all the files to be deleted."
       end
 
+      it "will retry to save again but back off on SlowDown" do
+        @dummy.avatar.stubs(:sleep)
+        AWS::S3::S3Object.any_instance.stubs(:write).
+          raises(AWS::S3::Errors::SlowDown.new(stub, stub(status: 503, body: "")))
+
+        expect {@dummy.save}.to raise_error(AWS::S3::Errors::SlowDown)
+        expect(@dummy.avatar).to have_received(:sleep).times(3)
+      end
+
       context "and saved" do
         before do
           object = stub

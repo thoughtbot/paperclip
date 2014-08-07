@@ -329,6 +329,7 @@ module Paperclip
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
+        retries = 0
           begin
             log("saving #{path(style)}")
             acl = @s3_permissions[style] || @s3_permissions[:default]
@@ -357,9 +358,17 @@ module Paperclip
             write_options.merge!(@s3_headers)
 
             s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket => e
+          rescue AWS::S3::Errors::NoSuchBucket
             create_bucket
             retry
+          rescue AWS::S3::Errors::SlowDown
+            retries += 1
+            if retries <= 3
+              sleep((retries ** 2) * 500)
+              retry
+            else
+              raise
+            end
           ensure
             file.rewind
           end
