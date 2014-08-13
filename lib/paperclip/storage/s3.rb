@@ -395,7 +395,9 @@ module Paperclip
         log("copying #{path(style)} to local file #{local_dest_path}")
         local_file = ::File.open(local_dest_path, 'wb')
         file = s3_object(style)
-        local_file.write(file.read)
+        file.read do |chunk|
+          local_file.write chunk
+        end
         local_file.close
       rescue AWS::Errors::Base => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
