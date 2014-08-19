@@ -308,6 +308,34 @@ describe Paperclip::Storage::Fog do
         end
       end
 
+      context "with scheme set" do
+        before do
+          rebuild_model(@options.merge(:fog_credentials => @credentials.merge(:scheme => 'http')))
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        it "honors the scheme in public url" do
+          assert_match(/^http:\/\//, @dummy.avatar.url)
+        end
+      end
+
+      context "with scheme not set" do
+        before do
+          rebuild_model(@options)
+          @file = File.new(fixture_file('5k.png'), 'rb')
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+          @dummy.save
+        end
+
+        it "provides HTTPS public url" do
+          assert_match(/^https:\/\//, @dummy.avatar.url)
+        end
+      end
+
       context "with a valid bucket name for a subdomain" do
         it "provides an url in subdomain style" do
           assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
