@@ -14,6 +14,7 @@ module Paperclip
     #     aws_secret_access_key: '<your aws_secret_access_key>'
     #     provider: 'AWS'
     #     region: 'eu-west-1'
+    #     scheme: 'https'
     # * +fog_directory+: This is the name of the S3 bucket that will
     #   store your files.  Remember that the bucket must be unique across
     #   all of Amazon S3. If the bucket does not exist, Paperclip will
@@ -131,7 +132,7 @@ module Paperclip
           "#{dynamic_fog_host_for_style(style)}/#{path(style)}"
         else
           if fog_credentials[:provider] == 'AWS'
-            "https://#{host_name_for_directory}/#{path(style)}"
+            "#{scheme}://#{host_name_for_directory}/#{path(style)}"
           else
             directory.files.new(:key => path(style)).public_url
           end
@@ -224,6 +225,10 @@ module Paperclip
         end
 
         @directory ||= connection.directories.new(:key => dir)
+      end
+
+      def scheme
+        @scheme ||= fog_credentials[:scheme] || 'https'
       end
     end
   end
