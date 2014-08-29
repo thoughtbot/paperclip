@@ -363,8 +363,8 @@ module Paperclip
             retry
           rescue AWS::S3::Errors::SlowDown
             retries += 1
-            if retries <= 3
-              sleep((retries ** 2) * 500)
+            if retries <= 5
+              sleep((2 ** retries) * 0.5)
               retry
             else
               raise

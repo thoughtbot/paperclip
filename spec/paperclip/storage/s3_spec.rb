@@ -717,7 +717,11 @@ describe Paperclip::Storage::S3 do
           raises(AWS::S3::Errors::SlowDown.new(stub, stub(status: 503, body: "")))
 
         expect {@dummy.save}.to raise_error(AWS::S3::Errors::SlowDown)
-        expect(@dummy.avatar).to have_received(:sleep).times(3)
+        expect(@dummy.avatar).to have_received(:sleep).with(1)
+        expect(@dummy.avatar).to have_received(:sleep).with(2)
+        expect(@dummy.avatar).to have_received(:sleep).with(4)
+        expect(@dummy.avatar).to have_received(:sleep).with(8)
+        expect(@dummy.avatar).to have_received(:sleep).with(16)
       end
 
       context "and saved" do
