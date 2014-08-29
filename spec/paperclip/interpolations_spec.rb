@@ -55,11 +55,11 @@ describe Paperclip::Interpolations do
 
   it "returns the extension of the file based on the content type" do
     attachment = mock
-    attachment.expects(:content_type).returns('image/jpeg')
+    attachment.expects(:content_type).returns('image/png')
     attachment.expects(:styles).returns({})
     interpolations = Paperclip::Interpolations
     interpolations.expects(:extension).returns('random')
-    assert_equal "jpeg", interpolations.content_type_extension(attachment, :style)
+    assert_equal "png", interpolations.content_type_extension(attachment, :style)
   end
 
   it "returns the original extension of the file if it matches a content type extension" do
