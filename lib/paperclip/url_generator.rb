@@ -58,7 +58,7 @@ module Paperclip
     end
 
     def escape_url(url)
-      (url.respond_to?(:escape) ? url.escape : URI.escape(url)).gsub(/(\/.+)\?(.+\.)/, '\1%3F\2')
+      (url.respond_to?(:escape) ? url.escape : URI.encode_www_form_component(url))
     end
   end
 end
