@@ -1,0 +1,18 @@
+en:
+  errors:
+    messages:
+      in_between: "必須介於%{min}和%{max}之間"
+      spoofed_media_type: "擴展名與內容不匹配"
+
+  number:
+    human:
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Byte"
+            other: "Bytes"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
