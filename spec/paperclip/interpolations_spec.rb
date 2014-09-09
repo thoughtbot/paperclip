@@ -138,7 +138,14 @@ describe Paperclip::Interpolations do
     assert_equal "000/000/023", Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
-  it "returns the partitioned id of the attachment when the id is a string" do
+  it "returns the partitioned id of the attachment when the id is a short string" do
+    attachment = mock
+    attachment.expects(:id).returns("fnj23")
+    attachment.expects(:instance).returns(attachment)
+    assert_equal "000/0fn/j23", Paperclip::Interpolations.id_partition(attachment, :style)
+  end
+
+  it "returns the partitioned id of the attachment when the id is a long string" do
     attachment = mock
     attachment.expects(:id).returns("32fnj23oio2f")
     attachment.expects(:instance).returns(attachment)
@@ -204,7 +211,7 @@ describe Paperclip::Interpolations do
     attachment.stubs(:original_filename).returns("one")
     assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
   end
-  
+
   it "returns the basename when the extension contains regexp special characters" do
     attachment = mock
     attachment.stubs(:styles).returns({})
