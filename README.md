@@ -694,7 +694,7 @@ processors, where a defined `watermark` processor is invoked after the
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar, :processors => lambda { |instance| instance.processors }
-  attr_accessor :watermark
+  attr_accessor :processors
 end
 ```
 
