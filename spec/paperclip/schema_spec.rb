@@ -62,7 +62,7 @@ describe Paperclip::Schema do
     context "using #attachment with options" do
       before do
         Dummy.connection.create_table :dummies, force: true do |t|
-          t.attachment :avatar, default: '1', file_name: { default: 'default' }
+          t.attachment :avatar, default: 1, file_name: { default: 'default' }
         end
       end
 
@@ -70,13 +70,9 @@ describe Paperclip::Schema do
         defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size"]
         columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
 
-        columns.each do |column|
-          if column.name == 'avatar_file_name'
-            expect(column.default).to eq('default')
-          else
-            expect(column.default.to_i).to eq(1)
-          end
-        end
+        expect(columns).to have_column("avatar_file_name").with_default("default")
+        expect(columns).to have_column("avatar_content_type").with_default("1")
+        expect(columns).to have_column("avatar_file_size").with_default(1)
       end
     end
   end
@@ -111,13 +107,9 @@ describe Paperclip::Schema do
           defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size"]
           columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
 
-          columns.each do |column|
-            if column.name == 'avatar_file_name'
-              expect(column.default).to eq('default')
-            else
-              expect(column.default.to_i).to eq(1)
-            end
-          end
+          expect(columns).to have_column("avatar_file_name").with_default("default")
+          expect(columns).to have_column("avatar_content_type").with_default("1")
+          expect(columns).to have_column("avatar_file_size").with_default(1)
         end
       end
 
@@ -149,13 +141,12 @@ describe Paperclip::Schema do
           defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size", "photo_file_name", "photo_content_type", "photo_file_size"]
           columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
 
-          columns.each do |column|
-            if column.name == 'avatar_file_name' || column.name == 'photo_file_name'
-              expect(column.default).to eq('default')
-            else
-              expect(column.default.to_i).to eq(1)
-            end
-          end
+          expect(columns).to have_column("avatar_file_name").with_default("default")
+          expect(columns).to have_column("avatar_content_type").with_default("1")
+          expect(columns).to have_column("avatar_file_size").with_default(1)
+          expect(columns).to have_column("photo_file_name").with_default("default")
+          expect(columns).to have_column("photo_content_type").with_default("1")
+          expect(columns).to have_column("photo_file_size").with_default(1)
         end
       end
 
