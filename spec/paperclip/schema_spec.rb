@@ -58,6 +58,27 @@ describe Paperclip::Schema do
         expect(columns).to include(['avatar_updated_at', :datetime])
       end
     end
+
+    context "using #attachment with options" do
+      before do
+        Dummy.connection.create_table :dummies, force: true do |t|
+          t.attachment :avatar, default: '1', file_name: { default: 'default' }
+        end
+      end
+
+      it "sets defaults on columns" do
+        defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size"]
+        columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
+
+        columns.each do |column|
+          if column.name == 'avatar_file_name'
+            expect(column.default).to eq('default')
+          else
+            expect(column.default.to_i).to eq(1)
+          end
+        end
+      end
+    end
   end
 
   context "within schema statement" do
@@ -81,6 +102,25 @@ describe Paperclip::Schema do
         end
       end
 
+      context "with single attachment and options" do
+        before do
+          Dummy.connection.add_attachment :dummies, :avatar, default: '1', file_name: { default: 'default' }
+        end
+
+        it "sets defaults on columns" do
+          defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size"]
+          columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
+
+          columns.each do |column|
+            if column.name == 'avatar_file_name'
+              expect(column.default).to eq('default')
+            else
+              expect(column.default.to_i).to eq(1)
+            end
+          end
+        end
+      end
+
       context "with multiple attachments" do
         before do
           Dummy.connection.add_attachment :dummies, :avatar, :photo
@@ -97,6 +137,25 @@ describe Paperclip::Schema do
           expect(columns).to include(['photo_content_type', :string])
           expect(columns).to include(['photo_file_size', :integer])
           expect(columns).to include(['photo_updated_at', :datetime])
+        end
+      end
+
+      context "with multiple attachments and options" do
+        before do
+          Dummy.connection.add_attachment :dummies, :avatar, :photo, default: '1', file_name: { default: 'default' }
+        end
+
+        it "sets defaults on columns" do
+          defaults_columns = ["avatar_file_name", "avatar_content_type", "avatar_file_size", "photo_file_name", "photo_content_type", "photo_file_size"]
+          columns = Dummy.columns.select { |e| defaults_columns.include? e.name }
+
+          columns.each do |column|
+            if column.name == 'avatar_file_name' || column.name == 'photo_file_name'
+              expect(column.default).to eq('default')
+            else
+              expect(column.default.to_i).to eq(1)
+            end
+          end
         end
       end
 
