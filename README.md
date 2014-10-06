@@ -20,6 +20,7 @@ more detailed options.
 
 The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
 
+---
 
 Requirements
 ------------
@@ -55,11 +56,45 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 
     brew install gs
 
-### `file` command
+### `file`
 
 The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content type checking.
 This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), 
 so Windows users must make sure that the devkit is installed and added to system `PATH`.
+
+**Manual Installation**
+
+If you're using Windows 7+ as a development environment, you may need to install the `file.exe` application manually. The `file spoofing` system in Paperclip 4+ relies on this; if you don't have it working, you'll receive `Validation failed: Upload file has an extension that does not match its contents.` errors.
+
+To manually install, you should perform the following:
+
+> **Download & install `file` from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)**
+
+To test, you can use the following:
+![untitled](https://cloud.githubusercontent.com/assets/1104431/4524452/a1f8cce4-4d44-11e4-872e-17adb96f79c9.png)
+
+Next, you need to integrate with your environment - preferrably through the `PATH` variable, or by changing your `config/environments/development.rb` file
+
+**PATH**
+
+    1. Click "Start"
+    2. On "Computer", right-click and select "Properties"
+    3. In properties, select "Advanced System Settings"
+    4. Click the "Environment Variables" button
+    5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
+    6. Restart any CMD shells you have open & see if it works
+
+OR 
+
+**Environment**
+
+    1. Open `config/environments/development.rb`
+    2. Add the following line: `Paperclip.options[:command_path] = 'C:\Program Files (x86)\GnuWin32\bin'`
+    3. Restart your Rails server
+
+Either of these methods will give your Rails setup access to the `file.exe` functionality, this providing the ability to check the contents of a file (fixing the spoofing problem)
+
+---
 
 Installation
 ------------
@@ -97,6 +132,8 @@ class ModuleName < ActiveRecord::Base
   ...
 end
 ```
+
+---
 
 Quick Start
 -----------
@@ -189,6 +226,7 @@ Set the attribute to `nil` and save.
 @user.avatar = nil
 @user.save
 ```
+---
 
 Usage
 -----
@@ -311,6 +349,8 @@ validates_attachment :avatar,
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
 inferred content_type, regardless of the actual contents of the file.
 
+---
+
 Security Validations
 ====================
 
@@ -359,6 +399,8 @@ text_plain.extensions << "foo"
 MIME::Types.index_extensions text_plain
 ```
 
+---
+
 Defaults
 --------
 Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
@@ -385,6 +427,7 @@ Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local",
 Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
 ```
+---
 
 Migrations
 ----------
@@ -445,6 +488,8 @@ end
 Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) are still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
 
+---
+
 Storage
 -------
 
@@ -492,6 +537,8 @@ possible to place your files in a different location. You will need to change
 both the `:path` and `:url` options in order to make sure the files are unavailable
 to the public. Both `:path` and `:url` allow the same set of interpolated
 variables.
+
+---
 
 Post Processing
 ---------------
@@ -552,6 +599,8 @@ database, take a look at the [paperclip-meta](https://github.com/teeparham/paper
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
 
+---
+
 Events
 ------
 
@@ -581,6 +630,8 @@ class Message < ActiveRecord::Base
   end
 end
 ```
+
+---
 
 URI Obfuscation
 ---------------
@@ -637,6 +688,8 @@ has_attached_file :some_attachment, {
 
 This will prevent ```some_attachment``` from being wiped out when the model gets destroyed, so it will still exist when the object is restored later.
 
+---
+
 Custom Attachment Processors
 -------
 
@@ -654,6 +707,7 @@ implementation pattern of the thumbnail processor would be a way to implement a
 watermark processor.  All kinds of attachment processors can be created;
 a few utility examples would be compression and encryption processors.
 
+---
 
 Dynamic Configuration
 ---------------------
@@ -698,6 +752,8 @@ class User < ActiveRecord::Base
 end
 ```
 
+---
+
 Logging
 ----------
 
@@ -711,6 +767,8 @@ end
 ```
 
 More information in the [rdocs](http://rdoc.info/github/thoughtbot/paperclip/Paperclip.options)
+
+---
 
 Deployment
 ----------
@@ -772,6 +830,8 @@ Then in `RAILS_ROOT/public/system/paperclip_attachments.yml`:
   - :thumb
 ```
 
+---
+
 Testing
 -------
 
@@ -816,6 +876,7 @@ config.after(:suite) do
   FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
 end
 ```
+---
 
 Contributing
 ------------
@@ -832,6 +893,8 @@ guidelines:
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
+---
+
 Credits
 -------
 
@@ -842,6 +905,8 @@ Paperclip is maintained and funded by [thoughtbot, inc](http://thoughtbot.com/co
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/contributors)!
 
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
+
+---
 
 License
 -------
