@@ -103,7 +103,7 @@ OR
 
 Either of these methods will give your Rails setup access to the `file.exe` functionality, this providing the ability to check the contents of a file (fixing the spoofing problem)
 
---
+---
 
 Installation
 ------------
@@ -142,6 +142,8 @@ class ModuleName < ActiveRecord::Base
 end
 ```
 
+---
+
 Quick Start
 -----------
 
@@ -165,6 +167,7 @@ class User < ActiveRecord::Base
   validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
 ```
+--
 
 ### Migrations
 
@@ -182,6 +185,8 @@ end
 
 (Or you can use migration generator: `rails generate paperclip user avatar`)
 
+--
+
 ### Edit and New Views
 
 ```erb
@@ -189,6 +194,7 @@ end
   <%= form.file_field :avatar %>
 <% end %>
 ```
+--
 
 ### Controller
 
@@ -216,6 +222,7 @@ def user_params
   params.require(:user).permit(:avatar)
 end
 ```
+--
 
 ### Show View
 
@@ -225,6 +232,8 @@ end
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
 
+--
+
 ### Deleting an Attachment
 
 Set the attribute to `nil` and save.
@@ -233,6 +242,7 @@ Set the attribute to `nil` and save.
 @user.avatar = nil
 @user.save
 ```
+---
 
 Usage
 -----
