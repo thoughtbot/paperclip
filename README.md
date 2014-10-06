@@ -67,8 +67,8 @@ If you're using Windows 7+ as a development environment, you may need to install
 
 To manually install, you should perform the following:
 
-1. Download the `file` installer from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)
-2. Install
+    1. Download the `file` installer from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)
+    2. Install
 
 To test, you can use the following:
 ![untitled](https://cloud.githubusercontent.com/assets/1104431/4524452/a1f8cce4-4d44-11e4-872e-17adb96f79c9.png)
@@ -76,19 +76,21 @@ To test, you can use the following:
 Next, you need to integrate with your environment - preferrably through the `PATH` variable, or by changing your `config/environments/development.rb` file
 
 **PATH**
-1. Click "Start"
-2. On "Computer", right-click and select "Properties"
-3. In properties, select "Advanced System Settings"
-4. Click the "Environment Variables" button
-5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
-6. Restart any CMD shells you have open & see if it works
+
+   1. Click "Start"
+    2. On "Computer", right-click and select "Properties"
+    3. In properties, select "Advanced System Settings"
+    4. Click the "Environment Variables" button
+    5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
+    6. Restart any CMD shells you have open & see if it works
 
 OR 
 
 **Environment**
-1. Open `config/environments/development.rb`
-2. Add the following line: `Paperclip.options[:command_path] = 'C:\Program Files (x86)\GnuWin32\bin'`
-3. Restart your Rails server
+
+    1. Open `config/environments/development.rb`
+    2. Add the following line: `Paperclip.options[:command_path] = 'C:\Program Files (x86)\GnuWin32\bin'`
+    3. Restart your Rails server
 
 Either of these methods will give your Rails setup access to the `file.exe` functionality, this providing the ability to check the contents of a file (fixing the spoofing problem)
 
