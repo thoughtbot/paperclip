@@ -84,12 +84,12 @@ Next, you need to integrate with your environment - preferrably through the `PAT
 
 **PATH**
 
-   1. Click "Start"
-   2. On "Computer", right-click and select "Properties"
-   3. In properties, select "Advanced System Settings"
-   4. Click the "Environment Variables" button
-   5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
-   6. Restart any CMD shells you have open & see if it works
+    1. Click "Start"
+    2. On "Computer", right-click and select "Properties"
+    3. In properties, select "Advanced System Settings"
+    4. Click the "Environment Variables" button
+    5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
+    6. Restart any CMD shells you have open & see if it works
 
 OR 
 
@@ -365,6 +365,8 @@ validates_attachment :avatar,
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
 inferred content_type, regardless of the actual contents of the file.
 
+---
+
 Security Validations
 ====================
 
@@ -413,6 +415,8 @@ text_plain.extensions << "foo"
 MIME::Types.index_extensions text_plain
 ```
 
+---
+
 Defaults
 --------
 Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
@@ -439,6 +443,7 @@ Paperclip::Attachment.default_options[:fog_credentials] = {:provider => "Local",
 Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
 ```
+---
 
 Migrations
 ----------
@@ -493,6 +498,7 @@ class AddAttachmentToUsers < ActiveRecord::Migration
   end
 end
 ```
+---
 
 ### Vintage syntax
 
