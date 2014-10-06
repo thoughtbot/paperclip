@@ -20,6 +20,7 @@ more detailed options.
 
 The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
 
+---
 
 Requirements
 ------------
@@ -29,6 +30,8 @@ Requirements
 Paperclip now requires Ruby version **>= 1.9.2** and Rails version **>= 3.0** (Only if you're going to use Paperclip with Ruby on Rails.)
 
 If you're still on Ruby 1.8.7 or Ruby on Rails 2.3.x, you can still use Paperclip 2.7.x with your project. Also, everything in this README might not apply to your version of Paperclip, and you should read [the README for version 2.7](http://rubydoc.info/gems/paperclip/2.7.0) instead.
+
+--
 
 ### Image Processor
 
@@ -89,6 +92,8 @@ Next, you need to integrate with your environment - preferrably through the `PAT
    6. Restart any CMD shells you have open & see if it works
 
 OR 
+
+--
 
 **Environment**
 
