@@ -498,12 +498,13 @@ class AddAttachmentToUsers < ActiveRecord::Migration
   end
 end
 ```
----
 
 ### Vintage syntax
 
 Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) are still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
+
+---
 
 Storage
 -------
@@ -552,6 +553,8 @@ possible to place your files in a different location. You will need to change
 both the `:path` and `:url` options in order to make sure the files are unavailable
 to the public. Both `:path` and `:url` allow the same set of interpolated
 variables.
+
+---
 
 Post Processing
 ---------------
@@ -612,6 +615,8 @@ database, take a look at the [paperclip-meta](https://github.com/teeparham/paper
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
 to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
 
+---
+
 Events
 ------
 
@@ -642,6 +647,8 @@ class Message < ActiveRecord::Base
 end
 ```
 
+---
+
 URI Obfuscation
 ---------------
 
@@ -665,6 +672,8 @@ is specified in `:hash_data`. The default value for `:hash_data` is `":class/:at
 
 For more on this feature read the author's own explanation. [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
 
+--
+
 MD5 Checksum / Fingerprint
 -------
 
@@ -683,6 +692,7 @@ class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
   end
 end
 ```
+--
 
 File Preservation for Soft-Delete
 -------
@@ -696,6 +706,8 @@ has_attached_file :some_attachment, {
 ```
 
 This will prevent ```some_attachment``` from being wiped out when the model gets destroyed, so it will still exist when the object is restored later.
+
+---
 
 Custom Attachment Processors
 -------
@@ -714,6 +726,7 @@ implementation pattern of the thumbnail processor would be a way to implement a
 watermark processor.  All kinds of attachment processors can be created;
 a few utility examples would be compression and encryption processors.
 
+---
 
 Dynamic Configuration
 ---------------------
@@ -724,6 +737,8 @@ components of the library but is most significant in the possibilities for
 allowing custom styles and processors to be applied for specific model
 instances, rather than applying defined styles and processors across all
 instances.
+
+--
 
 ### Dynamic Styles:
 
@@ -739,6 +754,8 @@ class User < ActiveRecord::Base
   has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") } }
 end
 ```
+
+--
 
 ### Dynamic Processors:
 
@@ -758,6 +775,8 @@ class User < ActiveRecord::Base
 end
 ```
 
+---
+
 Logging
 ----------
 
@@ -771,6 +790,8 @@ end
 ```
 
 More information in the [rdocs](http://rdoc.info/github/thoughtbot/paperclip/Paperclip.options)
+
+---
 
 Deployment
 ----------
@@ -832,6 +853,8 @@ Then in `RAILS_ROOT/public/system/paperclip_attachments.yml`:
   - :thumb
 ```
 
+---
+
 Testing
 -------
 
@@ -876,6 +899,7 @@ config.after(:suite) do
   FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
 end
 ```
+---
 
 Contributing
 ------------
@@ -892,6 +916,8 @@ guidelines:
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
+---
+
 Credits
 -------
 
@@ -902,6 +928,8 @@ Paperclip is maintained and funded by [thoughtbot, inc](http://thoughtbot.com/co
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/contributors)!
 
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
+
+---
 
 License
 -------
