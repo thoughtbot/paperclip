@@ -72,8 +72,7 @@ If you're using Windows 7+ as a development environment, you may need to install
 
 To manually install, you should perform the following:
 
-    1. Download the `file` installer from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)
-    2. Install
+> **Download & install `file` from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)**
 
 To test, you can use the following:
 ![untitled](https://cloud.githubusercontent.com/assets/1104431/4524452/a1f8cce4-4d44-11e4-872e-17adb96f79c9.png)
