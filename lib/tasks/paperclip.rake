@@ -108,4 +108,20 @@ namespace :paperclip do
       end
     end
   end
+
+ desc "find missing attachments. Useful to know which attachments are broken"
+  task :find_broken_attachments => :environment do
+    klass = Paperclip::Task.obtain_class
+    names = Paperclip::Task.obtain_attachments(klass)
+    names.each do |name|
+      Paperclip.each_instance_with_attachment(klass, name) do |instance|
+        attachment = instance.send(name)
+        if attachment.exists?
+          print "."
+        else
+          Paperclip::Task.log_error("#{instance.class}##{attachment.name}, #{instance.id}, #{attachment.url}")
+        end
+      end
+    end
+  end
 end
