@@ -16,6 +16,11 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :media_type_spoof_detection }
   end
 
+  it "is not on the attachment when explicitly rejected" do
+    rebuild_model validate_media_type: false
+    assert Dummy.validators_on(:avatar).none?{ |validator| validator.kind == :media_type_spoof_detection }
+  end
+
   it "returns default error message for spoofed media type" do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")

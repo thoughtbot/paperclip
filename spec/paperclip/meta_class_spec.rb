@@ -4,7 +4,7 @@ describe 'Metaclasses' do
   context "A meta-class of dummy" do
     if active_support_version >= "4.1" || ruby_version < "2.1"
       before do
-        rebuild_model("Dummy")
+        rebuild_model
         reset_class("Dummy")
       end
 

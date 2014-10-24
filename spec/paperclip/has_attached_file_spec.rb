@@ -41,6 +41,14 @@ describe Paperclip::HasAttachedFile do
     it 'defines the Paperclip-specific callbacks' do
       assert_adding_attachment('avatar').defines_callback('define_paperclip_callbacks')
     end
+
+    it 'does not define a media_type check if told not to' do
+      assert_adding_attachment('avatar').does_not_set_up_media_type_check_validation
+    end
+
+    it 'does define a media_type check if told to' do
+      assert_adding_attachment('avatar').sets_up_media_type_check_validation
+    end
   end
 
   private
@@ -97,6 +105,22 @@ describe Paperclip::HasAttachedFile do
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
       expect(a_class).to have_received(callback_name.to_sym)
+    end
+
+    def does_not_set_up_media_type_check_validation
+      a_class = stub_class
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, { validate_media_type: false })
+
+      expect(a_class).to have_received(:validates_media_type_spoof_detection).never
+    end
+
+    def sets_up_media_type_check_validation
+      a_class = stub_class
+
+      Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, { validate_media_type: true })
+
+      expect(a_class).to have_received(:validates_media_type_spoof_detection)
     end
 
     private
