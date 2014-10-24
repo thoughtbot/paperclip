@@ -31,7 +31,7 @@ module Paperclip
         :use_default_time_zone => true,
         :use_timestamp         => true,
         :whiny                 => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails],
-        :media_check           => true,
+        :validate_media_type   => true,
         :check_validity_before_processing => true
       }
     end
