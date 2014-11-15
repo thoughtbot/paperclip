@@ -8,6 +8,7 @@ require 'mocha/api'
 require 'bourne'
 require 'ostruct'
 require 'pathname'
+require 'activerecord-import'
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 

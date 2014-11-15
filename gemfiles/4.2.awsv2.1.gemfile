@@ -2,15 +2,16 @@
 
 source "https://rubygems.org"
 
-gem "sqlite3", "~> 1.3.8", :platforms => :ruby
+gem "sqlite3", "~> 1.3.8", platforms: :ruby
 gem "pry"
 gem "rails", "~> 4.2.0"
 gem "aws-sdk", "~> 2.1.0"
 
 group :development, :test do
+  gem "activerecord-import"
   gem "mime-types", "~> 1.16"
   gem "builder"
   gem "rubocop", :require => false
 end
 
-gemspec :path => "../"
+gemspec path: "../"
