@@ -1,6 +1,6 @@
 module Paperclip
   class NilAdapter < AbstractAdapter
-    def initialize(target)
+    def initialize(_target, _options = {})
     end
 
     def original_filename

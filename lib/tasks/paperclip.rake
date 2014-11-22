@@ -64,7 +64,8 @@ namespace :paperclip do
       names = Paperclip::Task.obtain_attachments(klass)
       names.each do |name|
         Paperclip.each_instance_with_attachment(klass, name) do |instance|
-          if file = Paperclip.io_adapters.for(instance.send(name))
+          attachment = instance.send(name)
+          if file = Paperclip.io_adapters.for(attachment, attachment.options[:adapter_options])
             instance.send("#{name}_file_name=", instance.send("#{name}_file_name").strip)
             instance.send("#{name}_content_type=", file.content_type.to_s.strip)
             instance.send("#{name}_file_size=", file.size) if instance.respond_to?("#{name}_file_size")
@@ -90,6 +91,19 @@ namespace :paperclip do
       end
       Paperclip.save_current_attachments_styles!
     end
+
+    desc "Regenerates fingerprints for a given CLASS (and optional ATTACHMENT). Useful when changing digest."
+    task :fingerprints => :environment do
+      klass = Paperclip::Task.obtain_class
+      names = Paperclip::Task.obtain_attachments(klass)
+      names.each do |name|
+        Paperclip.each_instance_with_attachment(klass, name) do |instance|
+          attachment = instance.send(name)
+          attachment.assign(attachment)
+          instance.save(:validate => false)
+        end
+      end
+    end
   end
 
   desc "Cleans out invalid attachments. Useful after you've added new validations."
@@ -109,7 +123,7 @@ namespace :paperclip do
     end
   end
 
- desc "find missing attachments. Useful to know which attachments are broken"
+  desc "find missing attachments. Useful to know which attachments are broken"
   task :find_broken_attachments => :environment do
     klass = Paperclip::Task.obtain_class
     names = Paperclip::Task.obtain_attachments(klass)

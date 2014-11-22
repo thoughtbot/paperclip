@@ -4,8 +4,8 @@ module Paperclip
   class UriAdapter < AbstractAdapter
     attr_writer :content_type
 
-    def initialize(target)
-      @target = target
+    def initialize(target, options = {})
+      super
       @content = download_content
       cache_current_values
       @tempfile = copy_to_tempfile(@content)

@@ -3,8 +3,8 @@ module Paperclip
 
     REGEXP = /\Adata:([-\w]+\/[-\w\+\.]+)?;base64,(.*)/m
 
-    def initialize(target_uri)
-      super(extract_target(target_uri))
+    def initialize(target_uri, options = {})
+      super(extract_target(target_uri), options)
     end
 
     private

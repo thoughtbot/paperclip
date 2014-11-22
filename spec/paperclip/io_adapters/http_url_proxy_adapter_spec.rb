@@ -12,7 +12,7 @@ describe Paperclip::HttpUrlProxyAdapter do
   context "a new instance" do
     before do
       @url = "http://thoughtbot.com/images/thoughtbot-logo.png"
-      @subject = Paperclip.io_adapters.for(@url)
+      @subject = Paperclip.io_adapters.for(@url, hash_digest: Digest::MD5)
     end
 
     after do

@@ -4,7 +4,7 @@ describe Paperclip::AttachmentRegistry do
   context "for" do
     before do
       class AdapterTest
-        def initialize(target); end
+        def initialize(_target, _ = {}); end
       end
       @subject = Paperclip::AdapterRegistry.new
       @subject.register(AdapterTest){|t| Symbol === t }
@@ -18,7 +18,7 @@ describe Paperclip::AttachmentRegistry do
   context "registered?" do
     before do
       class AdapterTest
-        def initialize(target); end
+        def initialize(_target, _ = {}); end
       end
       @subject = Paperclip::AdapterRegistry.new
       @subject.register(AdapterTest){|t| Symbol === t }
