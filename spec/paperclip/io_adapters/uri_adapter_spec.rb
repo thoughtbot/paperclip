@@ -26,12 +26,12 @@ describe Paperclip::UriAdapter do
       assert_equal @open_return.size, @subject.size
     end
 
-    it "generates an MD5 hash of the contents" do
-      assert_equal Digest::MD5.hexdigest("xxx"), @subject.fingerprint
+    it "generates an SHA1 hash of the contents" do
+      assert_equal Digest::SHA1.hexdigest("xxx"), @subject.fingerprint
     end
 
     it "generates correct fingerprint after read" do
-      fingerprint = Digest::MD5.hexdigest(@subject.read)
+      fingerprint = Digest::SHA1.hexdigest(@subject.read)
       assert_equal fingerprint, @subject.fingerprint
     end
 

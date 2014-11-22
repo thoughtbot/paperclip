@@ -24,12 +24,12 @@ describe Paperclip::StringioAdapter do
       assert_equal 6, @subject.length
     end
 
-    it "generates an MD5 hash of the contents" do
-      assert_equal Digest::MD5.hexdigest(@contents), @subject.fingerprint
+    it "generates an SHA1 hash of the contents" do
+      assert_equal Digest::SHA1.hexdigest(@contents), @subject.fingerprint
     end
 
     it "generates correct fingerprint after read" do
-      fingerprint = Digest::MD5.hexdigest(@subject.read)
+      fingerprint = Digest::SHA1.hexdigest(@subject.read)
       assert_equal fingerprint, @subject.fingerprint
     end
 

@@ -9,7 +9,7 @@ module Paperclip
     alias :length :size
 
     def fingerprint
-      @fingerprint ||= Digest::MD5.file(path).to_s
+      @fingerprint ||= Digest::SHA1.file(path).to_s
     end
 
     def read(length = nil, buffer = nil)

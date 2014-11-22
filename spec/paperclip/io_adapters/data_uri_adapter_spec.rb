@@ -35,15 +35,15 @@ describe Paperclip::DataUriAdapter do
       assert_equal 4456, @subject.size
     end
 
-    it "generates a correct MD5 hash of the contents" do
+    it "generates a correct SHA1 hash of the contents" do
       assert_equal(
-        Digest::MD5.hexdigest(Base64.decode64(original_base64_content)),
+        Digest::SHA1.hexdigest(Base64.decode64(original_base64_content)),
         @subject.fingerprint
       )
     end
 
     it "generates correct fingerprint after read" do
-      fingerprint = Digest::MD5.hexdigest(@subject.read)
+      fingerprint = Digest::SHA1.hexdigest(@subject.read)
       assert_equal fingerprint, @subject.fingerprint
     end
 

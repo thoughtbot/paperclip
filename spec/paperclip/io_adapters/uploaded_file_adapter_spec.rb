@@ -40,8 +40,8 @@ describe Paperclip::UploadedFileAdapter do
         assert ! @subject.nil?
       end
 
-      it "generates a MD5 hash of the contents" do
-        expected = Digest::MD5.file(@file.tempfile.path).to_s
+      it "generates a SHA1 hash of the contents" do
+        expected = Digest::SHA1.file(@file.tempfile.path).to_s
         assert_equal expected, @subject.fingerprint
       end
 
@@ -109,8 +109,8 @@ describe Paperclip::UploadedFileAdapter do
         assert ! @subject.nil?
       end
 
-      it "generates a MD5 hash of the contents" do
-        expected = Digest::MD5.file(@file.path).to_s
+      it "generates a SHA1 hash of the contents" do
+        expected = Digest::SHA1.file(@file.path).to_s
         assert_equal expected, @subject.fingerprint
       end
 
