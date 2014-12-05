@@ -342,7 +342,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides an url that expires in subdomain style" do
-          assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
+          assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
         end
       end
 
@@ -390,7 +390,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides a url that expires in folder style" do
-          assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?AWSAccessKeyId=.+$/, @dummy.avatar.expiring_url)
+          assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
         end
 
       end
