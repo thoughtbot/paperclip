@@ -193,21 +193,19 @@ describe Paperclip::UrlGenerator do
       def url_generator.respond_to(params)
         false if params == :escape
       end
-      if updated_at
-        url_generator.for(:style_name, {escape: true, timestamp: true})
-      else
-        url_generator.for(:style_name, {escape: true})
-      end
+      url_generator.for(:style_name, {escape: true, timestamp: !!updated_at})
     end
+
     it "not timestamp" do
       expected = "the(expected)result[]"
       assert_equal "the%28expected%29result%5B%5D", generate(expected)
     end
+
     it "timestamp" do
       expected = "the(expected)result[]"
       updated_at = 1231231234
-      assert_equal "the%28expected%29result%5B%5D?#{updated_at}", generate(expected, updated_at)
+      assert_equal "the%28expected%29result%5B%5D?#{updated_at}",
+        generate(expected, updated_at)
     end
   end
-
 end
