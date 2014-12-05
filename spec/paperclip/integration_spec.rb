@@ -7,16 +7,17 @@ describe 'Paperclip' do
     before do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
-      dummys = 300.times.map { |i| Dummy.new avatar: @file }
-      Dummy.import dummys
+      300.times do |i|
+        Dummy.create! avatar: @file
+      end
     end
 
     after { @file.close }
 
     it "does not exceed the open file limit" do
-      assert_nothing_raised do
-        Dummy.all.each { |dummy| dummy.avatar }
-      end
+       assert_nothing_raised do
+         Dummy.all.each { |dummy| dummy.avatar }
+       end
     end
   end
 
@@ -163,8 +164,8 @@ describe 'Paperclip' do
   context "A model with attachments scoped under an id" do
     before do
       rebuild_model styles: { large: "100x100",
-                              medium: "50x50" },
-                              path: ":rails_root/tmp/:id/:attachments/:style.:extension"
+                                 medium: "50x50" },
+                    path: ":rails_root/tmp/:id/:attachments/:style.:extension"
       @dummy = Dummy.new
       @file = File.new(fixture_file("5k.png"), 'rb')
       @dummy.avatar = @file
@@ -264,11 +265,11 @@ describe 'Paperclip' do
   context "A model with a filesystem attachment" do
     before do
       rebuild_model styles: { large: "300x300>",
-                              medium: "100x100",
-                              thumb: ["32x32#", :gif] },
-      default_style: :medium,
-      url: "/:attachment/:class/:style/:id/:basename.:extension",
-      path: ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
+                                 medium: "100x100",
+                                 thumb: ["32x32#", :gif] },
+                    default_style: :medium,
+                    url: "/:attachment/:class/:style/:id/:basename.:extension",
+                    path: ":rails_root/tmp/:attachment/:class/:style/:id/:basename.:extension"
       @dummy     = Dummy.new
       @file      = File.new(fixture_file("5k.png"), 'rb')
       @bad_file  = File.new(fixture_file("bad.png"), 'rb')
@@ -285,37 +286,37 @@ describe 'Paperclip' do
        ["300x46", :large],
        ["100x15", :medium],
        ["32x32", :thumb]].each do |geo, style|
-         cmd = %Q[identify -format "%wx%h" "#{@dummy.avatar.path(style)}"]
-         assert_equal geo, `#{cmd}`.chomp, cmd
-       end
+        cmd = %Q[identify -format "%wx%h" "#{@dummy.avatar.path(style)}"]
+        assert_equal geo, `#{cmd}`.chomp, cmd
+      end
 
-       saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.path(s) }
+      saved_paths = [:thumb, :medium, :large, :original].collect{|s| @dummy.avatar.path(s) }
 
-       @d2 = Dummy.find(@dummy.id)
-       assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path}"`.chomp
-       assert_equal "434x66", `identify -format "%wx%h" "#{@d2.avatar.path(:original)}"`.chomp
-       assert_equal "300x46", `identify -format "%wx%h" "#{@d2.avatar.path(:large)}"`.chomp
-       assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
-       assert_equal "32x32",  `identify -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
+      @d2 = Dummy.find(@dummy.id)
+      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path}"`.chomp
+      assert_equal "434x66", `identify -format "%wx%h" "#{@d2.avatar.path(:original)}"`.chomp
+      assert_equal "300x46", `identify -format "%wx%h" "#{@d2.avatar.path(:large)}"`.chomp
+      assert_equal "100x15", `identify -format "%wx%h" "#{@d2.avatar.path(:medium)}"`.chomp
+      assert_equal "32x32",  `identify -format "%wx%h" "#{@d2.avatar.path(:thumb)}"`.chomp
 
-       assert @dummy.valid?
-       assert @dummy.save
+      assert @dummy.valid?
+      assert @dummy.save
 
-       saved_paths.each do |p|
-         assert_file_exists(p)
-       end
+      saved_paths.each do |p|
+        assert_file_exists(p)
+      end
 
-       @dummy.avatar.clear
-       assert_nil @dummy.avatar_file_name
-       assert @dummy.valid?
-       assert @dummy.save
+      @dummy.avatar.clear
+      assert_nil @dummy.avatar_file_name
+      assert @dummy.valid?
+      assert @dummy.save
 
-       saved_paths.each do |p|
-         assert_file_not_exists(p)
-       end
+      saved_paths.each do |p|
+        assert_file_not_exists(p)
+      end
 
-       @d2 = Dummy.find(@dummy.id)
-       assert_nil @d2.avatar_file_name
+      @d2 = Dummy.find(@dummy.id)
+      assert_nil @d2.avatar_file_name
     end
 
     it "works exactly the same when new as when reloaded" do
@@ -410,9 +411,9 @@ describe 'Paperclip' do
   context "A model with an attachment with hash in file name" do
     before do
       @settings = { styles: { thumb: "50x50#" },
-                    path: ":rails_root/public/system/:attachment/:id_partition/:style/:hash.:extension",
-                    url: "/system/:attachment/:id_partition/:style/:hash.:extension",
-                    hash_secret: "somesecret" }
+        path: ":rails_root/public/system/:attachment/:id_partition/:style/:hash.:extension",
+        url: "/system/:attachment/:id_partition/:style/:hash.:extension",
+        hash_secret: "somesecret" }
 
       rebuild_model @settings
 
@@ -526,31 +527,31 @@ describe 'Paperclip' do
          ["300x46", :large],
          ["100x15", :medium],
          ["32x32", :thumb]].each do |geo, style|
-           cmd = %Q[identify -format "%wx%h" "#{@files_on_s3[style].path}"]
-           assert_equal geo, `#{cmd}`.chomp, cmd
-         end
+          cmd = %Q[identify -format "%wx%h" "#{@files_on_s3[style].path}"]
+          assert_equal geo, `#{cmd}`.chomp, cmd
+        end
 
-         @d2 = Dummy.find(@dummy.id)
-         @d2_files = s3_files_for @d2.avatar
-         [["434x66", :original],
-          ["300x46", :large],
-          ["100x15", :medium],
-          ["32x32", :thumb]].each do |geo, style|
-            cmd = %Q[identify -format "%wx%h" "#{@d2_files[style].path}"]
-            assert_equal geo, `#{cmd}`.chomp, cmd
-          end
+        @d2 = Dummy.find(@dummy.id)
+        @d2_files = s3_files_for @d2.avatar
+        [["434x66", :original],
+         ["300x46", :large],
+         ["100x15", :medium],
+         ["32x32", :thumb]].each do |geo, style|
+          cmd = %Q[identify -format "%wx%h" "#{@d2_files[style].path}"]
+          assert_equal geo, `#{cmd}`.chomp, cmd
+        end
 
-          @dummy.avatar.clear
-          assert_nil @dummy.avatar_file_name
-          assert @dummy.valid?
-          assert @dummy.save
+        @dummy.avatar.clear
+        assert_nil @dummy.avatar_file_name
+        assert @dummy.valid?
+        assert @dummy.save
 
-          [:thumb, :medium, :large, :original].each do |style|
-            assert ! @dummy.avatar.exists?(style)
-          end
+        [:thumb, :medium, :large, :original].each do |style|
+          assert ! @dummy.avatar.exists?(style)
+        end
 
-          @d2 = Dummy.find(@dummy.id)
-          assert_nil @d2.avatar_file_name
+        @d2 = Dummy.find(@dummy.id)
+        assert_nil @d2.avatar_file_name
       end
 
       it "works exactly the same when new as when reloaded" do
