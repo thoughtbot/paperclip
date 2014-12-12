@@ -50,7 +50,7 @@ version of Rails, which defined in `gemfiles/*.gemfile`.
 
 ### To run a full test suite:
 
-    bundle exec rake
+    bundle exec appraisal rake
 
 This will run RSpec and Cucumber against all version of Rails
 
