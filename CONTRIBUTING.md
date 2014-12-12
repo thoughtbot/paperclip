@@ -43,7 +43,7 @@ will be asked to rewrite them before we'll accept.
 ### Bootstrapping your test suite:
 
     bundle install
-    bundle exec rake appraisal:install
+    bundle exec appraisal install
 
 This will install all the required gems that requires to test against each
 version of Rails, which defined in `gemfiles/*.gemfile`.
