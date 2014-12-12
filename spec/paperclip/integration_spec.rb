@@ -7,7 +7,7 @@ describe 'Paperclip' do
     before do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
-      dummys = 300.times.map { |i| Dummy.new avatar: @file }
+      dummys = 300.times.map { Dummy.new avatar: @file }
       Dummy.import dummys
     end
 
