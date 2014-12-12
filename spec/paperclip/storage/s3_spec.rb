@@ -1474,6 +1474,26 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "path is a proc" do
+    before do
+      rebuild_model storage: :s3,
+        path: ->(attachment) { attachment.instance.attachment_path }
+
+      @dummy = Dummy.new
+      @dummy.class_eval do
+        def attachment_path
+          '/some/dynamic/path'
+        end
+      end
+      @dummy.avatar = stringy_file
+    end
+
+    it "returns a correct path" do
+      assert_match '/some/dynamic/path', @dummy.avatar.path
+    end
+  end
+
+
   private
 
   def rails_env(env)

@@ -184,16 +184,28 @@ describe Paperclip::UrlGenerator do
       "expected the interpolator to be passed #{expected.inspect} but it wasn't"
   end
 
-  it "should be able to escape (, ), [, and ]." do
-    expected = "the(expected)result[]"
-    mock_attachment = MockAttachment.new
-    mock_interpolator = MockInterpolator.new(result: expected)
-    options = { interpolator: mock_interpolator }
-    url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
-    def url_generator.respond_to(params)
-      false if params == :escape
+  describe "should be able to escape (, ), [, and ]." do
+    def generate(expected, updated_at=nil)
+      mock_attachment = MockAttachment.new(updated_at: updated_at)
+      mock_interpolator = MockInterpolator.new(result: expected)
+      options = { interpolator: mock_interpolator }
+      url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
+      def url_generator.respond_to(params)
+        false if params == :escape
+      end
+      url_generator.for(:style_name, {escape: true, timestamp: !!updated_at})
     end
-    result = url_generator.for(:style_name, {escape: true})
-    assert_equal "the%28expected%29result%5B%5D", result
+
+    it "not timestamp" do
+      expected = "the(expected)result[]"
+      assert_equal "the%28expected%29result%5B%5D", generate(expected)
+    end
+
+    it "timestamp" do
+      expected = "the(expected)result[]"
+      updated_at = 1231231234
+      assert_equal "the%28expected%29result%5B%5D?#{updated_at}",
+        generate(expected, updated_at)
+    end
   end
 end

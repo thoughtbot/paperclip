@@ -1,3 +1,20 @@
+New in 4.2.1:
+
+* Improvement: Added `validate_media_type` options to allow/bypass spoof check
+* Improvement: Added incremental backoff when AWS gives us a SlowDown error.
+* Improvement: Stream downloads when usign aws-sdk.
+* Improvement: Documentation fixes, includes Windows instructions.
+* Improvement: Added pt-BR, zh-HK, zh-CN, zh-TW, and ja-JP locales.
+* Improvement: Better escaping for characters in URLs
+* Improvement: Honor `fog_credentials[:scheme]`
+* Improvement: Also look for custom processors in lib/paperclip
+* Improvement: id partitioning for string IDs works liks integer id
+* Improvement: Can pass options to DB adapters in migrations
+* Improvement: Update expiring_url creation for later versions of fog
+* Improvement: `path` can be a Proc in S3 attachments
+* Test Fix: Improves speed and reliability of the specs
+* Bug Fix: #original_filename= does not error when passed `nil`
+
 New in 4.2.0:
 
 * Improvement: Converted test suite from test/unit to RSpec

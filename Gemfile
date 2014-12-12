@@ -16,6 +16,6 @@ gem 'pry'
 # Prevents bundler from taking a long-time to resolve
 group :development, :test do
   gem 'mime-types', '~> 1.16'
-  gem 'builder', '~> 3.1.4'
+  gem 'builder'
   gem 'activerecord-import'
 end
