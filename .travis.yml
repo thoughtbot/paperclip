@@ -15,6 +15,7 @@ gemfile:
   - gemfiles/3.2.gemfile
   - gemfiles/4.0.gemfile
   - gemfiles/4.1.gemfile
+  - gemfiles/4.2.gemfile
 
 matrix:
   fast_finish: true
