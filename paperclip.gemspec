@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('aruba')
   s.add_development_dependency('nokogiri')
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
-  s.add_development_dependency('capybara', '= 2.0.3')
+  s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
   s.add_development_dependency('fog', '~> 1.0')
   s.add_development_dependency('launchy')
