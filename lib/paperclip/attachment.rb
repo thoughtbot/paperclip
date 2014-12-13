@@ -547,8 +547,8 @@ module Paperclip
 
     def generate_styles(generator, styles)
       style_options = {}
-      styles.each do |name, style|
-        style_options[name] = style.processor_options unless name == :original
+      styles.select{|name| name != :original}.each do |name, style|
+        style_options[name] = style.processor_options
       end
       generator = Paperclip.processor(generator)
       results = generator.make(@queued_for_write[:original], style_options, self)
