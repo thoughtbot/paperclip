@@ -507,7 +507,8 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      styles_to_process = styles.select { |name, style| process_style?(name, style_args) }
+      styles_to_process =
+        styles.select { |_name, _style| process_style?(_name, style_args) }
 
       if (original = styles_to_process.delete(:original))
         post_process_style(:original, original)
@@ -523,19 +524,23 @@ module Paperclip
     end
 
     def post_process_style(name, style) #:nodoc:
-      options[:generator] || !style.processors.blank? or
+      options[:generator] or !style.processors.blank? or
         raise RuntimeError.new("Style #{name} has no processors defined.")
       source = @queued_for_write[name] || @queued_for_write[:original]
       intermediate_files = []
 
-      @queued_for_write[name] = style.processors.inject(source) do |file, processor|
-        file = Paperclip.processor(processor).make(file, style.processor_options, self)
-        intermediate_files << file
-        file
-      end
+      @queued_for_write[name] =
+        style.processors.reduce(source) do |file, processor|
+          file = Paperclip.processor(processor).make(
+            file, style.processor_options, self
+          )
+          intermediate_files << file
+          file
+        end
 
       unadapted_file = @queued_for_write[name]
-      @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
+      @queued_for_write[name] =
+        Paperclip.io_adapters.for(@queued_for_write[name])
       unadapted_file.close if unadapted_file.respond_to?(:close)
       @queued_for_write[name]
     rescue Paperclip::Error => e
@@ -547,11 +552,13 @@ module Paperclip
 
     def generate_styles(generator, styles)
       style_options = {}
-      styles.select{|name| name != :original}.each do |name, style|
+      styles.select { |name| name != :original }.each do |name, style|
         style_options[name] = style.processor_options
       end
       generator = Paperclip.processor(generator)
-      results = generator.make(@queued_for_write[:original], style_options, self)
+      results = generator.make(
+        @queued_for_write[:original], style_options, self
+      )
       @queued_for_write.update results
     rescue Paperclip::Error => e
       log("An error was received while processing: #{e.inspect}")
