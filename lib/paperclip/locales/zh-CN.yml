@@ -1,0 +1,18 @@
+zh-CN:
+  errors:
+    messages:
+      in_between: "文件大小必须介于 %{min} 到 %{max} 之间"
+      spoofed_media_type: "扩展名与内容类型不符"
+
+  number:
+    human:
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Byte"
+            other: "Bytes"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"

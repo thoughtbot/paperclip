@@ -8,6 +8,10 @@ module Paperclip
           record.errors.add(attribute, :blank, options)
         end
       end
+
+      def self.helper_method_name
+        :validates_attachment_presence
+      end
     end
 
     module HelperMethods

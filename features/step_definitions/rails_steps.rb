@@ -8,18 +8,18 @@ Given /^I generate a new rails application$/ do
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", :platform => :ruby
+      gem "sqlite3", "1.3.8", :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
       gem "aws-sdk"
+      gem "racc", :platform => :rbx
+      gem "rubysl", :platform => :rbx
       """
     And I remove turbolinks
     And I empty the application.js file
     And I configure the application to use "paperclip" from this project
-    And I reset Bundler environment variable
-    And I successfully run `bundle install --local`
   }
 end
 
@@ -69,6 +69,7 @@ def attach_attachment(name, definition = nil)
     snippet += ", \n"
     snippet += definition
   end
+  snippet += "\ndo_not_validate_attachment_file_type :#{name}\n"
   in_current_dir do
     transform_file("app/models/user.rb") do |content|
       content.sub(/end\Z/, "#{snippet}\nend")
@@ -195,8 +196,37 @@ Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
   end
 end
 
+Given(/^I add a "(.*?)" processor in "(.*?)"$/) do |processor, directory|
+  filename = "#{directory}/#{processor}.rb"
+  in_current_dir do
+    FileUtils.mkdir_p directory
+    File.open(filename, "w") do |f|
+      f.write(<<-CLASS)
+        module Paperclip
+          class #{processor.capitalize} < Processor
+            def make
+              basename = File.basename(file.path, File.extname(file.path))
+              dst_format = options[:format] ? ".\#{options[:format]}" : ''
+
+              dst = Tempfile.new([basename, dst_format])
+              dst.binmode
+
+              convert(':src :dst',
+                src: File.expand_path(file.path),
+                dst: File.expand_path(dst.path)
+              )
+
+              dst
+            end
+          end
+        end
+      CLASS
+    end
+  end
+end
+
 def transform_file(filename)
-  if File.exists?(filename)
+  if File.exist?(filename)
     content = File.read(filename)
     File.open(filename, "w") do |f|
       content = yield(content)

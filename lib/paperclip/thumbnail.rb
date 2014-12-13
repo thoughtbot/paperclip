@@ -28,17 +28,17 @@ module Paperclip
     def initialize(file, options = {}, attachment = nil)
       super
 
-      geometry             = options[:geometry] # this is not an option
+      geometry             = options[:geometry].to_s
       @file                = file
       @crop                = geometry[-1,1] == '#'
-      @target_geometry     = (options[:string_geometry_parser] || Geometry).parse(geometry)
-      @current_geometry    = (options[:file_geometry_parser] || Geometry).from_file(@file)
+      @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
+      @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
       @source_file_options = options[:source_file_options]
       @convert_options     = options[:convert_options]
-      @whiny               = options[:whiny].nil? ? true : options[:whiny]
+      @whiny               = options.fetch(:whiny, true)
       @format              = options[:format]
-      @animated            = options[:animated].nil? ? true : options[:animated]
-      @auto_orient         = options[:auto_orient].nil? ? true : options[:auto_orient]
+      @animated            = options.fetch(:animated, true)
+      @auto_orient         = options.fetch(:auto_orient, true)
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
@@ -109,7 +109,10 @@ module Paperclip
 
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
-      ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+      if @identified_as_animated.nil?
+        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+      end
+      @identified_as_animated
     rescue Cocaine::ExitStatusError => e
       raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
     rescue Cocaine::CommandNotFoundError => e

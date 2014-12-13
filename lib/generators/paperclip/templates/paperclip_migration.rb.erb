@@ -9,7 +9,7 @@ class <%= migration_class_name %> < ActiveRecord::Migration
 
   def self.down
 <% attachment_names.each do |attachment| -%>
-    drop_attached_file :<%= table_name %>, :<%= attachment %>
+    remove_attachment :<%= table_name %>, :<%= attachment %>
 <% end -%>
   end
 end

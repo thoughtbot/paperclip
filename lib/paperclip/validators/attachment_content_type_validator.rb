@@ -6,6 +6,10 @@ module Paperclip
         super
       end
 
+      def self.helper_method_name
+        :validates_attachment_content_type
+      end
+
       def validate_each(record, attribute, value)
         base_attribute = attribute.to_sym
         attribute = "#{attribute}_content_type".to_sym

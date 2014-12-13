@@ -1,9 +1,7 @@
 module Paperclip
   class TempfileFactory
 
-    ILLEGAL_FILENAME_CHARACTERS = /^~/
-
-    def generate(name)
+    def generate(name = random_name)
       @name = name
       file = Tempfile.new([basename, extension])
       file.binmode
@@ -15,7 +13,11 @@ module Paperclip
     end
 
     def basename
-      File.basename(@name, extension).gsub(ILLEGAL_FILENAME_CHARACTERS, '_')
+      Digest::MD5.hexdigest(File.basename(@name, extension))
+    end
+
+    def random_name
+      SecureRandom.uuid
     end
   end
 end

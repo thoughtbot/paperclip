@@ -6,7 +6,7 @@ module Paperclip
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
     #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
-    # * +s3_credentials+: Takes a path, a File, or a Hash. The path (or File) must point
+    # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
     #   gives you. You can 'environment-space' this just like you do to your
     #   database.yml file, so different environments can use different accounts:
@@ -26,9 +26,21 @@ module Paperclip
     #   put your bucket name in this file, instead of adding it to the code directly.
     #   This is useful when you want the same account but a different bucket for
     #   development versus production.
+    #   When using a Proc it provides a single parameter which is the attachment itself. A
+    #   method #instance is available on the attachment which will take you back to your
+    #   code. eg.
+    #     class User
+    #       has_attached_file :download,
+    #                         :storage => :s3,
+    #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
+    #
+    #       def s3_credentials
+    #         {:bucket => "xxx", :access_key_id => "xxx", :secret_access_key => "xxx"}
+    #       end
+    #     end
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
-    #   http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?RESTAccessPolicy.html)
+    #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
     #   The default for Paperclip is :public_read.
     #
     #   You can set permission on a per style bases by doing the following:
@@ -39,7 +51,7 @@ module Paperclip
     #     :s3_permissions => :private
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http', 'https', or an empty string to generate scheme-less URLs. Defaults to 'http'
+    #   'http', 'https', or an empty string to generate protocol-relative URLs. Defaults to 'http'
     #   when your :s3_permissions are :public_read (the default), and 'https' when your
     #   :s3_permissions are anything else.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
@@ -90,6 +102,14 @@ module Paperclip
     #   Redundancy Storage.  RRS enables customers to reduce their
     #   costs by storing non-critical, reproducible data at lower
     #   levels of redundancy than Amazon S3's standard storage.
+    #
+    #   You can set storage class on a per style bases by doing the following:
+    #     :s3_storage_class => {
+    #       :thumb => :reduced_reduncancy
+    #     }
+    #   Or globally:
+    #     :s3_storage_class => :reduced_redundancy
+
     module S3
       def self.extended base
         begin
@@ -127,18 +147,18 @@ module Paperclip
           @s3_headers = {}
           merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
 
-          @s3_headers[:storage_class] = @options[:s3_storage_class] if @options[:s3_storage_class]
+          @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
           @s3_server_side_encryption = :aes256
           if @options[:s3_server_side_encryption].blank?
             @s3_server_side_encryption = false
           end
           if @s3_server_side_encryption
-            @s3_server_side_encryption = @options[:s3_server_side_encryption].to_s.upcase
+            @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/^:s3.*url$/) || @options[:url] == ":asset_host"
-            @options[:path] = @options[:path].gsub(/:url/, @options[:url]).gsub(/^:rails_root\/public\/system/, '')
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
+            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
@@ -147,25 +167,25 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{^/}, "")}"
+          "#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
       def expiring_url(time = 3600, style_name = default_style)
-        if path
+        if path(style_name)
           base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
           s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
         else
-          url
+          url(style_name)
         end
       end
 
@@ -232,7 +252,7 @@ module Paperclip
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{^/},'')]
+        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
       end
 
       def using_http_proxy?
@@ -260,6 +280,11 @@ module Paperclip
         permissions.merge :default => (permissions[:default] || :public_read)
       end
 
+      def set_storage_class(storage_class)
+        storage_class = {:default => storage_class} unless storage_class.respond_to?(:merge)
+        storage_class
+      end
+
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
@@ -283,6 +308,10 @@ module Paperclip
         s3_permissions
       end
 
+      def s3_storage_class(style = default_style)
+        @s3_storage_class[style] || @s3_storage_class[:default]
+      end
+
       def s3_protocol(style = default_style, with_colon = false)
         protocol = @s3_protocol
         protocol = protocol.call(style, self) if protocol.respond_to?(:call)
@@ -300,6 +329,7 @@ module Paperclip
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
+        retries = 0
           begin
             log("saving #{path(style)}")
             acl = @s3_permissions[style] || @s3_permissions[:default]
@@ -308,6 +338,11 @@ module Paperclip
               :content_type => file.content_type,
               :acl => acl
             }
+
+            # add storage class for this style if defined
+            storage_class = s3_storage_class(style)
+            write_options.merge!(:storage_class => storage_class) if storage_class
+
             if @s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
             end
@@ -323,9 +358,17 @@ module Paperclip
             write_options.merge!(@s3_headers)
 
             s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket => e
+          rescue AWS::S3::Errors::NoSuchBucket
             create_bucket
             retry
+          rescue AWS::S3::Errors::SlowDown
+            retries += 1
+            if retries <= 5
+              sleep((2 ** retries) * 0.5)
+              retry
+            else
+              raise
+            end
           ensure
             file.rewind
           end
@@ -340,7 +383,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{^/},'')].delete
+            s3_bucket.objects[path.sub(%r{\A/},'')].delete
           rescue AWS::Errors::Base => e
             # Ignore this.
           end
@@ -350,10 +393,11 @@ module Paperclip
 
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
-        local_file = ::File.open(local_dest_path, 'wb')
-        file = s3_object(style)
-        local_file.write(file.read)
-        local_file.close
+        ::File.open(local_dest_path, 'wb') do |local_file|
+          s3_object(style).read do |chunk|
+            local_file.write(chunk)
+          end
+        end
       rescue AWS::Errors::Base => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
@@ -385,10 +429,10 @@ module Paperclip
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
         http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
-          when /^x-amz-meta-(.*)/i
+          when /\Ax-amz-meta-(.*)/i
             s3_metadata[$1.downcase] = value
           else
-            s3_headers[name.to_s.downcase.sub(/^x-amz-/,'').tr("-","_").to_sym] = value
+            s3_headers[name.to_s.downcase.sub(/\Ax-amz-/,'').tr("-","_").to_sym] = value
           end
         end
       end

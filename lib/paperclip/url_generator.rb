@@ -8,8 +8,8 @@ module Paperclip
     end
 
     def for(style_name, options)
-      escape_url_as_needed(
-        timestamp_as_needed(
+      timestamp_as_needed(
+        escape_url_as_needed(
           @attachment_options[:interpolator].interpolate(most_appropriate_url, @attachment, style_name),
           options
       ), options)
@@ -58,7 +58,15 @@ module Paperclip
     end
 
     def escape_url(url)
-      (url.respond_to?(:escape) ? url.escape : URI.escape(url)).gsub(/(\/.+)\?(.+\.)/, '\1%3F\2')
+      if url.respond_to?(:escape)
+        url.escape
+      else
+        URI.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
+      end
+    end
+
+    def escape_regex
+      /[\?\(\)\[\]\+]/
     end
   end
 end

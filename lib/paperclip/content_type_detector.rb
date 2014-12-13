@@ -32,10 +32,6 @@ module Paperclip
         EMPTY_TYPE
       elsif calculated_type_matches.any?
         calculated_type_matches.first
-      elsif official_type_matches.any?
-        official_type_matches.first
-      elsif unofficial_type_matches.any?
-        unofficial_type_matches.first
       else
         type_from_file_command || SENSIBLE_DEFAULT
       end.to_s
@@ -44,15 +40,13 @@ module Paperclip
     private
 
     def empty_file?
-      File.exists?(@filename) && File.size(@filename) == 0
+      File.exist?(@filename) && File.size(@filename) == 0
     end
+
+    alias :empty? :empty_file?
 
     def blank_name?
       @filename.nil? || @filename.empty?
-    end
-
-    def empty?
-      File.exists?(@filename) && File.size(@filename) == 0
     end
 
     def possible_types
@@ -61,14 +55,6 @@ module Paperclip
 
     def calculated_type_matches
       possible_types.select{|content_type| content_type == type_from_file_command }
-    end
-
-    def official_type_matches
-      possible_types.reject{|content_type| content_type.match(/\/x-/) }
-    end
-
-    def unofficial_type_matches
-      possible_types.select{|content_type| content_type.match(/\/x-/) }
     end
 
     def type_from_file_command

@@ -27,9 +27,10 @@ module Paperclip
           "Should have an attachment named #{@attachment_name}"
         end
 
-        def negative_failure_message
+        def failure_message_when_negated
           "Should not have an attachment named #{@attachment_name}"
         end
+        alias negative_failure_message failure_message_when_negated
 
         def description
           "have an attachment named #{@attachment_name}"
