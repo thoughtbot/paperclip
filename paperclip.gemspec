@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "paperclip"
 
   s.files         = `git ls-files`.split("\n")
+
   s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
@@ -32,7 +33,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rspec')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
-  s.add_development_dependency('aws-sdk', '~> 1.5')
+  s.add_development_dependency('aws-sdk', '>= 2.0.14.pre')
+  s.add_development_dependency('aws-sdk-v1', '>= 1.59.1')
   s.add_development_dependency('bourne')
   s.add_development_dependency('cucumber', '~> 1.3.18')
   s.add_development_dependency('aruba')
