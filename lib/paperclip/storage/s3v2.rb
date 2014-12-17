@@ -31,7 +31,7 @@ module Paperclip
     #   code. eg.
     #     class User
     #       has_attached_file :download,
-    #                         :storage => :s3,
+    #                         :storage => :s3v2,
     #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
     #
     #       def s3_credentials
@@ -92,7 +92,8 @@ module Paperclip
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
-    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
+    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.  TODO: is host_name still valid?
+    # * +s3_region+: The region.
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
     #   "x-amz-meta-" before sending it as a header on the object
@@ -110,25 +111,24 @@ module Paperclip
     #   Or globally:
     #     :s3_storage_class => :reduced_redundancy
 
-    module S3
+    module S3v2
       def self.extended base
         begin
           require 'aws-sdk'
-          require 'aws-sdk-v1'
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
-        end unless defined?(AWS::Core)
+        end unless defined?(Aws::S3)
 
         # Overriding log formatter to make sure it return a UTF-8 string
-        if defined?(AWS::Core::LogFormatter)
-          AWS::Core::LogFormatter.class_eval do
+        if defined?(Seahorse::Client::Logging::Formatter)
+          Seahorse::Client::Logging::Formatter.class_eval do
             def summarize_hash(hash)
               hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
           end
-        elsif defined?(AWS::Core::ClientLogging)
-          AWS::Core::ClientLogging.class_eval do
+        elsif defined?(Seahorse::Client::Logging)
+          Seahorse::Client::Logging.class_eval do
             def sanitize_hash(hash)
               hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
@@ -183,8 +183,8 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
-          s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          base_options = { :expires_in => time }
+          s3_object(style_name).presigned_url(:get,  base_options.merge(s3_url_options))
         else
           url(style_name)
         end
@@ -192,6 +192,13 @@ module Paperclip
 
       def s3_credentials
         @s3_credentials ||= parse_credentials(@options[:s3_credentials])
+      end
+
+      def s3_region
+        region = @options[:s3_region]
+        region = region.call(self) if region.is_a?(Proc)
+
+        region || s3_credentials[:s3_region] || "us-west-2"  # TODO: should we have a default. us-east-1??
       end
 
       def s3_host_name
@@ -220,40 +227,47 @@ module Paperclip
       end
 
       def s3_interface
-        @s3_interface ||= begin
-          config = { :s3_endpoint => s3_host_name }
+        @s3_interface ||= obtain_s3_instance_for(s3_config)
+      end
 
-          if using_http_proxy?
+      def s3_config
+        # was: config = { :s3_endpoint => s3_host_name }
+        config = { region: s3_region, signature_version: 'v4' }  # TODO: s3_endpoint is an invalid configuration option in v2.
 
-            proxy_opts = { :host => http_proxy_host }
-            proxy_opts[:port] = http_proxy_port if http_proxy_port
-            if http_proxy_user
-              userinfo = http_proxy_user.to_s
-              userinfo += ":#{http_proxy_password}" if http_proxy_password
-              proxy_opts[:userinfo] = userinfo
-            end
-            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+        if using_http_proxy?
+
+          proxy_opts = { :host => http_proxy_host }
+          proxy_opts[:port] = http_proxy_port if http_proxy_port
+          if http_proxy_user
+            userinfo = http_proxy_user.to_s
+            userinfo += ":#{http_proxy_password}" if http_proxy_password
+            proxy_opts[:userinfo] = userinfo
           end
-
-          [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
-            config[opt] = s3_credentials[opt] if s3_credentials[opt]
-          end
-
-          obtain_s3_instance_for(config.merge(@s3_options))
+          config[:proxy_uri] = URI::HTTP.build(proxy_opts)
         end
+
+        [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
+          config[opt] = s3_credentials[opt] if s3_credentials[opt]
+        end
+
+        config.merge(@s3_options)
       end
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= AWS::S3.new(options)
+        instances[options] ||= Aws::S3::Resource.new(options) # was: Aws::S3::Client.new(options)
       end
 
       def s3_bucket
-        @s3_bucket ||= s3_interface.buckets[bucket_name]
+        @s3_bucket ||= s3_interface.bucket(bucket_name)
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
+        s3_bucket.object(s3_object_name(style_name))
+      end
+
+      def s3_object_name style_name = default_style
+        path(style_name).sub(%r{\A/},'')
       end
 
       def using_http_proxy?
@@ -289,16 +303,17 @@ module Paperclip
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
-        (creds[RailsEnvironment.get] || creds).symbolize_keys
+        env = Object.const_defined?(:Rails) ? Rails.env : nil
+        (creds[env] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)
         if original_filename
-          s3_object(style).exists?
+          s3_interface.client.head_object(bucket: bucket_name, key:s3_object_name(style)).present?
         else
           false
         end
-      rescue AWS::Errors::Base => e
+      rescue Aws::Errors::ServiceError => e
         false
       end
 
@@ -324,7 +339,7 @@ module Paperclip
       end
 
       def create_bucket
-        s3_interface.buckets.create(bucket_name)
+        s3_interface.bucket(bucket_name).create
       end
 
       def flush_writes #:nodoc:
@@ -357,11 +372,11 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket
+            s3_object(style).upload_file(file.path, write_options)
+          rescue Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
-          rescue AWS::S3::Errors::SlowDown
+          rescue Aws::S3::Errors::SlowDown    # Daniel: SlowDown not defined in V2. See what concept replaces it. There is a Waiters concept
             retries += 1
             if retries <= 5
               sleep((2 ** retries) * 0.5)
@@ -383,8 +398,8 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{\A/},'')].delete
-          rescue AWS::Errors::Base => e
+            s3_object(path.sub(%r{\A/},'')).delete
+          rescue Aws::Errors::ServiceError => e
             # Ignore this.
           end
         end
@@ -394,11 +409,11 @@ module Paperclip
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
-          s3_object(style).read do |chunk|
+          s3_object(style).get.read do |chunk|
             local_file.write(chunk)
           end
         end
-      rescue AWS::Errors::Base => e
+      rescue Aws::Errors::ServiceError => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
