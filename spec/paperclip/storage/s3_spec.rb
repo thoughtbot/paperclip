@@ -1496,9 +1496,11 @@ describe Paperclip::Storage::S3 do
   context "copy_to_local_file" do
     before do
       @file         = File.new(fixture_file("5k.png"), "rb")
-      rebuild_model storage: :s3,
+      rebuild_model(
+        storage: :s3,
         bucket: "testing",
         path: @file.path
+      )
       @dummy        = Dummy.new
       @dummy.avatar = @file
       @dummy.avatar.stubs(:s3_object).returns(@file)
