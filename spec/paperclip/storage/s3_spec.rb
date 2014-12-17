@@ -1493,6 +1493,36 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "copy_to_local_file" do
+    before do
+      @file         = File.new(fixture_file("5k.png"), "rb")
+      rebuild_model(
+        storage: :s3,
+        bucket: "testing",
+        path: @file.path
+      )
+      @dummy        = Dummy.new
+      @dummy.avatar = @file
+      @dummy.avatar.stubs(:s3_object).returns(@file)
+      @local_path   = "tmp/5k_copy.png"
+    end
+
+    after do
+      @file.close
+      FileUtils.rm_rf(@local_path)
+    end
+
+    it "create" do
+      assert @dummy.avatar.copy_to_local_file(:original, @local_path)
+      assert File.exist?(@local_path)
+    end
+    it "size" do
+      @dummy.avatar.copy_to_local_file(:original, @local_path)
+      File.open(@local_path) do |local_file|
+        assert_equal @file.size, local_file.size
+      end
+    end
+  end
 
   private
 
