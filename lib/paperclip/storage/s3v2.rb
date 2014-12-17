@@ -313,7 +313,7 @@ module Paperclip
         else
           false
         end
-      rescue Aws::Errors::ServiceError => e
+      rescue Aws::Errors::ServiceError
         false
       end
 
@@ -398,7 +398,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_object(path.sub(%r{\A/},'')).delete
+            s3_bucket.object(path.sub(%r{\A/},'')).delete
           rescue Aws::Errors::ServiceError => e
             # Ignore this.
           end
