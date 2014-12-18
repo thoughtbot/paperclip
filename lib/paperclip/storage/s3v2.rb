@@ -354,6 +354,9 @@ module Paperclip
               :acl => acl
             }
 
+            # refresh headers (usefull when Proc is involved)
+            merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
+
             # add storage class for this style if defined
             storage_class = s3_storage_class(style)
             write_options.merge!(:storage_class => storage_class) if storage_class
