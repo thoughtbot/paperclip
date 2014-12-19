@@ -228,24 +228,23 @@ describe Paperclip::Storage::S3v2 do
     end
   end
 
-  context "s3_host_name" do
+  context "s3_region" do
     before do
       rebuild_model storage: :s3v2,
       s3_credentials: {},
       bucket: "bucket",
       path: ":attachment/:basename:dotextension",
-      s3_host_name: "s3-ap-northeast-1.amazonaws.com"
+      s3_region: "ap-northeast-1"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
-    it "returns a url based on an :s3_host_name path" do
-      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+    it "returns a url based on an :s3_region path" do
+      # assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
-    it "uses the S3 bucket with the correct host name" do
-      # DANIEL: not sure how to set endpoint. Was s3_endpoint?
-      pending("TODO: figure out if host_name is required. Shouldn't we just use regions?")
+    it "uses the S3 bucket with the correct region" do
       assert_equal "s3-ap-northeast-1.amazonaws.com", @dummy.avatar.s3_bucket.client.config.endpoint.hostname
     end
   end
@@ -868,14 +867,13 @@ describe Paperclip::Storage::S3v2 do
       rebuild_model storage: :s3v2,
       bucket: "testing",
       s3_credentials: {
-        credential_provider: DummyCredentialProvider.new
+        credentials: DummyCredentialProvider.new
       }
       @dummy = Dummy.new
     end
 
     it "sets the credential-provider" do
-      pending("TODO: Figure out how credential_provider works")
-      expect(@dummy.avatar.s3_bucket.client.config.credential_provider).to be_a DummyCredentialProvider
+      expect(@dummy.avatar.s3_bucket.client.config.credentials).to be_a DummyCredentialProvider
     end
   end
 

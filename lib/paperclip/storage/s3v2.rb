@@ -198,7 +198,7 @@ module Paperclip
         region = @options[:s3_region]
         region = region.call(self) if region.is_a?(Proc)
 
-        region || s3_credentials[:s3_region] || "us-west-2"  # TODO: should we have a default. us-east-1??
+        region || s3_credentials[:s3_region] || "us-east-1"
       end
 
       def s3_host_name
@@ -246,7 +246,7 @@ module Paperclip
           config[:proxy_uri] = URI::HTTP.build(proxy_opts)
         end
 
-        [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
+        [:access_key_id, :secret_access_key, :credentials].each do |opt|
           config[opt] = s3_credentials[opt] if s3_credentials[opt]
         end
 
