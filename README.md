@@ -183,6 +183,13 @@ end
 <% end %>
 ```
 
+### Edit and New Views with Simple Form
+```erb
+<%= simple_form_for @user, url: users_path do |form| %>
+  <%= form.input :avatar, as: :file %>
+<% end %>
+```
+
 ### Controller
 
 **Rails 3**
