@@ -379,14 +379,6 @@ module Paperclip
           rescue Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
-          rescue Aws::S3::Errors::SlowDown    # Daniel: SlowDown not defined in V2. See what concept replaces it. There is a Waiters concept
-            retries += 1
-            if retries <= 5
-              sleep((2 ** retries) * 0.5)
-              retry
-            else
-              raise
-            end
           ensure
             file.rewind
           end
