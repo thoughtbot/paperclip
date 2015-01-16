@@ -753,21 +753,6 @@ describe Paperclip::Storage::S3v2 do
         "Expect all the files to be deleted."
       end
 
-      # TODO: SlowDown doesn't exist in V2. Use waiters
-      it "will retry to save again but back off on SlowDown" do
-        pending("v2 doesn't support SlowDown. Still needed?")
-        @dummy.avatar.stubs(:sleep)
-        AWS::S3::S3Object.any_instance.stubs(:upload_file).
-        raises(AWS::S3::Errors::SlowDown.new(stub, stub(status: 503, body: "")))
-
-        expect {@dummy.save}.to raise_error(AWS::S3::Errors::SlowDown)
-        expect(@dummy.avatar).to have_received(:sleep).with(1)
-        expect(@dummy.avatar).to have_received(:sleep).with(2)
-        expect(@dummy.avatar).to have_received(:sleep).with(4)
-        expect(@dummy.avatar).to have_received(:sleep).with(8)
-        expect(@dummy.avatar).to have_received(:sleep).with(16)
-      end
-
       context "and saved" do
         before do
           object = stub
