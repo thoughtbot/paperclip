@@ -696,7 +696,7 @@ describe Paperclip::Storage::S3v2 do
 
     it "gets the right s3_region if the key does not exist" do
       rails_env("test") do
-        assert_match %r{^us-west-2}, @dummy.avatar.s3_region
+        assert_match %r{^us-east-1}, @dummy.avatar.s3_region
         # assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
       end
     end
