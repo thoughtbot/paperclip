@@ -92,7 +92,6 @@ module Paperclip
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
-    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.  TODO: is host_name still valid?
     # * +s3_region+: The region.
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
@@ -167,6 +166,7 @@ module Paperclip
           @http_proxy = @options[:http_proxy] || nil
         end
 
+        # TODO: see when interpolation kicks in. Add spec for this
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
@@ -405,7 +405,7 @@ module Paperclip
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
           s3_object(style).get.each do |chunk|
-            local_file.write(chunk)
+            local_file.write(chunk.body.read)  # Aws::PageableResponse
           end
         end
       rescue Aws::Errors::ServiceError => e
