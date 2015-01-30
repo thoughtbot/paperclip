@@ -64,11 +64,30 @@ describe 'Attachment Registry' do
 
     it "produces defintions for subclasses" do
       expected_definitions = { avatar: { yo: 'greeting' } }
-      Foo = Class.new
-      Bar = Class.new(Foo)
-      Paperclip::AttachmentRegistry.register(Foo, :avatar, expected_definitions[:avatar])
+      foo = Class.new
+      bar = Class.new(foo)
+      Paperclip::AttachmentRegistry.register(foo, :avatar, expected_definitions[:avatar])
 
-      definitions = Paperclip::AttachmentRegistry.definitions_for(Bar)
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
+
+      assert_equal expected_definitions, definitions
+    end
+
+    it "produces defintions for subclasses but deep merging them" do
+      foo_definitions = { avatar: { yo: 'greeting' } }
+      bar_definitions = { avatar: { ciao: 'greeting' } }
+      expected_definitions = {
+        avatar: {
+          yo: 'greeting',
+          ciao: 'greeting'
+         }
+      }
+      foo = Class.new
+      bar = Class.new(foo)
+      Paperclip::AttachmentRegistry.register(foo, :avatar, foo_definitions[:avatar])
+      Paperclip::AttachmentRegistry.register(bar, :avatar, bar_definitions[:avatar])
+
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
 
       assert_equal expected_definitions, definitions
     end
