@@ -116,9 +116,11 @@ describe 'Attachment Registry' do
   context '.clear' do
     it 'removes all of the existing attachment definitions' do
       foo = Class.new
-      Paperclip::AttachmentRegistry.register(foo,
-                                             :greeter,
-                                             { ciao: "greeting" })
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :greeter,
+        ciao: "greeting"
+      )
 
       Paperclip::AttachmentRegistry.clear
 
