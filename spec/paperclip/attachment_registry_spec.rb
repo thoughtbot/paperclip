@@ -31,8 +31,8 @@ describe 'Attachment Registry' do
     it 'calls the block with the class, attachment name, and options' do
       foo = Class.new
       expected_accumulations = [
-        [foo, :avatar, { yo: 'greeting' }],
-        [foo, :greeter, { ciao: 'greeting' }]
+        [foo, :avatar, { yo: "greeting" }],
+        [foo, :greeter, { ciao: "greeting" }]
       ]
       expected_accumulations.each do |args|
         Paperclip::AttachmentRegistry.register(*args)
@@ -50,19 +50,19 @@ describe 'Attachment Registry' do
   context '.definitions_for' do
     it 'produces the attachment name and options' do
       expected_definitions = {
-        avatar: { yo: 'greeting' },
-        greeter: { ciao: 'greeting' }
+        avatar: { yo: "greeting" },
+        greeter: { ciao: "greeting" }
       }
       foo = Class.new
       Paperclip::AttachmentRegistry.register(
         foo,
         :avatar,
-        { yo: 'greeting' }
+        yo: "greeting"
       )
       Paperclip::AttachmentRegistry.register(
         foo,
         :greeter,
-        { ciao: 'greeting' }
+        ciao: "greeting"
       )
 
       definitions = Paperclip::AttachmentRegistry.definitions_for(foo)
@@ -71,7 +71,7 @@ describe 'Attachment Registry' do
     end
 
     it 'produces defintions for subclasses' do
-      expected_definitions = { avatar: { yo: 'greeting' } }
+      expected_definitions = { avatar: { yo: "greeting" } }
       foo = Class.new
       bar = Class.new(foo)
       Paperclip::AttachmentRegistry.register(
@@ -86,12 +86,12 @@ describe 'Attachment Registry' do
     end
 
     it 'produces defintions for subclasses but deep merging them' do
-      foo_definitions = { avatar: { yo: 'greeting' } }
-      bar_definitions = { avatar: { ciao: 'greeting' } }
+      foo_definitions = { avatar: { yo: "greeting" } }
+      bar_definitions = { avatar: { ciao: "greeting" } }
       expected_definitions = {
         avatar: {
-          yo: 'greeting',
-          ciao: 'greeting'
+          yo: "greeting",
+          ciao: "greeting"
         }
       }
       foo = Class.new
@@ -118,7 +118,7 @@ describe 'Attachment Registry' do
       foo = Class.new
       Paperclip::AttachmentRegistry.register(foo,
                                              :greeter,
-                                             { ciao: 'greeting' })
+                                             { ciao: "greeting" })
 
       Paperclip::AttachmentRegistry.clear
 
