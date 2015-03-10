@@ -6,6 +6,7 @@ module Paperclip
 
     attr_reader :content_type, :original_filename, :size
     delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink, :to => :@tempfile
+    alias :length :size
 
     def fingerprint
       @fingerprint ||= Digest::MD5.file(path).to_s

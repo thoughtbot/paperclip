@@ -59,7 +59,7 @@ GhostScript to be installed. On Mac OS X, you can also install that using Homebr
 ### `file`
 
 The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content type checking.
-This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), 
+This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit),
 so Windows users must make sure that the devkit is installed and added to system `PATH`.
 
 **Manual Installation**
@@ -84,7 +84,7 @@ Next, you need to integrate with your environment - preferrably through the `PAT
     5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
     6. Restart any CMD shells you have open & see if it works
 
-OR 
+OR
 
 **Environment**
 
@@ -387,9 +387,9 @@ being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
 .jpg extension. This validation will only add validation errors to the form. It
 will not cause Errors to be raised.
 
-This can sometimes cause false validation errors in applications that use custom 
+This can sometimes cause false validation errors in applications that use custom
 file extensions. In these cases you may wish to add your custom extension to the
-list of file extensions allowed for your mime type configured by the mime-types 
+list of file extensions allowed for your mime type configured by the mime-types
 gem:
 
 ```ruby
@@ -911,5 +911,5 @@ The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 License
 -------
 
-Paperclip is Copyright © 2008-2014 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright © 2008-2015 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
