@@ -31,8 +31,8 @@ describe 'Attachment Registry' do
     it 'calls the block with the class, attachment name, and options' do
       foo = Class.new
       expected_accumulations = [
-        [foo, :avatar, { yo: 'greeting' }],
-        [foo, :greeter, { ciao: 'greeting' }]
+        [foo, :avatar, { yo: "greeting" }],
+        [foo, :greeter, { ciao: "greeting" }]
       ]
       expected_accumulations.each do |args|
         Paperclip::AttachmentRegistry.register(*args)
@@ -50,25 +50,64 @@ describe 'Attachment Registry' do
   context '.definitions_for' do
     it 'produces the attachment name and options' do
       expected_definitions = {
-        avatar: { yo: 'greeting' },
-        greeter: { ciao: 'greeting' }
+        avatar: { yo: "greeting" },
+        greeter: { ciao: "greeting" }
       }
       foo = Class.new
-      Paperclip::AttachmentRegistry.register(foo, :avatar, { yo: 'greeting' })
-      Paperclip::AttachmentRegistry.register(foo, :greeter, { ciao: 'greeting' })
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :avatar,
+        yo: "greeting"
+      )
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :greeter,
+        ciao: "greeting"
+      )
 
       definitions = Paperclip::AttachmentRegistry.definitions_for(foo)
 
       assert_equal expected_definitions, definitions
     end
 
-    it "produces defintions for subclasses" do
-      expected_definitions = { avatar: { yo: 'greeting' } }
-      Foo = Class.new
-      Bar = Class.new(Foo)
-      Paperclip::AttachmentRegistry.register(Foo, :avatar, expected_definitions[:avatar])
+    it 'produces defintions for subclasses' do
+      expected_definitions = { avatar: { yo: "greeting" } }
+      foo = Class.new
+      bar = Class.new(foo)
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :avatar,
+        expected_definitions[:avatar]
+      )
 
-      definitions = Paperclip::AttachmentRegistry.definitions_for(Bar)
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
+
+      assert_equal expected_definitions, definitions
+    end
+
+    it 'produces defintions for subclasses but deep merging them' do
+      foo_definitions = { avatar: { yo: "greeting" } }
+      bar_definitions = { avatar: { ciao: "greeting" } }
+      expected_definitions = {
+        avatar: {
+          yo: "greeting",
+          ciao: "greeting"
+        }
+      }
+      foo = Class.new
+      bar = Class.new(foo)
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :avatar,
+        foo_definitions[:avatar]
+      )
+      Paperclip::AttachmentRegistry.register(
+        bar,
+        :avatar,
+        bar_definitions[:avatar]
+      )
+
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
 
       assert_equal expected_definitions, definitions
     end
@@ -77,7 +116,11 @@ describe 'Attachment Registry' do
   context '.clear' do
     it 'removes all of the existing attachment definitions' do
       foo = Class.new
-      Paperclip::AttachmentRegistry.register(foo, :greeter, { ciao: 'greeting' })
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :greeter,
+        ciao: "greeting"
+      )
 
       Paperclip::AttachmentRegistry.clear
 

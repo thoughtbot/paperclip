@@ -8,7 +8,6 @@ rvm:
 install:
   - "travis_retry bundle install"
 
-before_script: "sudo ntpdate -ub ntp.ubuntu.com pool.ntp.org; true"
 script: "bundle exec rake clean spec cucumber"
 
 gemfile:
@@ -21,3 +20,5 @@ matrix:
   allow_failures:
     - rvm: jruby-19mode
     - rvm: rbx-2
+
+sudo: false

@@ -20,6 +20,10 @@ describe Paperclip::StringioAdapter do
       assert_equal 6, @subject.size
     end
 
+    it "returns the length of the data" do
+      assert_equal 6, @subject.length
+    end
+
     it "generates an MD5 hash of the contents" do
       assert_equal Digest::MD5.hexdigest(@contents), @subject.fingerprint
     end
