@@ -228,24 +228,44 @@ describe Paperclip::Storage::S3v2 do
     end
   end
 
+  context "s3_host_name" do
+    before do
+      rebuild_model storage: :s3v2,
+        s3_credentials: {},
+        bucket: "bucket",
+        path: ":attachment/:basename:dotextension",
+        s3_host_name: "s3-ap-northeast-1.amazonaws.com"
+      @dummy = Dummy.new
+      @dummy.avatar = stringy_file
+    end
+
+
+    it "returns a url based on an :s3_host_name path" do
+      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+    end
+
+    it "uses the S3 bucket with the correct host name" do
+      assert_equal "s3-ap-northeast-1.amazonaws.com", @dummy.avatar.s3_host_name
+    end
+  end
+
   context "s3_region" do
     before do
       rebuild_model storage: :s3v2,
-      s3_credentials: {},
-      bucket: "bucket",
-      path: ":attachment/:basename:dotextension",
-      s3_region: "ap-northeast-1"
+        s3_credentials: {},
+        bucket: "bucket",
+        path: ":attachment/:basename:dotextension",
+        s3_region: "ap-northeast"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
     it "returns a url based on an :s3_region path" do
-      # assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^http://s3-ap-northeast.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
-    it "uses the S3 bucket with the correct region" do
-      assert_equal "s3-ap-northeast-1.amazonaws.com", @dummy.avatar.s3_bucket.client.config.endpoint.hostname
+    it "uses the S3 bucket with the correct host name" do
+      assert_equal "ap-northeast", @dummy.avatar.s3_region
     end
   end
 
@@ -629,42 +649,36 @@ describe Paperclip::Storage::S3v2 do
     end
   end
 
-  # TODO: figure out if host_name is required. Shouldn't we just use regions? See next context.
+  # TODO: s3_host_name: should we just remove this spec as endpoint and hostname seem to be superseeded by region.
   context "Parsing S3 credentials with a s3_host_name in them" do
     before do
       rebuild_model storage: :s3v2,
       bucket: 'testing',
       s3_credentials: {
-        # production: { s3_host_name: "s3-world-end.amazonaws.com" },
-        # development: { s3_host_name: "s3-ap-northeast-1.amazonaws.com" }
-        production: { s3_region: "s3-world-end.amazonaws.com" },
-        development: { s3_region: "s3-ap-northeast-1.amazonaws.com" }
+        production: { s3_host_name: "s3-world-end.amazonaws.com" },
+        development: { s3_host_name: "s3-ap-northeast-1.amazonaws.com" }
       }
       Aws.config[:stub_responses] = true
       @dummy = Dummy.new
     end
 
     it "gets the right s3_host_name in production" do
-      pending("TODO: figure out if host_name is required. Shouldn't we just use regions?")
       rails_env("production") do
         assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
+        # assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.config.s3_endpoint   # Note s3_endpoint is not an option anymore
+                                                                                                     # @dummy.avatar.s3_bucket.client.config.endpoint.hostname
       end
     end
 
     it "gets the right s3_host_name in development" do
-      pending("TODO: figure out if host_name is required. Shouldn't we just use regions?")
       rails_env("development") do
         assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
       end
     end
 
     it "gets the right s3_host_name if the key does not exist" do
-      pending("TODO: figure out if host_name is required. Shouldn't we just use regions?")
       rails_env("test") do
         assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
       end
     end
   end
@@ -674,30 +688,27 @@ describe Paperclip::Storage::S3v2 do
       rebuild_model storage: :s3v2,
       bucket: 'testing',
       s3_credentials: {
-        production: { s3_region: "s3-world-end.amazonaws.com" },
-        development: { s3_region: "s3-ap-northeast-1.amazonaws.com" }
+        production: { s3_region: "world-end" },
+        development: { s3_region: "ap-northeast" }
       }
       @dummy = Dummy.new
     end
 
     it "gets the right s3_region in production" do
       rails_env("production") do
-        assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_region
-        # assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
+        assert_match "world-end", @dummy.avatar.s3_region
       end
     end
 
     it "gets the right s3_region in development" do
       rails_env("development") do
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_region
-        # assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
+        assert_match "ap-northeast", @dummy.avatar.s3_region
       end
     end
 
     it "gets the right s3_region if the key does not exist" do
       rails_env("test") do
-        assert_match %r{^us-east-1}, @dummy.avatar.s3_region
-        # assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_bucket.client.config.endpoint.hostname
+        assert_match "us-east-1", @dummy.avatar.s3_region
       end
     end
   end
