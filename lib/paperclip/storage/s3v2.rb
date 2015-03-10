@@ -166,15 +166,28 @@ module Paperclip
           @http_proxy = @options[:http_proxy] || nil
         end
 
-        # TODO: see when interpolation kicks in. Add spec for this
+        # http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html#access-bucket-intro
+        # I.e.
+        #    http://bucket.s3.amazonaws.com                   s3_domain_url
+        #    http://bucket.s3-aws-region.amazonaws.com        s3_domain_url with region
+        #    http://s3.amazonaws.com/bucket                   s3_path_url
+        #    http://s3-aws-region.amazonaws.com/bucket        s3_path_url with region
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
-        Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+        Paperclip.interpolates(:s3_path_url) do |attachment, style|  # This is the default
+          if attachment.s3_region_no_defaults.nil?
+            "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          else
+            "#{attachment.s3_protocol(style, true)}//s3-#{attachment.s3_region}.#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          end
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          if attachment.s3_region_no_defaults.nil?
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          else
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.s3-#{attachment.s3_region}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          end
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{\A/}, "")}"
@@ -194,18 +207,22 @@ module Paperclip
         @s3_credentials ||= parse_credentials(@options[:s3_credentials])
       end
 
-      def s3_region
+      def s3_region_no_defaults
         region = @options[:s3_region]
         region = region.call(self) if region.is_a?(Proc)
 
-        region || s3_credentials[:s3_region] || "us-east-1"
+        region || s3_credentials[:s3_region]
+      end
+
+      def s3_region
+        s3_region_no_defaults || "us-east-1"
       end
 
       def s3_host_name
         host_name = @options[:s3_host_name]
         host_name = host_name.call(self) if host_name.is_a?(Proc)
 
-        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        host_name || s3_credentials[:s3_host_name] || (s3_region_no_defaults ? "amazonaws.com" : "s3.amazonaws.com")
       end
 
       def s3_host_alias
@@ -231,11 +248,9 @@ module Paperclip
       end
 
       def s3_config
-        # was: config = { :s3_endpoint => s3_host_name }
-        config = { region: s3_region, signature_version: 'v4' }  # TODO: s3_endpoint is an invalid configuration option in v2.
-
+        config = { region: s3_region, signature_version: 'v4' }   # Note s3_endpoint is now an invalid option in AWS SDK v2.
+                                                                  # was: config = { :s3_endpoint => s3_host_name }
         if using_http_proxy?
-
           proxy_opts = { :host => http_proxy_host }
           proxy_opts[:port] = http_proxy_port if http_proxy_port
           if http_proxy_user
