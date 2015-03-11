@@ -75,7 +75,7 @@ describe Paperclip::Attachment do
 
   it "handles a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name, MockModel.new, url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, true)
     expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to eq true
@@ -86,7 +86,7 @@ describe Paperclip::Attachment do
 
   it "passes the style and options through to the URL generator on #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name, MockModel.new, url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, options: :values)
     expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to eq true
@@ -95,7 +95,7 @@ describe Paperclip::Attachment do
   it "passes default options through when #url is given one argument" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
 
@@ -106,7 +106,7 @@ describe Paperclip::Attachment do
   it "passes default style and options through when #url is given no arguments" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            default_style: 'default style',
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
@@ -119,7 +119,7 @@ describe Paperclip::Attachment do
   it "passes the option timestamp: true if :use_timestamp is true and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
 
@@ -130,7 +130,7 @@ describe Paperclip::Attachment do
   it "passes the option timestamp: false if :use_timestamp is false and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: false)
 
@@ -141,7 +141,7 @@ describe Paperclip::Attachment do
   it "does not change the :timestamp if :timestamp is passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: false)
 
@@ -152,7 +152,7 @@ describe Paperclip::Attachment do
   it "renders JSON as default style" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            default_style: 'default style',
                                            url_generator: mock_url_generator_builder)
 
@@ -163,7 +163,7 @@ describe Paperclip::Attachment do
   it "passes the option escape: true if :escape_url is true and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            escape_url: true)
 
@@ -174,7 +174,7 @@ describe Paperclip::Attachment do
   it "passes the option escape: false if :escape_url is false and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           MockModel.new,
                                            url_generator: mock_url_generator_builder,
                                            escape_url: false)
 
@@ -212,6 +212,7 @@ describe Paperclip::Attachment do
     dummy = Dummy.new
     dummy.id = 1234
     dummy.avatar_file_name = "fake.jpg"
+    dummy.stubs(:new_record?).returns(false)
     expected_string = '{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}'
     if ActiveRecord::Base.include_root_in_json # This is true by default in Rails 3, and false in 4
       expected_string = %({"dummy":#{expected_string}})
