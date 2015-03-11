@@ -58,11 +58,11 @@ module Paperclip
     end
 
     def calculated_type_matches
-      possible_types.select{|content_type| content_type == type_from_file_command }
+      possible_types.select { |content_type| content_type == type_from_file_command }
     end
 
     def official_type_matches
-      possible_types.reject{|content_type| content_type.match(/\/x-/) }
+      possible_types.reject { |content_type| content_type.match(/\/x-/) }
     end
 
     def unofficial_type_matches
