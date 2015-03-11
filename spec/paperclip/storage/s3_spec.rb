@@ -393,7 +393,7 @@ describe Paperclip::Storage::S3 do
         file = Paperclip.io_adapters.for(stringio)
         @dummy = Dummy.new
         @dummy.avatar = file
-        @dummy.stubs(:new_record?).returns(false)
+        @dummy.save
     end
 
     it "returns a replaced version for path" do

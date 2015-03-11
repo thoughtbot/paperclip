@@ -75,7 +75,9 @@ describe Paperclip::Attachment do
 
   it "handles a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, MockModel.new, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name,
+                                           MockModel.new,
+                                           url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, true)
     expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to eq true
@@ -86,7 +88,9 @@ describe Paperclip::Attachment do
 
   it "passes the style and options through to the URL generator on #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, MockModel.new, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(:name,
+                                           MockModel.new,
+                                           url_generator: mock_url_generator_builder)
 
     attachment.url(:style_name, options: :values)
     expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to eq true
