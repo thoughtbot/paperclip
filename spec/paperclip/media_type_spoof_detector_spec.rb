@@ -43,4 +43,14 @@ describe Paperclip::MediaTypeSpoofDetector do
       Paperclip.options[:content_type_mappings] = {}
     end
   end
+
+  it 'doest allow array as :content_type_mappings' do
+    begin
+      Paperclip.options[:content_type_mappings] = { html: [ "binary", "text/html" ] }
+      file = File.open(fixture_file("empty.html"))
+      assert ! Paperclip::MediaTypeSpoofDetector.using(file, "empty.html").spoofed?
+    ensure
+      Paperclip.options[:content_type_mappings] = {}
+    end
+  end
 end
