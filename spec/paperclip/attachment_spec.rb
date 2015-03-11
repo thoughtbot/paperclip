@@ -13,7 +13,7 @@ describe Paperclip::Attachment do
   it "is present when the file is set" do
     rebuild_class
     dummy = Dummy.new
-    dummy.avatar = File.new(fixture_file("50x50.png"), "rb") 
+    dummy.avatar = File.new(fixture_file("50x50.png"), "rb")
     expect(dummy.avatar).to_not be_blank
     expect(dummy.avatar).to be_present
   end
@@ -36,7 +36,7 @@ describe Paperclip::Attachment do
     rebuild_class styles: {
       small: '100x>',
       large: '500x>',
-      original: '42x42#' 
+      original: '42x42#'
     }
 
     dummy = Dummy.new
@@ -250,6 +250,10 @@ describe Paperclip::Attachment do
 
       it "returns false when asked exists?" do
         assert !@dummy.avatar.exists?
+      end
+
+      it "#url returns nil" do
+        assert_nil @dummy.avatar.url
       end
     end
 
