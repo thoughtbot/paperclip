@@ -34,9 +34,9 @@ describe Paperclip::Attachment do
   it "does not delete styles that don't get reprocessed" do
     file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class styles: {
-      small: '100x>',
-      large: '500x>',
-      original: '42x42#'
+      small: "100x>",
+      large: "500x>",
+      original: "42x42#"
     }
 
     dummy = Dummy.new

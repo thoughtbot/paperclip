@@ -138,7 +138,7 @@ module Paperclip
 
     def url(style_name = default_style, options = {})
       return nil if @instance.new_record?
-       
+
       if options == true || options == false # Backwards compatibility.
         @url_generator.for(style_name, default_options.merge(:timestamp => options))
       else
