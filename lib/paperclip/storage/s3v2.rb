@@ -1,15 +1,17 @@
 module Paperclip
   module Storage
-    # Amazon's S3 file hosting service is a scalable, easy place to store files for
-    # distribution. You can find out more about it at http://aws.amazon.com/s3
+    # Amazon's S3 file hosting service is a scalable, easy place to store files
+    # for distribution. You can find out more about it at
+    # http://aws.amazon.com/s3
     #
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
     #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
-    # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
-    #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
-    #   gives you. You can 'environment-space' this just like you do to your
-    #   database.yml file, so different environments can use different accounts:
+    # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path
+    #   (or File) must point to a YAML file containing the +access_key_id+ and
+    #   +secret_access_key+ that Amazon gives you. You can 'environment-space'
+    #   this just like you do to your database.yml file, so different
+    #   environments can use different accounts:
     #     development:
     #       access_key_id: 123...
     #       secret_access_key: 123...
@@ -22,24 +24,24 @@ module Paperclip
     #   This is not required, however, and the file may simply look like this:
     #     access_key_id: 456...
     #     secret_access_key: 456...
-    #   In which case, those access keys will be used in all environments. You can also
-    #   put your bucket name in this file, instead of adding it to the code directly.
-    #   This is useful when you want the same account but a different bucket for
-    #   development versus production.
-    #   When using a Proc it provides a single parameter which is the attachment itself. A
-    #   method #instance is available on the attachment which will take you back to your
-    #   code. eg.
+    #   In which case, those access keys will be used in all environments. You
+    #   can also put your bucket name in this file, instead of adding it to the
+    #   code directly. This is useful when you want the same account but a
+    #   different bucket for development versus production.
+    #   When using a Proc it provides a single parameter which is the attachment
+    #   itself. A method #instance is available on the attachment which will
+    #   take you back to your code. eg.
     #     class User
     #       has_attached_file :download,
-    #                         :storage => :s3,
+    #                         :storage => :s3v2,
     #                         :s3_credentials => Proc.new{|a| a.instance.s3_credentials }
     #
     #       def s3_credentials
     #         {:bucket => "xxx", :access_key_id => "xxx", :secret_access_key => "xxx"}
     #       end
     #     end
-    # * +s3_permissions+: This is a String that should be one of the "canned" access
-    #   policies that S3 provides (more information can be found here:
+    # * +s3_permissions+: This is a String that should be one of the "canned"
+    #   access policies that S3 provides (more information can be found here:
     #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
     #   The default for Paperclip is :public_read.
     #
@@ -50,53 +52,60 @@ module Paperclip
     #   Or globally:
     #     :s3_permissions => :private
     #
-    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http', 'https', or an empty string to generate protocol-relative URLs. Defaults to 'http'
-    #   when your :s3_permissions are :public_read (the default), and 'https' when your
-    #   :s3_permissions are anything else.
-    # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
-    #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
-    #   runtime. Paperclip will call that Proc with attachment as the only argument.
-    #   Can be defined both globally and within a style-specific hash.
-    # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
-    #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
-    #   Paperclip will attempt to create it. The bucket name will not be interpolated.
-    #   You can define the bucket as a Proc if you want to determine it's name at runtime.
-    #   Paperclip will call that Proc with attachment as the only argument.
-    # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
-    #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
-    #   link in the +url+ entry for more information about S3 domains and buckets.
-    # * +url+: There are four options for the S3 url. You can choose to have the bucket's name
-    #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
-    #   You can also specify a CNAME (which requires the CNAME to be specified as
-    #   :s3_alias_url. You can read more about CNAMEs and S3 at
+    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets.
+    #   Can be either 'http', 'https', or an empty string to generate
+    #   protocol-relative URLs. Defaults to 'http' when your :s3_permissions
+    #   are :public_read (the default), and 'https' when your :s3_permissions
+    #   are anything else.
+    # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such
+    #   as {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers
+    #   are determined at runtime. Paperclip will call that Proc with attachment
+    #   as the only argument. Can be defined both globally and within a
+    #   style-specific hash.
+    # * +bucket+: This is the name of the S3 bucket that will store your files.
+    #   Remember that the bucket must be unique across all of Amazon S3. If the
+    #   bucket does not exist Paperclip will attempt to create it. The bucket
+    #   name will not be interpolated. You can define the bucket as a Proc if
+    #   you want to determine it's name at runtime. Paperclip will call that
+    #   Proc with attachment as the only argument.
+    # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the
+    #   alias to the S3 domain of your bucket. Used with the :s3_alias_url url
+    #   interpolation. See the link in the +url+ entry for more information
+    #   about S3 domains and buckets.
+    # * +url+: There are four options for the S3 url. You can choose to have the
+    #   bucket's name placed domain-style (bucket.s3.amazonaws.com) or
+    #   path-style (s3.amazonaws.com/bucket). You can also specify a CNAME
+    #   (which requires the CNAME to be specified as :s3_alias_url. You can read
+    #   more about CNAMEs and S3 at
     #   http://docs.amazonwebservices.com/AmazonS3/latest/index.html?VirtualHosting.html
-    #   Normally, this won't matter in the slightest and you can leave the default (which is
-    #   path-style, or :s3_path_url). But in some cases paths don't work and you need to use
-    #   the domain-style (:s3_domain_url). Anything else here will be treated like path-style.
+    #   Normally, this won't matter in the slightest and you can leave the
+    #   default (which is path-style, or :s3_path_url). But in some cases paths
+    #   don't work and you need to use the domain-style (:s3_domain_url).
+    #   Anything else here will be treated like path-style.
     #
     #   Notes:
     #   * The value of this option is a string, not a symbol.
     #     <b>right:</b> <tt>":s3_domain_url"</tt>
     #     <b>wrong:</b> <tt>:s3_domain_url</tt>
-    #   * If you use a CNAME for use with CloudFront, you can NOT specify https as your
-    #     :s3_protocol;
-    #     This is *not supported* by S3/CloudFront. Finally, when using the host
-    #     alias, the :bucket parameter is ignored, as the hostname is used as the bucket name
-    #     by S3. The fourth option for the S3 url is :asset_host, which uses Rails' built-in
-    #     asset_host settings.
-    #   * To get the full url from a paperclip'd object, use the
-    #     image_path helper; this is what image_tag uses to generate the url for an img tag.
-    # * +path+: This is the key under the bucket in which the file will be stored. The
-    #   URL will be constructed from the bucket and the path. This is what you will want
-    #   to interpolate. Keys should be unique, like filenames, and despite the fact that
-    #   S3 (strictly speaking) does not support directories, you can still use a / to
-    #   separate parts of your file name.
-    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
-    # * +s3_metadata+: These key/value pairs will be stored with the
-    #   object.  This option works by prefixing each key with
-    #   "x-amz-meta-" before sending it as a header on the object
-    #   upload request. Can be defined both globally and within a style-specific hash.
+    #   * If you use a CNAME for use with CloudFront, you can NOT specify https
+    #     as your :s3_protocol; This is *not supported* by S3/CloudFront.
+    #     Finally, when using the host alias, the :bucket parameter is ignored,
+    #     as the hostname is used as the bucket name by S3. The fourth option
+    #     for the S3 url is :asset_host, which uses Rails' built-in asset_host
+    #     settings.
+    #   * To get the full url from a paperclip'd object, use the image_path
+    #     helper; this is what image_tag uses to generate the url for an img tag.
+    # * +path+: This is the key under the bucket in which the file will be
+    #   stored. The URL will be constructed from the bucket and the path. This
+    #   is what you will want to interpolate. Keys should be unique, like
+    #   filenames, and despite the fact that S3 (strictly speaking) does not
+    #   support directories, you can still use a / to separate parts of your
+    #   file name.
+    # * +s3_region+: The region.
+    # * +s3_metadata+: These key/value pairs will be stored with the object.
+    #   This option works by prefixing each key with "x-amz-meta-" before
+    #   sending it as a header on the object upload request. Can be defined both
+    #   globally and within a style-specific hash.
     # * +s3_storage_class+: If this option is set to
     #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
     #   Redundancy Storage.  RRS enables customers to reduce their
@@ -110,27 +119,30 @@ module Paperclip
     #   Or globally:
     #     :s3_storage_class => :reduced_redundancy
 
-    module S3
+    module S3v2
       def self.extended base
         begin
-          require "aws-sdk"
-          require "aws-sdk-v1"
+          require 'aws-sdk'
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
-        end unless defined?(AWS::Core)
+        end unless defined?(Aws::S3)
 
         # Overriding log formatter to make sure it return a UTF-8 string
-        if defined?(AWS::Core::LogFormatter)
-          AWS::Core::LogFormatter.class_eval do
+        if defined?(Seahorse::Client::Logging::Formatter)
+          Seahorse::Client::Logging::Formatter.class_eval do
             def summarize_hash(hash)
-              hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+              hash.map do |key, value|
+                ":#{key}=>#{summarize_value(value)}".force_encoding("UTF-8")
+              end.sort.join(",")
             end
           end
-        elsif defined?(AWS::Core::ClientLogging)
-          AWS::Core::ClientLogging.class_eval do
+        elsif defined?(Seahorse::Client::Logging)
+          Seahorse::Client::Logging.class_eval do
             def sanitize_hash(hash)
-              hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
+              hash.map do |key, value|
+                "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding("UTF-8")
+              end.sort.join(",")
             end
           end
         end
@@ -159,7 +171,7 @@ module Paperclip
           end
 
           unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
-            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
+            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, "")
             @options[:url]  = ":s3_path_url"
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
@@ -167,14 +179,28 @@ module Paperclip
           @http_proxy = @options[:http_proxy] || nil
         end
 
+        # http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html#access-bucket-intro
+        # I.e.
+        #    http://bucket.s3.amazonaws.com                   s3_domain_url
+        #    http://bucket.s3-aws-region.amazonaws.com        s3_domain_url with region
+        #    http://s3.amazonaws.com/bucket                   s3_path_url
+        #    http://s3-aws-region.amazonaws.com/bucket        s3_path_url with region
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
-        Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+        Paperclip.interpolates(:s3_path_url) do |attachment, style|  # This is the default
+          if attachment.s3_region_no_defaults.nil?
+            "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          else
+            "#{attachment.s3_protocol(style, true)}//s3-#{attachment.s3_region}.#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          end
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          if attachment.s3_region_no_defaults.nil?
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          else
+            "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.s3-#{attachment.s3_region}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          end
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{\A/}, "")}"
@@ -183,8 +209,8 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
-          s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          base_options = { expires_in: time }
+          s3_object(style_name).presigned_url(:get,  base_options.merge(s3_url_options))
         else
           url(style_name)
         end
@@ -194,11 +220,22 @@ module Paperclip
         @s3_credentials ||= parse_credentials(@options[:s3_credentials])
       end
 
+      def s3_region_no_defaults
+        region = @options[:s3_region]
+        region = region.call(self) if region.is_a?(Proc)
+
+        region || s3_credentials[:s3_region]
+      end
+
+      def s3_region
+        s3_region_no_defaults || "us-east-1"
+      end
+
       def s3_host_name
         host_name = @options[:s3_host_name]
         host_name = host_name.call(self) if host_name.is_a?(Proc)
 
-        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        host_name || s3_credentials[:s3_host_name] || (s3_region_no_defaults ? "amazonaws.com" : "s3.amazonaws.com")
       end
 
       def s3_host_alias
@@ -220,40 +257,45 @@ module Paperclip
       end
 
       def s3_interface
-        @s3_interface ||= begin
-          config = { :s3_endpoint => s3_host_name }
+        @s3_interface ||= obtain_s3_instance_for(s3_config)
+      end
 
-          if using_http_proxy?
-
-            proxy_opts = { :host => http_proxy_host }
-            proxy_opts[:port] = http_proxy_port if http_proxy_port
-            if http_proxy_user
-              userinfo = http_proxy_user.to_s
-              userinfo += ":#{http_proxy_password}" if http_proxy_password
-              proxy_opts[:userinfo] = userinfo
-            end
-            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+      def s3_config
+        config = { region: s3_region, signature_version: 'v4' }   # Note s3_endpoint is now an invalid option in AWS SDK v2.
+                                                                  # was: config = { :s3_endpoint => s3_host_name }
+        if using_http_proxy?
+          proxy_opts = { host: http_proxy_host }
+          proxy_opts[:port] = http_proxy_port if http_proxy_port
+          if http_proxy_user
+            userinfo = http_proxy_user.to_s
+            userinfo += ":#{http_proxy_password}" if http_proxy_password
+            proxy_opts[:userinfo] = userinfo
           end
-
-          [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
-            config[opt] = s3_credentials[opt] if s3_credentials[opt]
-          end
-
-          obtain_s3_instance_for(config.merge(@s3_options))
+          config[:proxy_uri] = URI::HTTP.build(proxy_opts)
         end
+
+        [:access_key_id, :secret_access_key, :credentials].each do |opt|
+          config[opt] = s3_credentials[opt] if s3_credentials[opt]
+        end
+
+        config.merge(@s3_options)
       end
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= AWS::S3.new(options)
+        instances[options] ||= Aws::S3::Resource.new(options) # was: Aws::S3::Client.new(options)
       end
 
       def s3_bucket
-        @s3_bucket ||= s3_interface.buckets[bucket_name]
+        @s3_bucket ||= s3_interface.bucket(bucket_name)
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
+        s3_bucket.object(s3_object_name(style_name))
+      end
+
+      def s3_object_name style_name = default_style
+        path(style_name).sub(%r{\A/},'')
       end
 
       def using_http_proxy?
@@ -277,28 +319,29 @@ module Paperclip
       end
 
       def set_permissions permissions
-        permissions = { :default => permissions } unless permissions.respond_to?(:merge)
-        permissions.merge :default => (permissions[:default] || :public_read)
+        permissions = { default: permissions } unless permissions.respond_to?(:merge)
+        permissions.merge default: (permissions[:default] || :public_read)
       end
 
       def set_storage_class(storage_class)
-        storage_class = {:default => storage_class} unless storage_class.respond_to?(:merge)
+        storage_class = { default: storage_class } unless storage_class.respond_to?(:merge)
         storage_class
       end
 
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
-        (creds[RailsEnvironment.get] || creds).symbolize_keys
+        env = Object.const_defined?(:Rails) ? Rails.env : nil
+        (creds[env] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)
         if original_filename
-          s3_object(style).exists?
+          s3_interface.client.head_object(bucket: bucket_name, key:s3_object_name(style)).present?
         else
           false
         end
-      rescue AWS::Errors::Base => e
+      rescue Aws::Errors::ServiceError
         false
       end
 
@@ -324,24 +367,26 @@ module Paperclip
       end
 
       def create_bucket
-        s3_interface.buckets.create(bucket_name)
+        s3_interface.bucket(bucket_name).create
       end
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style, file|
-        retries = 0
           begin
             log("saving #{path(style)}")
             acl = @s3_permissions[style] || @s3_permissions[:default]
             acl = acl.call(self, style) if acl.respond_to?(:call)
             write_options = {
-              :content_type => file.content_type,
-              :acl => acl
+              content_type: file.content_type,
+              acl: acl
             }
+
+            # refresh headers (usefull when Proc is involved)
+            merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
 
             # add storage class for this style if defined
             storage_class = s3_storage_class(style)
-            write_options.merge!(:storage_class => storage_class) if storage_class
+            write_options.merge!(storage_class: storage_class) if storage_class
 
             if @s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
@@ -350,25 +395,17 @@ module Paperclip
             style_specific_options = styles[style]
 
             if style_specific_options
-              merge_s3_headers( style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options[:s3_headers]
+              merge_s3_headers(style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options[:s3_headers]
               @s3_metadata.merge!(style_specific_options[:s3_metadata]) if style_specific_options[:s3_metadata]
             end
 
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket
+            s3_object(style).upload_file(file.path, write_options)
+          rescue Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
-          rescue AWS::S3::Errors::SlowDown
-            retries += 1
-            if retries <= 5
-              sleep((2 ** retries) * 0.5)
-              retry
-            else
-              raise
-            end
           ensure
             file.rewind
           end
@@ -383,8 +420,8 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{\A/},'')].delete
-          rescue AWS::Errors::Base => e
+            s3_bucket.object(path.sub(%r{\A/},'')).delete
+          rescue Aws::Errors::ServiceError
             # Ignore this.
           end
         end
@@ -394,11 +431,11 @@ module Paperclip
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
-          s3_object(style).read do |chunk|
-            local_file.write(chunk)
+          s3_object(style).get.each do |chunk|
+            local_file.write(chunk.body.read)  # Aws::PageableResponse
           end
         end
-      rescue AWS::Errors::Base => e
+      rescue Aws::Errors::ServiceError => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
@@ -427,12 +464,12 @@ module Paperclip
       def merge_s3_headers(http_headers, s3_headers, s3_metadata)
         return if http_headers.nil?
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
-        http_headers.inject({}) do |headers,(name,value)|
+        http_headers.reduce({}) do |_, (name,value)|
           case name.to_s
           when /\Ax-amz-meta-(.*)/i
             s3_metadata[$1.downcase] = value
           else
-            s3_headers[name.to_s.downcase.sub(/\Ax-amz-/,'').tr("-","_").to_sym] = value
+            s3_headers[name.to_s.downcase.sub(/\Ax-amz-/, "").tr("-", "_").to_sym] = value
           end
         end
       end
