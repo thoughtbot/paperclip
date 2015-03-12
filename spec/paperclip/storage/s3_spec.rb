@@ -394,6 +394,7 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
         @dummy.avatar = file
         @dummy.save
+        @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a replaced version for path" do
@@ -425,14 +426,13 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model storage: :s3,
-        s3_credentials: {
-        production: { bucket: "prod_bucket" },
-        development: { bucket: "dev_bucket" }
-      },
-      bucket: "bucket",
-      s3_host_alias: "something.something.com",
-      path: ":attachment/:basename:dotextension",
-      url: ":s3_alias_url"
+                    s3_credentials: {
+                      production: { bucket: "prod_bucket" },
+                      development: { bucket: "dev_bucket" }},
+                    bucket: "bucket",
+                    s3_host_alias: "something.something.com",
+                    path: ":attachment/:basename:dotextension",
+                    url: ":s3_alias_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       @dummy.stubs(:new_record?).returns(false)
