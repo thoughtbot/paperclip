@@ -893,23 +893,25 @@ guidelines:
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
----
-
-Credits
--------
-
-![thoughtbot](http://thoughtbot.com/logo.png)
-
-Paperclip is maintained and funded by [thoughtbot, inc](http://thoughtbot.com/community)
-
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/contributors)!
-
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
----
 
 License
 -------
 
 Paperclip is Copyright © 2008-2015 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
+
+About thoughtbot
+----------------
+
+![thoughtbot](https://thoughtbot.com/logo.png)
+
+Paperclip is maintained and funded by thoughtbot.
+The names and logos for thoughtbot are trademarks of thoughtbot, inc.
+
+We love open source software!
+See [our other projects][community] or
+[hire us][hire] to design, develop, and grow your product.
+
+[community]: https://thoughtbot.com/community?utm_source=github
+[hire]: https://thoughtbot.com?utm_source=github
