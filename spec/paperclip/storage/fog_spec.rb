@@ -337,6 +337,8 @@ describe Paperclip::Storage::Fog do
       end
 
       context "with a valid bucket name for a subdomain" do
+        before { @dummy.stubs(:new_record?).returns(false) }
+
         it "provides an url in subdomain style" do
           assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
         end
@@ -492,6 +494,7 @@ describe Paperclip::Storage::Fog do
       @file = File.new(fixture_file('5k.png'), 'rb')
       @dummy = Dummy.new
       @dummy.avatar = @file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     after do
