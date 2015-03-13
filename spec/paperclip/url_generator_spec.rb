@@ -43,7 +43,7 @@ describe Paperclip::UrlGenerator do
   end
 
   it "executes the method named by the symbol as the default URL when no file is assigned" do
-    mock_model = MockModel.new
+    mock_model = FakeModel.new
     mock_attachment = MockAttachment.new(model: mock_model)
     mock_interpolator = MockInterpolator.new
     default_url = :to_s
