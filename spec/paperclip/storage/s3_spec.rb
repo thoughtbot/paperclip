@@ -105,6 +105,7 @@ describe Paperclip::Storage::S3 do
         url: ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -145,6 +146,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -161,6 +163,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a protocol-relative URL" do
@@ -177,6 +180,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -193,6 +197,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -236,6 +241,7 @@ describe Paperclip::Storage::S3 do
         s3_host_name: "s3-ap-northeast-1.amazonaws.com"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an :s3_host_name path" do
@@ -259,6 +265,7 @@ describe Paperclip::Storage::S3 do
         attr_accessor :value
       end
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "uses s3_host_name as a proc if available" do
@@ -281,6 +288,7 @@ describe Paperclip::Storage::S3 do
         File.open(fixture_file('5k.png'), 'rb') do |file|
           @dummy = Dummy.new
           @dummy.avatar = file
+          @dummy.stubs(:new_record?).returns(false)
         end
     end
 
@@ -353,6 +361,7 @@ describe Paperclip::Storage::S3 do
         File.open(fixture_file('spaced file.png'), 'rb') do |file|
           @dummy = Dummy.new
           @dummy.avatar = file
+          @dummy.stubs(:new_record?).returns(false)
         end
     end
 
@@ -385,6 +394,7 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
         @dummy.avatar = file
         @dummy.save
+        @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a replaced version for path" do
@@ -405,6 +415,7 @@ describe Paperclip::Storage::S3 do
         url: ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on an S3 subdomain" do
@@ -415,15 +426,16 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model storage: :s3,
-        s3_credentials: {
-        production: { bucket: "prod_bucket" },
-        development: { bucket: "dev_bucket" }
-      },
-      s3_host_alias: "something.something.com",
-      path: ":attachment/:basename:dotextension",
-      url: ":s3_alias_url"
+                    s3_credentials: {
+                      production: { bucket: "prod_bucket" },
+                      development: { bucket: "dev_bucket" }},
+                    bucket: "bucket",
+                    s3_host_alias: "something.something.com",
+                    path: ":attachment/:basename:dotextension",
+                    url: ":s3_alias_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on the host_alias" do
@@ -447,6 +459,7 @@ describe Paperclip::Storage::S3 do
       end
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a url based on the host_alias" do
@@ -469,6 +482,7 @@ describe Paperclip::Storage::S3 do
         url: ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
     end
 
     it "returns a relative URL for Rails to calculate assets host" do
@@ -684,6 +698,7 @@ describe Paperclip::Storage::S3 do
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
+        @dummy.stubs(:new_record?).returns(false)
       end
 
       after { @file.close }

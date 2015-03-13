@@ -18,4 +18,8 @@ class FakeModel
   def valid?
     errors.empty?
   end
+
+  def new_record?
+    false
+  end
 end
