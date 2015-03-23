@@ -38,12 +38,13 @@ describe Paperclip::HasAttachedFile do
       assert_adding_attachment('avatar').defines_callback('after_commit')
     end
 
-    it 'defines an after_commit callback if the class allows after_commit callbacks' do
-      assert_adding_attachment('avatar').defines_callback('after_commit')
-    end
-
-    it 'defines an after_destroy callback if the class does not allow after_commit callbacks' do
-      assert_adding_attachment('avatar', :unstub_methods => [:after_commit]).defines_callback('after_destroy')
+    context 'when the class does not allow after_commit callbacks' do
+      it 'defines an after_destroy callback' do
+        assert_adding_attachment(
+          'avatar',
+          unstub_methods: [:after_commit]
+        ).defines_callback('after_destroy')
+      end
     end
 
     it 'defines the Paperclip-specific callbacks' do
