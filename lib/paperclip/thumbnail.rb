@@ -29,7 +29,6 @@ module Paperclip
       super
 
       geometry             = options[:geometry].to_s
-      @file                = file
       @crop                = geometry[-1,1] == '#'
       @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
       @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
