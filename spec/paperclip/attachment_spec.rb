@@ -635,15 +635,40 @@ describe Paperclip::Attachment do
     before do
       rebuild_model processor: [:thumbnail], styles: { small: '' }, whiny_thumbnails: true
       @dummy = Dummy.new
-      Paperclip::Thumbnail.expects(:make).raises(Paperclip::Error, "cannot be processed.")
       @file = StringIO.new("...")
       @file.stubs(:to_tempfile).returns(@file)
-      @dummy.avatar = @file
     end
 
-    it "correctly forwards processing error message to the instance" do
-      @dummy.valid?
-      assert_contains @dummy.errors.full_messages, "Avatar cannot be processed."
+    context "when error is meaningful for the end user" do
+      before do
+        Paperclip::Thumbnail.expects(:make).raises(
+          Paperclip::Errors::NotIdentifiedByImageMagickError,
+          "cannot be processed."
+        )
+      end
+
+      it "correctly forwards processing error message to the instance" do
+        @dummy.avatar = @file
+        @dummy.valid?
+        assert_contains(
+          @dummy.errors.full_messages,
+          "Avatar cannot be processed."
+        )
+      end
+    end
+
+    context "when error is intended for the developer" do
+      before do
+        Paperclip::Thumbnail.expects(:make).raises(
+          Paperclip::Errors::CommandNotFoundError
+        )
+      end
+
+      it "propagates the error" do
+        assert_raises(Paperclip::Errors::CommandNotFoundError) do
+          @dummy.avatar = @file
+        end
+      end
     end
   end
 
