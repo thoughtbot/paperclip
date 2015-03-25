@@ -528,7 +528,7 @@ module Paperclip
         @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
         unadapted_file.close if unadapted_file.respond_to?(:close)
         @queued_for_write[name]
-      rescue Paperclip::Error => e
+      rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
         log("An error was received while processing: #{e.inspect}")
         (@errors[:processing] ||= []) << e.message if @options[:whiny]
       ensure
