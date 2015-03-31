@@ -17,6 +17,7 @@ module Paperclip
       define_query
       register_new_attachment
       add_active_record_callbacks
+      add_reflections
       add_paperclip_callbacks
       add_required_validations
     end
@@ -91,6 +92,14 @@ module Paperclip
       @klass.send(:after_save) { send(name).send(:save) }
       @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
       @klass.send(:after_commit, :on => :destroy) { send(name).send(:flush_deletes) }
+    end
+
+    def add_reflections
+      return unless @klass.respond_to?(:_reflections)
+      @klass._reflections.merge!(
+        @name.to_s => ActiveRecord::Reflection::HasOneReflection.new(
+          :photo, nil, { class: @klass.name }, @klass)
+      )
     end
 
     def add_paperclip_callbacks
