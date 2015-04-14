@@ -63,8 +63,8 @@ module Paperclip
     # that contains the new image.
     def make
       src = @file
-      dst = Tempfile.new([@basename, @format ? ".#{@format}" : ''])
-      dst.binmode
+      filename = [@basename, @format ? ".#{@format}" : ""].join
+      dst = TempfileFactory.new.generate(filename)
 
       begin
         parameters = []
