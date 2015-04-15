@@ -230,6 +230,12 @@ describe Paperclip::Storage::Fog do
         it "provides a public url" do
           expect(@dummy.avatar.url).to match(/^http:\/\/example\.com\/avatars\/data\?\d*$/)
         end
+
+        it "provides an expiring url" do
+          expect(@dummy.avatar.expiring_url).to match(
+            /^http:\/\/example\.com\/avatars\/data.+Expires=.+$/
+          )
+        end
       end
 
       context "with a fog_host that includes a wildcard placeholder" do
@@ -337,12 +343,19 @@ describe Paperclip::Storage::Fog do
       end
 
       context "with a valid bucket name for a subdomain" do
-        it "provides an url in subdomain style" do
-          assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
+        it "provides a url in subdomain style" do
+          expect(@dummy.avatar.url).to match(
+            /^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/
+          )
         end
 
-        it "provides an url that expires in subdomain style" do
-          assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
+        it "provides a url in subdomain style that expires" do
+          expect(@dummy.avatar.expiring_url).to match(
+            /^
+              https:\/\/papercliptests.s3.amazonaws.com
+              \/avatars\/5k.png.+Expires=.+$
+            /x
+          )
         end
       end
 
@@ -386,13 +399,22 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides an url in folder style" do
-          assert_match(/^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png\?\d*$/, @dummy.avatar.url)
+          expect(@dummy.avatar.url).to match(
+            /^https:\/\/s3.amazonaws.com
+              \/this_is_invalid
+              \/avatars\/5k.png\?\d*$
+            /x
+          )
         end
 
         it "provides a url that expires in folder style" do
-          assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
+          expect(@dummy.avatar.expiring_url).to match(
+            /^https:\/\/s3.amazonaws.com
+              \/this_is_invalid
+              \/avatars\/5k.png.+Expires=.+$
+            /x
+          )
         end
-
       end
 
       context "with a proc for a bucket name evaluating a model method" do
@@ -455,6 +477,22 @@ describe Paperclip::Storage::Fog do
           end
         end
 
+        context "with a custom fog_host using https" do
+          before do
+            rebuild_model(
+              @options.merge(fog_host: "https://dynamicfoghost.com")
+            )
+            @dummy = Dummy.new
+            @dummy.avatar = @file
+            @dummy.save
+          end
+
+          it "provides an expiring url with https" do
+            expect(@dummy.avatar.expiring_url).to match(
+              /https:\/\/dynamicfoghost\.com/
+            )
+          end
+        end
       end
 
       context "with a proc for the fog_credentials evaluating a model method" do
@@ -475,8 +513,51 @@ describe Paperclip::Storage::Fog do
           assert_equal @dummy.avatar.fog_credentials, @dynamic_fog_credentials
         end
       end
-    end
 
+      context "with AES256 encryption" do
+        before do
+          rebuild_model(@options.merge(fog_encryption: :aes256))
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        it "sets the @fog_encryption instance variable" do
+          expect(
+            @dummy.avatar.instance_variable_get("@fog_encryption")
+          ).to eq "AES256"
+        end
+
+        it "passes the fog_encryption type to Fog::Storage::AWS::Files" do
+          Fog::Storage::AWS::Files.any_instance.expects(:create).with(
+            has_entry(:encryption, "AES256")
+          )
+          @dummy.save
+        end
+      end
+
+      context "with fog_encryption disabled in multiple ways" do
+        [nil, false, ""].each do |tech|
+          before do
+            rebuild_model(@options.merge(fog_encryption: tech))
+            @dummy = Dummy.new
+            @dummy.avatar = @file
+          end
+
+          it "sets the @fog_encryption instance variable" do
+            expect(
+              @dummy.avatar.instance_variable_get("@fog_encryption")
+            ).to eq false
+          end
+
+          it "does not set the encryption option" do
+            Fog::Storage::AWS::Files.any_instance.expects(:create).with(
+              Not(has_key(:encryption))
+            )
+            @dummy.save
+          end
+        end
+      end
+    end
   end
 
   context "when using local storage" do

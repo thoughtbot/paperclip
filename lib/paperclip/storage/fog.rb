@@ -33,6 +33,8 @@ module Paperclip
     #   that is the alias to the S3 domain of your bucket, e.g.
     #   'http://images.example.com'. This can also be used in
     #   conjunction with Cloudfront (http://aws.amazon.com/cloudfront)
+    # * +fog_encryption+: (optional, defaults to false) sets HTTP
+    #   encryption header. Set to :aes256 to encrypt files on S3
 
     module Fog
       def self.extended base
@@ -51,6 +53,13 @@ module Paperclip
           Paperclip.interpolates(:fog_public_url) do |attachment, style|
             attachment.public_url(style)
           end unless Paperclip::Interpolations.respond_to? :fog_public_url
+          @fog_encryption = :aes256
+          if @options[:fog_encryption].blank?
+            @fog_encryption = false
+          end
+          if @fog_encryption
+            @fog_encryption = @options[:fog_encryption].to_s.upcase
+          end
         end
       end
 
@@ -98,12 +107,14 @@ module Paperclip
           log("saving #{path(style)}")
           retried = false
           begin
-            directory.files.create(fog_file.merge(
+            write_options = fog_file.merge(
               :body         => file,
               :key          => path(style),
               :public       => fog_public(style),
               :content_type => file.content_type
-            ))
+            )
+            write_options[:encryption] = @fog_encryption if @fog_encryption
+            directory.files.create(write_options)
           rescue Excon::Errors::NotFound
             raise if retried
             retried = true
@@ -141,17 +152,21 @@ module Paperclip
 
       def expiring_url(time = (Time.now + 3600), style_name = default_style)
         time = convert_time(time)
-        if path(style_name) && directory.files.respond_to?(:get_http_url)
-          expiring_url = directory.files.get_http_url(path(style_name), time)
-
+        url_method = url_protocol == "https" ? :get_https_url : :get_http_url
+        if path(style_name) && directory.files.respond_to?(url_method)
+          expiring_url = directory.files.send(url_method,
+                                              path(style_name), time)
           if @options[:fog_host]
-            expiring_url.gsub!(/#{host_name_for_directory}/, dynamic_fog_host_for_style(style_name))
+            fog_host_without_protocol = dynamic_fog_host_for_style(style_name).
+                                        gsub(/\Ahttps?:\/\//, "")
+            expiring_url.gsub!(/#{host_name_for_directory}/,
+              fog_host_without_protocol)
           end
         else
           expiring_url = url(style_name)
         end
 
-        return expiring_url
+        expiring_url
       end
 
       def parse_credentials(creds)
@@ -171,6 +186,18 @@ module Paperclip
       end
 
       private
+
+      def url_protocol
+        if @options[:fog_host]
+          @options[:fog_host] =~ /https:\/\// ? "https" : "http"
+        else
+          if fog_credentials[:provider] == "AWS"
+            "https"
+          else
+            "http"
+          end
+        end
+      end
 
       def convert_time(time)
         if time.is_a?(Fixnum)
