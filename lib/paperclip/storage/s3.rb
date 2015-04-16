@@ -157,7 +157,7 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host" || @options[:url] == ":relative"
             @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
             @options[:url]  = ":s3_path_url"
           end
@@ -175,6 +175,9 @@ module Paperclip
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
+        Paperclip.interpolates(:relative) do |attachment, style|
+          "/#{attachment.path(style).gsub(%r{\A/}, "")}"
+        end unless Paperclip::Interpolations.respond_to? :relative
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
