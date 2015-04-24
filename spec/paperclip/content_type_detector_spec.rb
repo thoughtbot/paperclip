@@ -18,6 +18,13 @@ describe Paperclip::ContentTypeDetector do
     assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
   end
 
+  it "returns right type of file if it is an acceptable type" do
+    MIME::Types.stubs(:type_for).returns([MIME::Type.new('text/csv')])
+    Paperclip.stubs(:run).returns("text/plain")
+    @filename = "my_file.csv"
+    assert_equal "text/csv", Paperclip::ContentTypeDetector.new(@filename).detect
+  end
+
   it 'finds the right type in the list via the file command' do
     @filename = "#{Dir.tmpdir}/something.hahalolnotreal"
     File.open(@filename, "w+") do |file|

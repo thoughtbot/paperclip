@@ -874,6 +874,19 @@ describe Paperclip::Attachment do
     end
   end
 
+  context "Assigning a CSV attachment" do
+    before do
+      rebuild_model
+      @file = File.new(fixture_file("sample.csv"), "rb")
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+    end
+
+    it "sets the content type to csv" do
+      assert_equal "text/csv", @dummy.avatar.instance.avatar_content_type
+    end
+  end
+
   context "Attachment with strange letters" do
     before do
       rebuild_model
