@@ -37,7 +37,7 @@ describe Paperclip::MediaTypeSpoofDetector do
       file = Tempfile.open(["test", ".PEM"])
       file.puts "Certificate!"
       file.close
-      adapter = Paperclip.io_adapters.for(File.new(file.path));
+      adapter = Paperclip.io_adapters.for(File.new(file.path))
       assert ! Paperclip::MediaTypeSpoofDetector.using(adapter, adapter.original_filename, adapter.content_type).spoofed?
     ensure
       Paperclip.options[:content_type_mappings] = {}

@@ -32,11 +32,11 @@ describe Paperclip::Attachment do
   end
 
   it "does not delete styles that don't get reprocessed" do
-    file = File.new(fixture_file("50x50.png"), 'rb')
+    file = File.new(fixture_file("50x50.png"), "rb")
     rebuild_class styles: {
-      small: '100x>',
-      large: '500x>',
-      original: '42x42#'
+      small: "100x>",
+      large: "500x>",
+      original: "42x42#"
     }
 
     dummy = Dummy.new
@@ -1432,14 +1432,16 @@ describe Paperclip::Attachment do
 
       it "returns the right value when sent #avatar_fingerprint" do
         @dummy.avatar = @file
-        assert_equal '2a979541612951c07a8a5f50228173eeb4e6ec25', @dummy.avatar_fingerprint
+        assert_equal "2a979541612951c07a8a5f50228173eeb4e6ec25",
+                     @dummy.avatar_fingerprint
       end
 
       it "returns the right value when saved, reloaded, and sent #avatar_fingerprint" do
         @dummy.avatar = @file
         @dummy.save
         @dummy = Dummy.find(@dummy.id)
-        assert_equal '2a979541612951c07a8a5f50228173eeb4e6ec25', @dummy.avatar_fingerprint
+        assert_equal "2a979541612951c07a8a5f50228173eeb4e6ec25",
+                     @dummy.avatar_fingerprint
       end
     end
   end
