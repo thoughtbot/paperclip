@@ -1,5 +1,1 @@
-inherit_from: .rubocop_todo.yml
-AllCops:
-  Exclude:
-    - 'vendor/**/*'
-    - 'gemfiles/vendor/**/*'
+inherit_from: .hound.yml
