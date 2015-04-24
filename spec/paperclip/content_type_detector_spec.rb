@@ -15,7 +15,9 @@ describe Paperclip::ContentTypeDetector do
     MIME::Types.stubs(:type_for).returns([MIME::Type.new('application/mp4'), MIME::Type.new('video/mp4'), MIME::Type.new('audio/mp4')])
     Paperclip.stubs(:run).returns("video/mp4")
     @filename = "my_file.mp4"
-    assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
+    detector = Paperclip::ContentTypeDetector.new(@filename)
+    detector.stubs(:major_version_of_file_command).returns('5')
+    assert_equal "video/mp4", detector.detect
   end
 
   it 'finds the right type in the list via the file command' do
