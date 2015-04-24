@@ -19,3 +19,6 @@ group :development, :test do
   gem 'builder'
   gem 'rubocop', require: false
 end
+
+# Use scpike's fork of mimemagic and paperclip to get MS Office MIME support;
+gem 'mimemagic', git: 'git://github.com/scpike/mimemagic.git'

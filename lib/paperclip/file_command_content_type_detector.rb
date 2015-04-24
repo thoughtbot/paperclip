@@ -14,9 +14,9 @@ module Paperclip
 
     def type_from_file_command
       type = begin
-        # On BSDs, `file` doesn't give a result code of 1 if the file doesn't exist.
-        Paperclip.run("file", "-b --mime :file", :file => @filename)
-      rescue Cocaine::CommandLineError => e
+        MimeMagic.by_magic(File.open(@filename)).try(:type) ||
+          Paperclip.run("file", "-b --mime :file", :file => @filename)
+      rescue Errno::ENOENT => e
         Paperclip.log("Error while determining content type: #{e}")
         SENSIBLE_DEFAULT
       end
@@ -29,4 +29,3 @@ module Paperclip
 
   end
 end
-
