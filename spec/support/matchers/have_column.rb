@@ -10,11 +10,15 @@ RSpec::Matchers.define :have_column do |column_name|
 
   if RSpec::Version::STRING.to_i >= 3
     failure_message do |columns|
-      "expected to find '#{column_name}', default '#{@default}' in #{columns.map{|column| [column.name, column.default] }}"
+      "expected to find '#{column_name}', " +
+        "default '#{@default}' " +
+        "in #{columns.map { |column| [column.name, column.default] }}"
     end
   else
     failure_message_for_should do |columns|
-      "expected to find '#{column_name}', default '#{@default}' in #{columns.map{|column| [column.name, column.default] }}"
+      "expected to find '#{column_name}', " +
+        "default '#{@default}' " +
+        "in #{columns.map { |column| [column.name, column.default] }}"
     end
   end
 end
