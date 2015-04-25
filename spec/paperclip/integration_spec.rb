@@ -7,8 +7,10 @@ describe 'Paperclip' do
     before do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
-      dummys = 300.times.map { Dummy.new avatar: @file }
-      Dummy.import dummys
+      # Add by dividing. Deal `Too many open files`
+      Dummy.import 100.times.map { Dummy.new avatar: @file }
+      Dummy.import 100.times.map { Dummy.new avatar: @file }
+      Dummy.import 100.times.map { Dummy.new avatar: @file }
     end
 
     after { @file.close }
