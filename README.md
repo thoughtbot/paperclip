@@ -183,6 +183,13 @@ end
 <% end %>
 ```
 
+### Edit and New Views with Simple Form
+```erb
+<%= simple_form_for @user, url: users_path do |form| %>
+  <%= form.input :avatar, as: :file %>
+<% end %>
+```
+
 ### Controller
 
 **Rails 3**
@@ -524,7 +531,7 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '~> 1.5.7'
+gem 'aws-sdk', '~> 1.6'
 ```
 
 And then you can specify using S3 from `has_attached_file`.
@@ -893,23 +900,25 @@ guidelines:
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
----
-
-Credits
--------
-
-![thoughtbot](http://thoughtbot.com/logo.png)
-
-Paperclip is maintained and funded by [thoughtbot, inc](http://thoughtbot.com/community)
-
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/contributors)!
-
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
----
 
 License
 -------
 
 Paperclip is Copyright © 2008-2015 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
+
+About thoughtbot
+----------------
+
+![thoughtbot](https://thoughtbot.com/logo.png)
+
+Paperclip is maintained and funded by thoughtbot.
+The names and logos for thoughtbot are trademarks of thoughtbot, inc.
+
+We love open source software!
+See [our other projects][community] or
+[hire us][hire] to design, develop, and grow your product.
+
+[community]: https://thoughtbot.com/community?utm_source=github
+[hire]: https://thoughtbot.com?utm_source=github
