@@ -13,7 +13,7 @@ describe Paperclip::Attachment do
   it "is present when the file is set" do
     rebuild_class
     dummy = Dummy.new
-    dummy.avatar = File.new(fixture_file("50x50.png"), "rb") 
+    dummy.avatar = File.new(fixture_file("50x50.png"), "rb")
     expect(dummy.avatar).to_not be_blank
     expect(dummy.avatar).to be_present
   end
@@ -34,9 +34,9 @@ describe Paperclip::Attachment do
   it "does not delete styles that don't get reprocessed" do
     file = File.new(fixture_file("50x50.png"), 'rb')
     rebuild_class styles: {
-      small: '100x>',
-      large: '500x>',
-      original: '42x42#' 
+      small: "100x>",
+      large: "500x>",
+      original: "42x42#"
     }
 
     dummy = Dummy.new
@@ -75,7 +75,11 @@ describe Paperclip::Attachment do
 
   it "handles a boolean second argument to #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(
+      :name,
+      FakeModel.new,
+      url_generator: mock_url_generator_builder
+      )
 
     attachment.url(:style_name, true)
     expect(mock_url_generator_builder.has_generated_url_with_options?(timestamp: true, escape: true)).to eq true
@@ -86,7 +90,11 @@ describe Paperclip::Attachment do
 
   it "passes the style and options through to the URL generator on #url" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
-    attachment = Paperclip::Attachment.new(:name, :instance, url_generator: mock_url_generator_builder)
+    attachment = Paperclip::Attachment.new(
+      :name,
+      FakeModel.new,
+      url_generator: mock_url_generator_builder
+      )
 
     attachment.url(:style_name, options: :values)
     expect(mock_url_generator_builder.has_generated_url_with_options?(options: :values)).to eq true
@@ -95,7 +103,7 @@ describe Paperclip::Attachment do
   it "passes default options through when #url is given one argument" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
 
@@ -106,7 +114,7 @@ describe Paperclip::Attachment do
   it "passes default style and options through when #url is given no arguments" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            default_style: 'default style',
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
@@ -119,7 +127,7 @@ describe Paperclip::Attachment do
   it "passes the option timestamp: true if :use_timestamp is true and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: true)
 
@@ -130,7 +138,7 @@ describe Paperclip::Attachment do
   it "passes the option timestamp: false if :use_timestamp is false and :timestamp is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: false)
 
@@ -141,7 +149,7 @@ describe Paperclip::Attachment do
   it "does not change the :timestamp if :timestamp is passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            use_timestamp: false)
 
@@ -152,7 +160,7 @@ describe Paperclip::Attachment do
   it "renders JSON as default style" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            default_style: 'default style',
                                            url_generator: mock_url_generator_builder)
 
@@ -163,7 +171,7 @@ describe Paperclip::Attachment do
   it "passes the option escape: true if :escape_url is true and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            escape_url: true)
 
@@ -174,7 +182,7 @@ describe Paperclip::Attachment do
   it "passes the option escape: false if :escape_url is false and :escape is not passed" do
     mock_url_generator_builder = MockUrlGeneratorBuilder.new
     attachment = Paperclip::Attachment.new(:name,
-                                           :instance,
+                                           FakeModel.new,
                                            url_generator: mock_url_generator_builder,
                                            escape_url: false)
 
@@ -212,6 +220,7 @@ describe Paperclip::Attachment do
     dummy = Dummy.new
     dummy.id = 1234
     dummy.avatar_file_name = "fake.jpg"
+    dummy.stubs(:new_record?).returns(false)
     expected_string = '{"avatar":"/system/dummies/avatars/000/001/234/original/fake.jpg"}'
     if ActiveRecord::Base.include_root_in_json # This is true by default in Rails 3, and false in 4
       expected_string = %({"dummy":#{expected_string}})
@@ -250,6 +259,10 @@ describe Paperclip::Attachment do
 
       it "returns false when asked exists?" do
         assert !@dummy.avatar.exists?
+      end
+
+      it "#url returns nil" do
+        assert_nil @dummy.avatar.url
       end
     end
 
@@ -635,15 +648,40 @@ describe Paperclip::Attachment do
     before do
       rebuild_model processor: [:thumbnail], styles: { small: '' }, whiny_thumbnails: true
       @dummy = Dummy.new
-      Paperclip::Thumbnail.expects(:make).raises(Paperclip::Error, "cannot be processed.")
       @file = StringIO.new("...")
       @file.stubs(:to_tempfile).returns(@file)
-      @dummy.avatar = @file
     end
 
-    it "correctly forwards processing error message to the instance" do
-      @dummy.valid?
-      assert_contains @dummy.errors.full_messages, "Avatar cannot be processed."
+    context "when error is meaningful for the end user" do
+      before do
+        Paperclip::Thumbnail.expects(:make).raises(
+          Paperclip::Errors::NotIdentifiedByImageMagickError,
+          "cannot be processed."
+        )
+      end
+
+      it "correctly forwards processing error message to the instance" do
+        @dummy.avatar = @file
+        @dummy.valid?
+        assert_contains(
+          @dummy.errors.full_messages,
+          "Avatar cannot be processed."
+        )
+      end
+    end
+
+    context "when error is intended for the developer" do
+      before do
+        Paperclip::Thumbnail.expects(:make).raises(
+          Paperclip::Errors::CommandNotFoundError
+        )
+      end
+
+      it "propagates the error" do
+        assert_raises(Paperclip::Errors::CommandNotFoundError) do
+          @dummy.avatar = @file
+        end
+      end
     end
   end
 

@@ -481,4 +481,20 @@ describe Paperclip::Thumbnail do
       end
     end
   end
+
+  context "with a really long file name" do
+    before do
+      tempfile = Tempfile.new("f")
+      tempfile_additional_chars = tempfile.path.split("/")[-1].length + 15
+      image_file = File.new(fixture_file("5k.png"), "rb")
+      @file = Tempfile.new("f" * (255 - tempfile_additional_chars))
+      @file.write(image_file.read)
+      @file.rewind
+    end
+
+    it "does not throw Errno::ENAMETOOLONG" do
+      thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :gif)
+      expect { thumb.make }.to_not raise_error
+    end
+  end
 end

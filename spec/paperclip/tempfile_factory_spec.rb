@@ -26,4 +26,8 @@ describe Paperclip::TempfileFactory do
    file = subject.generate
    assert File.exist?(file.path)
   end
+
+  it "does not throw Errno::ENAMETOOLONG when it has a really long name" do
+    expect { subject.generate("o" * 255) }.to_not raise_error
+  end
 end

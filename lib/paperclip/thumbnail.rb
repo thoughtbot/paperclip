@@ -29,7 +29,6 @@ module Paperclip
       super
 
       geometry             = options[:geometry].to_s
-      @file                = file
       @crop                = geometry[-1,1] == '#'
       @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
       @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
@@ -64,8 +63,8 @@ module Paperclip
     # that contains the new image.
     def make
       src = @file
-      dst = Tempfile.new([@basename, @format ? ".#{@format}" : ''])
-      dst.binmode
+      filename = [@basename, @format ? ".#{@format}" : ""].join
+      dst = TempfileFactory.new.generate(filename)
 
       begin
         parameters = []

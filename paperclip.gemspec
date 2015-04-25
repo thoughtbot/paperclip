@@ -12,8 +12,6 @@ Gem::Specification.new do |s|
   s.description       = "Easy upload management for ActiveRecord"
   s.license           = "MIT"
 
-  s.rubyforge_project = "paperclip"
-
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
@@ -32,13 +30,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rspec')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
-  s.add_development_dependency('aws-sdk', '~> 1.5')
+  s.add_development_dependency('aws-sdk', '~> 1.6')
   s.add_development_dependency('bourne')
   s.add_development_dependency('cucumber', '~> 1.3.18')
   s.add_development_dependency('aruba')
   s.add_development_dependency('nokogiri')
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
-  s.add_development_dependency('capybara', '= 2.0.3')
+  s.add_development_dependency('capybara')
   s.add_development_dependency('bundler')
   s.add_development_dependency('fog', '~> 1.0')
   s.add_development_dependency('launchy')
