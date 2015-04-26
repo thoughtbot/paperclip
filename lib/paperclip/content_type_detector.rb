@@ -54,24 +54,26 @@ module Paperclip
     end
 
     def calculated_type_matches
-      possible_types.select { |content_type| content_type == type_from_file_contents }
+      possible_types.select do |content_type|
+        content_type == type_from_file_contents
+      end
     end
 
     def type_from_file_contents
-      type = begin
-               type_from_mime_magic || type_from_file_command
-             rescue Errno::ENOENT => e
-               Paperclip.log("Error while determining content type: #{e}")
-               SENSIBLE_DEFAULT
-             end
+      type_from_mime_magic || type_from_file_command
+    rescue Errno::ENOENT => e
+      Paperclip.log("Error while determining content type: #{e}")
+      SENSIBLE_DEFAULT
     end
 
     def type_from_file_command
-      @type_from_file_command ||= FileCommandContentTypeDetector.new(@filename).detect
+      @type_from_file_command ||=
+        FileCommandContentTypeDetector.new(@filename).detect
     end
 
     def type_from_mime_magic
-      @type_from_mime_magic ||= MimeMagic.by_magic(File.open(@filename)).try(:type)
+      @type_from_mime_magic ||=
+        MimeMagic.by_magic(File.open(@filename)).try(:type)
     end
   end
 end

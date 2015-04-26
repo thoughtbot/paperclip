@@ -4,7 +4,7 @@ describe Paperclip::ContentTypeDetector do
   it 'returns a meaningful content type for open xml spreadsheets' do
     file = File.new(fixture_file("empty.xlsx"))
     assert_equal "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      Paperclip::ContentTypeDetector.new(file.path).detect
+                 Paperclip::ContentTypeDetector.new(file.path).detect
   end
 
   it 'gives a sensible default when the name is empty' do
@@ -19,7 +19,8 @@ describe Paperclip::ContentTypeDetector do
 
   it 'returns content type of file if it is an acceptable type' do
     MIME::Types.stubs(:type_for).returns([MIME::Type.new('application/mp4'), MIME::Type.new('video/mp4'), MIME::Type.new('audio/mp4')])
-    Paperclip::ContentTypeDetector.any_instance.stubs(:type_from_file_contents).returns("video/mp4")
+    Paperclip::ContentTypeDetector.any_instance
+      .stubs(:type_from_file_contents).returns("video/mp4")
     @filename = "my_file.mp4"
     assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
   end
