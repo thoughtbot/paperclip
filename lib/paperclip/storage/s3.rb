@@ -176,7 +176,7 @@ module Paperclip
           "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:relative) do |attachment, style|
-          "/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "/#{attachment.path(style).gsub(%r{\A/}, '')}"
         end unless Paperclip::Interpolations.respond_to? :relative
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{\A/}, '')}"
