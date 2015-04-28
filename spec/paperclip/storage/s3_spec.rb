@@ -480,18 +480,17 @@ describe Paperclip::Storage::S3 do
   context "generating a url with url set to :relative" do
     before do
       rebuild_model storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        url: ":relative"
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename:dotextension",
+                    url: ":relative"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
 
-    it "returns a relative URL for Rails to calculate assets host BUT without assets pipeline" do
+    it "returns a relative URL for assets host without using assets pipeline" do
       assert_match %r{\/avatars/data[^\.]}, @dummy.avatar.url
     end
-
   end
 
   context "Generating a secure url with an expiration" do

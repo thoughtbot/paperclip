@@ -179,7 +179,7 @@ module Paperclip
           "/#{attachment.path(style).gsub(%r{\A/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :relative
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "#{attachment.path(style).gsub(%r{\A/}, '')}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
