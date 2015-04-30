@@ -8,17 +8,16 @@ RSpec::Matchers.define :have_column do |column_name|
     column && column.default.to_s == @default.to_s
   end
 
-  if RSpec::Version::STRING.to_i >= 3
-    failure_message do |columns|
-      "expected to find '#{column_name}', " +
-        "default '#{@default}' " +
-        "in #{columns.map { |column| [column.name, column.default] }}"
+  failure_message_method =
+    if RSpec::Version::STRING.to_i >= 3
+      :failure_message
+    else
+      :failure_message_for_should
     end
-  else
-    failure_message_for_should do |columns|
-      "expected to find '#{column_name}', " +
-        "default '#{@default}' " +
-        "in #{columns.map { |column| [column.name, column.default] }}"
-    end
+
+  send(failure_message_method) do |columns|
+    "expected to find '#{column_name}', " +
+      "default '#{@default}' " +
+      "in #{columns.map { |column| [column.name, column.default] }}"
   end
 end
