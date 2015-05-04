@@ -9,7 +9,7 @@ module Paperclip
     end
 
     def register(handler_class, &block)
-      @registered_handlers << [block, handler_class]
+      @registered_handlers.unshift([block, handler_class])
     end
 
     def handler_for(target)
