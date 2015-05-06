@@ -480,10 +480,10 @@ describe Paperclip::Storage::S3 do
   context "generating a url with url set to :relative" do
     before do
       rebuild_model storage: :s3,
-                    s3_credentials: {},
-                    bucket: "bucket",
-                    path: ":attachment/:basename:dotextension",
-                    url: ":relative"
+        s3_credentials: {},
+        bucket: "bucket",
+        path: ":attachment/:basename:dotextension",
+        url: ":relative"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
     end
