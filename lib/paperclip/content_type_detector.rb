@@ -2,7 +2,7 @@ module Paperclip
   class ContentTypeDetector
     # The content-type detection strategy is as follows:
     #
-    # 1. Blank/Empty files: If there's no filename or the file is empty,
+    # 1. Blank/Empty files: If there's no filepath or the file is empty,
     #    provide a sensible default (application/octet-stream or inode/x-empty)
     #
     # 2. Calculated match: Return the first result that is found by both the
@@ -20,8 +20,8 @@ module Paperclip
     EMPTY_TYPE = "inode/x-empty"
     SENSIBLE_DEFAULT = "application/octet-stream"
 
-    def initialize(filename)
-      @filename = filename
+    def initialize(filepath)
+      @filepath = filepath
     end
 
     # Returns a String describing the file's content type
@@ -40,17 +40,17 @@ module Paperclip
     private
 
     def empty_file?
-      File.exist?(@filename) && File.size(@filename) == 0
+      File.exist?(@filepath) && File.size(@filepath) == 0
     end
 
     alias :empty? :empty_file?
 
     def blank_name?
-      @filename.nil? || @filename.empty?
+      @filepath.nil? || @filepath.empty?
     end
 
     def possible_types
-      MIME::Types.type_for(@filename).collect(&:content_type)
+      MIME::Types.type_for(@filepath).collect(&:content_type)
     end
 
     def calculated_type_matches
@@ -68,12 +68,12 @@ module Paperclip
 
     def type_from_file_command
       @type_from_file_command ||=
-        FileCommandContentTypeDetector.new(@filename).detect
+        FileCommandContentTypeDetector.new(@filepath).detect
     end
 
     def type_from_mime_magic
       @type_from_mime_magic ||=
-        MimeMagic.by_magic(File.open(@filename)).try(:type)
+        MimeMagic.by_magic(File.open(@filepath)).try(:type)
     end
   end
 end
