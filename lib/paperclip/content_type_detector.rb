@@ -39,24 +39,24 @@ module Paperclip
 
     private
 
+    def blank_name?
+      @filepath.nil? || @filepath.empty?
+    end
+
     def empty_file?
       File.exist?(@filepath) && File.size(@filepath) == 0
     end
 
     alias :empty? :empty_file?
 
-    def blank_name?
-      @filepath.nil? || @filepath.empty?
-    end
-
-    def possible_types
-      MIME::Types.type_for(@filepath).collect(&:content_type)
-    end
-
     def calculated_type_matches
       possible_types.select do |content_type|
         content_type == type_from_file_contents
       end
+    end
+
+    def possible_types
+      MIME::Types.type_for(@filepath).collect(&:content_type)
     end
 
     def type_from_file_contents
@@ -66,14 +66,14 @@ module Paperclip
       SENSIBLE_DEFAULT
     end
 
-    def type_from_file_command
-      @type_from_file_command ||=
-        FileCommandContentTypeDetector.new(@filepath).detect
-    end
-
     def type_from_mime_magic
       @type_from_mime_magic ||=
         MimeMagic.by_magic(File.open(@filepath)).try(:type)
+    end
+
+    def type_from_file_command
+      @type_from_file_command ||=
+        FileCommandContentTypeDetector.new(@filepath).detect
     end
   end
 end
