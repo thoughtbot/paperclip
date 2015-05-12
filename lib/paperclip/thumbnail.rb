@@ -3,7 +3,7 @@ module Paperclip
   class Thumbnail < Processor
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated, :auto_orient
+                  :source_file_options, :animated, :auto_orient, :pre_convert_options
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
@@ -70,6 +70,7 @@ module Paperclip
         parameters = []
         parameters << source_file_options
         parameters << ":source"
+        parameters << pre_convert_options
         parameters << transformation_command
         parameters << convert_options
         parameters << ":dest"
