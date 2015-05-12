@@ -111,6 +111,34 @@ describe 'Attachment Registry' do
 
       assert_equal expected_definitions, definitions
     end
+
+    it 'allows subclasses to override attachment defitions' do
+      foo_definitions = { avatar: { yo: "greeting" } }
+      bar_definitions = { avatar: { yo: "hello" } }
+
+      expected_definitions = {
+        avatar: {
+          yo: "hello"
+        }
+      }
+
+      foo = Class.new
+      bar = Class.new(foo)
+      Paperclip::AttachmentRegistry.register(
+        foo,
+        :avatar,
+        foo_definitions[:avatar]
+      )
+      Paperclip::AttachmentRegistry.register(
+        bar,
+        :avatar,
+        bar_definitions[:avatar]
+      )
+
+      definitions = Paperclip::AttachmentRegistry.definitions_for(bar)
+
+      assert_equal expected_definitions, definitions
+    end
   end
 
   context '.clear' do
