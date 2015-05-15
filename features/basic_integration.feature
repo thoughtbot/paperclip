@@ -12,17 +12,20 @@ Feature: Rails integration
   Scenario: Configure defaults for all attachments through Railtie
     Given I add this snippet to config/application.rb:
       """
-      config.paperclip_defaults = {:url => "/paperclip/custom/:attachment/:style/:filename"}
+      config.paperclip_defaults = {
+        :url => "/paperclip/custom/:attachment/:style/:filename",
+        :validate_media_type => false
+      }
       """
     And I attach :attachment
     And I start the rails application
     When I go to the new user page
     And I fill in "Name" with "something"
-    And I attach the file "spec/support/fixtures/5k.png" to "Attachment"
+    And I attach the file "spec/support/fixtures/animated.unknown" to "Attachment"
     And I press "Submit"
     Then I should see "Name: something"
-    And I should see an image with a path of "/paperclip/custom/attachments/original/5k.png"
-    And the file at "/paperclip/custom/attachments/original/5k.png" should be the same as "spec/support/fixtures/5k.png"
+    And I should see an image with a path of "/paperclip/custom/attachments/original/animated.unknown"
+    And the file at "/paperclip/custom/attachments/original/animated.unknown" should be the same as "spec/support/fixtures/animated.unknown"
 
   Scenario: Add custom processors
     Given I add a "test" processor in "lib/paperclip"

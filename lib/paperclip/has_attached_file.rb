@@ -7,7 +7,7 @@ module Paperclip
     def initialize(klass, name, options)
       @klass = klass
       @name = name
-      @options = options
+      @options = Paperclip::Attachment.default_options.deep_merge(options)
     end
 
     def define
