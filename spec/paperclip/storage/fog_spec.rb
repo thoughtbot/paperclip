@@ -320,6 +320,9 @@ describe Paperclip::Storage::Fog do
         it "honors the scheme in public url" do
           assert_match(/^http:\/\//, @dummy.avatar.url)
         end
+        it "honors the scheme in expiring url" do
+          assert_match(/^http:\/\//, @dummy.avatar.expiring_url)
+        end
       end
 
       context "with scheme not set" do
@@ -334,6 +337,9 @@ describe Paperclip::Storage::Fog do
         it "provides HTTPS public url" do
           assert_match(/^https:\/\//, @dummy.avatar.url)
         end
+        it "provides HTTPS expiring url" do
+          assert_match(/^https:\/\//, @dummy.avatar.expiring_url)
+        end
       end
 
       context "with a valid bucket name for a subdomain" do
@@ -344,7 +350,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides an url that expires in subdomain style" do
-          assert_match(/^http:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
+          assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
         end
       end
 
@@ -392,7 +398,7 @@ describe Paperclip::Storage::Fog do
         end
 
         it "provides a url that expires in folder style" do
-          assert_match(/^http:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
+          assert_match(/^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
         end
 
       end

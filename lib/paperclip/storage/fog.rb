@@ -141,8 +141,9 @@ module Paperclip
 
       def expiring_url(time = (Time.now + 3600), style_name = default_style)
         time = convert_time(time)
-        if path(style_name) && directory.files.respond_to?(:get_http_url)
-          expiring_url = directory.files.get_http_url(path(style_name), time)
+        http_url_method = "get_#{scheme}_url"
+        if path(style_name) && directory.files.respond_to?(http_url_method)
+          expiring_url = directory.files.public_send(http_url_method, path(style_name), time)
 
           if @options[:fog_host]
             expiring_url.gsub!(/#{host_name_for_directory}/, dynamic_fog_host_for_style(style_name))
