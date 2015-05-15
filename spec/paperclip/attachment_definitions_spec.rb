@@ -8,6 +8,6 @@ describe "Attachment Definitions" do
     Dummy.do_not_validate_attachment_file_type :avatar
     expected = {avatar: {path: "abc"}, other_attachment: {url: "123"}}
 
-    assert_equal expected, Dummy.attachment_definitions
+    expect(Dummy.attachment_definitions).to eq expected
   end
 end
