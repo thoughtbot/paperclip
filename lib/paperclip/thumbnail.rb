@@ -2,8 +2,9 @@ module Paperclip
   # Handles thumbnailing images that are uploaded.
   class Thumbnail < Processor
 
-    attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated, :auto_orient, :pre_convert_options
+    attr_accessor :current_geometry, :target_geometry, :format, :whiny,
+                  :convert_options, :source_file_options, :animated,
+                  :auto_orient, :pre_convert_options
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
