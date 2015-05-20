@@ -115,7 +115,7 @@ module Paperclip
       def self.extended base
         begin
           require 'aws-sdk'
-          const_set('AWS_CLASS', defined?(::AWS) ? ::AWS : ::Aws)
+          const_set('AWS_CLASS', defined?(::Aws) ? ::Aws : ::AWS)
           const_set('DEFAULT_PERMISSION', defined?(::AWS) ? :public_read : :'public-read')
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
@@ -185,8 +185,13 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
-          s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          if aws_v1?
+            base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
+            s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          else
+            base_options = { :expires_in => time }
+            s3_object(style_name).presigned_url(:get, base_options.merge(s3_url_options)).to_s
+          end
         else
           url(style_name)
         end
@@ -386,7 +391,11 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).send((aws_v1? ? :write : :put), file, write_options)
+            if aws_v1?
+              s3_object(style).write(file, write_options)
+            else
+              s3_object(style).upload_file(file.path, write_options)
+            end
           rescue AWS_CLASS::S3::Errors::NoSuchBucket
             create_bucket
             retry
