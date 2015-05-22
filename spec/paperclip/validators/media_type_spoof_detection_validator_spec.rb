@@ -30,7 +30,7 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     Paperclip::MediaTypeSpoofDetector.stubs(:using).returns(detector)
     @validator.validate(@dummy)
 
-    assert_equal "has an extension that does not match its contents", @dummy.errors[:avatar].first
+    assert_equal I18n.t("errors.messages.spoofed_media_type"), @dummy.errors[:avatar].first
   end
 
   it "runs when attachment is dirty" do

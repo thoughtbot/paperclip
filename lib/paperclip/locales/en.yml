@@ -2,7 +2,7 @@ en:
   errors:
     messages:
       in_between: "must be in between %{min} and %{max}"
-      spoofed_media_type: "has an extension that does not match its contents"
+      spoofed_media_type: "has contents that are not what they are reported to be"
 
   number:
     human:
