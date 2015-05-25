@@ -344,7 +344,7 @@ describe Paperclip::Storage::S3 do
     after { @file.close }
 
     it "succeeds" do
-      assert_equal @dummy.counter, 7
+      assert_equal 6, @dummy.counter
     end
   end
 
