@@ -49,7 +49,13 @@ end
 
 Then /^the attachment should have the same content type as the fixture "([^"]*)"$/ do |filename|
   in_current_dir do
-    require 'mime/types'
+    begin
+      # Use mime/types/columnar if available, for reduced memory usage
+      require "mime/types/columnar"
+    rescue LoadError
+      require "mime/types"
+    end
+
     attachment_content_type = `bundle exec #{runner_command} "puts User.last.attachment_content_type"`.strip
     attachment_content_type.should == MIME::Types.type_for(filename).first.content_type
   end
