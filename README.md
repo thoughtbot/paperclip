@@ -91,15 +91,15 @@ If you're on Mac OS X, you'll want to run the following with Homebrew:
     brew install imagemagick
 
 If you are dealing with pdf uploads or running the test suite, you'll also need
-GhostScript to be installed. On Mac OS X, you can also install that using Homebrew:
+to install GhostScript. On Mac OS X, you can also install that using Homebrew:
 
     brew install gs
 
 ### `file`
 
-The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content type checking.
+The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content-type checking.
 This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit),
-so Windows users must make sure that the devkit is installed and added to system `PATH`.
+so Windows users must make sure that the devkit is installed and added to the system `PATH`.
 
 **Manual Installation**
 
@@ -109,16 +109,16 @@ To manually install, you should perform the following:
 
 > **Download & install `file` from [this URL](http://gnuwin32.sourceforge.net/packages/file.htm)**
 
-To test, you can use the following:
+To test, you can use the image below:
 ![untitled](https://cloud.githubusercontent.com/assets/1104431/4524452/a1f8cce4-4d44-11e4-872e-17adb96f79c9.png)
 
-Next, you need to integrate with your environment - preferrably through the `PATH` variable, or by changing your `config/environments/development.rb` file
+Next, you need to integrate with your environment - preferably through the `PATH` variable, or by changing your `config/environments/development.rb` file
 
 **PATH**
 
     1. Click "Start"
     2. On "Computer", right-click and select "Properties"
-    3. In properties, select "Advanced System Settings"
+    3. In Properties, select "Advanced System Settings"
     4. Click the "Environment Variables" button
     5. Locate the "PATH" var - at the end, add the path to your newly installed `file.exe` (typically `C:\Program Files (x86)\GnuWin32\bin`)
     6. Restart any CMD shells you have open & see if it works
@@ -131,7 +131,7 @@ OR
     2. Add the following line: `Paperclip.options[:command_path] = 'C:\Program Files (x86)\GnuWin32\bin'`
     3. Restart your Rails server
 
-Either of these methods will give your Rails setup access to the `file.exe` functionality, this providing the ability to check the contents of a file (fixing the spoofing problem)
+Either of these methods will give your Rails setup access to the `file.exe` functionality, thus providing the ability to check the contents of a file (fixing the spoofing problem)
 
 ---
 
@@ -202,17 +202,17 @@ end
 
 ```ruby
 class AddAvatarColumnsToUsers < ActiveRecord::Migration
-  def self.up
+  def up
     add_attachment :users, :avatar
   end
 
-  def self.down
+  def down
     remove_attachment :users, :avatar
   end
 end
 ```
 
-(Or you can use migration generator: `rails generate paperclip user avatar`)
+(Or you can use the Rails migration generator: `rails generate paperclip user avatar`)
 
 ### Edit and New Views
 
@@ -277,7 +277,7 @@ Set the attribute to `nil` and save.
 Usage
 -----
 
-The basics of paperclip are quite simple: Declare that your model has an
+The basics of Paperclip are quite simple: Declare that your model has an
 attachment with the `has_attached_file` method, and give it a name.
 
 Paperclip will wrap up to four attributes (all prefixed with that attachment's name,
@@ -289,11 +289,11 @@ friendly front end. These attributes are:
 * `<attachment>_content_type`
 * `<attachment>_updated_at`
 
-By default, only `<attachment>_file_name` is required for paperclip to operate.
+By default, only `<attachment>_file_name` is required for Paperclip to operate.
 You'll need to add `<attachment>_content_type` in case you want to use content type
 validation.
 
-More information about the options to `has_attached_file` is available in the
+More information about the options passed to `has_attached_file` is available in the
 documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
 
 Validations
@@ -334,8 +334,8 @@ validates_attachment :avatar, :presence => true,
   :size => { :in => 0..10.kilobytes }
 ```
 
-_NOTE: Post processing will not even *start* if the attachment is not valid
-according to the validations. Your callbacks and processors will *only* be
+_NOTE: Post-processing will not even **start** if the attachment is not valid
+according to the validations. Your callbacks and processors will **only** be
 called with valid attachments._
 
 ```ruby
@@ -428,18 +428,18 @@ NOTE: Also starting at version 4.0.0, Paperclip has another validation that
 cannot be turned off. This validation will prevent content type spoofing. That
 is, uploading a PHP document (for example) as part of the EXIF tags of a
 well-formed JPEG. This check is limited to the media type (the first part of the
-MIME type, so, 'text' in 'text/plain'). This will prevent HTML documents from
+MIME type, so, 'text' in `text/plain`). This will prevent HTML documents from
 being uploaded as JPEGs, but will not prevent GIFs from being uploaded with a
-.jpg extension. This validation will only add validation errors to the form. It
-will not cause Errors to be raised.
+`.jpg` extension. This validation will only add validation errors to the form. It
+will not cause errors to be raised.
 
 This can sometimes cause false validation errors in applications that use custom
 file extensions. In these cases you may wish to add your custom extension to the
-list of file extensions allowed for your mime type configured by the mime-types
+list of file extensions allowed for your MIME type configured by the `mime-types`
 gem:
 
 ```ruby
-# Allow ".foo" as an extension for files with the mime type "text/plain".
+# Allow ".foo" as an extension for files with the MIME type "text/plain".
 text_plain = MIME::Types["text/plain"].first
 text_plain.extensions << "foo"
 MIME::Types.index_extensions text_plain
@@ -449,9 +449,9 @@ MIME::Types.index_extensions text_plain
 
 Defaults
 --------
-Global defaults for all your paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash, this can be useful for setting your default storage settings per example so you won't have to define them in every has_attached_file definition.
+Global defaults for all your Paperclip attachments can be defined by changing the Paperclip::Attachment.default_options Hash. This can be useful for setting your default storage settings per example so you won't have to define them in every `has_attached_file` definition.
 
-If you're using Rails you can define a Hash with default options in config/application.rb or in any of the config/environments/*.rb files on config.paperclip_defaults, these will get merged into Paperclip::Attachment.default_options as your Rails app boots. An example:
+If you're using Rails, you can define a Hash with default options in `config/application.rb` or in any of the `config/environments/*.rb` files on config.paperclip_defaults. These will get merged into `Paperclip::Attachment.default_options` as your Rails app boots. An example:
 
 ```ruby
 module YourApp
@@ -463,7 +463,7 @@ module YourApp
 end
 ```
 
-Another option is to directly modify the Paperclip::Attachment.default_options Hash, this method works for non-Rails applications or is an option if you prefer to place the Paperclip default settings in an initializer.
+Another option is to directly modify the `Paperclip::Attachment.default_options` Hash - this method works for non-Rails applications or is an option if you prefer to place the Paperclip default settings in an initializer.
 
 An example Rails initializer would look something like this:
 
@@ -478,25 +478,31 @@ Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
 Migrations
 ----------
 
-Paperclip defines several migration methods which can be used to create necessary columns in your
-model. There are two types of method:
+Paperclip defines several migration methods which can be used to create the necessary columns in your
+model. There are two types of helper methods to aid in this, as follows:
 
-### Table Definition
+### Add Attachment Column To A Table
+
+The `attachment` helper can be used when creating a table:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
-  def self.up
+class CreateUsersWithAttachments < ActiveRecord::Migration
+  def up
     create_table :users do |t|
       t.attachment :avatar
     end
+
+  # This is assuming you are only using the users table for Paperclip attachment. Drop with care!
+  def down
+    drop_table :users
   end
 end
 ```
 
-If you're using Rails 3.2 or newer, this method works in `change` method as well:
+You can also use the `change` method, instead of the `up`/`down` combination above, as shown below:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
+class CreateUsersWithAttachments < ActiveRecord::Migration
   def change
     create_table :users do |t|
       t.attachment :avatar
@@ -507,22 +513,24 @@ end
 
 ### Schema Definition
 
+Alternatively, the `add_attachment` and `remove_attachment` methods can be used to add new Paperclip columns to an existing table:
+
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
-  def self.up
+class AddAttachmentColumnsToUsers < ActiveRecord::Migration
+  def up
     add_attachment :users, :avatar
   end
 
-  def self.down
+  def down
     remove_attachment :users, :avatar
   end
 end
 ```
 
-If you're using Rails 3.2 or newer, you only need `add_attachment` in your `change` method:
+Or you can do this with the `change` method:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
+class AddAttachmentColumnsToUsers < ActiveRecord::Migration
   def change
     add_attachment :users, :avatar
   end
@@ -531,7 +539,7 @@ end
 
 ### Vintage syntax
 
-Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) are still supported in
+Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) is still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
 
 ---
@@ -591,12 +599,12 @@ Post Processing
 
 Paperclip supports an extensible selection of post-processors. When you define
 a set of styles for an attachment, by default it is expected that those
-"styles" are actually "thumbnails". However, you can do much more than just
+"styles" are actually "thumbnails." However, you can do much more than just
 thumbnail images. By defining a subclass of Paperclip::Processor, you can
 perform any processing you want on the files that are attached. Any file in
 your Rails app's `lib/paperclip` and `lib/paperclip_processors` directories is
-automatically loaded by paperclip, allowing you to easily define custom
-processors. You can specify a processor with the :processors option to
+automatically loaded by Paperclip, allowing you to easily define custom
+processors. You can specify a processor with the `:processors` option to
 `has_attached_file`:
 
 ```ruby
@@ -610,21 +618,21 @@ more information about defining processors, see Paperclip::Processor.
 
 The default processor is Paperclip::Thumbnail. For backwards compatibility
 reasons, you can pass a single geometry string or an array containing a
-geometry and a format, which the file will be converted to, like so:
+geometry and a format that the file will be converted to, like so:
 
 ```ruby
 has_attached_file :avatar, :styles => { :thumb => ["32x32#", :png] }
 ```
 
-This will convert the "thumb" style to a 32x32 square in png format, regardless
+This will convert the "thumb" style to a 32x32 square in PNG format, regardless
 of what was uploaded. If the format is not specified, it is kept the same (i.e.
-jpgs will remain jpgs). For more information on the accepted style formats, see
+JPGs will remain JPGs). For more information on the accepted style formats, see
 [here](http://www.imagemagick.org/script/command-line-processing.php#geometry).
 
 Multiple processors can be specified, and they will be invoked in the order
-they are defined in the :processors array. Each successive processor will
+they are defined in the `:processors` array. Each successive processor will
 be given the result of the previous processor's execution. All processors will
-receive the same parameters, which are what you define in the :styles hash.
+receive the same parameters, which are defined in the `:styles` hash.
 For example, assuming we had this definition:
 
 ```ruby
@@ -633,7 +641,7 @@ has_attached_file :scan, :styles => { :text => { :quality => :better } },
 ```
 
 then both the :rotator processor and the :ocr processor would receive the
-options "{ :quality => :better }". This parameter may not mean anything to one
+options `{ :quality => :better }`. This parameter may not mean anything to one
 or more or the processors, and they are expected to ignore it.
 
 _NOTE: Because processors operate by turning the original attachment into the
@@ -661,8 +669,8 @@ normal ActiveRecord callbacks as possible, so if you return false (specifically
 will halt. Returning false in an `after_filter` will not halt anything, but you
 can access the model and the attachment if necessary.
 
-_NOTE: Post processing will not even *start* if the attachment is not valid
-according to the validations. Your callbacks and processors will *only* be
+_NOTE: Post processing will not even **start** if the attachment is not valid
+according to the validations. Your callbacks and processors will **only** be
 called with valid attachments._
 
 ```ruby
@@ -698,24 +706,24 @@ has_attached_file :avatar, {
 The `:hash` interpolation will be replaced with a unique hash made up of whatever
 is specified in `:hash_data`. The default value for `:hash_data` is `":class/:attachment/:id/:style/:updated_at"`.
 
-`:hash_secret` is required, an exception will be raised if `:hash` is used without `:hash_secret` present.
+`:hash_secret` is required - an exception will be raised if `:hash` is used without `:hash_secret` present.
 
-For more on this feature read the author's own explanation. [https://github.com/thoughtbot/paperclip/pull/416](https://github.com/thoughtbot/paperclip/pull/416)
+For more on this feature, read [the author's own explanation](https://github.com/thoughtbot/paperclip/pull/416)
 
 MD5 Checksum / Fingerprint
 -------
 
-A MD5 checksum of the original file assigned will be placed in the model if it
+An MD5 checksum of the original file assigned will be placed in the model if it
 has an attribute named fingerprint.  Following the user model migration example
-above, the migration would look like the following.
+above, the migration would look like the following:
 
 ```ruby
 class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
-  def self.up
+  def up
     add_column :users, :avatar_fingerprint, :string
   end
 
-  def self.down
+  def down
     remove_column :users, :avatar_fingerprint
   end
 end
@@ -744,11 +752,11 @@ to inherit from `Paperclip::Processor` (see `lib/paperclip/processor.rb`).
 For example, when `:styles` are specified for an image attachment, the
 thumbnail processor (see `lib/paperclip/thumbnail.rb`) is loaded without having
 to specify it as a `:processor` parameter to `has_attached_file`.  When any
-other processor is defined it must be called out in the `:processors`
+other processor is defined, it must be called out in the `:processors`
 parameter if it is to be applied to the attachment.  The thumbnail processor
-uses the imagemagick `convert` command to do the work of resizing image
+uses the ImageMagick `convert` command to do the work of resizing image
 thumbnails.  It would be easy to create a custom processor that watermarks
-an image using imagemagick's `composite` command.  Following the
+an image using ImageMagick's `composite` command.  Following the
 implementation pattern of the thumbnail processor would be a way to implement a
 watermark processor.  All kinds of attachment processors can be created;
 a few utility examples would be compression and encryption processors.
@@ -768,7 +776,7 @@ instances.
 ### Dynamic Styles:
 
 Imagine a user model that had different styles based on the role of the user.
-Perhaps some users are bosses (e.g. a User model instance responds to #boss?)
+Perhaps some users are bosses (e.g. a User model instance responds to `#boss?`)
 and merit a bigger avatar thumbnail than regular users. The configuration to
 determine what style parameters are to be used based on the user role might
 look as follows where a boss will receive a `300x300` thumbnail otherwise a
@@ -847,7 +855,7 @@ after("deploy:compile_assets", "deploy:build_missing_paperclip_styles")
 ```
 
 Now you don't have to remember to refresh thumbnails in production every time you add a new style.
-Unfortunately it does not work with dynamic styles - it just ignores them.
+Unfortunately, it does not work with dynamic styles - it just ignores them.
 
 If you already have a working app and don't want `rake paperclip:refresh:missing_styles` to refresh old pictures, you need to tell
 Paperclip about existing styles. Simply create a `paperclip_attachments.yml` file by hand. For example:
@@ -905,7 +913,7 @@ else
 end
 ```
 
-The important part here being the inclusion of `ENV['TEST_ENV_NUMBER']`, or the
+The important part here being the inclusion of `ENV['TEST_ENV_NUMBER']`, or a
 similar mechanism for whichever parallel testing library you use.
 
 **Integration Tests**
