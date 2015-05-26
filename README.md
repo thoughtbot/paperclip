@@ -440,24 +440,30 @@ Migrations
 ----------
 
 Paperclip defines several migration methods which can be used to create the necessary columns in your
-model. There are two types of methods:
+model. There are two types of helper methods to aid in this, as follows:
 
-### Table Definition
+### Add Attachment Column To A Table
+
+The `attachment` helper can be used when creating a table:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
-  def self.up
+class CreateUsersWithAttachments < ActiveRecord::Migration
+  def up
     create_table :users do |t|
       t.attachment :avatar
     end
+
+  # This is assuming you are only using the users table for Paperclip attachment. Drop with care!
+  def down
+    drop_table :users
   end
 end
 ```
 
-If you're using Rails 3.2 or newer, you can use `def up` instead of `def self.up` in the above example, or the `change` method works as well as shown below:
+You can also use the `change` method, instead of the `up`/`down` combination above, as shown below:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
+class CreateUsersWithAttachments < ActiveRecord::Migration
   def change
     create_table :users do |t|
       t.attachment :avatar
@@ -468,24 +474,24 @@ end
 
 ### Schema Definition
 
-As noted above, you can use the examples below, or switch to the idiom in Rails 3.2+ which uses `def up` and `def down` instead of `def self.up` and `def self.down`, respectively.
+Alternatively, the `add_attachment` and `remove_attachment` methods can be used to add new Paperclip columns to an existing table:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
-  def self.up
+class AddAttachmentColumnsToUsers < ActiveRecord::Migration
+  def up
     add_attachment :users, :avatar
   end
 
-  def self.down
+  def down
     remove_attachment :users, :avatar
   end
 end
 ```
 
-If you're using Rails 3.2 or newer, you only need `add_attachment` in your `change` method:
+Or you can do this with the `change` method:
 
 ```ruby
-class AddAttachmentToUsers < ActiveRecord::Migration
+class AddAttachmentColumnsToUsers < ActiveRecord::Migration
   def change
     add_attachment :users, :avatar
   end
@@ -709,9 +715,9 @@ thumbnail processor (see `lib/paperclip/thumbnail.rb`) is loaded without having
 to specify it as a `:processor` parameter to `has_attached_file`.  When any
 other processor is defined, it must be called out in the `:processors`
 parameter if it is to be applied to the attachment.  The thumbnail processor
-uses the Imagemagick `convert` command to do the work of resizing image
+uses the ImageMagick `convert` command to do the work of resizing image
 thumbnails.  It would be easy to create a custom processor that watermarks
-an image using Imagemagick's `composite` command.  Following the
+an image using ImageMagick's `composite` command.  Following the
 implementation pattern of the thumbnail processor would be a way to implement a
 watermark processor.  All kinds of attachment processors can be created;
 a few utility examples would be compression and encryption processors.
