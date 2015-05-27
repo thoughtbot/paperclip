@@ -1,3 +1,16 @@
+New in 4.3.0:
+
+* Improvement: Update aws-sdk and cucumber gem versions.
+* Improvement: Add `length` alias for `size` method in AbstractAdapter.
+* Improvement: Removed some cruft
+* Improvement: deep_merge! Attachment definitions
+* Improvement: Switch to mimemagic gem for content-type detection
+* Improvement: Allows multiple content types for spoof detector
+* Bug Fix: Don't assume we have Rails.env if we have Rails
+* Performance: Decrease Memory footprint
+* Ruby Versioning: Drop support for 1.9.3 (EOL'ed)
+* Rails Versioning: Drop support for 4.0.0 (EOL'ed)
+
 New in 4.2.2:
 
 * Security fix: Fix a potential security issue with spoofing
