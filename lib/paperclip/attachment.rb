@@ -509,7 +509,9 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      styles_to_process = styles.select { |name, style| process_style?(name, style_args) }
+      styles_to_process = styles.select do |name, _|
+        process_style?(name, style_args)
+      end
 
       if (original = styles_to_process.delete(:original))
         post_process_style(:original, original)
@@ -525,8 +527,9 @@ module Paperclip
     end
 
     def post_process_style(name, style) #:nodoc:
-      options[:generator] || !style.processors.blank? or
+      if !(options[:generator] || !style.processors.blank?)
         raise RuntimeError.new("Style #{name} has no processors defined.")
+      end
 
       intermediate_files = []
       begin
@@ -541,23 +544,29 @@ module Paperclip
         @queued_for_write[name]
       rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
         log("An error was received while processing: #{e.inspect}")
-        (@errors[:processing] ||= []) << e.message if @options[:whiny]
+        whine e.message
       ensure
         unlink_files(intermediate_files)
       end
     end
 
     def generate_styles(generator, styles)
-      style_options = {}
-      styles.reject { |name, style| name == :original }.each do |name, style|
-        style_options[name] = style.processor_options
+      options = {}
+      styles.reject { |name, _| name == :original }.each do |name, style|
+        options[name] = style.processor_options
       end
       generator = Paperclip.processor(generator)
-      results = generator.make(@queued_for_write[:original], style_options, self)
+      results = generator.make(@queued_for_write[:original], options, self)
       @queued_for_write.update results
     rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
       log("An error was received while processing: #{e.inspect}")
-      (@errors[:processing] ||= []) << e.message if @options[:whiny]
+      whine e.message
+    end
+
+    def whine(message)
+      if @options[:whiny]
+        (@errors[:processing] ||= []) << message
+      end
     end
 
     def process_style?(style_name, style_args) #:nodoc:
