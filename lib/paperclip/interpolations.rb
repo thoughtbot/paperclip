@@ -10,6 +10,7 @@ module Paperclip
     # and is not intended for normal use.
     def self.[]= name, block
       define_method(name, &block)
+      @interpolators_cache = nil
     end
 
     # Hash access of interpolations. Included only for compatibility,
@@ -29,11 +30,19 @@ module Paperclip
     # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
-      all.reverse.inject(pattern) do |result, tag|
-        result.gsub(/:#{tag}/) do |match|
-          send( tag, *args )
-        end
+      result = pattern.dup
+      interpolators_cache.each do |tag|
+        result.gsub!(tag_pattern_cache[tag]) { send(tag, *args) }
       end
+      result
+    end
+
+    def self.tag_pattern_cache
+      @tag_pattern_cache ||= Hash.new { |hash, key| hash[key] = ":#{key}" }
+    end
+
+    def self.interpolators_cache
+      @interpolators_cache ||= all.reverse!
     end
 
     def self.plural_cache
