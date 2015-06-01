@@ -17,5 +17,6 @@ gem 'pry'
 group :development, :test do
   gem 'mime-types', '~> 1.16'
   gem 'builder'
+  gem 'activerecord-import'
   gem 'rubocop', require: false
 end
