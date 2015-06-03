@@ -1491,5 +1491,24 @@ describe Paperclip::Attachment do
     end
   end
 
+  context "Non ActiveRecord workflows" do
+    before do
+      # temporary take out AR
+      @ar_bak = Object.send(:remove_const, :ActiveRecord)
+    end
+
+    it "Can include glue without dependency on AR" do
+      klass = Object.const_set("SomeNonActiveRecordModel", Class.new)
+      klass.class_eval do
+        include Paperclip::Glue
+      end
+    end
+
+    after do
+      # put back AR
+      ActiveRecord = @ar_back
+    end
+  end
+
 end
 
