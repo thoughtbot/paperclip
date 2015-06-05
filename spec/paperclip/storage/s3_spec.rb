@@ -3,17 +3,18 @@ require 'aws-sdk'
 
 describe Paperclip::Storage::S3 do
   before do
-    AWS.stub!
+    AWS.stub! unless defined?(::Aws)
   end
+
+  let(:client) { Aws::S3::Client.new(stub_responses: true) }
 
   context "Parsing S3 credentials" do
     before do
       @proxy_settings = {host: "127.0.0.1", port: 8888, user: "foo", password: "bar"}
-      rebuild_model storage: :s3,
+      rebuild_model (defined?(::Aws) ? { client: client } : {}).merge storage: :s3,
         bucket: "testing",
         http_proxy: @proxy_settings,
         s3_credentials: {not: :important}
-
       @dummy = Dummy.new
       @avatar = @dummy.avatar
     end
