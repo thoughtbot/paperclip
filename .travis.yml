@@ -1,5 +1,4 @@
 rvm:
-  - 1.9.3
   - jruby-19mode
   - rbx-2
   - 2.0.0
@@ -13,7 +12,6 @@ script: "bundle exec rake clean spec cucumber"
 
 gemfile:
   - gemfiles/3.2.gemfile
-  - gemfiles/4.0.gemfile
   - gemfiles/4.1.gemfile
   - gemfiles/4.2.gemfile
 
