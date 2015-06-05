@@ -152,7 +152,7 @@ module Paperclip
 
           @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
-          @s3_server_side_encryption = aws_v1? ? :aes256 : "AES256"
+          @s3_server_side_encryption = "AES256"
           if @options[:s3_server_side_encryption].blank?
             @s3_server_side_encryption = false
           end

@@ -145,7 +145,6 @@ unless ENV["S3_BUCKET"].blank?
     end
 
     context "An attachment that uses S3 for storage and uses AES256 encryption" do
-      let(:encryption_method) { defined?(::AWS) ? :aes356 : "AES256" }
       before do
         rebuild_model styles: { thumb: "100x100", square: "32x32#" },
                       storage: :s3,
@@ -156,7 +155,7 @@ unless ENV["S3_BUCKET"].blank?
                         aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
                         aws_secre_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       },
-                      s3_server_side_encryption: encryption_method
+                      s3_server_side_encryption: "AES256"
         Dummy.delete_all
         @dummy = Dummy.new
       end
@@ -178,7 +177,7 @@ unless ENV["S3_BUCKET"].blank?
           end
 
           it "is encrypted on S3" do
-            assert @dummy.avatar.s3_object.server_side_encryption == encryption_method
+            assert @dummy.avatar.s3_object.server_side_encryption == "AES256"
           end
         end
       end
