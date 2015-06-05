@@ -42,7 +42,7 @@ module Paperclip
     end
 
     def mapping_override_mismatch?
-      mapped_content_type != calculated_content_type
+      !Array(mapped_content_type).include?(calculated_content_type)
     end
 
 

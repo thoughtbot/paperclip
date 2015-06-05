@@ -12,7 +12,7 @@ New in 4.2.1:
 * Improvement: Better escaping for characters in URLs
 * Improvement: Honor `fog_credentials[:scheme]`
 * Improvement: Also look for custom processors in lib/paperclip
-* Improvement: id partitioning for string IDs works liks integer id
+* Improvement: id partitioning for string IDs works like integer id
 * Improvement: Can pass options to DB adapters in migrations
 * Improvement: Update expiring_url creation for later versions of fog
 * Improvement: `path` can be a Proc in S3 attachments

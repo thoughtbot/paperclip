@@ -172,7 +172,7 @@ module Paperclip
       when Integer
         ("%09d" % id).scan(/\d{3}/).join("/")
       when String
-        ('%9.9s' % id).tr(" ", "0").scan(/.{3}/).join("/")
+        id.scan(/.{3}/).first(3).join("/")
       else
         nil
       end

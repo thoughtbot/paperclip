@@ -79,7 +79,8 @@ module Paperclip
     end
 
     def add_required_validations
-      if @options[:validate_media_type] != false
+      options = Paperclip::Attachment.default_options.deep_merge(@options)
+      if options[:validate_media_type] != false
         name = @name
         @klass.validates_media_type_spoof_detection name,
           :if => ->(instance){ instance.send(name).dirty? }

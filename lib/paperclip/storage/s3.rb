@@ -4,7 +4,7 @@ module Paperclip
     # distribution. You can find out more about it at http://aws.amazon.com/s3
     #
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
-    #   gem 'aws-sdk'
+    #   gem 'aws-sdk', '~> 1.6'
     # There are a few S3-specific options for has_attached_file:
     # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
@@ -288,8 +288,7 @@ module Paperclip
       def parse_credentials creds
         creds = creds.respond_to?('call') ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
-        env = Object.const_defined?(:Rails) ? Rails.env : nil
-        (creds[env] || creds).symbolize_keys
+        (creds[RailsEnvironment.get] || creds).symbolize_keys
       end
 
       def exists?(style = default_style)

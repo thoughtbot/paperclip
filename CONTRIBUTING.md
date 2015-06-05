@@ -6,7 +6,7 @@ We love pull requests. Here's a quick guide:
 1. Fork the repo.
 
 2. Run the tests. We only take pull requests with passing tests, and it's great
-to know that you have a clean slate: `bundle && rake`
+to know that you have a clean slate: `bundle && bundle exec rake`
 
 3. Add a test for your change. Only refactoring and documentation changes
 require no new tests. If you are adding functionality or fixing a bug, we need
@@ -43,14 +43,14 @@ will be asked to rewrite them before we'll accept.
 ### Bootstrapping your test suite:
 
     bundle install
-    bundle exec rake appraisal:install
+    bundle exec appraisal install
 
 This will install all the required gems that requires to test against each
 version of Rails, which defined in `gemfiles/*.gemfile`.
 
 ### To run a full test suite:
 
-    bundle exec rake
+    bundle exec appraisal rake
 
 This will run RSpec and Cucumber against all version of Rails
 
