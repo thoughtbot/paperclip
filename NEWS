@@ -1,3 +1,8 @@
+4.2.4:
+
+* Rollback backwards incompatible change, allowing paperclip to run on
+  Ruby >= 1.9.2.
+
 4.2.3:
 
 * Fix dependency specifications (didn't work with Rails 4.1)
