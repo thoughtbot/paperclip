@@ -62,19 +62,21 @@ module Paperclip
       @media_types_from_name ||= content_types_from_name.collect(&:media_type)
     end
 
-    def calculated_content_type
-      @calculated_content_type ||= type_from_file_command.chomp
+    def calculated_content_types
+      @calculated_content_types ||= types_from_file_command.collect{|t| t.chomp}.uniq
     end
 
     def calculated_media_type
       @calculated_media_type ||= calculated_content_type.split("/").first
     end
 
-    def type_from_file_command
+    def types_from_file_command
       begin
-        Paperclip.run("file", "-b --mime :file", :file => @file.path).split(/[:;]\s+/).first
+        first = Paperclip.run("file", "-b --mime :file", :file => @file.path).split(/[:;]\s+/).first
+        second = Paperclip.run("file", "-b --mime -k :file", :file => @file.path).split(/[:;]\s+/).first
+        return [first, second]
       rescue Cocaine::CommandLineError
-        ""
+        []
       end
     end
 
