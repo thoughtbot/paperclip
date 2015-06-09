@@ -38,11 +38,11 @@ module Paperclip
     end
 
     def calculated_type_mismatch?
-      !media_types_from_name.include?(calculated_media_type)
+      media_types_from_name.none? {|media_type| calculated_media_types.include? media_type}
     end
 
     def mapping_override_mismatch?
-      mapped_content_type != calculated_content_type
+      !calculated_content_types.include? mapped_content_type
     end
 
 
@@ -66,8 +66,8 @@ module Paperclip
       @calculated_content_types ||= types_from_file_command.collect{|t| t.chomp}.uniq
     end
 
-    def calculated_media_type
-      @calculated_media_type ||= calculated_content_type.split("/").first
+    def calculated_media_types
+      @calculated_media_types ||= calculated_content_types.collect{|t| t.split("/").first}.uniq
     end
 
     def types_from_file_command
