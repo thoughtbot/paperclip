@@ -69,7 +69,7 @@ require 'mimemagic/overlay'
 require 'logger'
 require 'cocaine'
 
-require 'paperclip/railtie' if defined?(Rails)
+require 'paperclip/railtie' if defined?(Rails::Railtie)
 
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
