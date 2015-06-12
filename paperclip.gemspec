@@ -20,14 +20,14 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.requirements << "ImageMagick"
-  s.required_ruby_version = ">= 1.9.2"
+  s.required_ruby_version = ">= 2.0.0"
 
-  s.add_dependency('activemodel', '>= 3.0.0')
-  s.add_dependency('activesupport', '>= 3.0.0')
-  s.add_dependency('cocaine', '~> 0.5.3')
+  s.add_dependency('activemodel', '>= 3.2.0')
+  s.add_dependency('activesupport', '>= 3.2.0')
+  s.add_dependency('cocaine', '~> 0.5.5')
   s.add_dependency('mime-types')
 
-  s.add_development_dependency('activerecord', '>= 3.0.0')
+  s.add_development_dependency('activerecord', '>= 3.2.0')
   s.add_development_dependency('shoulda')
   s.add_development_dependency('rspec')
   s.add_development_dependency('appraisal')
@@ -45,7 +45,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('railties')
-  s.add_development_dependency('actionmailer', '>= 3.0.0')
+  s.add_development_dependency('actionmailer', '>= 3.2.0')
   s.add_development_dependency('generator_spec')
   s.add_development_dependency('timecop')
 end
