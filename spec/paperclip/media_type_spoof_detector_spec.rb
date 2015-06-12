@@ -18,12 +18,12 @@ describe Paperclip::MediaTypeSpoofDetector do
 
   it 'does not reject a file that does not have a name' do
     file = File.open(fixture_file("empty.html"))
-    assert ! Paperclip::MediaTypeSpoofDetector.using(file, "", "").spoofed?
+    assert ! Paperclip::MediaTypeSpoofDetector.using(file, "", "text/html").spoofed?
   end
 
   it 'does not reject a file that does have an extension' do
     file = File.open(fixture_file("empty.html"))
-    assert ! Paperclip::MediaTypeSpoofDetector.using(file, "data", "").spoofed?
+    assert ! Paperclip::MediaTypeSpoofDetector.using(file, "data", "text/html").spoofed?
   end
 
   it 'does not reject when the supplied file is an IOAdapter' do
@@ -61,7 +61,7 @@ describe Paperclip::MediaTypeSpoofDetector do
       }
       file = File.open(fixture_file('empty.html'))
       spoofed = Paperclip::MediaTypeSpoofDetector
-                .using(file, 'empty.html').spoofed?
+                .using(file, "empty.html", "text/html").spoofed?
       assert !spoofed
     ensure
       Paperclip.options[:content_type_mappings] = {}
