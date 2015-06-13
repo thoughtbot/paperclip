@@ -61,6 +61,13 @@ module Assertions
     end
   end
 
+  def assert_forbidden_response(url)
+    Net::HTTP.get_response(URI.parse(url)) do |response|
+      assert_equal "403", response.code,
+        "Expected HTTP response code 403, got #{response.code}"
+    end
+  end
+
   def assert_frame_dimensions(range, frames)
     frames.each_with_index do |frame, frame_index|
       frame.split('x').each_with_index do |dimension, dimension_index |
