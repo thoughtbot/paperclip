@@ -140,7 +140,7 @@ unless ENV["S3_BUCKET"].blank?
       it "is destroyable" do
         url = @dummy.avatar.url
         @dummy.destroy
-        assert_not_found_response url
+        assert_forbidden_response url
       end
     end
 
