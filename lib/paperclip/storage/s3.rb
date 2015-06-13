@@ -116,7 +116,11 @@ module Paperclip
         begin
           require 'aws-sdk'
           const_set('AWS_CLASS', defined?(::Aws) ? ::Aws : ::AWS)
-          const_set('DEFAULT_PERMISSION', defined?(::AWS) ? :public_read : :'public-read')
+          const_set('AWS_BASE_ERROR',
+            defined?(::Aws) ? Aws::Errors::ServiceError : AWS::Errors::Base)
+          const_set('DEFAULT_PERMISSION',
+            defined?(::AWS) ? :public_read : :'public-read')
+
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
@@ -253,7 +257,7 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
-          [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
+          [:access_key_id, :secret_access_key, :credential_provider, :credentials].each do |opt|
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
 
@@ -332,7 +336,7 @@ module Paperclip
         else
           false
         end
-      rescue AWS_CLASS::Errors::Base => e
+      rescue AWS_BASE_ERROR => e
         false
       end
 
@@ -358,7 +362,11 @@ module Paperclip
       end
 
       def create_bucket
-        s3_interface.buckets.create(bucket_name)
+        if aws_v1?
+          s3_interface.buckets.create(bucket_name)
+        else
+          s3_interface.bucket(bucket_name).create
+        end
       end
 
       def flush_writes #:nodoc:
@@ -426,7 +434,7 @@ module Paperclip
             else
               s3_bucket.object(path.sub(%r{\A/},''))
             end.delete
-          rescue AWS_CLASS::Errors::Base => e
+          rescue AWS_BASE_ERROR => e
             # Ignore this.
           end
         end
@@ -440,7 +448,7 @@ module Paperclip
             local_file.write(chunk)
           end
         end
-      rescue AWS_CLASS::Errors::Base => e
+      rescue AWS_BASE_ERROR => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
