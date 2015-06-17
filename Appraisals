@@ -1,5 +1,5 @@
 appraise "3.2" do
-  gem "rails", "~> 3.2.15"
+  gem "rails", "~> 3.2.0"
   gem "paperclip", :path => "../"
 end
 

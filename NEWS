@@ -1,4 +1,4 @@
-New in 4.3.0:
+4.3.0:
 
 * Improvement: Update aws-sdk and cucumber gem versions.
 * Improvement: Add `length` alias for `size` method in AbstractAdapter.
@@ -11,11 +11,16 @@ New in 4.3.0:
 * Ruby Versioning: Drop support for 1.9.3 (EOL'ed)
 * Rails Versioning: Drop support for 4.0.0 (EOL'ed)
 
-New in 4.2.2:
+4.2.3:
+
+* Fix dependency specifications (didn't work with Rails 4.1)
+* Fix paperclip tests in CI
+
+4.2.2:
 
 * Security fix: Fix a potential security issue with spoofing
 
-New in 4.2.1:
+4.2.1:
 
 * Improvement: Added `validate_media_type` options to allow/bypass spoof check
 * Improvement: Added incremental backoff when AWS gives us a SlowDown error.
@@ -32,7 +37,7 @@ New in 4.2.1:
 * Test Fix: Improves speed and reliability of the specs
 * Bug Fix: #original_filename= does not error when passed `nil`
 
-New in 4.2.0:
+4.2.0:
 
 * Improvement: Converted test suite from test/unit to RSpec
 * Improvement: Refactored Paperclip::Attachment#assign
@@ -48,7 +53,7 @@ New in 4.2.0:
 * Improvement: Allow `nil` geometry strings
 * Improvement: Use `eager_load!`
 
-New in 4.1.1:
+4.1.1:
 
 * Improvement: Add default translations for spoof validation
 * Bug Fix: Don't check for spoofs if the file hasn't changed
@@ -59,7 +64,7 @@ New in 4.1.1:
 * Improvement: Allow travis-ci to finish-fast
 
 
-New in 4.1.0:
+4.1.0:
 
 * Improvement: Add :content_type_mappings to correct for missing spoof types
 * Improvement: Credit Egor Homakov with discovering the content_type spoof bug
@@ -67,7 +72,7 @@ New in 4.1.0:
 * Improvement: Make MIME type optional for Data URIs.
 * Improvement: Add default format for styles
 
-New in 4.0.0:
+4.0.0:
 
 * Security: Attachments are checked to make sure they're not pulling a fast one.
 * Security: It is now *enforced* that every attachment has a file/mime validation.
@@ -75,7 +80,7 @@ New in 4.0.0:
 * Improvement: Added bullets to the 3.5.3 list of changes. Very important.
 * Improvement: Updated the copyright to 2014
 
-New in 3.5.3:
+3.5.3:
 
 * Improvement: After three long, hard years... we know how to upgrade
 * Bug Fix: #expiring_url returns 'missing' urls if nothing is attached
@@ -97,14 +102,14 @@ New in 3.5.3:
 * Test Improvement: Ensure more files are properly closed during tests
 * Test Bug Fix: Return the gemfile's syntax to normal
 
-New in 3.5.2:
+3.5.2:
 
 * Security: Force cocaine to at least 0.5.3 to include a security fix
 * Improvement: Fixed some README exmaples
 * Feature: Added HTTP URL Proxy Adapter, can assign string URLs as attachments
 * Improvement: Put validation errors on the base attribute and the sub-attribute
 
-New in 3.5.1:
+3.5.1:
 
 * Bug Fix: Returned the class-level `attachment_definitions` method for compatability.
 * Improvement: Ensured compatability with Rails 4
@@ -112,7 +117,7 @@ New in 3.5.1:
 * Bug Fix: #1296, where validations were generating errors
 * Improvement: Specify MIT license in the gemspec
 
-New in 3.5.0:
+3.5.0:
 
 * Feature: Handle Base64-encoded data URIs as uploads
 * Feature: Add a FilenameCleaner class to allow custom filename sanitation
@@ -128,7 +133,7 @@ New in 3.5.0:
 * Improvement: Added Ruby 2.0.0 as a supported platform and removed 1.8.7
 * Improvement: Fixed some incompatabilities in the test suite
 
-New in 3.4.2:
+3.4.2:
 
 * Improvement: Use https for Gemfile urls
 * Improvement: Updated and more correct documentation
@@ -138,7 +143,7 @@ New in 3.4.2:
 * Improvement: Remove path clash checking, as it's unnecessary
 * Bug Fix: Do not rely on checking version numbers for aws-sdk
 
-New in 3.4.1:
+3.4.1:
 
 * Improvement: Various documentation fixes and improvements
 * Bug Fix: Clearing an attachment with `preserve_files` on should still clear the attachment
@@ -151,7 +156,7 @@ New in 3.4.1:
 * Improvement: Update to latest cocaine
 * Improvement: Update copyrights, various typos
 
-New in 3.4.0:
+3.4.0:
 
 * Bug Fix: Allow UploadedFileAdapter to force the use of `file`
 * Bug Fix: Close the file handle when dealing with URIs
@@ -181,11 +186,11 @@ New In 3.3.1:
 
 * Bug Fix: Moved Filesystem's copy_to_local_file to the right place.
 
-New in 3.3.0:
+3.3.0:
 
 * Improvement: Upgrade cocaine to 0.4
 
-New in 3.2.0:
+3.2.0:
 
 * Bug Fix: Use the new correct Amazon S3 encryption header.
 * Bug Fix: The rake task respects the updated_at column.
@@ -194,14 +199,14 @@ New in 3.2.0:
 * Feature: Automatically rotate images.
 * Feature: Reduce class-oriented programming of the attachment definitions.
 
-New in 3.1.4:
+3.1.4:
 
 * Bug Fix: Allow user to be able to set path without `:style` attribute and not raising an error.
   This is a regression introduced in 3.1.3, and that feature will be postponed to another minor
   release instead.
 * Feature: Allow for URI Adapter as an optional paperclip io adapter.
 
-New in 3.1.3:
+3.1.3:
 
 * Bug Fix: Copy empty attachment between instances is now working.
 * Bug Fix: Correctly rescue Fog error.
@@ -213,17 +218,17 @@ New in 3.1.3:
 * Bug Fix: Paperclip now gracefully handles msising file command.
 * Bug Fix: `StringIOAdapter` now accepts content type.
 
-New in 3.1.2:
+3.1.2:
 
 * Bug Fix: #remove_attachment on 3.1.0 and 3.1.1 mistakenly trying to remove the column that has
   the same name as data type (such as :string, :datetime, :interger.) You're advised to update to
   Paperclip 3.1.2 as soon as possible.
 
-New in 3.1.1:
+3.1.1:
 
 * Bug Fix: Paperclip will only load Paperclip::Schema only when Active Record is available.
 
-New in 3.1.0:
+3.1.0:
 
 * Feature: Paperclip now support new migration syntax (sexy migration) that reads better:
 
@@ -262,11 +267,11 @@ New in 3.1.0:
   the best_content_type to throw an error on trying nil.content_type.
 * Bug Fix: Fix problem when the gem cannot be installed on the system that has Asepsis installed.
 
-New in 3.0.4:
+3.0.4:
 
 * Feature: Adds support for S3 scheme-less URL generation.
 
-New in 3.0.3:
+3.0.3:
 
 * Bug Fix: ThumbnailProcessor now correctly detects and preserve animated GIF.
 * Bug Fix: File extension is now preserved in generated Tempfile from adapter.
@@ -289,7 +294,7 @@ New in 3.0.3:
 * Bug Fix: Fix attachment.reprocess! when using storage providers fog and s3.
 * Bug Fix: Fix a problem with incorrect content_type detected with 'file' command for an empty file on Mac.
 
-New in 3.0.2:
+3.0.2:
 
 * API CHANGE: Generated migration class name is now plural (AddAttachmentToUsers instead of AddAttachmentToUser)
 * API CHANGE: Remove Rails plugin initialization code.
@@ -298,13 +303,13 @@ New in 3.0.2:
 * Bug Fix: Fix a problem when there's no logger specified.
 * Bug Fix: Fix a problem when attaching Rack::Test::UploadedFile instance.
 
-New in 3.0.1:
+3.0.1:
 
 * Feature: Introduce Paperlip IO adapter.
 * Bug Fix: Regression in AttachmentContentTypeValidator has been fixed.
 * API CHANGE: #to_file has been removed. Use the #copy_to_local_file method instead.
 
-New in 3.0.0:
+3.0.0:
 
 * API CHANGE: Paperclip now requires at least Ruby on Rails version 3.0.0
 * API CHANGE: The default :url and :path have changed. The new scheme avoids
@@ -323,7 +328,7 @@ New in 3.0.0:
 * Bug Fix: File given to S3 and Fog storage will now be rewinded after flush_write.
 * Feature: You can now pass addional parameter to S3 expiring URL, such as :content_type.
 
-New in 2.7.0:
+2.7.0:
 
 * Bug Fix: Checking the existence of a file on S3 handles all AWS errors.
 * Bug Fix: Clear the fingerprint when removing an attachment.
@@ -332,25 +337,25 @@ New in 2.7.0:
 * Compatibility: Support for ActiveSupport < 2.3.12.
 * Compatibility: Support for Rails 3.2.
 
-New in 2.6.0:
+2.6.0:
 
 * Bug Fix: Files are re-wound after reading.
 * Feature: Remove Rails dependency from specs that need Paperclip.
 * Feature: Validation matchers support conditionals.
 
-New in 2.5.2:
+2.5.2:
 
 * Bug Fix: Can be installed on Windows.
 * Feature: The Fog bucket name, authentication, and host can be determined at runtime via Proc.
 * Feature: Special characters are replaced with underscores in #url and #path.
 
-New in 2.5.1:
+2.5.1:
 
 * Feature: After we've computed the content type, pass it to Fog.
 * Feature: S3 encryption with the new :s3_server_side_encryption option.
 * Feature: Works without ActiveRecord, allowing for e.g. mongo backends.
 
-New in 2.5.0:
+2.5.0:
 
 * Performance: Only connect to S3 when absolutely needed.
 * Bug Fix: STI with cached classes respect new options.

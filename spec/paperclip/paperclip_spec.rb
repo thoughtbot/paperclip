@@ -20,7 +20,7 @@ describe Paperclip do
     it "saves Cocaine::CommandLine.path that set before" do
       Cocaine::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
-      assert_equal Cocaine::CommandLine.path.include?("/opt/my_app/bin"), true
+      expect(Cocaine::CommandLine.path).to match("/opt/my_app/bin")
     end
 
     it "does not duplicate Cocaine::CommandLine.path on multiple runs" do
