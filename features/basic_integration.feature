@@ -69,6 +69,7 @@ Feature: Rails integration
       bucket: paperclip
       access_key_id: access_key
       secret_access_key: secret_key
+      s3_region: us-west-2
       """
     And I start the rails application
     When I go to the new user page
