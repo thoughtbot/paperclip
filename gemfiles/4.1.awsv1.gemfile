@@ -8,8 +8,8 @@ gem "activerecord-jdbcsqlite3-adapter", :platforms => :jruby
 gem "rubysl", :platforms => :rbx
 gem "racc", :platforms => :rbx
 gem "pry"
-gem "rails", "~> 4.2.0"
-gem "aws-sdk", "~> 2.0"
+gem "rails", "~> 4.1.0"
+gem "aws-sdk", "~> 1.5"
 
 group :development, :test do
   gem "mime-types", "~> 1.16"
