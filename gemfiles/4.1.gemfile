@@ -9,6 +9,7 @@ gem "rubysl", :platforms => :rbx
 gem "racc", :platforms => :rbx
 gem "pry"
 gem "rails", "~> 4.1.0"
+gem "aws-sdk", "~> 2.0"
 
 group :development, :test do
   gem "mime-types", "~> 1.16"
