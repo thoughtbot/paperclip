@@ -11,6 +11,11 @@
 * Ruby Versioning: Drop support for 1.9.3 (EOL'ed)
 * Rails Versioning: Drop support for 4.0.0 (EOL'ed)
 
+4.2.4:
+
+* Rollback backwards incompatible change, allowing paperclip to run on
+  Ruby >= 1.9.2.
+
 4.2.3:
 
 * Fix dependency specifications (didn't work with Rails 4.1)
