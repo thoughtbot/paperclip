@@ -700,9 +700,6 @@ describe Paperclip::Attachment do
 
     context "when assigned" do
       it "calls #make on all specified processors" do
-        Paperclip::Thumbnail.stubs(:make).with(any_parameters).returns(@file)
-        Paperclip::Test.stubs(:make).with(any_parameters).returns(@file)
-
         @dummy.avatar = @file
 
         expect(Paperclip::Thumbnail).to have_received(:make)
@@ -717,7 +714,6 @@ describe Paperclip::Attachment do
           convert_options: "",
           source_file_options: ""
         })
-        Paperclip::Thumbnail.stubs(:make).returns(@file)
 
         @dummy.avatar = @file
 
@@ -725,11 +721,35 @@ describe Paperclip::Attachment do
       end
 
       it "calls #make with attachment passed as third argument" do
-        Paperclip::Test.expects(:make).returns(@file)
-
         @dummy.avatar = @file
 
         expect(Paperclip::Test).to have_received(:make).with(anything, anything, @dummy.avatar)
+      end
+
+      it "calls #make and unlinks intermediary files afterward" do
+        @dummy.avatar.expects(:unlink_files).with([@file, @file])
+
+        @dummy.avatar = @file
+      end
+    end
+  end
+
+  context "An attachment with a processor that returns original file" do
+    before do
+      class Paperclip::Test < Paperclip::Processor
+        def make; @file; end
+      end
+      rebuild_model processors: [:test], styles: { once: "100x100" }
+      @file = StringIO.new("...")
+      @file.stubs(:close)
+      @dummy = Dummy.new
+    end
+
+    context "when assigned" do
+      it "#calls #make and doesn't unlink the original file" do
+        @dummy.avatar.expects(:unlink_files).with([])
+
+        @dummy.avatar = @file
       end
     end
   end
