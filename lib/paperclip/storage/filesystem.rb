@@ -35,7 +35,21 @@ module Paperclip
 
       def flush_writes #:nodoc:
         @queued_for_write.each do |style_name, file|
+          unless @options[:override_path_permissions] == false
+            dir  = File.dirname(path(style_name))
+            dirs = []
+            while not Dir.exists? dir
+              dirs << dir
+              dir = File.dirname(dir)
+            end
+          end
           FileUtils.mkdir_p(File.dirname(path(style_name)))
+          unless @options[:override_path_permissions] == false
+            resolved_chmod = @options[:override_path_permissions] || (0777 &~ File.umask)
+            dirs.each do |d|
+              FileUtils.chmod( resolved_chmod, d )
+            end
+          end
           begin
             FileUtils.mv(file.path, path(style_name))
           rescue SystemCallError

@@ -234,7 +234,7 @@ describe 'Paperclip' do
   end
 
   [0666,0664,0640].each do |perms|
-    context "when the perms are #{perms}" do
+    context "when the file perms are #{perms}" do
       before do
         rebuild_model override_file_permissions: perms
         @dummy = Dummy.new
@@ -257,6 +257,36 @@ describe 'Paperclip' do
     FileUtils.expects(:chmod).never
 
     rebuild_model override_file_permissions: false
+    dummy = Dummy.create!
+    dummy.avatar = @file
+    dummy.save
+  end
+
+  [0777,0775,0750].each do |perms|
+    context "when the path perms are #{perms}" do
+      before do
+        FileUtils.rm_rf "tmp"
+        rebuild_model override_path_permissions: perms
+        @dummy = Dummy.new
+        @file  = File.new(fixture_file("5k.png"), 'rb')
+      end
+
+      after do
+        @file.close
+      end
+
+      it "respects the current perms" do
+        @dummy.avatar = @file
+        @dummy.save
+        assert_equal perms, File.stat(File.dirname(@dummy.avatar.path)).mode & 0777
+      end
+    end
+  end
+
+  it "skips chmod operation, when override_path_permissions is set to false (e.g. useful when using CIFS mounts)" do
+    FileUtils.expects(:chmod).never
+
+    rebuild_model override_path_permissions: false
     dummy = Dummy.create!
     dummy.avatar = @file
     dummy.save
