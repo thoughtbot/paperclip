@@ -19,7 +19,7 @@ describe Paperclip::DataUriAdapter do
 
   context "a new instance" do
     before do
-      @contents = "data:image/png;base64,#{original_base64_content}"
+      @contents = "data:image/svg+xml;base64,#{original_base64_content}"
       @subject = Paperclip.io_adapters.for(@contents)
     end
 
@@ -73,11 +73,83 @@ describe Paperclip::DataUriAdapter do
 
   end
 
+  context "an svg image" do
+    context "base64 encoded" do
+      before do
+        @contents = "data:image/svg+xml;base64,#{svg_base64_content}"
+        @subject = Paperclip.io_adapters.for(@contents)
+      end
+      it "returns a nondescript file name" do
+        assert_equal "data", @subject.original_filename
+      end
+
+      it "returns a content type" do
+        assert_equal "image/svg+xml", @subject.content_type
+      end
+      it "generates correct fingerprint after read" do
+        fingerprint = Digest::MD5.hexdigest(@subject.read)
+        assert_equal fingerprint, @subject.fingerprint
+      end
+
+      it "generates same fingerprint" do
+        assert_equal @subject.fingerprint, @subject.fingerprint
+      end
+
+      it 'accepts a content_type' do
+        @subject.content_type = 'image/svg+xml'
+        assert_equal 'image/svg+xml', @subject.content_type
+      end
+
+      it 'accepts an original_filename' do
+        @subject.original_filename = 'image.svg'
+        assert_equal 'image.svg', @subject.original_filename
+      end
+    end
+    context "utf8 encoded" do
+      before do
+        @contents = "data:image/svg+xml;utf8,#{svg_file_contents}"
+        @subject = Paperclip.io_adapters.for(@contents)
+      end
+      it "returns a nondescript file name" do
+        assert_equal "data", @subject.original_filename
+      end
+
+      it "returns a content type" do
+        assert_equal "image/svg+xml", @subject.content_type
+      end
+      it "generates correct fingerprint after read" do
+        fingerprint = Digest::MD5.hexdigest(@subject.read)
+        assert_equal fingerprint, @subject.fingerprint
+      end
+
+      it "generates same fingerprint" do
+        assert_equal @subject.fingerprint, @subject.fingerprint
+      end
+
+      it 'accepts a content_type' do
+        @subject.content_type = 'image/svg+xml'
+        assert_equal 'image/svg+xml', @subject.content_type
+      end
+
+      it 'accepts an original_filename' do
+        @subject.original_filename = 'image.svg'
+        assert_equal 'image.svg', @subject.original_filename
+      end
+    end
+  end
+
   def original_base64_content
     Base64.encode64(original_file_contents)
   end
 
   def original_file_contents
     @original_file_contents ||= File.read(fixture_file('5k.png'))
+  end
+  
+  def svg_base64_content
+    Base64.encode64(svg_file_contents)
+  end  
+  def svg_file_contents
+    @svg_file_contents ||= File.read(fixture_file('good.svg'))
   end
 end
