@@ -592,6 +592,17 @@ both the `:path` and `:url` options in order to make sure the files are unavaila
 to the public. Both `:path` and `:url` allow the same set of interpolated
 variables.
 
+If you are using Paperclip with Capistrano and S3, symlinking the public directory will not work as the assets will be uploaded to your S3 bucket. You can solve this by modifying the interpolates for `:rails_root`
+
+```ruby
+# config/initializers/paperclip.rb
+Paperclip.interpolates :rails_root do |attachment, style_name|
+  #...
+  # Ex. Rails.env
+end
+
+```
+
 ---
 
 Post Processing
