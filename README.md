@@ -94,6 +94,10 @@ If you are dealing with pdf uploads or running the test suite, you'll also need
 to install GhostScript. On Mac OS X, you can also install that using Homebrew:
 
     brew install gs
+    
+If you're on Ubuntu, you'll want to run the following with apt-get:
+
+    sudo apt-get install imagemagick -y
 
 ### `file`
 
