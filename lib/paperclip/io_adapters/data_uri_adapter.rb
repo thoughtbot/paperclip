@@ -26,17 +26,17 @@ module Paperclip
     end
 
     def is_svg_image?
-      @payload.start_with?('<svg')
+      @payload.start_with?("<svg")
     end
 
     def get_payload_from_match
-      return '' if is_match_empty?
+      return "" if is_match_empty?
 
       if is_base64_encoded?
-        return Base64.decode64(@data_uri_parts.last || '')
+        return Base64.decode64(@data_uri_parts.last || "")
       end
 
-      URI.unescape(@data_uri_parts.last || '')
+      URI.unescape(@data_uri_parts.last || "")
     end
 
     def generate_xml_string
@@ -46,21 +46,21 @@ module Paperclip
     def is_base64_encoded?
       return false if is_match_empty?
 
-      [@data_uri_parts[2], @data_uri_parts[3]].include?('base64')
+      [@data_uri_parts[2], @data_uri_parts[3]].include?("base64")
     end
 
     def get_encoding_from_match
       return unless is_charset_present?
 
       begin
-        Encoding.find(@data_uri_parts[2].split('=').last)
+        Encoding.find(@data_uri_parts[2].split("=").last)
       rescue ArgumentError
         default_encoding
       end
     end
 
     def is_charset_present?
-      !is_match_empty? && @data_uri_parts[2].is_a?(String) && @data_uri_parts[2].start_with?('charset=')
+      !is_match_empty? && @data_uri_parts[2].is_a?(String) && @data_uri_parts[2].start_with?("charset=")
     end
 
     def is_match_empty?
@@ -78,7 +78,7 @@ module Paperclip
     end
 
     def default_encoding
-      Encoding.find('utf-8')
+      Encoding.find("utf-8")
     end
   end
 end
