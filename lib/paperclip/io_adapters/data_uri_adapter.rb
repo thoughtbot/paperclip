@@ -71,7 +71,7 @@ module Paperclip
       return @payload unless @encoding.present?
 
       begin
-        URI.decode_www_form_component(@payload, @encoding).flatten.reject(&:empty?).join('=')
+        @payload.force_encoding(@encoding)
       rescue ArgumentError
         @payload
       end
