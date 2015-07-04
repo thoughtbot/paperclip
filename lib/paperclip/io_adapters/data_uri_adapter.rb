@@ -70,7 +70,11 @@ module Paperclip
     def get_decoded_payload
       return @payload unless @encoding.present?
 
-      URI.decode_www_form(@payload, @encoding).flatten.reject(&:empty?).join('=')
+      begin
+        URI.decode_www_form_component(@payload, @encoding).flatten.reject(&:empty?).join('=')
+      rescue ArgumentError
+        @payload
+      end
     end
 
     def default_encoding
