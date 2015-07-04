@@ -107,7 +107,7 @@ describe Paperclip::DataUriAdapter do
     end
     context "utf8 encoded" do
       before do
-        @contents = "data:image/svg+xml;utf8,#{svg_file_contents}"
+        @contents = "data:image/svg+xml;charset=utf-8,#{URI.encode(svg_file_contents)}"
         @subject = Paperclip.io_adapters.for(@contents)
       end
       it "returns a nondescript file name" do
@@ -145,10 +145,10 @@ describe Paperclip::DataUriAdapter do
   def original_file_contents
     @original_file_contents ||= File.read(fixture_file('5k.png'))
   end
-  
+
   def svg_base64_content
     Base64.encode64(svg_file_contents)
-  end  
+  end
   def svg_file_contents
     @svg_file_contents ||= File.read(fixture_file('good.svg'))
   end
