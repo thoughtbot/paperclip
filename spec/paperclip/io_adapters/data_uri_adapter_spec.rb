@@ -19,7 +19,7 @@ describe Paperclip::DataUriAdapter do
 
   context "a new instance" do
     before do
-      @contents = "data:image/svg+xml;base64,#{original_base64_content}"
+      @contents = "data:image/png;base64,#{original_base64_content}"
       @subject = Paperclip.io_adapters.for(@contents)
     end
 
