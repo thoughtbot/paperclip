@@ -150,6 +150,7 @@ describe Paperclip::DataUriAdapter do
   def svg_base64_content
     Base64.encode64(svg_file_contents)
   end
+
   def svg_file_contents
     @svg_file_contents ||= File.read(fixture_file("good.svg"))
   end
