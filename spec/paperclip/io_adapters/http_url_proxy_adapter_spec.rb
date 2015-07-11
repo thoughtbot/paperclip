@@ -98,4 +98,15 @@ describe Paperclip::HttpUrlProxyAdapter do
     end
   end
 
+  context "a url with special characters in the filename" do
+    before do
+      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(StringIO.new("x"))
+      @url = "https://github.com/thoughtbot/paperclip-öäü字´½♥Ø²È.png"
+      @subject = Paperclip.io_adapters.for(@url)
+    end
+
+    it "returns a file name" do
+      assert_equal "paperclip-%C3%B6%C3%A4%C3%BC%E5%AD%97%C2%B4%C2%BD%E2%99%A5%C3%98%C2%B2%C3%88.png", @subject.original_filename
+    end
+  end
 end
