@@ -4,6 +4,7 @@
 
 * Bugfix: Dynamic fog directory option is now respected
 * Bugfix: Fixes cocaine duplicated paths [#2169]
+* Bugfix: Now it's possible to save images from URLs with special characters [#1932]
 * Removal of dead code (older versions of Rails and AWS SDK)
 * README adjustments
 
