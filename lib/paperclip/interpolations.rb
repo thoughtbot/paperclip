@@ -90,7 +90,7 @@ module Paperclip
     # all class names. Calling #class will return the expected class.
     def class attachment = nil, style_name = nil
       return super() if attachment.nil? && style_name.nil?
-      plural_cache.underscore_and_pluralize(attachment.instance.class.to_s)
+      plural_cache.underscore_and_pluralize_class(attachment.instance.class)
     end
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
@@ -186,7 +186,7 @@ module Paperclip
     # Returns the pluralized form of the attachment name. e.g.
     # "avatars" for an attachment of :avatar
     def attachment attachment, style_name
-      plural_cache.pluralize(attachment.name.to_s.downcase)
+      plural_cache.pluralize_symbol(attachment.name)
     end
 
     # Returns the style, or the default style if nil is supplied.
