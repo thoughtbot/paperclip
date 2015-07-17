@@ -21,7 +21,7 @@ module Paperclip
 
     # Returns a sorted list of all interpolations.
     def self.all
-      self.instance_methods(false).sort
+      self.instance_methods(false).sort!
     end
 
     # Perform the actual interpolation. Takes the pattern to interpolate
@@ -31,18 +31,14 @@ module Paperclip
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
       result = pattern.dup
-      interpolators_cache.each do |tag|
-        result.gsub!(tag_pattern_cache[tag]) { send(tag, *args) }
+      interpolators_cache.each do |method, token|
+        result.gsub!(token) { send(method, *args) } if result.include?(token)
       end
       result
     end
 
-    def self.tag_pattern_cache
-      @tag_pattern_cache ||= Hash.new { |hash, key| hash[key] = ":#{key}" }
-    end
-
     def self.interpolators_cache
-      @interpolators_cache ||= all.reverse!
+      @interpolators_cache ||= all.reverse!.map! { |method| [method, ":#{method}"] }
     end
 
     def self.plural_cache
