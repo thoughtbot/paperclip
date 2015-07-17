@@ -47,7 +47,7 @@ module Paperclip
 
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
-      [ basename(attachment, style_name), extension(attachment, style_name) ].reject(&:blank?).join(".")
+      [ basename(attachment, style_name), extension(attachment, style_name) ].delete_if(&:empty?).join(".".freeze)
     end
 
     # Returns the interpolated URL. Will raise an error if the url itself
@@ -95,7 +95,7 @@ module Paperclip
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}\Z/, "")
+      File.basename(attachment.original_filename, ".*".freeze)
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
@@ -103,7 +103,7 @@ module Paperclip
     # of the actual extension.
     def extension attachment, style_name
       ((style = attachment.styles[style_name.to_s.to_sym]) && style[:format]) ||
-        File.extname(attachment.original_filename).gsub(/\A\.+/, "")
+        File.extname(attachment.original_filename).sub(/\A\.+/, "".freeze)
     end
 
     # Returns the dot+extension of the file. e.g. ".jpg" for "file.jpg"
@@ -111,7 +111,7 @@ module Paperclip
     # of the actual extension. If the extension is empty, no dot is added.
     def dotextension attachment, style_name
       ext = extension(attachment, style_name)
-      ext.empty? ? "" : ".#{ext}"
+      ext.empty? ? ext : ".#{ext}"
     end
 
     # Returns an extension based on the content type. e.g. "jpeg" for
@@ -175,9 +175,9 @@ module Paperclip
     def id_partition attachment, style_name
       case id = attachment.instance.id
       when Integer
-        ("%09d" % id).scan(/\d{3}/).join("/")
+        ("%09d".freeze % id).scan(/\d{3}/).join("/".freeze)
       when String
-        id.scan(/.{3}/).first(3).join("/")
+        id.scan(/.{3}/).first(3).join("/".freeze)
       else
         nil
       end
