@@ -286,7 +286,7 @@ module Paperclip
       end
 
       def parse_credentials creds
-        creds = creds.respond_to?('call') ? creds.call(self) : creds
+        creds = creds.respond_to?(:call) ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
         (creds[RailsEnvironment.get] || creds).symbolize_keys
       end
