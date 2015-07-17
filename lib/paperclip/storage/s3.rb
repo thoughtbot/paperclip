@@ -157,9 +157,9 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
-            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
-            @options[:url]  = ":s3_path_url"
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host".freeze
+            @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
+            @options[:url]  = ":s3_path_url".freeze
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
@@ -167,16 +167,16 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "".freeze)}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "".freeze)}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "".freeze)}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{\A/}, "".freeze)}"
+          "#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
