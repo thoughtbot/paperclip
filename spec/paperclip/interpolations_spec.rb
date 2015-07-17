@@ -24,9 +24,10 @@ describe Paperclip::Interpolations do
   end
 
   it "returns the class of the instance" do
+    class Thing ; end
     attachment = mock
     attachment.expects(:instance).returns(attachment)
-    attachment.expects(:class).returns("Thing")
+    attachment.expects(:class).returns(Thing)
     assert_equal "things", Paperclip::Interpolations.class(attachment, :style)
   end
 
