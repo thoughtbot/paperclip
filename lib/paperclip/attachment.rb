@@ -70,6 +70,7 @@ module Paperclip
     # +escape_url+ - Perform URI escaping to URLs. Defaults to true
     def initialize(name, instance, options = {})
       @name              = name.to_sym
+      @name_string       = name.to_s
       @instance          = instance
 
       options = self.class.default_options.deep_merge(options)
@@ -366,7 +367,7 @@ module Paperclip
     # instance_write(:file_name, "me.jpg") will write "me.jpg" to the instance's
     # "avatar_file_name" field (assuming the attachment is called avatar).
     def instance_write(attr, value)
-      setter = :"#{name}_#{attr}="
+      setter = :"#{@name_string}_#{attr}="
       if instance.respond_to?(setter)
         instance.send(setter, value)
       end
@@ -375,7 +376,7 @@ module Paperclip
     # Reads the attachment-specific attribute on the instance. See instance_write
     # for more details.
     def instance_read(attr)
-      getter = :"#{name}_#{attr}"
+      getter = :"#{@name_string}_#{attr}"
       if instance.respond_to?(getter)
         instance.send(getter)
       end
@@ -403,8 +404,8 @@ module Paperclip
 
     def ensure_required_accessors! #:nodoc:
       %w(file_name).each do |field|
-        unless @instance.respond_to?("#{name}_#{field}") && @instance.respond_to?("#{name}_#{field}=")
-          raise Paperclip::Error.new("#{@instance.class} model missing required attr_accessor for '#{name}_#{field}'")
+        unless @instance.respond_to?("#{@name_string}_#{field}") && @instance.respond_to?("#{@name_string}_#{field}=")
+          raise Paperclip::Error.new("#{@instance.class} model missing required attr_accessor for '#{@name_string}_#{field}'")
         end
       end
     end
