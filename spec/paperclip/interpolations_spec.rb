@@ -33,7 +33,7 @@ describe Paperclip::Interpolations do
 
   it "returns the basename of the file" do
     attachment = mock
-    attachment.expects(:original_filename).returns("one.jpg").times(2)
+    attachment.expects(:original_filename).returns("one.jpg").times(1)
     assert_equal "one", Paperclip::Interpolations.basename(attachment, :style)
   end
 
@@ -188,14 +188,14 @@ describe Paperclip::Interpolations do
   it "returns the filename as basename.extension" do
     attachment = mock
     attachment.expects(:styles).returns({})
-    attachment.expects(:original_filename).returns("one.jpg").times(3)
+    attachment.expects(:original_filename).returns("one.jpg").times(2)
     assert_equal "one.jpg", Paperclip::Interpolations.filename(attachment, :style)
   end
 
   it "returns the filename as basename.extension when format supplied" do
     attachment = mock
     attachment.expects(:styles).returns({style: {format: :png}})
-    attachment.expects(:original_filename).returns("one.jpg").times(2)
+    attachment.expects(:original_filename).returns("one.jpg").times(1)
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
 
