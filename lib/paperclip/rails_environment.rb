@@ -15,7 +15,7 @@ module Paperclip
     private
 
     def rails_exists?
-      Object.const_defined?("Rails")
+      Object.const_defined?(:Rails)
     end
 
     def rails_environment_exists?
