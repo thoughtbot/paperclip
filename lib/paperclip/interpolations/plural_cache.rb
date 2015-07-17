@@ -2,15 +2,16 @@ module Paperclip
   module Interpolations
     class PluralCache
       def initialize
-        @cache = {}
+        @symbol_cache = {}.compare_by_identity
+        @klass_cache = {}.compare_by_identity
       end
 
-      def pluralize(word)
-        @cache[word] ||= word.pluralize
+      def pluralize_symbol(symbol)
+        @symbol_cache[symbol] ||= symbol.to_s.downcase.pluralize
       end
 
-      def underscore_and_pluralize(word)
-        @cache[word] ||= word.underscore.pluralize
+      def underscore_and_pluralize_class(klass)
+        @klass_cache[klass] ||= klass.name.underscore.pluralize
       end
     end
   end

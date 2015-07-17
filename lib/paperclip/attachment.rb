@@ -68,7 +68,7 @@ module Paperclip
     # +url_generator+ - the object used to generate URLs, using the interpolator. Defaults to Paperclip::UrlGenerator
     # +escape_url+ - Perform URI escaping to URLs. Defaults to true
     def initialize(name, instance, options = {})
-      @name              = name
+      @name              = name.to_sym
       @instance          = instance
 
       options = self.class.default_options.deep_merge(options)
