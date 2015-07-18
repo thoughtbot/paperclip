@@ -250,4 +250,13 @@ describe Paperclip::Interpolations do
     value = Paperclip::Interpolations.interpolate(":notreal/:id/:attachment", :attachment, :style)
     assert_equal ":notreal/1234/attachments", value
   end
+
+  it "handles question marks" do
+    Paperclip.interpolates :foo? do
+      "bar"
+    end
+    Paperclip::Interpolations.expects(:fool).never
+    value = Paperclip::Interpolations.interpolate(":fo/:foo?")
+    assert_equal ":fo/bar", value
+  end
 end
