@@ -9,7 +9,6 @@ gem "rubysl", :platforms => :rbx
 gem "racc", :platforms => :rbx
 gem "pry"
 gem "rails", "~> 4.2.0"
-gem "paperclip", :path => "../"
 
 group :development, :test do
   gem "mime-types", "~> 1.16"

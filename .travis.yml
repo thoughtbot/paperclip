@@ -1,12 +1,9 @@
 rvm:
+  - 2.0
+  - 2.1
+  - 2.2.2
   - jruby-19mode
   - rbx-2
-  - 2.0.0
-  - 2.1.1
-  - 2.2.2
-
-install:
-  - "travis_retry bundle install"
 
 script: "bundle exec rake clean spec cucumber"
 
