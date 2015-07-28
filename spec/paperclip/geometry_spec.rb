@@ -82,7 +82,7 @@ describe Paperclip::Geometry do
       assert_equal 456, @upper.height
     end
 
-    ['>', '<', '#', '@', '%', '^', '!', nil].each do |mod|
+    ['>', '<', '#', '@', '@>', '>@', '%', '^', '!', nil].each do |mod|
       it "ensures the modifier #{description} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
         assert_equal mod, @geo.modifier
