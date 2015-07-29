@@ -1,5 +1,5 @@
 Then %r{I should see an image with a path of "([^"]*)"} do |path|
-  page.should have_css("img[src^='#{path}']")
+  expect(page).to have_css("img[src^='#{path}']")
 end
 
 Then %r{^the file at "([^"]*)" is the same as "([^"]*)"$} do |web_file, path|
@@ -11,5 +11,5 @@ Then %r{^the file at "([^"]*)" is the same as "([^"]*)"$} do |web_file, path|
     page.body
   end
   actual.force_encoding("UTF-8") if actual.respond_to?(:force_encoding)
-  actual.should == expected
+  expect(actual).to eq(expected)
 end

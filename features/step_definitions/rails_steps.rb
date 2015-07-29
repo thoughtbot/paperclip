@@ -24,7 +24,7 @@ Given /^I generate a new rails application$/ do
 end
 
 Given "I fix the application.rb for 3.0.12" do
-  in_current_dir do
+  cd(".") do
     File.open("config/application.rb", "a") do |f|
       f << "ActionController::Base.config.relative_url_root = ''"
     end
@@ -32,7 +32,7 @@ Given "I fix the application.rb for 3.0.12" do
 end
 
 Given "I allow the attachment to be submitted" do
-  in_current_dir do
+  cd(".") do
     transform_file("app/controllers/users_controller.rb") do |content|
       content.gsub("params.require(:user).permit(:name)",
                    "params.require(:user).permit!")
@@ -41,7 +41,7 @@ Given "I allow the attachment to be submitted" do
 end
 
 Given "I remove turbolinks" do
-  in_current_dir do
+  cd(".") do
     transform_file("app/assets/javascripts/application.js") do |content|
       content.gsub("//= require turbolinks", "")
     end
@@ -70,7 +70,7 @@ def attach_attachment(name, definition = nil)
     snippet += definition
   end
   snippet += "\ndo_not_validate_attachment_file_type :#{name}\n"
-  in_current_dir do
+  cd(".") do
     transform_file("app/models/user.rb") do |content|
       content.sub(/end\Z/, "#{snippet}\nend")
     end
@@ -78,7 +78,7 @@ def attach_attachment(name, definition = nil)
 end
 
 Given "I empty the application.js file" do
-  in_current_dir do
+  cd(".") do
     transform_file("app/assets/javascripts/application.js") do |content|
       ""
     end
@@ -128,7 +128,7 @@ end
 
 Given /^I add this snippet to the User model:$/ do |snippet|
   file_name = "app/models/user.rb"
-  in_current_dir do
+  cd(".") do
     content = File.read(file_name)
     File.open(file_name, 'w') { |f| f << content.sub(/end\Z/, "#{snippet}\nend") }
   end
@@ -136,14 +136,14 @@ end
 
 Given /^I add this snippet to config\/application.rb:$/ do |snippet|
   file_name = "config/application.rb"
-  in_current_dir do
+  cd(".") do
     content = File.read(file_name)
     File.open(file_name, 'w') {|f| f << content.sub(/class Application < Rails::Application.*$/, "class Application < Rails::Application\n#{snippet}\n")}
   end
 end
 
 Given /^I start the rails application$/ do
-  in_current_dir do
+  cd(".") do
     require "./config/environment"
     require "capybara/rails"
   end
@@ -154,7 +154,7 @@ Given /^I reload my application$/ do
 end
 
 When /^I turn off class caching$/ do
-  in_current_dir do
+  cd(".") do
     file = "config/environments/test.rb"
     config = IO.read(file)
     config.gsub!(%r{^\s*config.cache_classes.*$},
@@ -166,7 +166,7 @@ end
 Then /^the file at "([^"]*)" should be the same as "([^"]*)"$/ do |web_file, path|
   expected = IO.read(path)
   actual = read_from_web(web_file)
-  actual.should == expected
+  expect(actual).to eq(expected)
 end
 
 When /^I configure the application to use "([^\"]+)" from this project$/ do |name|
@@ -198,7 +198,7 @@ end
 
 Given(/^I add a "(.*?)" processor in "(.*?)"$/) do |processor, directory|
   filename = "#{directory}/#{processor}.rb"
-  in_current_dir do
+  cd(".") do
     FileUtils.mkdir_p directory
     File.open(filename, "w") do |f|
       f.write(<<-CLASS)
