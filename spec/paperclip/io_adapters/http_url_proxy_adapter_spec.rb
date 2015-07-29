@@ -99,7 +99,7 @@ describe Paperclip::HttpUrlProxyAdapter do
   end
 
   context "a url with special characters in the filename" do
-    it "returns a file name" do
+    it "returns a encoded filename" do
       Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
         returns(StringIO.new("x"))
       url = "https://github.com/thoughtbot/paperclip-öäü字´½♥Ø²È.png"
