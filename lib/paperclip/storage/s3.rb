@@ -220,6 +220,13 @@ module Paperclip
         region || s3_credentials[:s3_region]
       end
 
+      def s3_region
+        region = @options[:s3_region]
+        region = region.call(self) if region.is_a?(Proc)
+
+        region || s3_credentials[:s3_region]
+      end
+
       def s3_host_alias
         @s3_host_alias = @options[:s3_host_alias]
         @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.respond_to?(:call)
