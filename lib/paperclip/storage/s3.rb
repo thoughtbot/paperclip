@@ -209,11 +209,12 @@ module Paperclip
         host_name = @options[:s3_host_name]
         host_name = host_name.call(self) if host_name.is_a?(Proc)
 
-        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        region = ["s3", s3_region].compact.join("-")
+        host_name || s3_credentials[:s3_host_name] || "#{region}.amazonaws.com"
       end
 
       def s3_region
-        region = @options[:s3_region]
+        region = @options[:s3_region] || s3_credentials[:s3_region]
         region = region.call(self) if region.is_a?(Proc)
 
         region || s3_credentials[:s3_region]

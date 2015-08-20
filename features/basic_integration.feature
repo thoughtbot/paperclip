@@ -77,5 +77,5 @@ Feature: Rails integration
     And I attach the file "spec/support/fixtures/5k.png" to "Attachment" on S3
     And I press "Submit"
     Then I should see "Name: something"
-    And I should see an image with a path of "http://s3.amazonaws.com/paperclip/attachments/original/5k.png"
-    And the file at "http://s3.amazonaws.com/paperclip/attachments/original/5k.png" should be uploaded to S3
+    And I should see an image with a path of "http://s3-us-west-2.amazonaws.com/paperclip/attachments/original/5k.png"
+    And the file at "http://s3-us-west-2.amazonaws.com/paperclip/attachments/original/5k.png" should be uploaded to S3
