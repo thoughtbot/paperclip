@@ -10,8 +10,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         @file = File.new(fixture_file("5k.png"))
@@ -48,8 +48,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         @dummy = Dummy.new
@@ -68,8 +68,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       }
 
         Dummy.delete_all
@@ -110,8 +110,8 @@ unless ENV["S3_BUCKET"].blank?
           bucket: ENV["S3_BUCKET"],
           s3_region: ENV["S3_REGION"],
           s3_credentials: {
-            aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-            aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+            access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+            secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
           }
 
         Dummy.delete_all
@@ -152,8 +152,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        aws_access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
                       },
                       s3_server_side_encryption: "AES256"
         Dummy.delete_all
