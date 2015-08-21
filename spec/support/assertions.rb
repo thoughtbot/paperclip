@@ -48,13 +48,16 @@ module Assertions
   end
 
   def assert_success_response(url)
+    url = "http:#{url}" unless url =~ /http/
     Net::HTTP.get_response(URI.parse(url)) do |response|
-      assert_equal "200", response.code,
+      assert_equal "200",
+        response.code,
         "Expected HTTP response code 200, got #{response.code}"
     end
   end
 
   def assert_not_found_response(url)
+    url = "http:#{url}" unless url =~ /http/
     Net::HTTP.get_response(URI.parse(url)) do |response|
       assert_equal "404", response.code,
         "Expected HTTP response code 404, got #{response.code}"
@@ -62,6 +65,7 @@ module Assertions
   end
 
   def assert_forbidden_response(url)
+    url = "http:#{url}" unless url =~ /http/
     Net::HTTP.get_response(URI.parse(url)) do |response|
       assert_equal "403", response.code,
         "Expected HTTP response code 403, got #{response.code}"
