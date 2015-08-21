@@ -204,7 +204,7 @@ describe Paperclip::Interpolations do
     attachment.stubs(:original_filename).returns("one")
     assert_equal "one", Paperclip::Interpolations.filename(attachment, :style)
   end
-  
+
   it "returns the basename when the extension contains regexp special characters" do
     attachment = mock
     attachment.stubs(:styles).returns({})
@@ -248,5 +248,13 @@ describe Paperclip::Interpolations do
     Paperclip::Interpolations.expects(:notreal).never
     value = Paperclip::Interpolations.interpolate(":notreal/:id/:attachment", :attachment, :style)
     assert_equal ":notreal/1234/attachments", value
+  end
+
+  it "handles question marks" do
+    Paperclip.interpolates :foo? do
+      "bar"
+    end
+    value = Paperclip::Interpolations.interpolate(":fo/:foo?")
+    assert_equal ":fo/bar", value
   end
 end
