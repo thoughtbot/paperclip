@@ -42,7 +42,7 @@ Paperclip
 - [License](#license)
 - [About thoughtbot](#about-thoughtbot)
 
-Paperclip is intended as an easy file attachment library for Active Record. The
+Paperclip is intended as an easy file attachment library for ActiveRecord. The
 intent behind it was to keep setup as easy as possible and to treat files as
 much like other attributes as possible. This means they aren't saved to their
 final locations on disk, nor are they deleted if set to nil, until
