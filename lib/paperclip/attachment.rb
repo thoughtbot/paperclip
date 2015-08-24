@@ -2,6 +2,7 @@
 require 'uri'
 require 'paperclip/url_generator'
 require 'active_support/deprecation'
+require 'active_support/core_ext/string/inflections'
 
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
