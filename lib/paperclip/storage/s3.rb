@@ -113,6 +113,7 @@ module Paperclip
 
     module S3
       def self.extended base
+        unless defined?(AWS_CLASS)
         begin
           require 'aws-sdk'
           const_set('AWS_CLASS', defined?(::Aws) ? ::Aws : ::AWS)
@@ -124,7 +125,8 @@ module Paperclip
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
-        end unless defined?(AWS_CLASS)
+        end
+        end
 
         # Overriding log formatter to make sure it return a UTF-8 string
         if defined?(AWS_CLASS::Core::LogFormatter)
