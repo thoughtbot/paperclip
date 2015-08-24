@@ -40,7 +40,11 @@ module Paperclip
         attachment_names.each do |attachment_name|
           COLUMNS.each_pair do |column_name, column_type|
             column_options = options.merge(options[column_name.to_sym] || {})
-            remove_column(table_name, "#{attachment_name}_#{column_name}", column_type, column_options)
+            if ActiveRecord::VERSION::MAJOR >= 4
+              remove_column(table_name, "#{attachment_name}_#{column_name}", column_type, column_options)
+            else
+              remove_column(table_name, "#{attachment_name}_#{column_name}")
+            end
           end
         end
       end
