@@ -126,6 +126,9 @@ module Paperclip
             e.message << " (You may need to install the aws-sdk gem)"
             raise e
           end
+          if Gem::Version.new(AWS_CLASS::VERSION) >= Gem::Version.new(2) && Gem::Version.new(AWS_CLASS::VERSION) <= Gem::Version.new("2.0.33")
+            raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
+          end
         end
 
         # Overriding log formatter to make sure it return a UTF-8 string
