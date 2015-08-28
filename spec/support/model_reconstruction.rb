@@ -10,7 +10,15 @@ module ModelReconstruction
 
     klass.reset_column_information
     klass.connection_pool.clear_table_cache!(klass.table_name) if klass.connection_pool.respond_to?(:clear_table_cache!)
-    klass.connection.schema_cache.clear_table_cache!(klass.table_name) if klass.connection.respond_to?(:schema_cache)
+
+    if klass.connection.respond_to?(:schema_cache)
+      if `bundle exec rails -v`.include?("4.2")
+        klass.connection.schema_cache.clear_table_cache!(klass.table_name)
+      elsif `bundle exec rails -v`.include?("5.0")
+        klass.connection.schema_cache.clear_data_source_cache!(klass.table_name)
+      end
+    end
+
     klass
   end
 
