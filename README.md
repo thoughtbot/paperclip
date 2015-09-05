@@ -99,7 +99,7 @@ to install GhostScript. On Mac OS X, you can also install that using Homebrew:
 
     brew install gs
 
-If you're on Ubuntu (or any Debian base Linux distribution), you'll want to run
+If you are on Ubuntu (or any Debian base Linux distribution), you'll want to run
 the following with apt-get:
 
     sudo apt-get install imagemagick -y
@@ -152,7 +152,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 4.3"
+gem "paperclip", "~> 5.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
