@@ -1,4 +1,13 @@
-4.3.0:
+4.3.1 (9/9/2015):
+
+* Backport of bugfix to `remove_column`, so it works in Rails 3 and 4
+  c740fb171fe2f88c60b999d2a1c2122f2b8f43e9
+* Fix GeometryParser regex for usage of '@>' flag
+* `url` on a unpersisted record returns default_url
+* spec deprecation warnings and failures
+* README adjustments
+
+4.3.0 (6/18/2015):
 
 * Improvement: Update aws-sdk and cucumber gem versions.
 * Improvement: Add `length` alias for `size` method in AbstractAdapter.
