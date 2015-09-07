@@ -236,6 +236,7 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       flush_deletes unless @options[:keep_old_files]
+      @queued_for_write.except!(:original) unless @options[:only_process].empty? || @options[:only_process].include?(:original)
       flush_writes
       @dirty = false
       true
