@@ -364,6 +364,58 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "An attachment that uses S3 for storage and has styles" do
+    before do
+      rebuild_model(
+        (aws2_add_region).merge(
+          storage: :s3,
+          styles: { thumb: ["90x90#", :jpg] },
+          bucket: "bucket",
+          s3_credentials: {
+            "access_key_id" => "12345",
+            "secret_access_key" => "54321" }
+        )
+      )
+
+      @file = File.new(fixture_file("5k.png"), "rb")
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+      @dummy.save
+    end
+
+    context "reprocess" do
+      before do
+        @object = stub
+        @dummy.avatar.stubs(:s3_object).with(:original).returns(@object)
+        @dummy.avatar.stubs(:s3_object).with(:thumb).returns(@object)
+        @object.stubs(:get).yields(@file.read)
+        @object.stubs(:exists?).returns(true)
+      end
+
+      it "uploads original" do
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/png",
+          acl: :"public-read").returns(true)
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: :"public-read").returns(true)
+        @dummy.avatar.reprocess!
+      end
+
+      it "doesn't upload original" do
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: :"public-read").returns(true)
+        @dummy.avatar.reprocess!(:thumb)
+      end
+    end
+
+    after { @file.close }
+  end
+
   context "An attachment that uses S3 for storage and has spaces in file name" do
     before do
       rebuild_model(
