@@ -1,0 +1,18 @@
+en:
+  errors:
+    messages:
+      in_between: "%{min} ile %{max} arasında olmalıdır"
+      spoofed_media_type: "olmaması gerektiği raporlanan içerik bulunuyor"
+
+  number:
+    human:
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Bayt"
+            other: "Bayt"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
