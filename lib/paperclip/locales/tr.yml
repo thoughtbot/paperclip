@@ -1,4 +1,4 @@
-en:
+tr:
   errors:
     messages:
       in_between: "%{min} ile %{max} arasında olmalıdır"
