@@ -120,7 +120,7 @@ module Paperclip
             const_set('AWS_BASE_ERROR',
               defined?(::Aws) ? Aws::Errors::ServiceError : AWS::Errors::Base)
             const_set('DEFAULT_PERMISSION',
-              defined?(::AWS) ? :public_read : :'public-read')
+              defined?(::Aws) ? :'public-read' : :public_read)
 
           rescue LoadError => e
             e.message << " (You may need to install the aws-sdk gem)"
