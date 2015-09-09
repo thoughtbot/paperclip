@@ -22,6 +22,7 @@ Paperclip
   - [Deleting an Attachment](#deleting-an-attachment)
 - [Usage](#usage)
 - [Validations](#validations)
+- [Internationalization (I18n)](#internationalization-i18n)
 - [Security Validations](#security-validations)
 - [Defaults](#defaults)
 - [Migrations](#migrations-1)
@@ -399,6 +400,12 @@ validates_attachment :avatar,
 inferred content_type, regardless of the actual contents of the file.
 
 ---
+
+Internationalization (I18n)
+---------------------------
+
+For using or adding locale files in different languages, check the project
+https://github.com/thoughtbot/paperclip-i18n.
 
 Security Validations
 ====================
