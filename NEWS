@@ -1,8 +1,22 @@
 master:
 
-* Improvement: Paperclip now supports aws-sdk v2 (@betesh, @davetchen, https://github.com/thoughtbot/paperclip/pull/1903)
-    If your Gemfile contains aws-sdk (>= 2.0.0) and aws-sdk-v1, paperclip will use aws-sdk v2.
-    With aws-sdk v2, S3 storage requires you to set the s3_region.  s3_region may be nested in s3_credentials, and (if not nested in s3_credentials) it may be a Proc.
+* Improvement: Paperclip now supports aws-sdk v2
+  @betesh, @davetchen,
+  https://github.com/thoughtbot/paperclip/pull/1903
+
+  If your Gemfile contains aws-sdk (>= 2.0.0) and aws-sdk-v1, paperclip will use
+  aws-sdk v2. With aws-sdk v2, S3 storage requires you to set the s3_region.
+  s3_region may be nested in s3_credentials, and (if not nested in
+  s3_credentials) it may be a Proc.
+
+4.3.1 (9/9/2015):
+
+* Backport of bugfix to `remove_column`, so it works in Rails 3 and 4
+  c740fb171fe2f88c60b999d2a1c2122f2b8f43e9
+* Fix GeometryParser regex for usage of '@>' flag
+* `url` on a unpersisted record returns default_url
+* spec deprecation warnings and failures
+* README adjustments
 
 4.3.0 (6/18/2015):
 
