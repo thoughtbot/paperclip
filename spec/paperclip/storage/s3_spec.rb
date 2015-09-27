@@ -408,22 +408,22 @@ describe Paperclip::Storage::S3 do
       end
 
       it "uploads original" do
-        @object.expects((defined?(::Aws) ? :upload_file : :write)).
-          with(anything,
-            content_type: "image/png",
-            acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
-        @object.expects((defined?(::Aws) ? :upload_file : :write)).
-          with(anything,
-            content_type: "image/jpeg",
-            acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
+        @object.expects((defined?(::Aws) ? :upload_file : :write)).with(
+          anything,
+          content_type: "image/png",
+          acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
+        @object.expects((defined?(::Aws) ? :upload_file : :write)).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
         @dummy.avatar.reprocess!
       end
 
       it "doesn't upload original" do
-        @object.expects((defined?(::Aws) ? :upload_file : :write)).
-          with(anything,
-            content_type: "image/jpeg",
-            acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
+        @object.expects((defined?(::Aws) ? :upload_file : :write)).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
         @dummy.avatar.reprocess!(:thumb)
       end
     end
