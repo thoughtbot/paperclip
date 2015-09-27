@@ -382,12 +382,14 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has styles" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
-        styles: { thumb: ["90x90#", :jpg] },
-        bucket: "bucket",
-        s3_credentials: { "access_key_id" => "12345",
-                          "secret_access_key" => "54321" }
-        )
+        (aws2_add_region).merge({
+          storage: :s3,
+          styles: { thumb: ["90x90#", :jpg] },
+          bucket: "bucket",
+          s3_credentials: {
+            "access_key_id" => "12345",
+            "secret_access_key" => "54321" }
+          }))
 
       @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
@@ -400,23 +402,23 @@ describe Paperclip::Storage::S3 do
         @object = stub
         @dummy.avatar.stubs(:s3_object).with(:original).returns(@object)
         @dummy.avatar.stubs(:s3_object).with(:thumb).returns(@object)
-        @object.stubs(defined?(::Aws) ? :get : :read).with().yields(@file.read)
-        @object.stubs(:exists?).with().returns(true)
+        @object.stubs(defined?(::Aws) ? :get : :read).yields(@file.read)
+        @object.stubs(:exists?).returns(true)
       end
 
       it "uploads original" do
-        @object.expects((defined?(::Aws) ? :upload_file : :write))
-          .with(anything, content_type: 'image/png',
+        @object.expects((defined?(::Aws) ? :upload_file : :write)).
+          with(anything, content_type: "image/png",
                 acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
-        @object.expects((defined?(::Aws) ? :upload_file : :write))
-          .with(anything, content_type: 'image/jpeg',
+        @object.expects((defined?(::Aws) ? :upload_file : :write)).
+          with(anything, content_type: "image/jpeg",
                 acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
         @dummy.avatar.reprocess!
       end
 
       it "doesn't upload original" do
         @object.expects((defined?(::Aws) ? :upload_file : :write))
-          .with(anything, content_type: 'image/jpeg',
+          .with(anything, content_type: "image/jpeg",
                 acl: Paperclip::Storage::S3::DEFAULT_PERMISSION).returns(true)
         @dummy.avatar.reprocess!(:thumb)
       end
