@@ -481,7 +481,7 @@ describe Paperclip::Storage::S3 do
     before do
       rebuild_model (aws2_add_region).merge storage: :s3,
         s3_credentials: { bucket: "prod_bucket" },
-        s3_host_alias: Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
+        s3_host_alias: ->(atch) { "cdn#{atch.instance.counter % 4}.example.com" },
         path: ":attachment/:basename:dotextension",
         url: ":s3_alias_url"
       Dummy.class_eval do
