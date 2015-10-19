@@ -44,7 +44,7 @@ describe Paperclip::Storage::Filesystem do
 
       it 'copies the file to a known location with copy_to_local_file' do
         tempfile = Tempfile.new("known_location")
-        @dummy.avatar.copy_to_local_file(:original, tempfile.path)
+        @dummy.avatar.copy_to_local_file(tempfile.path, :original)
         tempfile.rewind
         assert_equal @file.read, tempfile.read
         tempfile.close

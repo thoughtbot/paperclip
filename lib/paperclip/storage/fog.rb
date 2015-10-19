@@ -160,10 +160,10 @@ module Paperclip
         (creds[RailsEnvironment.get] || creds).symbolize_keys
       end
 
-      def copy_to_local_file(style, local_dest_path)
-        log("copying #{path(style)} to local file #{local_dest_path}")
+      def copy_to_local_file(local_dest_path, style_name = default_style)
+        log("copying #{path(style_name)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
-          file = directory.files.get(path(style))
+          file = directory.files.get(path(style_name))
           local_file.write(file.body)
         end
       rescue ::Fog::Errors::Error => e
