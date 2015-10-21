@@ -4,7 +4,7 @@ module Paperclip
     # distribution. You can find out more about it at http://aws.amazon.com/s3
     #
     # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
-    #   gem 'aws-sdk', '~> 1.6'
+    #   gem 'aws-sdk'
     # There are a few S3-specific options for has_attached_file:
     # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
@@ -41,7 +41,7 @@ module Paperclip
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
     #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
-    #   The default for Paperclip is :public_read.
+    #   The default for Paperclip is :public_read (aws-sdk v1) / public-read (aws-sdk v2).
     #
     #   You can set permission on a per style bases by doing the following:
     #     :s3_permissions => {
@@ -93,6 +93,7 @@ module Paperclip
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
     # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
+    # * +s3_region+: For aws-sdk v2, s3_region is required.
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
     #   "x-amz-meta-" before sending it as a header on the object
@@ -112,22 +113,33 @@ module Paperclip
 
     module S3
       def self.extended base
-        begin
-          require 'aws-sdk'
-        rescue LoadError => e
-          e.message << " (You may need to install the aws-sdk gem)"
-          raise e
-        end unless defined?(AWS::Core)
+        unless defined?(AWS_CLASS)
+          begin
+            require 'aws-sdk'
+            const_set('AWS_CLASS', defined?(::Aws) ? ::Aws : ::AWS)
+            const_set('AWS_BASE_ERROR',
+              defined?(::Aws) ? Aws::Errors::ServiceError : AWS::Errors::Base)
+            const_set('DEFAULT_PERMISSION',
+              defined?(::AWS) ? :public_read : :'public-read')
+
+          rescue LoadError => e
+            e.message << " (You may need to install the aws-sdk gem)"
+            raise e
+          end
+          if Gem::Version.new(AWS_CLASS::VERSION) >= Gem::Version.new(2) && Gem::Version.new(AWS_CLASS::VERSION) <= Gem::Version.new("2.0.33")
+            raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
+          end
+        end
 
         # Overriding log formatter to make sure it return a UTF-8 string
-        if defined?(AWS::Core::LogFormatter)
-          AWS::Core::LogFormatter.class_eval do
+        if defined?(AWS_CLASS::Core::LogFormatter)
+          AWS_CLASS::Core::LogFormatter.class_eval do
             def summarize_hash(hash)
               hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
           end
-        elsif defined?(AWS::Core::ClientLogging)
-          AWS::Core::ClientLogging.class_eval do
+        elsif defined?(AWS_CLASS::Core::ClientLogging)
+          AWS_CLASS::Core::ClientLogging.class_eval do
             def sanitize_hash(hash)
               hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
@@ -141,7 +153,7 @@ module Paperclip
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == :public_read) ? 'http' : 'https'
+              (permission == DEFAULT_PERMISSION) ? 'http' : 'https'
             end
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
@@ -149,7 +161,7 @@ module Paperclip
 
           @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
-          @s3_server_side_encryption = :aes256
+          @s3_server_side_encryption = "AES256"
           if @options[:s3_server_side_encryption].blank?
             @s3_server_side_encryption = false
           end
@@ -182,8 +194,13 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
-          s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          if aws_v1?
+            base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
+            s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
+          else
+            base_options = { :expires_in => time }
+            s3_object(style_name).presigned_url(:get, base_options.merge(s3_url_options)).to_s
+          end
         else
           url(style_name)
         end
@@ -198,6 +215,13 @@ module Paperclip
         host_name = host_name.call(self) if host_name.is_a?(Proc)
 
         host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+      end
+
+      def s3_region
+        region = @options[:s3_region]
+        region = region.call(self) if region.is_a?(Proc)
+
+        region || s3_credentials[:s3_region]
       end
 
       def s3_host_alias
@@ -220,7 +244,11 @@ module Paperclip
 
       def s3_interface
         @s3_interface ||= begin
-          config = { :s3_endpoint => s3_host_name }
+          config = if aws_v1?
+            { :s3_endpoint => s3_host_name }
+          else
+            { :region => s3_region }
+          end
 
           if using_http_proxy?
 
@@ -234,7 +262,7 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
-          [:access_key_id, :secret_access_key, :credential_provider].each do |opt|
+          [:access_key_id, :secret_access_key, :credential_provider, :credentials].each do |opt|
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
 
@@ -244,15 +272,31 @@ module Paperclip
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= AWS::S3.new(options)
+        instances[options] ||= if aws_v1?
+          AWS_CLASS::S3.new(options)
+        else
+          AWS_CLASS::S3::Resource.new(options)
+        end
       end
 
       def s3_bucket
-        @s3_bucket ||= s3_interface.buckets[bucket_name]
+        @s3_bucket ||= if aws_v1?
+          s3_interface.buckets[bucket_name]
+        else
+          s3_interface.bucket(bucket_name)
+        end
+      end
+
+      def style_name_as_path(style_name)
+        path(style_name).sub(%r{\A/},'')
       end
 
       def s3_object style_name = default_style
-        s3_bucket.objects[path(style_name).sub(%r{\A/},'')]
+        if aws_v1?
+          s3_bucket.objects[style_name_as_path(style_name)]
+        else
+          s3_bucket.object(style_name_as_path(style_name))
+        end
       end
 
       def using_http_proxy?
@@ -277,7 +321,7 @@ module Paperclip
 
       def set_permissions permissions
         permissions = { :default => permissions } unless permissions.respond_to?(:merge)
-        permissions.merge :default => (permissions[:default] || :public_read)
+        permissions.merge :default => (permissions[:default] || DEFAULT_PERMISSION)
       end
 
       def set_storage_class(storage_class)
@@ -297,7 +341,7 @@ module Paperclip
         else
           false
         end
-      rescue AWS::Errors::Base => e
+      rescue AWS_BASE_ERROR => e
         false
       end
 
@@ -323,7 +367,11 @@ module Paperclip
       end
 
       def create_bucket
-        s3_interface.buckets.create(bucket_name)
+        if aws_v1?
+          s3_interface.buckets.create(bucket_name)
+        else
+          s3_interface.bucket(bucket_name).create
+        end
       end
 
       def flush_writes #:nodoc:
@@ -356,11 +404,15 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            s3_object(style).write(file, write_options)
-          rescue AWS::S3::Errors::NoSuchBucket
+            if aws_v1?
+              s3_object(style).write(file, write_options)
+            else
+              s3_object(style).upload_file(file.path, write_options)
+            end
+          rescue AWS_CLASS::S3::Errors::NoSuchBucket
             create_bucket
             retry
-          rescue AWS::S3::Errors::SlowDown
+          rescue AWS_CLASS::S3::Errors::SlowDown
             retries += 1
             if retries <= 5
               sleep((2 ** retries) * 0.5)
@@ -382,8 +434,12 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            s3_bucket.objects[path.sub(%r{\A/},'')].delete
-          rescue AWS::Errors::Base => e
+            if aws_v1?
+              s3_bucket.objects[path.sub(%r{\A/},'')]
+            else
+              s3_bucket.object(path.sub(%r{\A/},''))
+            end.delete
+          rescue AWS_BASE_ERROR => e
             # Ignore this.
           end
         end
@@ -393,16 +449,20 @@ module Paperclip
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
-          s3_object(style).read do |chunk|
+          s3_object(style).send(aws_v1? ? :read : :get) do |chunk|
             local_file.write(chunk)
           end
         end
-      rescue AWS::Errors::Base => e
+      rescue AWS_BASE_ERROR => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
 
       private
+
+      def aws_v1?
+        Gem::Version.new(AWS_CLASS::VERSION) < Gem::Version.new(2)
+      end
 
       def find_credentials creds
         case creds

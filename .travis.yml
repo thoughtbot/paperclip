@@ -1,22 +1,20 @@
 rvm:
   - 2.0
   - 2.1
-  - 2.2.2
-  - jruby-19mode
-  - rbx-2
+  - 2.2
 
 script: "bundle exec rake clean spec cucumber"
 
 gemfile:
-  - gemfiles/3.2.gemfile
-  - gemfiles/4.1.gemfile
-  - gemfiles/4.2.gemfile
-
-matrix:
-  fast_finish: true
-  allow_failures:
-    - rvm: jruby-19mode
-    - rvm: rbx-2
+  - gemfiles/3.2.awsv2.1.gemfile
+  - gemfiles/4.1.awsv2.1.gemfile
+  - gemfiles/4.2.awsv2.1.gemfile
+  - gemfiles/3.2.awsv2.0.gemfile
+  - gemfiles/4.1.awsv2.0.gemfile
+  - gemfiles/4.2.awsv2.0.gemfile
+  - gemfiles/3.2.awsv1.gemfile
+  - gemfiles/4.1.awsv1.gemfile
+  - gemfiles/4.2.awsv1.gemfile
 
 sudo: false
 cache: bundler
