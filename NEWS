@@ -9,7 +9,7 @@ master:
   s3_region may be nested in s3_credentials, and (if not nested in
   s3_credentials) it may be a Proc.
 
-4.3.1 (9/9/2015):
+4.3.1 (2015-09-09):
 
 * Backport of bugfix to `remove_column`, so it works in Rails 3 and 4
   c740fb171fe2f88c60b999d2a1c2122f2b8f43e9
@@ -18,7 +18,7 @@ master:
 * spec deprecation warnings and failures
 * README adjustments
 
-4.3.0 (6/18/2015):
+4.3.0 (2015-06-18):
 
 * Improvement: Update aws-sdk and cucumber gem versions.
 * Improvement: Add `length` alias for `size` method in AbstractAdapter.
@@ -31,7 +31,7 @@ master:
 * Ruby Versioning: Drop support for 1.9.3 (EOL'ed)
 * Rails Versioning: Drop support for 4.0.0 (EOL'ed)
 
-4.2.4 (6/5/2015):
+4.2.4 (2015-06-05):
 
 * Rollback backwards incompatible change, allowing paperclip to run on
   Ruby >= 1.9.2.
