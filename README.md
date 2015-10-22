@@ -163,7 +163,7 @@ gem "paperclip", git: "git://github.com/thoughtbot/paperclip.git"
 
 If you're trying to use features that don't seem to be in the latest released gem, but are
 mentioned in this README, then you probably need to specify the master branch if you want to
-use them. This README is probably ahead of the latest released version, if you're reading it
+use them. This README is probably ahead of the latest released version if you're reading it
 on GitHub.
 
 For Non-Rails usage:
@@ -568,7 +568,7 @@ gems along side with Paperclip:
 The files that are assigned as attachments are, by default, placed in the
 directory specified by the `:path` option to `has_attached_file`. By default, this
 location is `:rails_root/public/system/:class/:attachment/:id_partition/:style/:filename`.
-This location was chosen because on standard Capistrano deployments, the
+This location was chosen because, on standard Capistrano deployments, the
 `public/system` directory is symlinked to the app's shared directory, meaning it
 will survive between deployments. For example, using that `:path`, you may have a
 file at
@@ -624,7 +624,7 @@ This would load the hypothetical class Paperclip::Ocr, which would have the
 hash "{ quality: :better }" passed to it along with the uploaded file. For
 more information about defining processors, see Paperclip::Processor.
 
-The default processor is Paperclip::Thumbnail. For backwards compatibility
+The default processor is Paperclip::Thumbnail. For backward compatibility
 reasons, you can pass a single geometry string or an array containing a
 geometry and a format that the file will be converted to, like so:
 
@@ -819,7 +819,7 @@ end
 Logging
 ----------
 
-By default Paperclip outputs logging according to your logger level. If you want to disable logging (e.g. during testing) add this in to your environment's configuration:
+By default, Paperclip outputs logging according to your logger level. If you want to disable logging (e.g. during testing) add this into your environment's configuration:
 ```ruby
 Your::Application.configure do
 ...
