@@ -39,7 +39,7 @@ module Paperclip
         end
 
         def failure_message
-          "#{expected_attachment}\n".tap do |message|
+          String.new("#{expected_attachment}\n").tap do |message|
             message << accepted_types_and_failures
             message << "\n\n" if @allowed_types.present? && @rejected_types.present?
             message << rejected_types_and_failures
@@ -53,26 +53,31 @@ module Paperclip
         protected
 
         def accepted_types_and_failures
-          if @allowed_types.present?
-            "Accept content types: #{@allowed_types.join(", ")}\n".tap do |message|
+          messages = String.new(
+            "Accept content types: #{@allowed_types.join(',  ')}\n",
+          )
+          messages.tap do |message|
+            message <<
               if @missing_allowed_types.any?
-                message << "  #{@missing_allowed_types.join(", ")} were rejected."
+                "  #{@missing_allowed_types.join(', ')} were rejected."
               else
-                message << "  All were accepted successfully."
+                "  All were accepted successfully."
               end
-            end
-          end
+          end if @allowed_types.present?
         end
+
         def rejected_types_and_failures
-          if @rejected_types.present?
-            "Reject content types: #{@rejected_types.join(", ")}\n".tap do |message|
+          messages = String.new(
+            "Reject content types: #{@rejected_types.join(',  ')}\n",
+          )
+          messages.tap do |message|
+            message <<
               if @missing_rejected_types.any?
-                message << "  #{@missing_rejected_types.join(", ")} were accepted."
+                "  #{@missing_rejected_types.join(', ')} were accepted."
               else
-                message << "  All were rejected successfully."
+                "  All were rejected successfully."
               end
-            end
-          end
+          end if @rejected_types.present?
         end
 
         def expected_attachment
