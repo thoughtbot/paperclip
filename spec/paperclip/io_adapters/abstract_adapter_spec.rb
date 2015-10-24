@@ -34,7 +34,7 @@ describe Paperclip::AbstractAdapter do
       @adapter.tempfile = stub("Tempfile")
     end
 
-    [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :rewind, :unlink].each do |method|
+    [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink].each do |method|
       it "delegates #{method} to @tempfile" do
         @adapter.tempfile.stubs(method)
         @adapter.public_send(method)

@@ -43,11 +43,11 @@ https://github.com/thoughtbot/paperclip/releases
 - [Storage](#storage)
   - [Understanding Storage](#understanding-storage)
 - [Post Processing](#post-processing)
+- [Custom Attachment Processors](#custom-attachment-processors)
 - [Events](#events)
 - [URI Obfuscation](#uri-obfuscation)
 - [MD5 Checksum / Fingerprint](#md5-checksum--fingerprint)
 - [File Preservation for Soft-Delete](#file-preservation-for-soft-delete)
-- [Custom Attachment Processors](#custom-attachment-processors)
 - [Dynamic Configuration](#dynamic-configuration)
   - [Dynamic Styles:](#dynamic-styles)
   - [Dynamic Processors:](#dynamic-processors)
@@ -602,60 +602,72 @@ Post Processing
 
 Paperclip supports an extensible selection of post-processors. When you define
 a set of styles for an attachment, by default it is expected that those
-"styles" are actually "thumbnails." However, you can do much more than just
-thumbnail images. By defining a subclass of Paperclip::Processor, you can
-perform any processing you want on the files that are attached. Any file in
-your Rails app's `lib/paperclip` and `lib/paperclip_processors` directories is
-automatically loaded by Paperclip, allowing you to easily define custom
-processors. You can specify a processor with the `:processors` option to
-`has_attached_file`:
-
-```ruby
-has_attached_file :scan, styles: { text: { quality: :better } },
-                         processors: [:ocr]
-```
-
-This would load the hypothetical class Paperclip::Ocr, which would have the
-hash "{ quality: :better }" passed to it along with the uploaded file. For
-more information about defining processors, see
-[Paperclip::Processor](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb).
-
-The default processor is Paperclip::Thumbnail. For backward compatibility
-reasons, you can pass a single geometry string or an array containing a
-geometry and a format that the file will be converted to, like so:
+"styles" are actually "thumbnails." These are processed by
+`Paperclip::Thumbnail`.  For backward compatibility reasons you can pass either
+a single geometry string, or an array containing a geometry and a format that
+the file will be converted to, like so:
 
 ```ruby
 has_attached_file :avatar, styles: { thumb: ["32x32#", :png] }
 ```
 
 This will convert the "thumb" style to a 32x32 square in PNG format, regardless
-of what was uploaded. If the format is not specified, it is kept the same (i.e.
-JPGs will remain JPGs). For more information on the accepted style formats, see
-[here](http://www.imagemagick.org/script/command-line-processing.php#geometry).
+of what was uploaded. If the format is not specified, it is kept the same (e.g.
+JPGs will remain JPGs). `Paperclip::Thumbnail` uses ImageMagick to process
+images; [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
+has more information on the accepted style formats.
+
+---
+
+Custom Attachment Processors
+-------
+
+You can write your own custom attachment processors to carry out tasks like
+adding watermarks, compressing images, or encrypting files. Custom processors
+must be defined within the `Paperclip` module, inherit from
+`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb)),
+and implement a `make` method that returns a `File`. All files in your Rails
+app's `lib/paperclip` and `lib/paperclip_processors` directories will be
+automatically loaded by Paperclip. Processors are specified using the
+`:processors` option to `has_attached_file`:
+
+```ruby
+has_attached_file :scan, styles: { text: { quality: :better } },
+                         processors: [:ocr]
+```
+
+This would load the hypothetical class `Paperclip::Ocr`, and pass it the
+options hash `{ quality: :better }`, along with the uploaded file.
 
 Multiple processors can be specified, and they will be invoked in the order
-they are defined in the `:processors` array. Each successive processor will
-be given the result of the previous processor's execution. All processors will
-receive the same parameters, which are defined in the `:styles` hash.
-For example, assuming we had this definition:
+they are defined in the `:processors` array. Each successive processor is given
+the result from the previous processor. All processors receive the same
+parameters, which are defined in the `:styles` hash.  For example, assuming we
+had this definition:
 
 ```ruby
 has_attached_file :scan, styles: { text: { quality: :better } },
                          processors: [:rotator, :ocr]
 ```
 
-then both the :rotator processor and the :ocr processor would receive the
-options `{ quality: :better }`. This parameter may not mean anything to one
-or more or the processors, and they are expected to ignore it.
+Both the `:rotator` processor and the `:ocr` processor would receive the
+options `{ quality: :better }`. If a processor receives an option it doesn't
+recognise, it's expected to ignore it.
 
 _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
 If you're interested in caching your thumbnail's width, height and size in the
-database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta) gem.
+database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta)
+gem.
 
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
-to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
+to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly)
+gem.
+
+Paperclip's thumbnail generator (see [`lib/paperclip/thumbnail.rb`](lib/paperclip/thumbnail.rb))
+is implemented as a processor, and may be a good reference for writing your own
+processors.
 
 ---
 
@@ -745,25 +757,6 @@ has_attached_file :some_attachment, {
 ```
 
 This will prevent ```some_attachment``` from being wiped out when the model gets destroyed, so it will still exist when the object is restored later.
-
----
-
-Custom Attachment Processors
--------
-
-Custom attachment processors can be implemented and their only requirement is
-to inherit from `Paperclip::Processor` (see `lib/paperclip/processor.rb`).
-For example, when `:styles` are specified for an image attachment, the
-thumbnail processor (see `lib/paperclip/thumbnail.rb`) is loaded without having
-to specify it as a `:processor` parameter to `has_attached_file`.  When any
-other processor is defined, it must be called out in the `:processors`
-parameter if it is to be applied to the attachment.  The thumbnail processor
-uses the ImageMagick `convert` command to do the work of resizing image
-thumbnails.  It would be easy to create a custom processor that watermarks
-an image using ImageMagick's `composite` command.  Following the
-implementation pattern of the thumbnail processor would be a way to implement a
-watermark processor.  All kinds of attachment processors can be created;
-a few utility examples would be compression and encryption processors.
 
 ---
 
