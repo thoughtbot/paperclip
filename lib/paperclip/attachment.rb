@@ -586,7 +586,7 @@ module Paperclip
 
     # You can either specifiy :restricted_characters or you can define your own
     # :filename_cleaner object. This object needs to respond to #call and takes
-    # the filename that will be cleaned. It should return the cleaned filenme.
+    # the filename that will be cleaned. It should return the cleaned filename.
     def filename_cleaner
       @options[:filename_cleaner] || FilenameCleaner.new(@options[:restricted_characters])
     end
