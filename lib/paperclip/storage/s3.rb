@@ -61,7 +61,7 @@ module Paperclip
     # * +bucket+: This is the name of the S3 bucket that will store your files. Remember
     #   that the bucket must be unique across all of Amazon S3. If the bucket does not exist
     #   Paperclip will attempt to create it. The bucket name will not be interpolated.
-    #   You can define the bucket as a Proc if you want to determine it's name at runtime.
+    #   You can define the bucket as a Proc if you want to determine its name at runtime.
     #   Paperclip will call that Proc with attachment as the only argument.
     # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
     #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
