@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('aws-sdk', '>= 1.5.7', "<= 2.0")
   s.add_development_dependency('bourne')
   s.add_development_dependency('cucumber', '~> 1.3.18')
-  s.add_development_dependency('aruba')
+  s.add_development_dependency('aruba', '~> 0.9.0')
   s.add_development_dependency('nokogiri')
   # Ruby version < 1.9.3 can't install capybara > 2.0.3.
   s.add_development_dependency('capybara')
