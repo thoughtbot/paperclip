@@ -1,5 +1,6 @@
 require 'spec_helper'
-require 'fog'
+require 'fog/aws'
+require 'fog/local'
 require 'timecop'
 
 describe Paperclip::Storage::Fog do
