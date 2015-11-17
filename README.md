@@ -58,10 +58,10 @@ packages). Attached files are saved to the filesystem and referenced in the
 browser by an easily understandable specification, which has sensible and
 useful defaults.
 
-See the documentation for `has_attached_file` in [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods) for
+See the documentation for `has_attached_file` in [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/paperclip/Paperclip/ClassMethods) for
 more detailed options.
 
-The complete [RDoc](http://rdoc.info/gems/paperclip) is online.
+The complete [RDoc](http://www.rubydoc.info/gems/paperclip) is online.
 
 ---
 
@@ -72,7 +72,7 @@ Requirements
 
 Paperclip now requires Ruby version **>= 2.0.0** and Rails version **3.2, >= 4.1** (Only if you're going to use Paperclip with Ruby on Rails.)
 
-If you're still on Ruby 1.8.7 or Ruby on Rails 2.3.x, you can still use Paperclip 2.7.x with your project. Also, everything in this README might not apply to your version of Paperclip, and you should read [the README for version 2.7](http://rubydoc.info/gems/paperclip/2.7.0) instead.
+If you're still on Ruby 1.8.7 or Ruby on Rails 2.3.x, you can still use Paperclip 2.7.x with your project. Also, everything in this README might not apply to your version of Paperclip, and you should read [the README for version 2.7](http://www.rubydoc.info/gems/paperclip/2.7.0) instead.
 
 ### Image Processor
 
@@ -106,7 +106,7 @@ the following with apt-get:
 
 ### `file`
 
-The Unix [`file` command](http://en.wikipedia.org/wiki/File_(command)) is required for content-type checking.
+The Unix [`file` command](https://en.wikipedia.org/wiki/File_(command)) is required for content-type checking.
 This utility isn't available in Windows, but comes bundled with Ruby [Devkit](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit),
 so Windows users must make sure that the devkit is installed and added to the system `PATH`.
 
@@ -297,7 +297,7 @@ You'll need to add `<attachment>_content_type` in case you want to use content t
 validation.
 
 More information about the options passed to `has_attached_file` is available in the
-documentation of [`Paperclip::ClassMethods`](http://rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
+documentation of [`Paperclip::ClassMethods`](http://www.rubydoc.info/gems/paperclip/Paperclip/ClassMethods).
 
 Validations
 -----------
@@ -591,7 +591,7 @@ gem 'aws-sdk-v1' # If using paperclip <= v4.3.1
 
 And then you can specify using S3 from `has_attached_file`.
 You can find more information about configuring and using S3 storage in
-[the `Paperclip::Storage::S3` documentation](http://rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
+[the `Paperclip::Storage::S3` documentation](http://www.rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
 
 Files on the local filesystem (and in the Rails app's public directory) will be
 available to the internet at large. If you require access control, it's
@@ -828,7 +828,7 @@ Your::Application.configure do
 end
 ```
 
-More information in the [rdocs](http://rdoc.info/github/thoughtbot/paperclip/Paperclip.options)
+More information in the [rdocs](http://www.rubydoc.info/github/thoughtbot/paperclip/Paperclip.options)
 
 ---
 
@@ -902,7 +902,7 @@ Testing
 -------
 
 Paperclip provides rspec-compatible matchers for testing attachments. See the
-documentation on [Paperclip::Shoulda::Matchers](http://rubydoc.info/gems/paperclip/Paperclip/Shoulda/Matchers)
+documentation on [Paperclip::Shoulda::Matchers](http://www.rubydoc.info/gems/paperclip/Paperclip/Shoulda/Matchers)
 for more information.
 
 **Parallel Tests**
@@ -959,7 +959,7 @@ guidelines:
 
 Please see `CONTRIBUTING.md` for more details on contributing and running test.
 
-Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/contributors)!
+Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/graphs/contributors)!
 
 License
 -------
