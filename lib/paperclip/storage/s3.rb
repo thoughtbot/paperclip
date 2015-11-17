@@ -153,7 +153,7 @@ module Paperclip
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == DEFAULT_PERMISSION) ? 'http' : 'https'
+              (permission == DEFAULT_PERMISSION) ? 'http'.freeze : 'https'.freeze
             end
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
@@ -169,9 +169,9 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host"
-            @options[:path] = path_option.gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system/, '')
-            @options[:url]  = ":s3_path_url"
+          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host".freeze
+            @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
+            @options[:url]  = ":s3_path_url".freeze
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
@@ -179,16 +179,16 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "#{attachment.s3_protocol(style, true)}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
-          "#{attachment.path(style).gsub(%r{\A/}, "")}"
+          "#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
       end
 
@@ -214,7 +214,7 @@ module Paperclip
         host_name = @options[:s3_host_name]
         host_name = host_name.call(self) if host_name.is_a?(Proc)
 
-        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com"
+        host_name || s3_credentials[:s3_host_name] || "s3.amazonaws.com".freeze
       end
 
       def s3_region
@@ -330,7 +330,7 @@ module Paperclip
       end
 
       def parse_credentials creds
-        creds = creds.respond_to?('call') ? creds.call(self) : creds
+        creds = creds.respond_to?(:call) ? creds.call(self) : creds
         creds = find_credentials(creds).stringify_keys
         (creds[RailsEnvironment.get] || creds).symbolize_keys
       end
