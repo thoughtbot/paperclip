@@ -24,15 +24,16 @@ describe Paperclip::Interpolations do
   end
 
   it "returns the class of the instance" do
+    class Thing ; end
     attachment = mock
     attachment.expects(:instance).returns(attachment)
-    attachment.expects(:class).returns("Thing")
+    attachment.expects(:class).returns(Thing)
     assert_equal "things", Paperclip::Interpolations.class(attachment, :style)
   end
 
   it "returns the basename of the file" do
     attachment = mock
-    attachment.expects(:original_filename).returns("one.jpg").times(2)
+    attachment.expects(:original_filename).returns("one.jpg").times(1)
     assert_equal "one", Paperclip::Interpolations.basename(attachment, :style)
   end
 
@@ -187,14 +188,14 @@ describe Paperclip::Interpolations do
   it "returns the filename as basename.extension" do
     attachment = mock
     attachment.expects(:styles).returns({})
-    attachment.expects(:original_filename).returns("one.jpg").times(3)
+    attachment.expects(:original_filename).returns("one.jpg").times(2)
     assert_equal "one.jpg", Paperclip::Interpolations.filename(attachment, :style)
   end
 
   it "returns the filename as basename.extension when format supplied" do
     attachment = mock
     attachment.expects(:styles).returns({style: {format: :png}})
-    attachment.expects(:original_filename).returns("one.jpg").times(2)
+    attachment.expects(:original_filename).returns("one.jpg").times(1)
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
 
@@ -248,5 +249,14 @@ describe Paperclip::Interpolations do
     Paperclip::Interpolations.expects(:notreal).never
     value = Paperclip::Interpolations.interpolate(":notreal/:id/:attachment", :attachment, :style)
     assert_equal ":notreal/1234/attachments", value
+  end
+
+  it "handles question marks" do
+    Paperclip.interpolates :foo? do
+      "bar"
+    end
+    Paperclip::Interpolations.expects(:fool).never
+    value = Paperclip::Interpolations.interpolate(":fo/:foo?")
+    assert_equal ":fo/bar", value
   end
 end
