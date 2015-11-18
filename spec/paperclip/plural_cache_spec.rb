@@ -3,34 +3,35 @@ require 'spec_helper'
 describe 'Plural cache' do
   it 'caches pluralizations' do
     cache = Paperclip::Interpolations::PluralCache.new
-    word = "box"
+    symbol = :box
 
-    word.expects(:pluralize).returns("boxes").once
-
-    cache.pluralize(word)
-    cache.pluralize(word)
+    first = cache.pluralize_symbol(symbol)
+    second = cache.pluralize_symbol(symbol)
+    expect(first).to equal(second)
   end
 
   it 'caches pluralizations and underscores' do
+    class BigBox ; end
     cache = Paperclip::Interpolations::PluralCache.new
-    word = "BigBox"
+    klass = BigBox
 
-    word.expects(:pluralize).returns(word).once
-    word.expects(:underscore).returns(word).once
-
-    cache.underscore_and_pluralize(word)
-    cache.underscore_and_pluralize(word)
+    first = cache.underscore_and_pluralize_class(klass)
+    second = cache.underscore_and_pluralize_class(klass)
+    expect(first).to equal(second)
   end
 
   it 'pluralizes words' do
     cache = Paperclip::Interpolations::PluralCache.new
-    word = "box"
-    assert_equal "boxes", cache.pluralize(word)
+    symbol = :box
+
+    expect(cache.pluralize_symbol(symbol)).to eq("boxes")
   end
 
-  it 'pluralizes and underscore words' do
+  it 'pluralizes and underscore class names' do
+    class BigBox ; end
     cache = Paperclip::Interpolations::PluralCache.new
-    word = "BigBox"
-    assert_equal "big_boxes", cache.underscore_and_pluralize(word)
+    klass = BigBox
+
+    expect(cache.underscore_and_pluralize_class(klass)).to eq("big_boxes")
   end
 end

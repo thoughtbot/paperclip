@@ -10,6 +10,7 @@ module Paperclip
     # and is not intended for normal use.
     def self.[]= name, block
       define_method(name, &block)
+      @interpolators_cache = nil
     end
 
     # Hash access of interpolations. Included only for compatibility,
@@ -20,7 +21,7 @@ module Paperclip
 
     # Returns a sorted list of all interpolations.
     def self.all
-      self.instance_methods(false).sort
+      self.instance_methods(false).sort!
     end
 
     # Perform the actual interpolation. Takes the pattern to interpolate
@@ -29,11 +30,15 @@ module Paperclip
     # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
-      all.reverse.inject(pattern) do |result, tag|
-        result.gsub(/:#{tag}/) do |match|
-          send( tag, *args )
-        end
+      result = pattern.dup
+      interpolators_cache.each do |method, token|
+        result.gsub!(token) { send(method, *args) } if result.include?(token)
       end
+      result
+    end
+
+    def self.interpolators_cache
+      @interpolators_cache ||= all.reverse!.map! { |method| [method, ":#{method}"] }
     end
 
     def self.plural_cache
@@ -42,7 +47,7 @@ module Paperclip
 
     # Returns the filename, the same way as ":basename.:extension" would.
     def filename attachment, style_name
-      [ basename(attachment, style_name), extension(attachment, style_name) ].reject(&:blank?).join(".")
+      [ basename(attachment, style_name), extension(attachment, style_name) ].delete_if(&:empty?).join(".".freeze)
     end
 
     # Returns the interpolated URL. Will raise an error if the url itself
@@ -85,12 +90,12 @@ module Paperclip
     # all class names. Calling #class will return the expected class.
     def class attachment = nil, style_name = nil
       return super() if attachment.nil? && style_name.nil?
-      plural_cache.underscore_and_pluralize(attachment.instance.class.to_s)
+      plural_cache.underscore_and_pluralize_class(attachment.instance.class)
     end
 
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
-      attachment.original_filename.gsub(/#{Regexp.escape(File.extname(attachment.original_filename))}\Z/, "")
+      File.basename(attachment.original_filename, ".*".freeze)
     end
 
     # Returns the extension of the file. e.g. "jpg" for "file.jpg"
@@ -98,7 +103,7 @@ module Paperclip
     # of the actual extension.
     def extension attachment, style_name
       ((style = attachment.styles[style_name.to_s.to_sym]) && style[:format]) ||
-        File.extname(attachment.original_filename).gsub(/\A\.+/, "")
+        File.extname(attachment.original_filename).sub(/\A\.+/, "".freeze)
     end
 
     # Returns the dot+extension of the file. e.g. ".jpg" for "file.jpg"
@@ -106,7 +111,7 @@ module Paperclip
     # of the actual extension. If the extension is empty, no dot is added.
     def dotextension attachment, style_name
       ext = extension(attachment, style_name)
-      ext.empty? ? "" : ".#{ext}"
+      ext.empty? ? ext : ".#{ext}"
     end
 
     # Returns an extension based on the content type. e.g. "jpeg" for
@@ -170,9 +175,9 @@ module Paperclip
     def id_partition attachment, style_name
       case id = attachment.instance.id
       when Integer
-        ("%09d" % id).scan(/\d{3}/).join("/")
+        ("%09d".freeze % id).scan(/\d{3}/).join("/".freeze)
       when String
-        id.scan(/.{3}/).first(3).join("/")
+        id.scan(/.{3}/).first(3).join("/".freeze)
       else
         nil
       end
@@ -181,7 +186,7 @@ module Paperclip
     # Returns the pluralized form of the attachment name. e.g.
     # "avatars" for an attachment of :avatar
     def attachment attachment, style_name
-      plural_cache.pluralize(attachment.name.to_s.downcase)
+      plural_cache.pluralize_symbol(attachment.name)
     end
 
     # Returns the style, or the default style if nil is supplied.
