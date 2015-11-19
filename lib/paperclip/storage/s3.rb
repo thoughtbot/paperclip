@@ -153,7 +153,7 @@ module Paperclip
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == DEFAULT_PERMISSIONpublic_read) ? 'http'.freeze : 'https'.freeze
+              (permission == DEFAULT_PERMISSION) ? 'http'.freeze : 'https'.freeze
             end
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
