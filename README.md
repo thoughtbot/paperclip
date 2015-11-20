@@ -582,7 +582,7 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '>= 2.0.0' # If using paperclip `master`
+gem 'aws-sdk', '>= 2.0.0' # If using paperclip >= v.4.3.2
 ```
 or
 ```ruby
