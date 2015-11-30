@@ -14,7 +14,7 @@ describe Paperclip::Storage::S3 do
     defined?(::Aws) ? { s3_region: 'us-east-1' } : {}
   end
 
-  context 'multithreaded initialization' do
+  context "multithreaded initialization" do
     it "should not fail on missing constants" do
       10.times.map do |i|
         Thread.new do
