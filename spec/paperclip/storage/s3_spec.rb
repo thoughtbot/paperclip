@@ -15,8 +15,6 @@ describe Paperclip::Storage::S3 do
   end
 
   context 'multithreaded initialization' do
-    before do
-    end
     it "should not fail on missing constants" do
       10.times.map do |i|
         Thread.new do
