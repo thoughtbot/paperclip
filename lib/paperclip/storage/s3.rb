@@ -379,11 +379,9 @@ module Paperclip
         retries = 0
           begin
             log("saving #{path(style)}")
-            acl = @s3_permissions[style] || @s3_permissions[:default]
-            acl = acl.call(self, style) if acl.respond_to?(:call)
             write_options = {
               :content_type => file.content_type,
-              :acl => acl
+              :acl => s3_permissions(style)
             }
 
             # add storage class for this style if defined
