@@ -10,7 +10,10 @@ module Paperclip
     def for(style_name, options)
       timestamp_as_needed(
         escape_url_as_needed(
-          @attachment_options[:interpolator].interpolate(most_appropriate_url(style_name), @attachment, style_name),
+          @attachment_options[:interpolator].interpolate(
+            most_appropriate_url(style_name),
+            @attachment,
+            style_name),
           options
       ), options)
     end
