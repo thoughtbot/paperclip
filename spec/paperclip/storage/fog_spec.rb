@@ -176,7 +176,7 @@ describe Paperclip::Storage::Fog do
         @dummy.save
         tempfile = Tempfile.new("known_location")
         tempfile.binmode
-        @dummy.avatar.copy_to_local_file(:original, tempfile.path)
+        @dummy.avatar.copy_to_local_file(tempfile.path, :original)
         tempfile.rewind
         assert_equal @connection.directories.get(@fog_directory).files.get(@dummy.avatar.path).body,
                      tempfile.read
