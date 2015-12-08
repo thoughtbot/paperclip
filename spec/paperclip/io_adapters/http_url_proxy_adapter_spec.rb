@@ -7,7 +7,7 @@ describe Paperclip::HttpUrlProxyAdapter do
       @open_return.stubs(:content_type).returns("image/png")
       Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(@open_return)
       @url = "http://thoughtbot.com/images/thoughtbot-logo.png"
-      @subject = Paperclip.io_adapters.for(@url)
+      @subject = Paperclip.io_adapters.for(@url, hash_digest: Digest::SHA1)
     end
 
     after do

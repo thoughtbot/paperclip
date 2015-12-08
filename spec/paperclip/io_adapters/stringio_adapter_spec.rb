@@ -5,7 +5,7 @@ describe Paperclip::StringioAdapter do
     before do
       @contents = "abc123"
       @stringio = StringIO.new(@contents)
-      @subject = Paperclip.io_adapters.for(@stringio)
+      @subject = Paperclip.io_adapters.for(@stringio, hash_digest: Digest::SHA1)
     end
 
     it "returns a file name" do

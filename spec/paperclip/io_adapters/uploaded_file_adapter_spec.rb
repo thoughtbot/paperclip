@@ -17,7 +17,7 @@ describe Paperclip::UploadedFileAdapter do
           tempfile: tempfile,
           path: tempfile.path
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "gets the right filename" do
@@ -63,7 +63,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "does not generate paths that include restricted characters" do
@@ -86,7 +86,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "gets the right filename" do

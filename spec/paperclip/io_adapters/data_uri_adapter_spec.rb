@@ -20,7 +20,7 @@ describe Paperclip::DataUriAdapter do
   context "a new instance" do
     before do
       @contents = "data:image/png;base64,#{original_base64_content}"
-      @subject = Paperclip.io_adapters.for(@contents)
+      @subject = Paperclip.io_adapters.for(@contents, hash_digest: Digest::SHA1)
     end
 
     it "returns a nondescript file name" do

@@ -15,7 +15,7 @@ module Paperclip
 
     def fingerprint
       @fingerprint ||= begin
-        digest = @options.fetch(:hash_digest, Digest::SHA1).new
+        digest = @options.fetch(:hash_digest, Digest::MD5).new
         File.open(path, "rb") do |f|
           buf = ""
           digest.update(buf) while f.read(16384, buf)
