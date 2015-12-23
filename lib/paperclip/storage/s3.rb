@@ -41,7 +41,7 @@ module Paperclip
     # * +s3_permissions+: This is a String that should be one of the "canned" access
     #   policies that S3 provides (more information can be found here:
     #   http://docs.aws.amazon.com/AmazonS3/latest/dev/ACLOverview.html)
-    #   The default for Paperclip is :public_read (aws-sdk v1) / public-read (aws-sdk v2).
+    #   The default for Paperclip is public-read.
     #
     #   You can set permission on a per style bases by doing the following:
     #     :s3_permissions => {
@@ -194,13 +194,11 @@ module Paperclip
 
       def expiring_url(time = 3600, style_name = default_style)
         if path(style_name)
-          if aws_v1?
-            base_options = { :expires => time, :secure => use_secure_protocol?(style_name) }
-            s3_object(style_name).url_for(:read, base_options.merge(s3_url_options)).to_s
-          else
-            base_options = { :expires_in => time }
-            s3_object(style_name).presigned_url(:get, base_options.merge(s3_url_options)).to_s
-          end
+          base_options = { expires_in: time }
+          s3_object(style_name).presigned_url(
+            :get,
+            base_options.merge(s3_url_options),
+          ).to_s
         else
           url(style_name)
         end
@@ -244,11 +242,7 @@ module Paperclip
 
       def s3_interface
         @s3_interface ||= begin
-          config = if aws_v1?
-            { :s3_endpoint => s3_host_name }
-          else
-            { :region => s3_region }
-          end
+          config = { region: s3_region }
 
           if using_http_proxy?
 
@@ -272,19 +266,11 @@ module Paperclip
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= if aws_v1?
-          AWS_CLASS::S3.new(options)
-        else
-          AWS_CLASS::S3::Resource.new(options)
-        end
+        instances[options] ||= AWS_CLASS::S3::Resource.new(options)
       end
 
       def s3_bucket
-        @s3_bucket ||= if aws_v1?
-          s3_interface.buckets[bucket_name]
-        else
-          s3_interface.bucket(bucket_name)
-        end
+        @s3_bucket ||= s3_interface.bucket(bucket_name)
       end
 
       def style_name_as_path(style_name)
@@ -292,11 +278,7 @@ module Paperclip
       end
 
       def s3_object style_name = default_style
-        if aws_v1?
-          s3_bucket.objects[style_name_as_path(style_name)]
-        else
-          s3_bucket.object(style_name_as_path(style_name))
-        end
+        s3_bucket.object style_name_as_path(style_name)
       end
 
       def using_http_proxy?
@@ -367,11 +349,7 @@ module Paperclip
       end
 
       def create_bucket
-        if aws_v1?
-          s3_interface.buckets.create(bucket_name)
-        else
-          s3_interface.bucket(bucket_name).create
-        end
+        s3_interface.bucket(bucket_name).create
       end
 
       def flush_writes #:nodoc:
@@ -402,11 +380,7 @@ module Paperclip
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
             write_options.merge!(@s3_headers)
 
-            if aws_v1?
-              s3_object(style).write(file, write_options)
-            else
-              s3_object(style).upload_file(file.path, write_options)
-            end
+            s3_object(style).upload_file(file.path, write_options)
           rescue AWS_CLASS::S3::Errors::NoSuchBucket
             create_bucket
             retry
@@ -432,11 +406,7 @@ module Paperclip
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
-            if aws_v1?
-              s3_bucket.objects[path.sub(%r{\A/},'')]
-            else
-              s3_bucket.object(path.sub(%r{\A/},''))
-            end.delete
+            s3_bucket.object(path.sub(%r{\A/}, "")).delete
           rescue AWS_BASE_ERROR => e
             # Ignore this.
           end
@@ -447,7 +417,7 @@ module Paperclip
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
-          s3_object(style).send(aws_v1? ? :read : :get) do |chunk|
+          s3_object(style).get do |chunk|
             local_file.write(chunk)
           end
         end
@@ -457,10 +427,6 @@ module Paperclip
       end
 
       private
-
-      def aws_v1?
-        Gem::Version.new(AWS_CLASS::VERSION) < Gem::Version.new(2)
-      end
 
       def find_credentials creds
         case creds

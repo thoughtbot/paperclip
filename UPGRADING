@@ -12,8 +12,3 @@ changes:
   note that the format of the permissions changed from using an underscore to
   using a hyphen. For example, `:public_read` needs to be changed to
   `public-read`.
-
-If you want to continue using an earlier version of aws-sdk, replace
- aws-sdk with aws-sdk-v1 in your Gemfile.
-
-If both are in your Gemfile, paperclip will use aws-sdk v2.

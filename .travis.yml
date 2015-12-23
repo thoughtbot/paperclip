@@ -8,7 +8,6 @@ script: "bundle exec rake clean spec cucumber"
 gemfile:
   - gemfiles/4.2.awsv2.1.gemfile
   - gemfiles/4.2.awsv2.0.gemfile
-  - gemfiles/4.2.awsv1.gemfile
 
 sudo: false
 cache: bundler
