@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FakeRails
   def initialize(env, root)
     @env = env

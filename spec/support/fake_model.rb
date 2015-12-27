@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FakeModel
   attr_accessor(
     :avatar_file_name,

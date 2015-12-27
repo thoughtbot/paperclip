@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec::Matchers.define :have_column do |column_name|
   chain :with_default do |default|
     @default = default

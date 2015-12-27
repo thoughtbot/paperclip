@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 PROJECT_ROOT     = File.expand_path(File.join(File.dirname(__FILE__), '..', '..')).freeze
 APP_NAME         = 'testapp'.freeze
 BUNDLE_ENV_VARS = %w(RUBYOPT BUNDLE_PATH BUNDLE_BIN_PATH BUNDLE_GEMFILE)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
 
   # Defines the geometry of an image.

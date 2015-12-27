@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MockAttachment
   attr_accessor :updated_at, :original_filename
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class MediaTypeSpoofDetector
     def self.using(file, name, content_type)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class ContentTypeDetector
     # The content-type detection strategy is as follows:

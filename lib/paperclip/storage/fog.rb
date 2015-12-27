@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Storage
     # fog is a modern and versatile cloud computing library for Ruby.

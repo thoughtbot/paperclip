@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'paperclip/schema'
 require 'active_support/testing/deprecation'

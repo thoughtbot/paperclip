@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
   definition = Paperclip::AttachmentRegistry.definitions_for(User)[field.downcase.to_sym]
   path = if defined?(::AWS)

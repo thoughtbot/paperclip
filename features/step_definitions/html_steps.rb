@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then %r{I should see an image with a path of "([^"]*)"} do |path|
   expect(page).to have_css("img[src^='#{path}']")
 end

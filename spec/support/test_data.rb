@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TestData
   def attachment(options={})
     Paperclip::Attachment.new(:avatar, FakeModel.new, options)

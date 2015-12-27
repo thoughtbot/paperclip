@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Storage
     # Amazon's S3 file hosting service is a scalable, easy place to store files for

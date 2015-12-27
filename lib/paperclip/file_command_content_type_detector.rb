@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class FileCommandContentTypeDetector
     SENSIBLE_DEFAULT = "application/octet-stream"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   # Overriding some implementation of Tempfile
   class Tempfile < ::Tempfile

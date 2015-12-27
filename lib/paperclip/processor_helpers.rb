@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module ProcessorHelpers
     class NoSuchProcessor < StandardError; end
