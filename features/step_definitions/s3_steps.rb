@@ -3,10 +3,11 @@
 When /^I attach the file "([^"]*)" to "([^"]*)" on S3$/ do |file_path, field|
   definition = Paperclip::AttachmentRegistry.definitions_for(User)[field.downcase.to_sym]
   path = if defined?(::AWS)
-    "https://paperclip.s3.amazonaws.com#{definition[:path]}"
-  else
-    "https://paperclip.s3-us-west-2.amazonaws.com#{definition[:path]}"
-  end
+           "https://paperclip.s3.amazonaws.com#{definition[:path]}"
+         else
+           "https://paperclip.s3-us-west-2.amazonaws.com#{definition[:path]}"
+         end.dup
+
   path.gsub!(':filename', File.basename(file_path))
   path.gsub!(/:([^\/\.]+)/) do |match|
     "([^\/\.]+)"
