@@ -970,7 +970,7 @@ Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/grap
 License
 -------
 
-Paperclip is Copyright © 2008-2015 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright © 2008-2016 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
 
 About thoughtbot
