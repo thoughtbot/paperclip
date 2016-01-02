@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  if File.exists?('UPGRADING')
+  if File.exist?('UPGRADING')
     s.post_install_message = File.read("UPGRADING")
   end
 
