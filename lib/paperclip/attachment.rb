@@ -335,6 +335,16 @@ module Paperclip
       saved_preserve_files, @options[:preserve_files] = @options[:preserve_files], true
       begin
         assign(self)
+
+        # Unset @queued_for_write[:original] if it wasn't intended to be
+        # reprocessed. This seems a bit awkward but @queued_for_write[:original]
+        # is relied on to be present thought this code. Assumptions were made that
+        # we can't really back out of without a much more significant refacor.
+        #
+        # See: https://github.com/thoughtbot/paperclip/issues/1804
+        # and possibly related: https://github.com/thoughtbot/paperclip/issues/1936
+        @queued_for_write.delete(:original) unless process_style?(:original, only_process)
+
         save
         instance.save
       rescue Errno::EACCES => e
@@ -426,9 +436,11 @@ module Paperclip
 
     def assign_attributes
       @queued_for_write[:original] = @file
-      assign_file_information
-      assign_fingerprint(@file.fingerprint)
-      assign_timestamps
+      if process_style?(:original, only_process)
+        assign_file_information
+        assign_fingerprint(@file.fingerprint)
+        assign_timestamps
+      end
     end
 
     def assign_file_information
@@ -464,9 +476,11 @@ module Paperclip
     end
 
     def reset_file_if_original_reprocessed
-      instance_write(:file_size, @queued_for_write[:original].size)
-      assign_fingerprint(@queued_for_write[:original].fingerprint)
-      reset_updater
+      if process_style?(:original, only_process)
+        instance_write(:file_size, @queued_for_write[:original].size)
+        assign_fingerprint(@queued_for_write[:original].fingerprint)
+        reset_updater
+      end
     end
 
     def reset_updater
@@ -497,7 +511,7 @@ module Paperclip
     end
 
     def post_process(*style_args) #:nodoc:
-      return if @queued_for_write[:original].nil?
+      # return if @queued_for_write[:original].nil?
 
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
@@ -519,7 +533,6 @@ module Paperclip
       begin
         raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
         intermediate_files = []
-
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
           file = Paperclip.processor(processor).make(file, style.processor_options, self)
           intermediate_files << file unless file == @queued_for_write[:original]
