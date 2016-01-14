@@ -9,7 +9,7 @@ gem "aws-sdk", "~> 2.0.0"
 
 group :development, :test do
   gem "activerecord-import"
-  gem "mime-types", "~> 1.16"
+  gem "mime-types", ">= 1.16", "< 4"
   gem "builder"
   gem "rubocop", :require => false
 end
