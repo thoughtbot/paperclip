@@ -263,7 +263,8 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
         before do
           Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
-          build_validator in: (5.kilobytes..10.kilobytes), duplicate_errors_on_base: true
+          build_validator in: (5.kilobytes..10.kilobytes),
+                          duplicate_errors_on_base: true
           @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
           @validator.validate(@dummy)
         end
@@ -299,7 +300,6 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         end
       end
     end
-
   end
 
   context "using the helper" do

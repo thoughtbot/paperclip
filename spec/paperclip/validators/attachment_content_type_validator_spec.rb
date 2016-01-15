@@ -71,7 +71,6 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         assert @dummy.errors[:avatar_content_type].present?,
                "Error not added to attribute"
       end
-
     end
 
     context "with :duplicate_errors_on_base global option set" do
@@ -81,7 +80,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
       context "when global option is set to true" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
           build_validator content_type: "image/png", allow_nil: false
           @dummy.stubs(avatar_content_type: nil)
           @validator.validate(@dummy)
@@ -96,12 +95,11 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           assert @dummy.errors[:avatar_content_type].present?,
                  "Error not added to attribute"
         end
-
       end
 
       context "when global option is set to false" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
           build_validator content_type: "image/png", allow_nil: false
           @dummy.stubs(avatar_content_type: nil)
           @validator.validate(@dummy)
@@ -115,13 +113,13 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           assert @dummy.errors[:avatar_content_type].present?,
                  "Error not added to attribute"
         end
-
       end
 
       context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
-          build_validator content_type: "image/png", allow_nil: false, duplicate_errors_on_base: true
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator content_type: "image/png", allow_nil: false,
+                          duplicate_errors_on_base: true
           @dummy.stubs(avatar_content_type: nil)
           @validator.validate(@dummy)
         end
@@ -135,13 +133,13 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           assert @dummy.errors[:avatar_content_type].present?,
                  "Error not added to attribute"
         end
-
       end
 
       context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
-          build_validator content_type: "image/png", allow_nil: false, duplicate_errors_on_base: false
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator content_type: "image/png", allow_nil: false,
+                          duplicate_errors_on_base: false
           @dummy.stubs(avatar_content_type: nil)
           @validator.validate(@dummy)
         end
@@ -155,7 +153,6 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
           assert @dummy.errors[:avatar_content_type].present?,
                  "Error not added to attribute"
         end
-
       end
     end
   end

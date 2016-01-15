@@ -13,7 +13,6 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
   end
 
   context "with a failing validation" do
-
     context "by default" do
       before do
         build_validator matches: /.*\.png$/, allow_nil: false
@@ -43,7 +42,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
 
       context "when global option is set to true" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
           build_validator matches: /.*\.png$/, allow_nil: false
           @dummy.stubs(avatar_file_name: "data.txt")
           @validator.validate(@dummy)
@@ -62,7 +61,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
 
       context "when global option is set to false" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
           build_validator matches: /.*\.png$/, allow_nil: false
           @dummy.stubs(avatar_file_name: "data.txt")
           @validator.validate(@dummy)
@@ -80,8 +79,9 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
 
       context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
-          build_validator matches: /.*\.png$/, allow_nil: false, duplicate_errors_on_base: true
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator matches: /.*\.png$/, allow_nil: false,
+                          duplicate_errors_on_base: true
           @dummy.stubs(avatar_file_name: "data.txt")
           @validator.validate(@dummy)
         end
@@ -95,13 +95,13 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
         end
-
       end
 
       context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
-          build_validator matches: /.*\.png$/, allow_nil: false, duplicate_errors_on_base: false
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator matches: /.*\.png$/, allow_nil: false,
+                          duplicate_errors_on_base: false
           @dummy.stubs(avatar_file_name: "data.txt")
           @validator.validate(@dummy)
         end
@@ -115,7 +115,6 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
         end
-
       end
     end
   end
@@ -248,4 +247,3 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
     end
   end
 end
-
