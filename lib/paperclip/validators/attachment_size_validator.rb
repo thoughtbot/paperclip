@@ -18,10 +18,10 @@ module Paperclip
         base_attr_name = attr_name
         attr_name = "#{attr_name}_file_size".to_sym
         value = record.send(:read_attribute_for_validation, attr_name)
-        
+
         error_attrs = [attr_name]
         error_attrs << base_attr_name if options[:duplicate_errors_on_base]
-        
+
         unless value.blank?
           options.slice(*AVAILABLE_CHECKS).each do |option, option_value|
             option_value = option_value.call(record) if option_value.is_a?(Proc)

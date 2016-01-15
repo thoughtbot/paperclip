@@ -13,29 +13,29 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
   end
 
   context "with a failing validation" do
-    
+
     context "by default" do
       before do
         build_validator matches: /.*\.png$/, allow_nil: false
         @dummy.stubs(avatar_file_name: "data.txt")
         @validator.validate(@dummy)
       end
-      
+
       it "adds error to the base object" do
         assert @dummy.errors[:avatar].present?,
                "Error not added to base attribute"
       end
-      
+
       it "adds error to base object as a string" do
         expect(@dummy.errors[:avatar].first).to be_a String
       end
-      
+
       it "adds errors on the attribute" do
         assert @dummy.errors[:avatar_file_name].present?,
                "Error not added to attribute"
       end
     end
-    
+
     context "with :duplicate_errors_on_base global option set" do
       after do
         Paperclip.unstub(:options)
@@ -53,7 +53,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
           assert @dummy.errors[:avatar].present?,
                  "Error not added to base attribute"
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
@@ -71,7 +71,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
         it "does not add errors to the base object" do
           expect(@dummy.errors[:avatar]).to be_empty
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
@@ -90,12 +90,12 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
           assert @dummy.errors[:avatar].present?,
                  "Error not added to base attribute"
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
         end
-        
+
       end
 
       context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
@@ -115,7 +115,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
           assert @dummy.errors[:avatar_file_name].present?,
                  "Error not added to attribute"
         end
-        
+
       end
     end
   end

@@ -19,7 +19,7 @@ module Paperclip
 
         validate_whitelist(record, attribute, value)
         validate_blacklist(record, attribute, value)
-        
+
         if options[:duplicate_errors_on_base] && record.errors.include?(attribute)
           record.errors[attribute].each do |error|
             record.errors.add base_attribute, error
@@ -56,7 +56,7 @@ module Paperclip
           raise ArgumentError, "You must pass in either :content_type or :not to the validator"
         end
       end
-      
+
       private
 
       def extract_options(options)
@@ -65,7 +65,7 @@ module Paperclip
           options[:duplicate_errors_on_base] = Paperclip.options[:duplicate_errors_on_base]
         end
       end
-      
+
     end
 
     module HelperMethods

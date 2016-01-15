@@ -25,7 +25,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       it "does not add error to the dummy object" do
         @dummy.stubs(:avatar_file_size).returns(size)
         @validator.validate(@dummy)
-        assert @dummy.errors[:avatar_file_size].blank?, 
+        assert @dummy.errors[:avatar_file_size].blank?,
           "Error added to :avatar_file_size"
       end
 
@@ -46,7 +46,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       it "adds error to dummy object" do
         assert @dummy.errors[:avatar_file_size].present?,
-          "Error not added to :avatar_file_size"     
+          "Error not added to :avatar_file_size"
       end
 
       it "adds error to the base dummy object" do
@@ -199,7 +199,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         message: "must be in between #{storage_units[5120]} and #{storage_units[10240]}"
     end
   end
-  
+
   context "when invalid" do
     context "by default" do
       before do
@@ -222,10 +222,10 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       after do
         Paperclip.unstub(:options)
       end
-      
+
       context "when global option is set to true" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
           build_validator in: (5.kilobytes..10.kilobytes)
           @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
           @validator.validate(@dummy)
@@ -244,7 +244,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       context "when global option is set to false" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
           build_validator in: (5.kilobytes..10.kilobytes)
           @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
           @validator.validate(@dummy)
@@ -253,7 +253,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         it "does not add errors to the base object" do
           expect(@dummy.errors[:avatar]).to be_empty
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_size].present?,
             "Error not added to attribute"
@@ -262,7 +262,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: false })
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
           build_validator in: (5.kilobytes..10.kilobytes), duplicate_errors_on_base: true
           @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
           @validator.validate(@dummy)
@@ -272,7 +272,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           assert @dummy.errors[:avatar].present?,
                  "Error not added to base attribute"
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_size].present?,
                  "Error not added to attribute"
@@ -281,8 +281,9 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
         before do
-          Paperclip.stubs(:options).returns({ duplicate_errors_on_base: true })
-          build_validator in: (5.kilobytes..10.kilobytes), duplicate_errors_on_base: false
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator in: (5.kilobytes..10.kilobytes),
+                          duplicate_errors_on_base: false
           @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
           @validator.validate(@dummy)
         end
@@ -291,14 +292,14 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           assert @dummy.errors[:avatar].blank?,
                  "Error added to base attribute"
         end
-        
+
         it "adds errors on the attribute" do
           assert @dummy.errors[:avatar_file_size].present?,
                  "Error not added to attribute"
         end
       end
     end
-    
+
   end
 
   context "using the helper" do
