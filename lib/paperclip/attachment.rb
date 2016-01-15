@@ -427,7 +427,7 @@ module Paperclip
     def assign_attributes
       @queued_for_write[:original] = @file
       assign_file_information
-      assign_fingerprint(@file.fingerprint)
+      assign_fingerprint { @file.fingerprint }
       assign_timestamps
     end
 
@@ -437,9 +437,9 @@ module Paperclip
       instance_write(:file_size, @file.size)
     end
 
-    def assign_fingerprint(fingerprint)
+    def assign_fingerprint
       if instance_respond_to?(:fingerprint)
-        instance_write(:fingerprint, fingerprint)
+        instance_write(:fingerprint, yield)
       end
     end
 
@@ -465,7 +465,7 @@ module Paperclip
 
     def reset_file_if_original_reprocessed
       instance_write(:file_size, @queued_for_write[:original].size)
-      assign_fingerprint(@queued_for_write[:original].fingerprint)
+      assign_fingerprint { @queued_for_write[:original].fingerprint }
       reset_updater
     end
 
