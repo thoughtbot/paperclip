@@ -97,7 +97,8 @@ module Paperclip
       :log_command => true,
       :swallow_stderr => true,
       :content_type_mappings => {},
-      :use_exif_orientation => true
+      :use_exif_orientation => true,
+      :duplicate_errors_on_base => true
     }
   end
 

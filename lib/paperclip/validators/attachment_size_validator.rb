@@ -18,7 +18,10 @@ module Paperclip
         base_attr_name = attr_name
         attr_name = "#{attr_name}_file_size".to_sym
         value = record.send(:read_attribute_for_validation, attr_name)
-
+        
+        error_attrs = [attr_name]
+        error_attrs << base_attr_name if options[:duplicate_errors_on_base]
+        
         unless value.blank?
           options.slice(*AVAILABLE_CHECKS).each do |option, option_value|
             option_value = option_value.call(record) if option_value.is_a?(Proc)
@@ -26,7 +29,7 @@ module Paperclip
 
             unless value.send(CHECKS[option], option_value)
               error_message_key = options[:in] ? :in_between : option
-              [ attr_name, base_attr_name ].each do |error_attr_name|
+              error_attrs.each do |error_attr_name|
                 record.errors.add(error_attr_name, error_message_key, filtered_options(value).merge(
                   :min => min_value_in_human_size(record),
                   :max => max_value_in_human_size(record),
@@ -55,6 +58,9 @@ module Paperclip
             options[:less_than_or_equal_to] = range
             options[:greater_than_or_equal_to] = range
           end
+        end
+        unless options.has_key?(:duplicate_errors_on_base)
+          options[:duplicate_errors_on_base] = Paperclip.options[:duplicate_errors_on_base]
         end
       end
 
