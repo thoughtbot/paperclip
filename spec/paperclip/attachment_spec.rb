@@ -1374,6 +1374,12 @@ describe Paperclip::Attachment do
     end
 
     it "does not calculate fingerprint" do
+      Digest::MD5.stubs(:file)
+      @dummy.avatar = @file
+      expect(Digest::MD5).to have_received(:file).never
+    end
+
+    it "does not assign fingerprint" do
       @dummy.avatar = @file
       assert_nil @dummy.avatar.fingerprint
     end
