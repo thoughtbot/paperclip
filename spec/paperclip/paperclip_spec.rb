@@ -109,6 +109,7 @@ describe Paperclip do
 
   context "An ActiveRecord model with an 'avatar' attachment" do
     before do
+      Paperclip::Deprecations.stubs(:check)
       rebuild_model path: "tmp/:class/omg/:style.:extension"
       @file = File.new(fixture_file("5k.png"), 'rb')
     end
@@ -121,6 +122,10 @@ describe Paperclip do
           has_attached_file :blah
         end
       end
+    end
+
+    it "calls Paperclip::Deprecations.check" do
+      expect(Paperclip::Deprecations).to have_received(:check)
     end
 
     if using_protected_attributes?
