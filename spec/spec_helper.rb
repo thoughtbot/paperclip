@@ -37,7 +37,6 @@ RSpec.configure do |config|
   config.include ModelReconstruction
   config.include TestData
   config.extend VersionHelper
-  config.extend RailsHelpers::ClassMethods
   config.mock_framework = :mocha
   config.before(:all) do
     rebuild_model
