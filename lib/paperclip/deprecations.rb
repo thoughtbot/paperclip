@@ -19,15 +19,19 @@ module Paperclip
       end
 
       def warn_aws_sdk_v1
-        ActiveSupport::Deprecation.warn "[paperclip] [deprecation] AWS SDK v1 has been deprecated in paperclip 5. Please consider upgrading to AWS 2 before upgrading paperclip."
+        warn "[paperclip] [deprecation] AWS SDK v1 has been deprecated in paperclip 5. Please consider upgrading to AWS 2 before upgrading paperclip."
       end
 
       def warn_outdated_rails
-        ActiveSupport::Deprecation.warn "[paperclip] [deprecation] Rails 3.2 and 4.1 are unsupported as of Rails 5 release. Please upgrade to Rails 5 before upgrading paperclip."
+        warn "[paperclip] [deprecation] Rails 3.2 and 4.1 are unsupported as of Rails 5 release. Please upgrade to Rails 4.2 before upgrading paperclip."
       end
 
       def aws_sdk_version
         ::Aws::VERSION
+      end
+
+      def warn(message)
+        ActiveSupport::Deprecation.warn(message)
       end
     end
   end
