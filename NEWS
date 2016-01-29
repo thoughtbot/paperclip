@@ -1,3 +1,7 @@
+4.3.3 (1/29/2016):
+
+*Improvement: Add deprecation warnings in preparation for release of v5.0
+
 4.3.2 (11/18/2015):
 
 * Performance: Reduce memory allocations (#2056)
