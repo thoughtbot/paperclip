@@ -5,13 +5,13 @@ module Paperclip
     class << self
       def check
         warn_aws_sdk_v1 if aws_sdk_v1?
-        warn_outdated_rails if active_record_version < "4.2"
+        warn_outdated_rails if active_model_version < "4.2"
       end
 
       private
 
-      def active_record_version
-        ::ActiveRecord::VERSION::STRING
+      def active_model_version
+        ::ActiveModel::VERSION::STRING
       end
 
       def aws_sdk_v1?
