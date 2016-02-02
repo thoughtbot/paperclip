@@ -14,9 +14,9 @@ describe Paperclip::Deprecations do
       ActiveSupport::Deprecation.silenced = true
     end
 
-    context "when active record version is < 4.2" do
+    context "when active model version is < 4.2" do
       it "displays deprecation warning" do
-        Paperclip::Deprecations.stubs(:active_record_version).returns("4.1")
+        Paperclip::Deprecations.stubs(:active_model_version).returns("4.1")
 
         assert_deprecated("Rails 3.2 and 4.1 are unsupported") do
           Paperclip::Deprecations.check
@@ -24,9 +24,9 @@ describe Paperclip::Deprecations do
       end
     end
 
-    context "when active record version is 4.2" do
+    context "when active model version is 4.2" do
       it "do not display deprecation warning" do
-        Paperclip::Deprecations.stubs(:active_record_version).returns("4.2")
+        Paperclip::Deprecations.stubs(:active_model_version).returns("4.2")
 
         assert_not_deprecated do
           Paperclip::Deprecations.check
