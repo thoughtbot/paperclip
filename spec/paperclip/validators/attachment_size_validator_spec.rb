@@ -12,14 +12,6 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     ))
   end
 
-  def self.storage_units
-    if defined?(ActiveSupport::NumberHelper) # Rails 4.0+
-      { 5120 => '5 KB',       10240 => '10 KB' }
-    else
-      { 5120 => '5120 Bytes', 10240 => '10240 Bytes' }
-    end
-  end
-
   def self.should_allow_attachment_file_size(size)
     context "when the attachment size is #{size}" do
       it "adds error to dummy object" do
@@ -158,8 +150,10 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
-      should_not_allow_attachment_file_size 11.kilobytes,
-        message: "is invalid. (Between #{storage_units[5120]} and #{storage_units[10240]} please.)"
+      should_not_allow_attachment_file_size(
+        11.kilobytes,
+        message: "is invalid. (Between 5 KB and 10 KB please.)"
+      )
     end
 
     context "given :less_than and :greater_than" do
@@ -169,8 +163,10 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
-      should_not_allow_attachment_file_size 11.kilobytes,
-        message: "is invalid. (Between #{storage_units[5120]} and #{storage_units[10240]} please.)"
+      should_not_allow_attachment_file_size(
+        11.kilobytes,
+        message: "is invalid. (Between 5 KB and 10 KB please.)"
+      )
     end
   end
 
@@ -181,10 +177,15 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           less_than: 10.kilobytes
       end
 
-      should_not_allow_attachment_file_size 11.kilobytes,
-        message: "must be less than #{storage_units[10240]}"
-      should_not_allow_attachment_file_size 4.kilobytes,
-        message: "must be greater than #{storage_units[5120]}"
+      should_not_allow_attachment_file_size(
+        11.kilobytes,
+        message: "must be less than 10 KB"
+      )
+
+      should_not_allow_attachment_file_size(
+        4.kilobytes,
+        message: "must be greater than 5 KB"
+      )
     end
 
     context "given a size range" do
@@ -192,10 +193,15 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         build_validator in: (5.kilobytes..10.kilobytes)
       end
 
-      should_not_allow_attachment_file_size 11.kilobytes,
-        message: "must be in between #{storage_units[5120]} and #{storage_units[10240]}"
-      should_not_allow_attachment_file_size 4.kilobytes,
-        message: "must be in between #{storage_units[5120]} and #{storage_units[10240]}"
+      should_not_allow_attachment_file_size(
+        11.kilobytes,
+        message: "must be in between 5 KB and 10 KB"
+      )
+
+      should_not_allow_attachment_file_size(
+        4.kilobytes,
+        message: "must be in between 5 KB and 10 KB"
+      )
     end
   end
 
