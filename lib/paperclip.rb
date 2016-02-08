@@ -56,7 +56,6 @@ require 'paperclip/has_attached_file'
 require 'paperclip/attachment_registry'
 require 'paperclip/filename_cleaner'
 require 'paperclip/rails_environment'
-require "paperclip/deprecations"
 
 begin
   # Use mime/types/columnar if available, for reduced memory usage
@@ -192,7 +191,6 @@ module Paperclip
     #     end
     #   end
     def has_attached_file(name, options = {})
-      Paperclip::Deprecations.check
       HasAttachedFile.define_on(self, name, options)
     end
   end
