@@ -1,3 +1,6 @@
+4.3.5 (2/8/2016):
+* Bug Fix: Remove deprecation warnings for v5.0 for now. Will re-add once the version has landed.
+
 4.3.4 (2/2/2016):
 * Bug Fix: Fix incompatible change from v4.3.3.
 
