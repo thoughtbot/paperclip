@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 unless ENV["S3_BUCKET"].blank?

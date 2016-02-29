@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   # Handles thumbnailing images that are uploaded.
   class Thumbnail < Processor

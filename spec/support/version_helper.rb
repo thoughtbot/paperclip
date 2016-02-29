@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VersionHelper
   def active_support_version
     ActiveSupport::VERSION::STRING

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AttachmentHelpers
   def fixture_path(filename)
     File.expand_path("#{PROJECT_ROOT}/spec/support/fixtures/#{filename}")

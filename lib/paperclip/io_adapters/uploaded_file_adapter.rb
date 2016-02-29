@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class UploadedFileAdapter < AbstractAdapter
     def initialize(target)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   module Logger
     # Log a paperclip-specific line. This will log to STDOUT

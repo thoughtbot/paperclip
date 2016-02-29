@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ModelReconstruction
   def reset_class class_name
     ActiveRecord::Base.send(:include, Paperclip::Glue)

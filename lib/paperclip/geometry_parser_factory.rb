@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class GeometryParser
     FORMAT = /\b(\d*)x?(\d*)\b(?:,(\d?))?(\@\>|\>\@|[\>\<\#\@\%^!])?/i

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FileHelpers
   def append_to(path, contents)
     cd(".") do

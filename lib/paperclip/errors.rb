@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   # A base error class for Paperclip. Most of the error that will be thrown
   # from Paperclip will inherits from this class.

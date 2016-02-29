@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'paperclip/attachment_registry'
 require 'set'
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
 
   # Defines the geometry of an image.
@@ -73,7 +75,7 @@ module Paperclip
 
     # Returns the width and height in a format suitable to be passed to Geometry.parse
     def to_s
-      s = ""
+      s = String.new
       s << width.to_i.to_s if width > 0
       s << "x#{height.to_i}" if height > 0
       s << modifier.to_s

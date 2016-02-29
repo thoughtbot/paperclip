@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   # Paperclip processors allow you to modify attached files when they are
   # attached in any way you are able. Paperclip itself uses command-line

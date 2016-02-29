@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Assertions
   def assert(truthy, message = nil)
     expect(!!truthy).to(eq(true), message)

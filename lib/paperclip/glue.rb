@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'paperclip/callbacks'
 require 'paperclip/validators'
 require 'paperclip/schema'

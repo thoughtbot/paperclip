@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Paperclip
   class HasAttachedFile
     def self.define_on(klass, name, options)
