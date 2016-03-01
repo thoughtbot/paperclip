@@ -40,8 +40,18 @@ module Paperclip
     end
 
     def copy_to_tempfile(src)
-      FileUtils.cp(src.path, destination.path)
+      link_or_copy_file(src.path, destination.path)
       destination
+    end
+
+    def link_or_copy_file(src, dest)
+      Paperclip.log("Trying to link #{src} to #{dest}")
+      FileUtils.ln(src, dest, force: true) # overwrite existing
+      @destination.close
+      @destination.open.binmode
+    rescue Errno::EXDEV, Errno::EPERM, Errno::ENOENT => e
+      Paperclip.log("Link failed with #{e.message}; copying link #{src} to #{dest}")
+      FileUtils.cp(src, dest)
     end
   end
 end
