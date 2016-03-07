@@ -484,6 +484,25 @@ describe Paperclip::Storage::Fog do
           assert_equal @dummy.avatar.fog_credentials, @dynamic_fog_credentials
         end
       end
+
+      context "with custom fog_options" do
+        before do
+          rebuild_model(
+            @options.merge(fog_options: { multipart_chunk_size: 104857600 }),
+          )
+          @dummy = Dummy.new
+          @dummy.avatar = @file
+        end
+
+        it "applies the options to the fog #create call" do
+          files = stub
+          @dummy.avatar.stubs(:directory).returns stub(files: files)
+          files.expects(:create).with(
+            has_entries(multipart_chunk_size: 104857600),
+          )
+          @dummy.save
+        end
+      end
     end
 
   end

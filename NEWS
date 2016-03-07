@@ -1,3 +1,5 @@
+* Improvement: Add `fog_options` configuration to send options to fog when storing files.
+
 4.3.6 (3/13/2016):
 
 * Bug Fix: When a spoofed media type is detected, megabytes of mime-types info are added to logs. See https://cwe.mitre.org/data/definitions/779.html.
