@@ -1,5 +1,7 @@
 master:
 
+* Improvement: Add `fog_options` configuration to send options to fog when
+  storing files.
 * Drops support to end-of-life'd ruby 2.0.
 * Improvement: Paperclip now supports aws-sdk v2
   @betesh, @davetchen,
