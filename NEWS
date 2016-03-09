@@ -1,3 +1,5 @@
+* Bug Fix: megabytes of mime-types info in logs when a spoofed media type is detected.
+
 4.3.5 (2/8/2016):
 * Bug Fix: Remove deprecation warnings for v5.0 for now. Will re-add once the version has landed.
 
