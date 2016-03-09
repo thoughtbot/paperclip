@@ -44,9 +44,18 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
   end
 
-  it "rejects a file if named .html and is as HTML, but we're told JPG" do
-    file = File.open(fixture_file("empty.html"))
-    assert Paperclip::MediaTypeSpoofDetector.using(file, "empty.html", "image/jpg").spoofed?
+  context "file named .html and is as HTML, but we're told JPG" do
+    let(:file) { File.open(fixture_file("empty.html")) }
+    let(:spoofed?) { Paperclip::MediaTypeSpoofDetector.using(file, "empty.html", "image/jpg").spoofed? }
+
+    it "rejects the file" do
+      assert spoofed?
+    end
+
+    it "logs info about the detected spoof" do
+      Paperclip.expects(:log).with('Content Type Spoof: Filename empty.html (image/jpg from Headers, ["text/html"] from Extension), content type discovered from file command: text/html. See documentation to allow this combination.')
+      spoofed?
+    end
   end
 
   it "does not reject if content_type is empty but otherwise checks out" do

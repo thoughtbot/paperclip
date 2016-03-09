@@ -12,6 +12,7 @@ master:
 
 5.0.0.beta1 (2015-03-13):
 
+* Bug Fix: megabytes of mime-types info in logs when a spoofed media type is detected.
 * Drop support to end-of-life'd ruby 2.0.
 * Drop support for end-of-life'd Rails 3.2 and 4.1
 * Drop support for AWS v1
