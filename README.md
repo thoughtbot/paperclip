@@ -445,14 +445,13 @@ will not cause errors to be raised.
 
 This can sometimes cause false validation errors in applications that use custom
 file extensions. In these cases you may wish to add your custom extension to the
-list of file extensions allowed for your MIME type configured by the `mime-types`
-gem:
+list of content type mappings by creating `config/initializers/paperclip.rb`:
 
 ```ruby
 # Allow ".foo" as an extension for files with the MIME type "text/plain".
-text_plain = MIME::Types["text/plain"].first
-text_plain.extensions << "foo"
-MIME::Types.index_extensions text_plain
+Paperclip.options[:content_type_mappings] = {
+  foo: %w(text/plain)
+}
 ```
 
 ---
