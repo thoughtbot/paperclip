@@ -12,7 +12,7 @@ module Paperclip
 
     def spoofed?
       if has_name? && has_extension? && media_type_mismatch? && mapping_override_mismatch?
-        Paperclip.log("Content Type Spoof: Filename #{File.basename(@name)} (#{supplied_content_type} from Headers, #{content_types_from_name} from Extension), content type discovered from file command: #{calculated_content_type}. See documentation to allow this combination.")
+        Paperclip.log("Content Type Spoof: Filename #{File.basename(@name)} (#{supplied_content_type} from Headers, #{content_types_from_name.map(&:to_s)} from Extension), content type discovered from file command: #{calculated_content_type}. See documentation to allow this combination.")
         true
       else
         false
