@@ -10,14 +10,10 @@ master:
   s3_region may be nested in s3_credentials, and (if not nested in
   s3_credentials) it may be a Proc.
 
-4.3.1 (2015-09-09):
+4.3
 
-* Backport of bugfix to `remove_column`, so it works in Rails 3 and 4
-  c740fb171fe2f88c60b999d2a1c2122f2b8f43e9
-* Fix GeometryParser regex for usage of '@>' flag
-* `url` on a unpersisted record returns default_url
-* spec deprecation warnings and failures
-* README adjustments
+See patch versions in v4.3 NEWS:
+https://github.com/thoughtbot/paperclip/blob/v4.3/NEWS
 
 4.3.0 (2015-06-18):
 
