@@ -1,5 +1,8 @@
-master:
-
+5.0.0.beta1:
+* Removed support for AWS v1 
+* Rails Versioning: Removed support for Rails 3.2 and 4.1
+* Extracted repository for locales only:  https://github.com/thoughtbot/paperclip-i18n
+* Removed tests for JRuby and Rubinius in Travis CI
 * Drops support to end-of-life'd ruby 2.0.
 * Improvement: Paperclip now supports aws-sdk v2
   @betesh, @davetchen,
