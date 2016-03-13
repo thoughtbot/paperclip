@@ -1,6 +1,14 @@
-master:
+5.0.0.beta1:
 
-* Drops support to end-of-life'd ruby 2.0.
+* Memory consumption improvements
+* Extracted repository for locales only:  https://github.com/thoughtbot/paperclip-i18n
+* `url` on a unpersisted record returns `default_url` rather than `nil`
+* Bugfix: Original file could be unlinked during `post_process_style`, producing failures
+* Bugfix for image magick scaling images up
+* Drop support for end-of-life'd Ruby 2
+* Remove tests for JRuby and Rubinius from Travis CI (they were failing)
+* Remove support for end-of-life'd Rails 3.2 and 4.1
+* Remove support for AWS v1 
 * Improvement: Paperclip now supports aws-sdk v2
   @betesh, @davetchen,
   https://github.com/thoughtbot/paperclip/pull/1903
