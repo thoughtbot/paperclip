@@ -1,9 +1,13 @@
-* Bug Fix: megabytes of mime-types info in logs when a spoofed media type is detected.
+4.3.6 (3/13/2016):
+
+* Bug Fix: When a spoofed media type is detected, megabytes of mime-types info are added to logs. See https://cwe.mitre.org/data/definitions/779.html.
 
 4.3.5 (2/8/2016):
+
 * Bug Fix: Remove deprecation warnings for v5.0 for now. Will re-add once the version has landed.
 
 4.3.4 (2/2/2016):
+
 * Bug Fix: Fix incompatible change from v4.3.3.
 
 4.3.3 (1/29/2016):
