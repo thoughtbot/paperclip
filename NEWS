@@ -1,4 +1,4 @@
-master:
+5.0.0 (2015-??-??):
 
 * Drops support to end-of-life'd ruby 2.0.
 * Improvement: Paperclip now supports aws-sdk v2
@@ -9,6 +9,11 @@ master:
   aws-sdk v2. With aws-sdk v2, S3 storage requires you to set the s3_region.
   s3_region may be nested in s3_credentials, and (if not nested in
   s3_credentials) it may be a Proc.
+* `url` on a unpersisted record returns default_url rather than `nil`
+* Add code of conduct
+* Bugfix for image magick scaling images up
+* README adjustments
+* Fixes rspec deprecation warnings
 
 4.3
 
