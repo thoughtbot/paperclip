@@ -1,4 +1,4 @@
-Releasing paperclip
+Releasing paperclip 
 
 1. Update `lib/paperclip/version.rb` file accordingly.
 2. Update `NEWS` to reflect the changes since last release.
