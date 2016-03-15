@@ -123,33 +123,6 @@ describe Paperclip do
       end
     end
 
-    if using_protected_attributes?
-      context "that is attr_protected" do
-        before do
-          Dummy.class_eval do
-            attr_protected :avatar
-          end
-          @dummy = Dummy.new
-        end
-
-        it "does not assign the avatar on mass-set" do
-          @dummy.attributes = { other: "I'm set!",
-                                avatar: @file }
-
-          assert_equal "I'm set!", @dummy.other
-          assert ! @dummy.avatar?
-        end
-
-        it "allows assigment on normal set" do
-          @dummy.other  = "I'm set!"
-          @dummy.avatar = @file
-
-          assert_equal "I'm set!", @dummy.other
-          assert @dummy.avatar?
-        end
-      end
-    end
-
     context "with a subclass" do
       before do
         class ::SubDummy < Dummy; end
