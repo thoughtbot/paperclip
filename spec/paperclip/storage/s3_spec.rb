@@ -14,6 +14,19 @@ describe Paperclip::Storage::S3 do
     defined?(::Aws) ? { s3_region: 'us-east-1' } : {}
   end
 
+  context "multithreaded initialization" do
+    it "should not fail on missing constants" do
+      10.times.map do |i|
+        Thread.new do
+          ActiveRecord::Base.connection_pool.with_connection do |_|
+            rebuild_model (aws2_add_region).merge storage: :s3
+            Dummy.new.avatar
+          end
+        end
+      end.map{|t| t.join}
+    end
+  end
+
   context "Parsing S3 credentials" do
     before do
       @proxy_settings = {host: "127.0.0.1", port: 8888, user: "foo", password: "bar"}
