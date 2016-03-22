@@ -23,10 +23,12 @@ module Paperclip
       private
 
       def hasta_la_vista_baby
-        if ::ActiveSupport::VERSION::STRING >= "5.0"
-          lambda { |_, result| result.call }
-        else
-          'result == false'
+        lambda do |_, result|
+          if result.respond_to?(:call)
+            result.call == false
+          else
+            result == false
+          end
         end
       end
     end
