@@ -36,6 +36,7 @@ RSpec.configure do |config|
   config.include Assertions
   config.include ModelReconstruction
   config.include TestData
+  config.include Reporting
   config.extend VersionHelper
   config.mock_framework = :mocha
   config.before(:all) do
