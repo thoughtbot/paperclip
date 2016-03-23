@@ -68,27 +68,3 @@ Feature: Migration
 
     When I rollback a migration
     Then I should not have attachment columns for "avatar"
-
-  Scenario: Rails 3.2 change method
-    Given I am using Rails newer than 3.1
-    When I write to "db/migrate/01_create_users.rb" with:
-      """
-      class CreateUsers < ActiveRecord::Migration
-        def self.up
-          create_table :users
-        end
-      end
-      """
-    When I write to "db/migrate/02_add_attachment_to_users.rb" with:
-      """
-      class AddAttachmentToUsers < ActiveRecord::Migration
-        def change
-          add_attachment :users, :avatar
-        end
-      end
-      """
-    And I run a migration
-    Then I should have attachment columns for "avatar"
-
-    When I rollback a migration
-    Then I should not have attachment columns for "avatar"
