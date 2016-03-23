@@ -33,6 +33,10 @@ module Paperclip
     #   that is the alias to the S3 domain of your bucket, e.g.
     #   'http://images.example.com'. This can also be used in
     #   conjunction with Cloudfront (http://aws.amazon.com/cloudfront)
+    # * +fog_options+: (optional) A hash of options that are passed
+    #   to fog when the file is created. For example, you could set
+    #   the multipart-chunk size to 100MB with a hash:
+    #     { :multipart_chunk_size => 104857600 }
 
     module Fog
       def self.extended base
@@ -98,12 +102,14 @@ module Paperclip
           log("saving #{path(style)}")
           retried = false
           begin
-            directory.files.create(fog_file.merge(
+            attributes = fog_file.merge(
               :body         => file,
               :key          => path(style),
               :public       => fog_public(style),
               :content_type => file.content_type
-            ))
+            )
+            attributes.merge!(@options[:fog_options]) if @options[:fog_options]
+            directory.files.create(attributes)
           rescue Excon::Errors::NotFound
             raise if retried
             retried = true
