@@ -501,7 +501,7 @@ module Paperclip
 
       instance.run_paperclip_callbacks(:post_process) do
         instance.run_paperclip_callbacks(:"#{name}_post_process") do
-          unless @options[:check_validity_before_processing] && instance.errors.any?
+          if !@options[:check_validity_before_processing] || !instance.errors.any?
             post_process_styles(*style_args)
           end
         end

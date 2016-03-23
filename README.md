@@ -1,6 +1,13 @@
 Paperclip
 =========
 
+## Documentation valid for `master` branch
+
+Please check the documentation for the paperclip version you are using:
+https://github.com/thoughtbot/paperclip/releases
+
+---
+
 [![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.svg?branch=master)](http://travis-ci.org/thoughtbot/paperclip)
 [![Dependency Status](https://gemnasium.com/thoughtbot/paperclip.svg?travis)](https://gemnasium.com/thoughtbot/paperclip)
 [![Code Climate](https://codeclimate.com/github/thoughtbot/paperclip.svg)](https://codeclimate.com/github/thoughtbot/paperclip)
@@ -71,9 +78,8 @@ Requirements
 
 ### Ruby and Rails
 
-Paperclip now requires Ruby version **>= 2.0.0** and Rails version **3.2, >= 4.1** (Only if you're going to use Paperclip with Ruby on Rails.)
-
-If you're still on Ruby 1.8.7 or Ruby on Rails 2.3.x, you can still use Paperclip 2.7.x with your project. Also, everything in this README might not apply to your version of Paperclip, and you should read [the README for version 2.7](http://www.rubydoc.info/gems/paperclip/2.7.0) instead.
+Paperclip now requires Ruby version **>= 2.1** and Rails version **>= 4.2**
+(only if you're going to use Paperclip with Ruby on Rails.)
 
 ### Image Processor
 
@@ -100,7 +106,7 @@ to install GhostScript. On Mac OS X, you can also install that using Homebrew:
 
     brew install gs
 
-If you're on Ubuntu (or any Debian base Linux distribution), you'll want to run
+If you are on Ubuntu (or any Debian base Linux distribution), you'll want to run
 the following with apt-get:
 
     sudo apt-get install imagemagick -y
@@ -153,7 +159,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 4.3"
+gem "paperclip", "~> 5.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
