@@ -523,6 +523,10 @@ module Paperclip
         @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
           file = Paperclip.processor(processor).make(file, style.processor_options, self)
           intermediate_files << file unless file == @queued_for_write[:original]
+          # if we're processing the original, close + unlink the source tempfile
+          if name == :original
+            @queued_for_write[:original].close(true)
+          end
           file
         end
 
