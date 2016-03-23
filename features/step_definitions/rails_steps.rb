@@ -190,12 +190,6 @@ When /^I comment out the gem "([^"]*)" from the Gemfile$/ do |gemname|
   comment_out_gem_in_gemfile gemname
 end
 
-Given /^I am using Rails newer than ([\d\.]+)$/ do |version|
-  if framework_version < version
-    pending "Not supported in Rails < #{version}"
-  end
-end
-
 Given(/^I add a "(.*?)" processor in "(.*?)"$/) do |processor, directory|
   filename = "#{directory}/#{processor}.rb"
   cd(".") do
