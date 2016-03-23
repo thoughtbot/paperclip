@@ -8,6 +8,10 @@ module Paperclip
         if Paperclip::MediaTypeSpoofDetector.using(adapter, value.original_filename, value.content_type).spoofed?
           record.errors.add(attribute, :spoofed_media_type)
         end
+
+        if adapter.tempfile
+          adapter.tempfile.close(true)
+        end
       end
     end
 

@@ -2,14 +2,32 @@ require 'spec_helper'
 require 'open-uri'
 
 describe 'Paperclip' do
+  around do |example|
+    files_before = ObjectSpace.each_object(Tempfile).select do |file|
+      file.path && File.file?(file.path)
+    end
+
+    example.run
+
+    files_after = ObjectSpace.each_object(Tempfile).select do |file|
+      file.path && File.file?(file.path)
+    end
+
+    diff = files_after - files_before
+    expect(diff).to eq([]), "Leaked tempfiles: #{diff.inspect}"
+  end
+
   context "Many models at once" do
     before do
       rebuild_model
       @file = File.new(fixture_file("5k.png"), 'rb')
       # Deals with `Too many open files` error
-      Dummy.import 100.times.map { Dummy.new avatar: @file }
-      Dummy.import 100.times.map { Dummy.new avatar: @file }
-      Dummy.import 100.times.map { Dummy.new avatar: @file }
+      dummies = Array.new(300) { Dummy.new avatar: @file }
+      Dummy.import dummies
+      # save attachment instances to run after hooks including tempfile cleanup
+      # since activerecord-import does not use our usually hooked-in hooks
+      # (such as after_save)
+      dummies.each { |dummy| dummy.avatar.save }
     end
 
     after { @file.close }
@@ -134,6 +152,14 @@ describe 'Paperclip' do
     end
 
     it "allows us to selectively create each thumbnail" do
+      skip <<-EXPLANATION
+	#reprocess! calls #assign which calls Paperclip.io_adapters.for 
+	which creates the tempfile. #assign then calls #post_process_file which
+	calls MediaTypeSpoofDetectionValidator#validate_each which calls 
+	Paperclip.io_adapters.for, which creates another tempfile. That first
+	tempfile is the one that leaks.
+      EXPLANATION
+
       assert_file_not_exists(@thumb_small_path)
       assert_file_not_exists(@thumb_large_path)
 
@@ -158,7 +184,11 @@ describe 'Paperclip' do
       assert_not_equal File.size(@file.path), @dummy.avatar.size
     end
 
-    after { @file.close }
+    after do
+      @file.close
+      # save attachment instance to run after hooks (including tempfile cleanup)
+      @dummy.avatar.save
+    end
   end
 
   context "A model with attachments scoped under an id" do
@@ -346,6 +376,8 @@ describe 'Paperclip' do
     it "is not ok with bad files" do
       @dummy.avatar = @bad_file
       assert ! @dummy.valid?
+      # save attachment instance to run after hooks (including tempfile cleanup)
+      @dummy.avatar.save
     end
 
     it "knows the difference between good files, bad files, and not files when validating" do
@@ -353,8 +385,13 @@ describe 'Paperclip' do
       @d2 = Dummy.find(@dummy.id)
       @d2.avatar = @file
       assert  @d2.valid?, @d2.errors.full_messages.inspect
+      # save attachment instance to run after hooks (including tempfile cleanup)
+      @d2.avatar.save
+
       @d2.avatar = @bad_file
       assert ! @d2.valid?
+      # save attachment instance to run after hooks (including tempfile cleanup)
+      @d2.avatar.save
     end
 
     it "is able to reload without saving and not have the file disappear" do
