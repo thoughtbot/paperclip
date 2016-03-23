@@ -64,12 +64,11 @@ describe Paperclip::Validators do
       assert_raises(RuntimeError){ dummy.valid? }
     end
 
-    it 'allows you to attach a file that does not violates these validations' do
+    it 'allows you to attach a file that does not violate these validations' do
       dummy = Dummy.new(avatar: File.new(fixture_file('rotated.jpg')))
-      expect(dummy.errors.keys).to match_array []
+      expect(dummy.errors.full_messages).to be_empty
       assert dummy.valid?
     end
-
   end
 
   context "using the helper with a conditional" do
