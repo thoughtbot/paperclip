@@ -572,15 +572,12 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '>= 2.0.0' # If using paperclip `master` (upcoming v5.0)
+gem 'aws-sdk', '>= 2.0.34'
 ```
 
 And then you can specify using S3 from `has_attached_file`.
 You can find more information about configuring and using S3 storage in
 [the `Paperclip::Storage::S3` documentation](http://www.rubydoc.info/gems/paperclip/Paperclip/Storage/S3).
-
-_**NOTE**: If upgrading aws-sdk from v1.x to v2.x, be sure to read the
-[UPGRADING guide](https://github.com/thoughtbot/paperclip/blob/master/UPGRADING)._
 
 Files on the local filesystem (and in the Rails app's public directory) will be
 available to the internet at large. If you require access control, it's
