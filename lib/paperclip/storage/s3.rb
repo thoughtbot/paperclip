@@ -113,33 +113,24 @@ module Paperclip
 
     module S3
       def self.extended base
-        unless defined?(AWS_CLASS)
-          begin
-            require 'aws-sdk'
-            const_set('AWS_CLASS', defined?(::Aws) ? ::Aws : ::AWS)
-            const_set('AWS_BASE_ERROR',
-              defined?(::Aws) ? Aws::Errors::ServiceError : AWS::Errors::Base)
-            const_set('DEFAULT_PERMISSION',
-              defined?(::AWS) ? :public_read : :'public-read')
+        begin
+          require 'aws-sdk'
+          const_set 'DEFAULT_PERMISSION', :"public-read"
 
-          rescue LoadError => e
-            e.message << " (You may need to install the aws-sdk gem)"
-            raise e
-          end
-          if Gem::Version.new(AWS_CLASS::VERSION) >= Gem::Version.new(2) && Gem::Version.new(AWS_CLASS::VERSION) <= Gem::Version.new("2.0.33")
-            raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
-          end
+        rescue LoadError => e
+          e.message << " (You may need to install the aws-sdk gem)"
+          raise e
         end
 
         # Overriding log formatter to make sure it return a UTF-8 string
-        if defined?(AWS_CLASS::Core::LogFormatter)
-          AWS_CLASS::Core::LogFormatter.class_eval do
+        if defined?(::Aws::Core::LogFormatter)
+          ::Aws::Core::LogFormatter.class_eval do
             def summarize_hash(hash)
               hash.map { |key, value| ":#{key}=>#{summarize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
           end
-        elsif defined?(AWS_CLASS::Core::ClientLogging)
-          AWS_CLASS::Core::ClientLogging.class_eval do
+        elsif defined?(::Aws::Core::ClientLogging)
+          ::Aws::Core::ClientLogging.class_eval do
             def sanitize_hash(hash)
               hash.map { |key, value| "#{sanitize_value(key)}=>#{sanitize_value(value)}".force_encoding('UTF-8') }.sort.join(',')
             end
@@ -266,7 +257,7 @@ module Paperclip
 
       def obtain_s3_instance_for(options)
         instances = (Thread.current[:paperclip_s3_instances] ||= {})
-        instances[options] ||= AWS_CLASS::S3::Resource.new(options)
+        instances[options] ||= ::Aws::S3::Resource.new(options)
       end
 
       def s3_bucket
@@ -323,7 +314,7 @@ module Paperclip
         else
           false
         end
-      rescue AWS_BASE_ERROR => e
+      rescue Aws::Errors::ServiceError => e
         false
       end
 
@@ -381,10 +372,10 @@ module Paperclip
             write_options.merge!(@s3_headers)
 
             s3_object(style).upload_file(file.path, write_options)
-          rescue AWS_CLASS::S3::Errors::NoSuchBucket
+          rescue ::Aws::S3::Errors::NoSuchBucket
             create_bucket
             retry
-          rescue AWS_CLASS::S3::Errors::SlowDown
+          rescue ::Aws::S3::Errors::SlowDown
             retries += 1
             if retries <= 5
               sleep((2 ** retries) * 0.5)
@@ -407,7 +398,7 @@ module Paperclip
           begin
             log("deleting #{path}")
             s3_bucket.object(path.sub(%r{\A/}, "")).delete
-          rescue AWS_BASE_ERROR => e
+          rescue Aws::Errors::ServiceError => e
             # Ignore this.
           end
         end
@@ -421,7 +412,7 @@ module Paperclip
             local_file.write(chunk)
           end
         end
-      rescue AWS_BASE_ERROR => e
+      rescue Aws::Errors::ServiceError => e
         warn("#{e} - cannot copy #{path(style)} to local file #{local_dest_path}")
         false
       end
