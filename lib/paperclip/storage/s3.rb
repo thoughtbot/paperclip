@@ -115,8 +115,6 @@ module Paperclip
       def self.extended base
         begin
           require 'aws-sdk'
-          const_set 'DEFAULT_PERMISSION', :"public-read"
-
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
@@ -133,7 +131,7 @@ module Paperclip
             Proc.new do |style, attachment|
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == DEFAULT_PERMISSION) ? 'http'.freeze : 'https'.freeze
+              (permission == :"public-read") ? 'http'.freeze : 'https'.freeze
             end
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
@@ -283,7 +281,7 @@ module Paperclip
 
       def set_permissions permissions
         permissions = { :default => permissions } unless permissions.respond_to?(:merge)
-        permissions.merge :default => (permissions[:default] || DEFAULT_PERMISSION)
+        permissions.merge :default => (permissions[:default] || :"public-read")
       end
 
       def set_storage_class(storage_class)

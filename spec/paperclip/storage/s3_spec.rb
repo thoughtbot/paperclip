@@ -349,10 +349,10 @@ describe Paperclip::Storage::S3 do
 
         object.expects(:upload_file)
           .with(anything, content_type: 'image/png',
-                acl: Paperclip::Storage::S3::DEFAULT_PERMISSION)
+                acl: :"public-read")
         object.expects(:upload_file)
           .with(anything, content_type: 'image/png',
-                acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                acl: :"public-read",
                 cache_control: 'max-age=31557600')
         @dummy.save
     end
@@ -772,8 +772,7 @@ describe Paperclip::Storage::S3 do
           object = stub
           @dummy.avatar.stubs(:s3_object).returns(object)
           object.expects(:upload_file)
-            .with(anything, content_type: 'image/png',
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION)
+            .with(anything, content_type: 'image/png', acl: :"public-read")
           @dummy.save
         end
 
@@ -924,7 +923,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything,
                   content_type: 'image/png',
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                  acl: :"public-read",
                   cache_control: 'max-age=31557600')
           @dummy.save
         end
@@ -965,7 +964,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything,
                   content_type: 'image/png',
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                  acl: :"public-read",
                   metadata: { "color" => "red" })
           @dummy.save
         end
@@ -1006,7 +1005,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything,
                   content_type: 'image/png',
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                  acl: :"public-read",
                   metadata: { "color" => "red" })
           @dummy.save
         end
@@ -1048,7 +1047,7 @@ describe Paperclip::Storage::S3 do
             object.expects(:upload_file)
               .with(anything,
                     content_type: 'image/png',
-                    acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                    acl: :"public-read",
                     storage_class: "reduced_redundancy")
             @dummy.save
           end
@@ -1094,7 +1093,7 @@ describe Paperclip::Storage::S3 do
 
               expected_options = {
                 :content_type => "image/png",
-                :acl =>  Paperclip::Storage::S3::DEFAULT_PERMISSION
+                acl: :"public-read"
               }
               expected_options.merge!(:storage_class => :reduced_redundancy) if style == :thumb
 
@@ -1143,7 +1142,7 @@ describe Paperclip::Storage::S3 do
 
               object.expects(:upload_file)
                 .with(anything, :content_type => "image/png",
-                      :acl => Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                      acl: :"public-read",
                       :storage_class => :reduced_redundancy)
             end
             @dummy.save
@@ -1185,8 +1184,7 @@ describe Paperclip::Storage::S3 do
             @dummy.avatar.stubs(:s3_object).returns(object)
 
             object.expects(:upload_file)
-              .with(anything, :content_type => "image/png",
-                    :acl => Paperclip::Storage::S3::DEFAULT_PERMISSION)
+              .with(anything, :content_type => "image/png", acl: :"public-read")
             @dummy.save
           end
 
@@ -1226,7 +1224,7 @@ describe Paperclip::Storage::S3 do
 
           object.expects(:upload_file)
             .with(anything, content_type: "image/png",
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                  acl: :"public-read",
                   server_side_encryption: :aes256)
           @dummy.save
         end
@@ -1267,7 +1265,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything,
                   content_type: "image/png",
-                  acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                  acl: :"public-read",
                   storage_class: :reduced_redundancy)
           @dummy.save
         end
@@ -1359,9 +1357,7 @@ describe Paperclip::Storage::S3 do
             @dummy.avatar.stubs(:s3_object).returns(object)
 
             object.expects(:upload_file)
-              .with(anything,
-                    content_type: "image/png",
-                    acl: Paperclip::Storage::S3::DEFAULT_PERMISSION)
+              .with(anything, content_type: "image/png", acl: :"public-read")
             @dummy.save
           end
 
@@ -1472,7 +1468,7 @@ describe Paperclip::Storage::S3 do
             'secret_access_key' => "54321"
           },
           s3_permissions: lambda {|attachment, style|
-            attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : Paperclip::Storage::S3::DEFAULT_PERMISSION
+            attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : :"public-read"
           }
         )
       end
@@ -1540,7 +1536,7 @@ describe Paperclip::Storage::S3 do
             object.expects(:upload_file)
               .with(anything,
                     content_type: "image/png",
-                    acl: Paperclip::Storage::S3::DEFAULT_PERMISSION,
+                    acl: :"public-read",
                     content_disposition: 'attachment; filename="Custom Avatar Name.png"')
           end
           @dummy.save
