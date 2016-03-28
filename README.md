@@ -27,6 +27,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Controller](#controller)
   - [Show View](#show-view)
   - [Deleting an Attachment](#deleting-an-attachment)
+  - [Uploading Multiple Images](#uploading-multiple-images)
 - [Usage](#usage)
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
@@ -261,7 +262,7 @@ Set the attribute to `nil` and save.
 @user.save
 ```
 ---
-### Multiple images upload
+### Uploading Multiple Images
 
 If you need to upload multiple images to create something like a gallery,
 you can begin by creating a "A Gallery has many Pictures" relationship, and "Picture has one avatar".
