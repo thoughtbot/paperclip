@@ -285,7 +285,7 @@ Then you enable multiple option in the form, and use 'file_field_tag' to pass ar
 <%= file_field_tag "avatars[]", type: :file , multiple: 'true'%>
 ```
 
-Now in the create action in GalleryController, you can use create on each pictures.
+Now in the create action in GalleryController, you can use create method on each pictures.
 ```ruby
 def create
   @gallery = Gallery.new(gallery_params)
@@ -299,7 +299,6 @@ def create
   else
     render 'new'
   end
-
 end
 ```
 ---
