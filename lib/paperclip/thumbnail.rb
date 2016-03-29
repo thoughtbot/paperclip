@@ -3,7 +3,7 @@ module Paperclip
   class Thumbnail < Processor
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated, :auto_orient
+                  :source_file_options, :animated, :auto_orient, :frame_index
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
@@ -36,11 +36,14 @@ module Paperclip
       @convert_options     = options[:convert_options]
       @whiny               = options.fetch(:whiny, true)
       @format              = options[:format]
+      @frame_index         = options[:frame_index]
       @animated            = options.fetch(:animated, true)
       @auto_orient         = options.fetch(:auto_orient, true)
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
+      
+      @frame_index ||= 0
 
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
@@ -76,7 +79,7 @@ module Paperclip
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
-        success = convert(parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
+        success = convert(parameters, :source => "#{File.expand_path(src.path)}#{'['+@frame_index.to_s+']' unless animated?}", :dest => File.expand_path(dst.path))
       rescue Cocaine::ExitStatusError => e
         raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
       rescue Cocaine::CommandNotFoundError => e
@@ -109,7 +112,7 @@ module Paperclip
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
       if @identified_as_animated.nil?
-        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[#{@frame_index.to_s}]").to_s.downcase.strip
       end
       @identified_as_animated
     rescue Cocaine::ExitStatusError => e
