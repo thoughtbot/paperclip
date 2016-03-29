@@ -42,7 +42,7 @@ module Paperclip
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
-
+      
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
 
