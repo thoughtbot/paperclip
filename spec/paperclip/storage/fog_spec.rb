@@ -418,6 +418,9 @@ describe Paperclip::Storage::Fog do
           assert @connection.directories.get(@dynamic_fog_directory).inspect
         end
 
+        it "provides an url using dynamic bucket name" do
+          assert_match(/^https:\/\/dynamicpaperclip.s3.amazonaws.com\/avatars\/5k.png\?\d*$/, @dummy.avatar.url)
+        end
       end
 
       context "with a proc for the fog_host evaluating a model method" do

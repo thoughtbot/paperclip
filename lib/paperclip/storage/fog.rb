@@ -195,10 +195,10 @@ module Paperclip
       end
 
       def host_name_for_directory
-        if @options[:fog_directory].to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
-          "#{@options[:fog_directory]}.s3.amazonaws.com"
+        if directory_name.to_s =~ Fog::AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX
+          "#{directory_name}.s3.amazonaws.com"
         else
-          "s3.amazonaws.com/#{@options[:fog_directory]}"
+          "s3.amazonaws.com/#{directory_name}"
         end
       end
 
@@ -224,13 +224,15 @@ module Paperclip
       end
 
       def directory
-        dir = if @options[:fog_directory].respond_to?(:call)
+        @directory ||= connection.directories.new(key: directory_name)
+      end
+
+      def directory_name
+        if @options[:fog_directory].respond_to?(:call)
           @options[:fog_directory].call(self)
         else
           @options[:fog_directory]
         end
-
-        @directory ||= connection.directories.new(:key => dir)
       end
 
       def scheme

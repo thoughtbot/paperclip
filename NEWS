@@ -1,3 +1,5 @@
+* Bugfix: Dynamic fog directory option is now respected
+
 5.0.0.beta1
 
 * Drop support to end-of-life'd ruby 2.0.
