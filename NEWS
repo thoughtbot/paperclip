@@ -1,6 +1,11 @@
-* Bugfix: Dynamic fog directory option is now respected
+5.0.0.beta2 (2015-04-01):
 
-5.0.0.beta1
+* Bugfix: Dynamic fog directory option is now respected
+* Bugfix: Fixes cocaine duplicated paths [#2169]
+* Removal of dead code (older versions of Rails and AWS SDK)
+* README adjustments
+
+5.0.0.beta1 (2015-03-13):
 
 * Drop support to end-of-life'd ruby 2.0.
 * Drop support for end-of-life'd Rails 3.2 and 4.1
