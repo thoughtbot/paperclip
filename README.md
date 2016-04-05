@@ -53,6 +53,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Dynamic Processors:](#dynamic-processors)
 - [Logging](#logging)
 - [Deployment](#deployment)
+  - [Attachment Styles](#attachment-styles)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
@@ -566,8 +567,8 @@ The files that are assigned as attachments are, by default, placed in the
 directory specified by the `:path` option to `has_attached_file`. By default, this
 location is `:rails_root/public/system/:class/:attachment/:id_partition/:style/:filename`.
 This location was chosen because, on standard Capistrano deployments, the
-`public/system` directory is symlinked to the app's shared directory, meaning it
-will survive between deployments. For example, using that `:path`, you may have a
+`public/system` directory can be symlinked to the app's shared directory, meaning it
+survives between deployments. For example, using that `:path`, you may have a
 file at
 
     /data/myapp/releases/20081229172410/public/system/users/avatar/000/000/013/small/my_pic.png
@@ -828,6 +829,16 @@ More information in the [rdocs](http://www.rubydoc.info/github/thoughtbot/paperc
 
 Deployment
 ----------
+
+To make Capistrano symlink the `public/system` directory so that attachments
+survive new deployments, set the `linked_dirs` option in your `config/deploy.rb`
+file:
+
+```ruby
+set :linked_dirs, fetch(:linked_dirs, []).push('public/system')
+```
+
+### Attachment Styles
 
 Paperclip is aware of new attachment styles you have added in previous deploys. The only thing you should do after each deployment is to call
 `rake paperclip:refresh:missing_styles`.  It will store current attachment styles in `RAILS_ROOT/public/system/paperclip_attachments.yml`
