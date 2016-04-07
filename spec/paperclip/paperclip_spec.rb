@@ -29,7 +29,7 @@ describe Paperclip do
       Paperclip.options[:command_path] = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
       Paperclip.run("convert", "more_stuff")
-      assert_equal 1, [Cocaine::CommandLine.path].flatten.size
+      assert_equal 1, Cocaine::CommandLine.path.scan(Paperclip.options[:command_path]).count
     end
   end
 
