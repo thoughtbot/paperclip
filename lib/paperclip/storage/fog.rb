@@ -170,6 +170,7 @@ module Paperclip
         log("copying #{path(style)} to local file #{local_dest_path}")
         ::File.open(local_dest_path, 'wb') do |local_file|
           file = directory.files.get(path(style))
+          return false unless file
           local_file.write(file.body)
         end
       rescue ::Fog::Errors::Error => e
