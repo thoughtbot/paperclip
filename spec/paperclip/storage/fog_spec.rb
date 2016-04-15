@@ -183,6 +183,13 @@ describe Paperclip::Storage::Fog do
         tempfile.close
       end
 
+      it 'is able to be handled when missing while copying to a local file' do
+        tempfile = Tempfile.new("known_location")
+        tempfile.binmode
+        assert_equal false, @dummy.avatar.copy_to_local_file(:original, tempfile.path)
+        tempfile.close
+      end
+
       it "passes the content type to the Fog::Storage::AWS::Files instance" do
         Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
           hash[:content_type]
