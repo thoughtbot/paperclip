@@ -19,7 +19,10 @@ a test!
 
 4. Make the test pass.
 
-5. Push to your fork and submit a pull request.
+5. Mention how your changes affect the project to other developers and users in
+   the `NEWS.md` file.
+
+6. Push to your fork and submit a pull request.
 
 At this point you're waiting on us. We like to at least comment on, if not
 accept, pull requests within seven business days (most of the work on Paperclip
