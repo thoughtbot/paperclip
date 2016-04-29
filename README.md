@@ -608,7 +608,8 @@ has_attached_file :scan, styles: { text: { quality: :better } },
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
 hash "{ quality: :better }" passed to it along with the uploaded file. For
-more information about defining processors, see Paperclip::Processor.
+more information about defining processors, see 
+[Paperclip::Processor](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb).
 
 The default processor is Paperclip::Thumbnail. For backward compatibility
 reasons, you can pass a single geometry string or an array containing a
