@@ -14,6 +14,10 @@ https://github.com/thoughtbot/paperclip/releases
 [![Inline docs](http://inch-ci.org/github/thoughtbot/paperclip.svg)](http://inch-ci.org/github/thoughtbot/paperclip)
 [![Security](https://hakiri.io/github/thoughtbot/paperclip/master.svg)](https://hakiri.io/github/thoughtbot/paperclip/master)
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
 - [Requirements](#requirements)
   - [Ruby and Rails](#ruby-and-rails)
   - [Image Processor](#image-processor)
@@ -25,7 +29,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Edit and New Views](#edit-and-new-views)
   - [Edit and New Views with Simple Form](#edit-and-new-views-with-simple-form)
   - [Controller](#controller)
-  - [Show View](#show-view)
+  - [View Helpers](#view-helpers)
   - [Deleting an Attachment](#deleting-an-attachment)
 - [Usage](#usage)
 - [Validations](#validations)
@@ -45,14 +49,16 @@ https://github.com/thoughtbot/paperclip/releases
 - [File Preservation for Soft-Delete](#file-preservation-for-soft-delete)
 - [Custom Attachment Processors](#custom-attachment-processors)
 - [Dynamic Configuration](#dynamic-configuration)
-  - [Dynamic Styles](#dynamic-styles)
-  - [Dynamic Processors](#dynamic-processors)
+  - [Dynamic Styles:](#dynamic-styles)
+  - [Dynamic Processors:](#dynamic-processors)
 - [Logging](#logging)
 - [Deployment](#deployment)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [About thoughtbot](#about-thoughtbot)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 Paperclip is intended as an easy file attachment library for ActiveRecord. The
 intent behind it was to keep setup as easy as possible and to treat files as
