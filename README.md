@@ -929,6 +929,17 @@ config.after(:suite) do
   FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
 end
 ```
+
+**Example of test configuration with Factory Girl**
+
+
+```ruby
+FactoryGirl.define do
+  factory :user do
+    avatar { File.new("#{Rails.root}/spec/support/fixtures/image.jpg") }
+  end
+end
+```
 ---
 
 Contributing
