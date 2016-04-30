@@ -97,7 +97,7 @@ In development mode, you might add this line to `config/environments/development
 Paperclip.options[:command_path] = "/usr/local/bin/"
 ```
 
-If you're on Mac OS X, you'll want to run the following with Homebrew:
+If you're on Mac OS X, you'll want to run the following with [Homebrew] (http://www.brew.sh):
 
     brew install imagemagick
 
@@ -220,7 +220,8 @@ end
 <% end %>
 ```
 
-### Edit and New Views with Simple Form
+### Edit and New Views with [Simple Form](https://github.com/plataformatec/simple_form)
+
 ```erb
 <%= simple_form_for @user, url: users_path do |form| %>
   <%= form.input :avatar, as: :file %>
@@ -244,7 +245,7 @@ def user_params
 end
 ```
 
-### Show View
+### View Helpers
 
 ```erb
 <%= image_tag @user.avatar.url %>
@@ -608,7 +609,7 @@ has_attached_file :scan, styles: { text: { quality: :better } },
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
 hash "{ quality: :better }" passed to it along with the uploaded file. For
-more information about defining processors, see 
+more information about defining processors, see
 [Paperclip::Processor](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb).
 
 The default processor is Paperclip::Thumbnail. For backward compatibility
