@@ -8,19 +8,22 @@ module Paperclip
       Paperclip::Interpolations[key] = block
     end
 
-    # The run method takes the name of a binary to run, the arguments to that binary
-    # and some options:
+    # The run method takes the name of a binary to run, the arguments
+    # to that binary, the values to interpolate and some local options.
     #
-    #   :command_path -> A $PATH-like variable that defines where to look for the binary
-    #                    on the filesystem. Colon-separated, just like $PATH.
+    #  :cmd -> The name of a binary to run.
     #
-    #   :expected_outcodes -> An array of integers that defines the expected exit codes
-    #                         of the binary. Defaults to [0].
+    #  :arguments -> The command line arguments to that binary.
     #
-    #   :log_command -> Log the command being run when set to true (defaults to true).
-    #                   This will only log if logging in general is set to true as well.
+    #  :interpolation_values -> Values to be interpolated into the arguments.
     #
-    #   :swallow_stderr -> Set to true if you don't care what happens on STDERR.
+    #  :local_options -> The options to be used by Cocain::CommandLine.
+    #                    These could be: runner
+    #                                    logger
+    #                                    swallow_stderr
+    #                                    expected_outcodes
+    #                                    environment
+    #                                    runner_options
     #
     def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
       command_path = options[:command_path]
