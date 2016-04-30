@@ -608,7 +608,7 @@ has_attached_file :scan, styles: { text: { quality: :better } },
 
 This would load the hypothetical class Paperclip::Ocr, which would have the
 hash "{ quality: :better }" passed to it along with the uploaded file. For
-more information about defining processors, see 
+more information about defining processors, see
 [Paperclip::Processor](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb).
 
 The default processor is Paperclip::Thumbnail. For backward compatibility
@@ -955,7 +955,8 @@ guidelines:
    about writing tests for paperclip, please open a
    [GitHub issue](https://github.com/thoughtbot/paperclip/issues/new).
 
-Please see `CONTRIBUTING.md` for more details on contributing and running test.
+Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for more details on
+contributing and running test.
 
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/graphs/contributors)!
 
