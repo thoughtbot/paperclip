@@ -944,7 +944,7 @@ guidelines:
    about writing tests for paperclip, please open a
    [GitHub issue](https://github.com/thoughtbot/paperclip/issues/new).
 
-Please see `CONTRIBUTING.md` for more details on contributing and running test.
+Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for more details on contributing and running test.
 
 Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/graphs/contributors)!
 
