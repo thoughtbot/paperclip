@@ -25,8 +25,8 @@ module Paperclip
       end
     end
 
-    def for(target)
-      handler_for(target).new(target)
+    def for(target, options = {})
+      handler_for(target).new(target, options)
     end
   end
 end

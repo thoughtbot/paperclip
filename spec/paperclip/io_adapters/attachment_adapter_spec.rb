@@ -13,7 +13,7 @@ describe Paperclip::AttachmentAdapter do
 
       @attachment.assign(@file)
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment)
+      @subject = Paperclip.io_adapters.for(@attachment, hash_digest: Digest::SHA1)
     end
 
     after do
@@ -41,8 +41,8 @@ describe Paperclip::AttachmentAdapter do
       assert ! @subject.nil?
     end
 
-    it "generates a MD5 hash of the contents" do
-      expected = Digest::MD5.file(@file.path).to_s
+    it "generates a SHA1 hash of the contents" do
+      expected = Digest::SHA1.file(@file.path).to_s
       assert_equal expected, @subject.fingerprint
     end
 
@@ -65,7 +65,7 @@ describe Paperclip::AttachmentAdapter do
 
       @attachment.assign(@file)
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment)
+      @subject = Paperclip.io_adapters.for(@attachment, hash_digest: Digest::SHA1)
     end
 
     after do
@@ -92,7 +92,7 @@ describe Paperclip::AttachmentAdapter do
       FileUtils.cp @attachment.queued_for_write[:thumb].path, @thumb.path
 
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb])
+      @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb], hash_digest: Digest::SHA1)
     end
 
     after do
@@ -121,8 +121,8 @@ describe Paperclip::AttachmentAdapter do
       assert ! @subject.nil?
     end
 
-    it "generates a MD5 hash of the contents" do
-      expected = Digest::MD5.file(@thumb.path).to_s
+    it "generates a SHA1 hash of the contents" do
+      expected = Digest::SHA1.file(@thumb.path).to_s
       assert_equal expected, @subject.fingerprint
     end
 

@@ -17,7 +17,7 @@ describe Paperclip::UploadedFileAdapter do
           tempfile: tempfile,
           path: tempfile.path
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "gets the right filename" do
@@ -40,8 +40,8 @@ describe Paperclip::UploadedFileAdapter do
         assert ! @subject.nil?
       end
 
-      it "generates a MD5 hash of the contents" do
-        expected = Digest::MD5.file(@file.tempfile.path).to_s
+      it "generates a SHA1 hash of the contents" do
+        expected = Digest::SHA1.file(@file.tempfile.path).to_s
         assert_equal expected, @subject.fingerprint
       end
 
@@ -63,7 +63,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "does not generate paths that include restricted characters" do
@@ -86,7 +86,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
       end
 
       it "gets the right filename" do
@@ -109,8 +109,8 @@ describe Paperclip::UploadedFileAdapter do
         assert ! @subject.nil?
       end
 
-      it "generates a MD5 hash of the contents" do
-        expected = Digest::MD5.file(@file.path).to_s
+      it "generates a SHA1 hash of the contents" do
+        expected = Digest::SHA1.file(@file.path).to_s
         assert_equal expected, @subject.fingerprint
       end
 

@@ -15,7 +15,7 @@ describe Paperclip::FileAdapter do
 
       context 'doing normal things' do
         before do
-          @subject = Paperclip.io_adapters.for(@file)
+          @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
         end
 
         it 'uses the original filename to generate the tempfile' do
@@ -46,8 +46,8 @@ describe Paperclip::FileAdapter do
           assert ! @subject.nil?
         end
 
-        it "generates a MD5 hash of the contents" do
-          expected = Digest::MD5.file(@file.path).to_s
+        it "generates a SHA1 hash of the contents" do
+          expected = Digest::SHA1.file(@file.path).to_s
           assert_equal expected, @subject.fingerprint
         end
 
@@ -61,7 +61,7 @@ describe Paperclip::FileAdapter do
       context "file with multiple possible content type" do
         before do
           MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
-          @subject = Paperclip.io_adapters.for(@file)
+          @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::SHA1)
         end
 
         it "prefers officially registered mime type" do

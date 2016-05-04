@@ -13,7 +13,7 @@ module Paperclip
     end
 
     def basename
-      Digest::MD5.hexdigest(File.basename(@name, extension))
+      Digest::SHA1.hexdigest(File.basename(@name, extension))
     end
 
     def random_name

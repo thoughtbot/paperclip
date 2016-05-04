@@ -2,8 +2,8 @@ require 'open-uri'
 
 module Paperclip
   class UriAdapter < AbstractAdapter
-    def initialize(target)
-      @target = target
+    def initialize(target, options = {})
+      super
       @content = download_content
       cache_current_values
       @tempfile = copy_to_tempfile(@content)
