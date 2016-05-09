@@ -14,14 +14,15 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
   def self.should_allow_attachment_file_size(size)
     context "when the attachment size is #{size}" do
-      it "adds error to dummy object" do
+      it "does not add error to the dummy object" do
         @dummy.stubs(:avatar_file_size).returns(size)
         @validator.validate(@dummy)
         assert @dummy.errors[:avatar_file_size].blank?,
-          "Expect an error message on :avatar_file_size, got none."
+          "Error added to :avatar_file_size"
       end
 
       it "does not add error to the base dummy object" do
+        @validator.validate(@dummy)
         assert @dummy.errors[:avatar].blank?,
           "Error added to base attribute"
       end
@@ -37,7 +38,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       it "adds error to dummy object" do
         assert @dummy.errors[:avatar_file_size].present?,
-          "Unexpected error message on :avatar_file_size"
+          "Error not added to :avatar_file_size"
       end
 
       it "adds error to the base dummy object" do
@@ -202,6 +203,108 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         4.kilobytes,
         message: "must be in between 5 KB and 10 KB"
       )
+    end
+  end
+
+  context "when invalid" do
+    context "by default" do
+      before do
+        Paperclip.options[:duplicate_errors_on_base] = true
+        build_validator in: (5.kilobytes..10.kilobytes)
+        @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
+        @validator.validate(@dummy)
+      end
+      it "adds error to the base attribute" do
+        assert @dummy.errors[:avatar].present?,
+               "Error not added to base attribute"
+      end
+      it "adds errors on the attribute" do
+        assert @dummy.errors[:avatar_file_size].present?,
+               "Error not added to attribute"
+      end
+    end
+
+    context "with :duplicate_errors_on_base global option set" do
+      after do
+        Paperclip.unstub(:options)
+      end
+
+      context "when global option is set to true" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator in: (5.kilobytes..10.kilobytes)
+          @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
+          @validator.validate(@dummy)
+        end
+
+        it "adds error to the base object" do
+          assert @dummy.errors[:avatar].present?,
+            "Error not added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_file_size].present?,
+                 "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to false" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator in: (5.kilobytes..10.kilobytes)
+          @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
+          @validator.validate(@dummy)
+        end
+
+        it "does not add errors to the base object" do
+          expect(@dummy.errors[:avatar]).to be_empty
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_file_size].present?,
+            "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator in: (5.kilobytes..10.kilobytes),
+                          duplicate_errors_on_base: true
+          @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
+          @validator.validate(@dummy)
+        end
+
+        it "adds error to the base object" do
+          assert @dummy.errors[:avatar].present?,
+                 "Error not added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_file_size].present?,
+                 "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator in: (5.kilobytes..10.kilobytes),
+                          duplicate_errors_on_base: false
+          @dummy.stubs(:avatar_file_size).returns(1.kilobyte)
+          @validator.validate(@dummy)
+        end
+
+        it "does not add error to the base object" do
+          assert @dummy.errors[:avatar].blank?,
+                 "Error added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_file_size].present?,
+                 "Error not added to attribute"
+        end
+      end
     end
   end
 

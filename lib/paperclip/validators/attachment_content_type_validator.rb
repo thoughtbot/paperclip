@@ -2,7 +2,7 @@ module Paperclip
   module Validators
     class AttachmentContentTypeValidator < ActiveModel::EachValidator
       def initialize(options)
-        options[:allow_nil] = true unless options.has_key?(:allow_nil)
+        extract_options(options)
         super
       end
 
@@ -20,7 +20,7 @@ module Paperclip
         validate_whitelist(record, attribute, value)
         validate_blacklist(record, attribute, value)
 
-        if record.errors.include? attribute
+        if options[:duplicate_errors_on_base] && record.errors.include?(attribute)
           record.errors[attribute].each do |error|
             record.errors.add base_attribute, error
           end
@@ -56,6 +56,16 @@ module Paperclip
           raise ArgumentError, "You must pass in either :content_type or :not to the validator"
         end
       end
+
+      private
+
+      def extract_options(options)
+        options[:allow_nil] = true unless options.has_key?(:allow_nil)
+        unless options.has_key?(:duplicate_errors_on_base)
+          options[:duplicate_errors_on_base] = Paperclip.options[:duplicate_errors_on_base]
+        end
+      end
+
     end
 
     module HelperMethods

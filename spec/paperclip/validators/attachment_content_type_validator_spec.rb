@@ -51,19 +51,109 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   end
 
   context "with a failing validation" do
-    before do
-      build_validator content_type: "image/png", allow_nil: false
-      @dummy.stubs(avatar_content_type: nil)
-      @validator.validate(@dummy)
+    context "by default" do
+      before do
+        build_validator content_type: "image/png", allow_nil: false
+        @dummy.stubs(avatar_content_type: nil)
+        @validator.validate(@dummy)
+      end
+
+      it "adds error to the base object" do
+        assert @dummy.errors[:avatar].present?,
+               "Error not added to base attribute"
+      end
+
+      it "adds error to base object as a string" do
+        expect(@dummy.errors[:avatar].first).to be_a String
+      end
+
+      it "adds errors on the attribute" do
+        assert @dummy.errors[:avatar_content_type].present?,
+               "Error not added to attribute"
+      end
     end
 
-    it "adds error to the base object" do
-      assert @dummy.errors[:avatar].present?,
-        "Error not added to base attribute"
-    end
+    context "with :duplicate_errors_on_base global option set" do
+      after do
+        Paperclip.unstub(:options)
+      end
 
-    it "adds error to base object as a string" do
-      expect(@dummy.errors[:avatar].first).to be_a String
+      context "when global option is set to true" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator content_type: "image/png", allow_nil: false
+          @dummy.stubs(avatar_content_type: nil)
+          @validator.validate(@dummy)
+        end
+
+        it "adds error to the base object" do
+          assert @dummy.errors[:avatar].present?,
+                 "Error not added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_content_type].present?,
+                 "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to false" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator content_type: "image/png", allow_nil: false
+          @dummy.stubs(avatar_content_type: nil)
+          @validator.validate(@dummy)
+        end
+
+        it "does not add errors to the base object" do
+          expect(@dummy.errors[:avatar]).to be_empty
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_content_type].present?,
+                 "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to false but :duplicate_errors_on_base is set to true in the validator" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: false)
+          build_validator content_type: "image/png", allow_nil: false,
+                          duplicate_errors_on_base: true
+          @dummy.stubs(avatar_content_type: nil)
+          @validator.validate(@dummy)
+        end
+
+        it "adds error to the base object" do
+          assert @dummy.errors[:avatar].present?,
+                 "Error not added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_content_type].present?,
+                 "Error not added to attribute"
+        end
+      end
+
+      context "when global option is set to true but :duplicate_errors_on_base is set to false in the validator" do
+        before do
+          Paperclip.stubs(:options).returns(duplicate_errors_on_base: true)
+          build_validator content_type: "image/png", allow_nil: false,
+                          duplicate_errors_on_base: false
+          @dummy.stubs(avatar_content_type: nil)
+          @validator.validate(@dummy)
+        end
+
+        it "does not add error to the base object" do
+          assert @dummy.errors[:avatar].blank?,
+                 "Error added to base attribute"
+        end
+
+        it "adds errors on the attribute" do
+          assert @dummy.errors[:avatar_content_type].present?,
+                 "Error not added to attribute"
+        end
+      end
     end
   end
 
