@@ -2,11 +2,9 @@
 require 'spec_helper'
 
 describe 'Attachment Processing' do
-  context 'using validates_attachment_content_type' do
-    before do
-      rebuild_class
-    end
+  before { rebuild_class }
 
+  context 'using validates_attachment_content_type' do
     it 'processes attachments given a valid assignment' do
       file = File.new(fixture_file("5k.png"))
       Dummy.validates_attachment_content_type :avatar, content_type: "image/png"
