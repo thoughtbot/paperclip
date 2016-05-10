@@ -54,8 +54,11 @@ describe 'Attachment Processing' do
           before_post_process :do_before_all
           after_post_process :do_after_all
           def do_before_avatar; end
+
           def do_after_avatar; end
+
           def do_before_all; end
+
           def do_after_all; end
         end
       end
@@ -63,7 +66,7 @@ describe 'Attachment Processing' do
       # even though we know it had a problem with this. This passes
       # even if we don't trigger a validation error, we haven't succesfully
       # set up our callbacks at all somehow.
-      it 'does not run custom post-processing if validation fails' do
+      it "does not run custom post-processing if validation fails" do
         file = File.new(fixture_file("5k.png"))
 
         instance = Dummy.new
