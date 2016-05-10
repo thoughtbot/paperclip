@@ -9,7 +9,7 @@ module Paperclip
       def define_paperclip_callbacks(*callbacks)
         options = {
           terminator: hasta_la_vista_baby,
-          skip_after_callbacks_if_terminated: true
+          skip_after_callbacks_if_terminated: true,
         }
         define_callbacks(*[callbacks, options].flatten)
         callbacks.each do |callback|
