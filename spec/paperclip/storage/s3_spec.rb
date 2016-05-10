@@ -672,7 +672,9 @@ describe Paperclip::Storage::S3 do
           s3_host_name: "s3-world-end.amazonaws.com" },
         development: {
           s3_region: "ap-northeast-1",
-          s3_host_name: "s3-ap-northeast-1.amazonaws.com" }
+          s3_host_name: "s3-ap-northeast-1.amazonaws.com" },
+        test: {
+          s3_region: "" }
         }
       @dummy = Dummy.new
     end
@@ -1578,5 +1580,4 @@ describe Paperclip::Storage::S3 do
       Rails.env = stored_env
     end
   end
-
 end
