@@ -7,7 +7,7 @@ module Paperclip
 
     module Defining
       def define_paperclip_callbacks(*callbacks)
-        define_callbacks(*[callbacks, { terminator: hasta_la_vista_baby }].flatten)
+        define_callbacks(*[callbacks, { terminator: hasta_la_vista_baby, skip_after_callbacks_if_terminated: true }].flatten)
         callbacks.each do |callback|
           eval <<-end_callbacks
             def before_#{callback}(*args, &blk)
