@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Paperclip::Validators do
   context "using the helper" do
     before do
+      rebuild_class
       Dummy.validates_attachment :avatar, presence: true, content_type: { content_type: "image/jpeg" }, size: { in: 0..10240 }
     end
 
