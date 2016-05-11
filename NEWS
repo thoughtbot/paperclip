@@ -1,4 +1,5 @@
 master:
+* (port from 4.3) Improvement: the `URI adapter` now uses the content-disposition header to name the downloaded file.
 
 5.0.0 (2016-07-01):
 
