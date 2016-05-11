@@ -32,8 +32,8 @@ module Paperclip
     end
 
     def extract_attachment_filename
-      if @content.meta.has_key? 'content-disposition'
-        @original_filename = @content.meta['content-disposition']
+      if @content.meta.has_key? "content-disposition"
+        @original_filename = @content.meta["content-disposition"]
                                  .match(/filename="([^"]*)"/)[1]
       end
     end

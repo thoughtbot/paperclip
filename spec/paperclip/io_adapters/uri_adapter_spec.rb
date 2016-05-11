@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe Paperclip::UriAdapter do
   let(:content_type) { "image/png" }
-  let(:meta) { { } }
+  let(:meta) { {} }
 
   before do
     @open_return = StringIO.new("xxx")
     @open_return.stubs(:content_type).returns(content_type)
     @open_return.stubs(:meta).returns(meta)
-    Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(@open_return)
+    Paperclip::UriAdapter.any_instance.
+      stubs(:download_content).returns(@open_return)
   end
 
   context "a new instance" do
@@ -91,8 +92,12 @@ describe Paperclip::UriAdapter do
   end
 
   context "a url with content disposition headers" do
-    let(:file_name) { 'test_document.pdf' }
-    let(:meta) { { 'content-disposition' => "attachment; filename=\"#{file_name}\";" } }
+    let(:file_name) { "test_document.pdf" }
+    let(:meta) do
+      {
+        "content-disposition" => "attachment; filename=\"#{file_name}\";",
+      }
+    end
 
     before do
       @uri = URI.parse("https://github.com/thoughtbot/paperclip?file=test")

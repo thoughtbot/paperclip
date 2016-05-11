@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe Paperclip::HttpUrlProxyAdapter do
-
   before do
     @open_return = StringIO.new("xxx")
     @open_return.stubs(:content_type).returns("image/png")
     @open_return.stubs(:meta).returns({})
-    Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(@open_return)
+    Paperclip::HttpUrlProxyAdapter.any_instance.
+      stubs(:download_content).returns(@open_return)
   end
 
   context "a new instance" do
