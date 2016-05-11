@@ -42,7 +42,6 @@ module Paperclip
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
-      
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
 
@@ -78,10 +77,9 @@ module Paperclip
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
         success = convert(parameters, 
-          :source => "#{File.expand_path(src.path)}#{'[' + @frame_index.to_s + ']' unless animated?}", 
-          :dest => File.expand_path(dst.path)
-          )
-          
+                          :source => "#{File.expand_path(src.path)}#{'[' + @frame_index.to_s + ']' unless animated?}", 
+                          :dest => File.expand_path(dst.path),
+                          )
       rescue Cocaine::ExitStatusError => e
         raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
       rescue Cocaine::CommandNotFoundError => e
