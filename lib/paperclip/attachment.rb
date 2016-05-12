@@ -503,13 +503,15 @@ module Paperclip
         instance.run_paperclip_callbacks(:post_process) do
           inner_result = instance.run_paperclip_callbacks(:"#{name}_post_process") do
             # paperclip validations set instance.errors at this point...
-            unless !@options[:check_validity_before_processing] || !instance.errors.any?
+            if @options[:check_validity_before_processing] && instance.errors.any?
               throw :cancel_all_after_callbacks
             end
             post_process_styles(*style_args)
             true
           end
-          throw :cancel_all_after_callbacks unless inner_result
+          unless inner_result
+            throw :cancel_all_after_callbacks
+          end
         end
       end
     end
