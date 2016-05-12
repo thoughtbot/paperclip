@@ -11,12 +11,13 @@ module Paperclip
       @tempfile = copy_to_tempfile(@content)
     end
 
+    private
+
     def cache_current_values
       self.content_type = content_type_from_content || "text/html"
 
       self.original_filename = filename_from_content_disposition ||
-        filename_from_path || default_filename
-
+                               filename_from_path || default_filename
       @size = @content.size
     end
 
@@ -40,8 +41,6 @@ module Paperclip
     def default_filename
       "index.html"
     end
-
-    private
 
     def download_content
       open(@target)
