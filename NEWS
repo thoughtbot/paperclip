@@ -1,3 +1,5 @@
+* Improvement: the `URI adapter` now uses the content-disposition header to name the downloaded file.
+
 * Improvement: Add `fog_options` configuration to send options to fog when storing files.
 
 4.3.6 (3/13/2016):
