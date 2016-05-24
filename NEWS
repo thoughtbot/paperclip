@@ -2,6 +2,7 @@ master:
 
 * README adjustments for Ruby beginners (add links, elucidate model in Quick Start)
 * Bugfix: Now it's possible to save images from URLs with special characters [#1932]
+* Fix a nil error in content type validation matcher [#1910]
 
 5.0.0.beta2 (2015-04-01):
 
