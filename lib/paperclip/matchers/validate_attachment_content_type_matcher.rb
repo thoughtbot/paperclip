@@ -40,9 +40,9 @@ module Paperclip
 
         def failure_message
           "#{expected_attachment}\n".tap do |message|
-            message << accepted_types_and_failures
+            message << accepted_types_and_failures.to_s
             message << "\n\n" if @allowed_types.present? && @rejected_types.present?
-            message << rejected_types_and_failures
+            message << rejected_types_and_failures.to_s
           end
         end
 
@@ -55,7 +55,7 @@ module Paperclip
         def accepted_types_and_failures
           if @allowed_types.present?
             "Accept content types: #{@allowed_types.join(", ")}\n".tap do |message|
-              if @missing_allowed_types.any?
+              if @missing_allowed_types.present?
                 message << "  #{@missing_allowed_types.join(", ")} were rejected."
               else
                 message << "  All were accepted successfully."
@@ -66,7 +66,7 @@ module Paperclip
         def rejected_types_and_failures
           if @rejected_types.present?
             "Reject content types: #{@rejected_types.join(", ")}\n".tap do |message|
-              if @missing_rejected_types.any?
+              if @missing_rejected_types.present?
                 message << "  #{@missing_rejected_types.join(", ")} were accepted."
               else
                 message << "  All were rejected successfully."
