@@ -864,7 +864,7 @@ namespace :paperclip do
   end
 end
 
-after("deploy:compile_assets", "deploy:build_missing_paperclip_styles")
+after("deploy:compile_assets", "paperclip:build_missing_styles")
 ```
 
 Now you don't have to remember to refresh thumbnails in production every time you add a new style.
