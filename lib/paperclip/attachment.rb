@@ -349,7 +349,7 @@ module Paperclip
 
     # Returns true if a file has been assigned.
     def file?
-      !original_filename.blank?
+      original_filename.present?
     end
 
     alias :present? :file?

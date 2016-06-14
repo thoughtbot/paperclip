@@ -18,7 +18,7 @@ module Paperclip
         raise "Class #{klass.name} has no attachments specified"
       end
 
-      if !name.blank? && attachment_names.map(&:to_s).include?(name.to_s)
+      if name.present? && attachment_names.map(&:to_s).include?(name.to_s)
         [ name ]
       else
         attachment_names
