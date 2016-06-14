@@ -1121,7 +1121,7 @@ describe Paperclip::Attachment do
     context "with a file assigned but not saved yet" do
       it "clears out any attached files" do
         @attachment.assign(@file)
-        assert !@attachment.queued_for_write.blank?
+        assert @attachment.queued_for_write.present?
         @attachment.clear
         assert @attachment.queued_for_write.blank?
       end
