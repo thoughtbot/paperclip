@@ -14,7 +14,7 @@ module Paperclip
     private
 
     def download_content
-      open(@target)
+      open(@target, read_timeout: Paperclip.options[:read_timeout])
     end
 
     def cache_current_values
