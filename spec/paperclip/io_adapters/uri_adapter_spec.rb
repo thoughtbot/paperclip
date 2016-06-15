@@ -101,7 +101,6 @@ describe Paperclip::UriAdapter do
 
   describe "#download_content" do
     before do
-      Paperclip.options[:read_timeout] = 240
       Paperclip::UriAdapter.any_instance.stubs(:open).returns(StringIO.new("xxx"))
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
@@ -111,9 +110,20 @@ describe Paperclip::UriAdapter do
       @subject.send(:download_content)
     end
 
-    it "calls open with given read_timeout" do
-      @subject.expects(:open).with(@uri, read_timeout: 240).at_least_once
+    context "with default read_timeout" do
+      it "calls open without options" do
+        @subject.expects(:open).with(@uri, {}).at_least_once
+      end
+    end
+
+    context "with custom read_timeout" do
+      before do
+        Paperclip.options[:read_timeout] = 120
+      end
+
+      it "calls open with read_timeout option" do
+        @subject.expects(:open).with(@uri, read_timeout: 120).at_least_once
+      end
     end
   end
-
 end

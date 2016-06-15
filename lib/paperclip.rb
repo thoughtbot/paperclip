@@ -98,7 +98,7 @@ module Paperclip
       :swallow_stderr => true,
       :content_type_mappings => {},
       :use_exif_orientation => true,
-      :read_timeout => 120
+      :read_timeout => nil
     }
   end
 
