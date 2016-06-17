@@ -89,8 +89,8 @@ module Paperclip
 
     def add_active_record_callbacks
       name = @name
-      @klass.send(:after_save) { send(name).send(:save) }
-      @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
+      @klass.send(:after_save) { send(name).save }
+      @klass.send(:before_destroy) { send(name).clear }
       if @klass.respond_to?(:after_commit)
         @klass.send(:after_commit, on: :destroy) do
           send(name).send(:flush_deletes)
