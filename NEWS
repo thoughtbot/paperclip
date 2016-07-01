@@ -1,4 +1,4 @@
-4.3.7 (6/1/2016):
+4.3.7 (7/1/2016):
 
 * Add deprecation warnings
 * Improvement: Add `fog_options` configuration to send options to fog when storing files.
