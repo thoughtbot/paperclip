@@ -1,18 +1,24 @@
 master:
 
+5.0.0 (2016-07-01):
+
 * Improvement: Add `read_timeout` configuration for URI Adapter download_content method.
 * README adjustments for Ruby beginners (add links, elucidate model in Quick Start)
 * Bugfix: Now it's possible to save images from URLs with special characters [#1932]
+* Bugfix: Return false when file to copy is not present in cloud storage [#2173]
+* Automatically close file while checking mime type [#2016]
+* Add `read_timeout` option to `UriAdapter#download_content` method [#2232]
 * Fix a nil error in content type validation matcher [#1910]
+* Documentation improvements
 
-5.0.0.beta2 (2015-04-01):
+5.0.0.beta2 (2016-04-01):
 
 * Bugfix: Dynamic fog directory option is now respected
 * Bugfix: Fixes cocaine duplicated paths [#2169]
 * Removal of dead code (older versions of Rails and AWS SDK)
 * README adjustments
 
-5.0.0.beta1 (2015-03-13):
+5.0.0.beta1 (2016-03-13):
 
 * Bug Fix: megabytes of mime-types info in logs when a spoofed media type is detected.
 * Drop support to end-of-life'd ruby 2.0.
