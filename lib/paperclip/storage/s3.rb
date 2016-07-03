@@ -39,8 +39,9 @@ module Paperclip
     #     :s3_permissions => :private
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http' or 'https'. Defaults to 'http' when your :s3_permissions are :public_read (the
-    #   default), and 'https' when your :s3_permissions are anything else.
+    #   'http', 'https', or an empty string to generate scheme-less URLs. Defaults to 'http'
+    #   when your :s3_permissions are :public_read (the default), and 'https' when your
+    #   :s3_permissions are anything else.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
     #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
     #   runtime. Paperclip will call that Proc with attachment as the only argument.
@@ -125,14 +126,18 @@ module Paperclip
 
           @http_proxy = @options[:http_proxy] || nil
         end
+
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          url_prefix = (s3_protocol = attachment.s3_protocol(style)).present? ? "#{s3_protocol}:" : ""
+          "#{url_prefix}//#{attachment.s3_host_alias}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          url_prefix = (s3_protocol = attachment.s3_protocol(style)).present? ? "#{s3_protocol}:" : ""
+          "#{url_prefix}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_path_url
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
-          "#{attachment.s3_protocol(style)}://#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+          url_prefix = (s3_protocol = attachment.s3_protocol(style)).present? ? "#{s3_protocol}:" : ""
+          "#{url_prefix}//#{attachment.bucket_name}.#{attachment.s3_host_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
         end unless Paperclip::Interpolations.respond_to? :s3_domain_url
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).gsub(%r{^/}, "")}"
