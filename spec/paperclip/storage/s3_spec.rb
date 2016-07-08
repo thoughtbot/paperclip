@@ -1207,7 +1207,7 @@ describe Paperclip::Storage::S3 do
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
         },
-        s3_server_side_encryption: :aes256
+        s3_server_side_encryption: "AES256"
     end
 
     context "when assigned" do
@@ -1227,7 +1227,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything, content_type: "image/png",
                   acl: :"public-read",
-                  server_side_encryption: :aes256)
+                  server_side_encryption: "AES256")
           @dummy.save
         end
 
