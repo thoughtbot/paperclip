@@ -102,6 +102,7 @@ module Paperclip
       ensure_required_validations!
 
       if @file.assignment?
+        assign_attributes
         clear(*only_process)
 
         if @file.nil?
