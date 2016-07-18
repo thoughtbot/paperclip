@@ -16,6 +16,8 @@ describe Paperclip::UriAdapter do
   end
 
   context "a new instance" do
+    let(:meta) { { "content-type" => "image/png" } }
+
     before do
       Paperclip::UriAdapter.any_instance.
         stubs(:download_content).returns(@open_return)
@@ -71,6 +73,7 @@ describe Paperclip::UriAdapter do
 
   context "a directory index url" do
     let(:content_type) { "text/html" }
+    let(:meta) { { "content-type" => "text/html" } }
 
     before do
       Paperclip::UriAdapter.any_instance.

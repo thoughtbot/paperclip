@@ -28,9 +28,7 @@ module Paperclip
     end
 
     def content_type_from_content
-      if @content.respond_to?(:content_type)
-        @content.content_type
-      end
+      @content.meta["content-type"].presence
     end
 
     def filename_from_content_disposition
