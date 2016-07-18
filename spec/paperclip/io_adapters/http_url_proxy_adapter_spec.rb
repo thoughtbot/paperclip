@@ -1,11 +1,15 @@
 require 'spec_helper'
 
 describe Paperclip::HttpUrlProxyAdapter do
+  before do
+    @open_return = StringIO.new("xxx")
+    @open_return.stubs(:meta).returns("content-type" => "image/png")
+    Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
+      returns(@open_return)
+  end
+
   context "a new instance" do
     before do
-      @open_return = StringIO.new("xxx")
-      @open_return.stubs(:content_type).returns("image/png")
-      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(@open_return)
       @url = "http://thoughtbot.com/images/thoughtbot-logo.png"
       @subject = Paperclip.io_adapters.for(@url)
     end
@@ -60,7 +64,6 @@ describe Paperclip::HttpUrlProxyAdapter do
 
   context "a url with query params" do
     before do
-      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(StringIO.new("x"))
       @url = "https://github.com/thoughtbot/paperclip?file=test"
       @subject = Paperclip.io_adapters.for(@url)
     end
@@ -76,7 +79,6 @@ describe Paperclip::HttpUrlProxyAdapter do
 
   context "a url with restricted characters in the filename" do
     before do
-      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).returns(StringIO.new("x"))
       @url = "https://github.com/thoughtbot/paper:clip.jpg"
       @subject = Paperclip.io_adapters.for(@url)
     end
@@ -100,8 +102,6 @@ describe Paperclip::HttpUrlProxyAdapter do
 
   context "a url with special characters in the filename" do
     it "returns a encoded filename" do
-      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
-        returns(StringIO.new("x"))
       url = "https://github.com/thoughtbot/paperclip-öäü字´½♥Ø²È.png"
       subject = Paperclip.io_adapters.for(url)
       filename = "paperclip-%C3%B6%C3%A4%C3%BC%E5%AD%97%C2%B4%C2%BD%E2%99%A5"\

@@ -1,11 +1,16 @@
 require 'spec_helper'
 
 describe Paperclip::UriAdapter do
+  before do
+    @open_return = StringIO.new("xxx")
+    @open_return.stubs(:meta).returns({})
+  end
+
   context "a new instance" do
     before do
-      @open_return = StringIO.new("xxx")
-      @open_return.stubs(:content_type).returns("image/png")
-      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(@open_return)
+      @open_return.stubs(:meta).returns("content-type" => "image/png")
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).
+        returns(@open_return)
       @uri = URI.parse("http://thoughtbot.com/images/thoughtbot-logo.png")
       @subject = Paperclip.io_adapters.for(@uri)
     end
@@ -57,7 +62,10 @@ describe Paperclip::UriAdapter do
 
   context "a directory index url" do
     before do
-      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(StringIO.new("xxx"))
+      @open_return = StringIO.new("xxx")
+      @open_return.stubs(:meta).returns("content-type" => "text/html")
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).
+        returns(@open_return)
       @uri = URI.parse("http://thoughtbot.com")
       @subject = Paperclip.io_adapters.for(@uri)
     end
@@ -73,7 +81,8 @@ describe Paperclip::UriAdapter do
 
   context "a url with query params" do
     before do
-      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(StringIO.new("xxx"))
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).
+        returns(@open_return)
       @uri = URI.parse("https://github.com/thoughtbot/paperclip?file=test")
       @subject = Paperclip.io_adapters.for(@uri)
     end
@@ -85,7 +94,8 @@ describe Paperclip::UriAdapter do
 
   context "a url with restricted characters in the filename" do
     before do
-      Paperclip::UriAdapter.any_instance.stubs(:download_content).returns(StringIO.new("xxx"))
+      Paperclip::UriAdapter.any_instance.stubs(:download_content).
+        returns(@open_return)
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
     end
@@ -101,7 +111,7 @@ describe Paperclip::UriAdapter do
 
   describe "#download_content" do
     before do
-      Paperclip::UriAdapter.any_instance.stubs(:open).returns(StringIO.new("xxx"))
+      Paperclip::UriAdapter.any_instance.stubs(:open).returns(@open_return)
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
     end
