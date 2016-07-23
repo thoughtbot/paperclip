@@ -16,6 +16,7 @@ module Paperclip
       define_setter
       define_query
       register_new_attachment
+      add_background_processing if @options[:process_in_background]
       add_active_record_callbacks
       add_paperclip_callbacks
       add_required_validations
@@ -97,6 +98,16 @@ module Paperclip
         end
       else
         @klass.send(:after_destroy) { send(name).send(:flush_deletes) }
+      end
+    end
+
+    def add_background_processing
+      require 'paperclip/process_job'
+      name = @name
+      if @klass.respond_to?(:after_commit)
+        @klass.send(:after_commit, on: [:create, :update]) do
+          ProcessJob.perform_later(self, name.to_s)
+        end
       end
     end
 
