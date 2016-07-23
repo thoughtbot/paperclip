@@ -740,7 +740,7 @@ An option is available to preserve attachments in order to play nicely with soft
 
 ```ruby
 has_attached_file :some_attachment, {
-    preserve_files: "true",
+    preserve_files: true,
 }
 ```
 
