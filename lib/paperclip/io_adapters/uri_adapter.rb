@@ -24,7 +24,7 @@ module Paperclip
       @original_filename ||= "index.html"
       self.original_filename = @original_filename.strip
 
-      @content_type = @content.content_type if @content.respond_to?(:content_type)
+      @content_type = @content.meta["content-type"].presence
       @content_type ||= "text/html"
 
       @size = @content.size
