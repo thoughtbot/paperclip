@@ -102,11 +102,15 @@ module Paperclip
     end
 
     def add_background_processing
-      require 'paperclip/process_job'
+      require "paperclip/process_job"
       name = @name
       if @klass.respond_to?(:after_commit)
         @klass.send(:after_commit, on: [:create, :update]) do
-          ProcessJob.perform_later(self, name.to_s)
+          attachment = send(name)
+          if attachment.enqueue_background_processing?
+            ProcessJob.perform_later(self, name.to_s)
+            attachment.clear_enqueue_background_processing
+          end
         end
       end
     end

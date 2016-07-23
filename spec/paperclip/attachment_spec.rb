@@ -1,6 +1,6 @@
 # encoding: utf-8
-require 'spec_helper'
-require 'active_job'
+require "spec_helper"
+require "active_job"
 
 describe Paperclip::Attachment do
 
@@ -1483,10 +1483,10 @@ describe Paperclip::Attachment do
       ActiveJob::Base.queue_adapter = :test
       ActiveJob::Base.logger = nil
 
-      rebuild_model styles: {thumb: "100x100"},
+      rebuild_model styles: { thumb: "100x100" },
                     only_process: [:none],
                     process_in_background: [:thumb]
-      @file = File.new(fixture_file("5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
       GlobalID.app = "paperclip-test"
       Dummy.send(:include, GlobalID::Identification)
       @dummy = Dummy.new
@@ -1496,23 +1496,32 @@ describe Paperclip::Attachment do
       ActiveJob::Base.queue_adapter.enqueued_jobs.clear
     end
 
-    it "enqueues job to process given styles" do
+    it "enqueues job to process given styles in background" do
       @dummy.avatar = @file
       @dummy.save!
       jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
 
       assert_equal 1, jobs.count
-      assert_equal Paperclip::ProcessJob, jobs[0][:job]
-      assert_equal "gid://paperclip-test/Dummy/#{@dummy.id}", jobs[0][:args][0].values[0]
-      assert_equal "avatar", jobs[0][:args][1]
-      assert_equal "default", jobs[0][:queue]
+
+      job = jobs[0]
+      assert_equal Paperclip::ProcessJob, job[:job]
+      assert_equal @dummy, GlobalID::Locator.locate(job[:args][0].values[0])
+      assert_equal "avatar", job[:args][1]
+      assert_equal "default", job[:queue]
     end
 
-    it "does not process given styles" do
+    it "does not process given styles in real time" do
       attachment = @dummy.avatar
       attachment.expects(:post_process).with(:none)
       attachment.expects(:post_process).with(:thumb).never
       attachment.assign(@file)
+    end
+
+    it "does not enqueue job when no attachment assigned" do
+      @dummy.save!
+      jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
+
+      assert_equal 0, jobs.count
     end
   end
 

@@ -1,7 +1,8 @@
 begin
   require "active_job"
 rescue LoadError
-  raise LoadError, "To use background processing you have to include 'active_job' in load path"
+  raise LoadError,
+    "To use background processing you have to include 'active_job' in load path"
 end
 
 module Paperclip
