@@ -510,32 +510,63 @@ module Paperclip
     end
 
     def post_process_styles(*style_args) #:nodoc:
-      post_process_style(:original, styles[:original]) if styles.include?(:original) && process_style?(:original, style_args)
-      styles.reject{ |name, style| name == :original }.each do |name, style|
-        post_process_style(name, style) if process_style?(name, style_args)
+      styles_to_process = styles.select do |name, _|
+        process_style?(name, style_args)
+      end
+
+      if (original = styles_to_process.delete(:original))
+        post_process_style(:original, original)
+      end
+
+      if (generator = options[:generator])
+        generate_styles(generator, styles_to_process)
+      end
+
+      styles_to_process.each do |name, style|
+        post_process_style(name, style)
       end
     end
 
     def post_process_style(name, style) #:nodoc:
-      begin
-        raise RuntimeError.new("Style #{name} has no processors defined.") if style.processors.blank?
-        intermediate_files = []
+      if !(options[:generator] || !style.processors.blank?)
+        raise RuntimeError.new("Style #{name} has no processors defined.")
+      end
 
-        @queued_for_write[name] = style.processors.inject(@queued_for_write[:original]) do |file, processor|
+      intermediate_files = []
+      begin
+        source = @queued_for_write[name] || @queued_for_write[:original]
+        unadapted_file = style.processors.inject(source) do |file, processor|
           file = Paperclip.processor(processor).make(file, style.processor_options, self)
           intermediate_files << file unless file == @queued_for_write[:original]
           file
         end
-
-        unadapted_file = @queued_for_write[name]
-        @queued_for_write[name] = Paperclip.io_adapters.for(@queued_for_write[name])
+        @queued_for_write[name] = Paperclip.io_adapters.for(unadapted_file)
         unadapted_file.close if unadapted_file.respond_to?(:close)
         @queued_for_write[name]
       rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
         log("An error was received while processing: #{e.inspect}")
-        (@errors[:processing] ||= []) << e.message if @options[:whiny]
+        whine e.message
       ensure
         unlink_files(intermediate_files)
+      end
+    end
+
+    def generate_styles(generator, styles)
+      options = {}
+      styles.reject { |name, _| name == :original }.each do |name, style|
+        options[name] = style.processor_options
+      end
+      generator = Paperclip.processor(generator)
+      results = generator.make(@queued_for_write[:original], options, self)
+      @queued_for_write.update results
+    rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
+      log("An error was received while processing: #{e.inspect}")
+      whine e.message
+    end
+
+    def whine(message)
+      if @options[:whiny]
+        (@errors[:processing] ||= []) << message
       end
     end
 

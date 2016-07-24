@@ -27,6 +27,10 @@ unless ActiveRecord::VERSION::STRING < "4.2"
 end
 Paperclip.options[:logger] = ActiveRecord::Base.logger
 
+if ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+  ActiveRecord::Base.raise_in_transactional_callbacks = true
+end
+
 Dir[File.join(ROOT, 'spec', 'support', '**', '*.rb')].each{|f| require f }
 
 Rails = FakeRails.new('test', Pathname.new(ROOT).join('tmp'))

@@ -751,19 +751,121 @@ This will prevent ```some_attachment``` from being wiped out when the model gets
 Custom Attachment Processors
 -------
 
-Custom attachment processors can be implemented and their only requirement is
-to inherit from `Paperclip::Processor` (see `lib/paperclip/processor.rb`).
-For example, when `:styles` are specified for an image attachment, the
-thumbnail processor (see `lib/paperclip/thumbnail.rb`) is loaded without having
-to specify it as a `:processor` parameter to `has_attached_file`.  When any
-other processor is defined, it must be called out in the `:processors`
-parameter if it is to be applied to the attachment.  The thumbnail processor
-uses the ImageMagick `convert` command to do the work of resizing image
-thumbnails.  It would be easy to create a custom processor that watermarks
-an image using ImageMagick's `composite` command.  Following the
-implementation pattern of the thumbnail processor would be a way to implement a
-watermark processor.  All kinds of attachment processors can be created;
-a few utility examples would be compression and encryption processors.
+You may define a custom attachment processor by inheriting from
+`Paperclip::Processor`, and configuring your attachment to use your
+processor. Paperclip calls the processor's `make` method to process the file,
+and expects this to return a `File` (or `Tempfile`) object. Attachment options
+are available as `options` in the processor.
+
+Here's an example which uses `ffmpeg` to process a video attachment:
+
+```ruby
+require 'shellwords'
+
+module Paperclip
+  class VideoEncoder < Processor
+    def make
+      output = Tempfile.new(['paperclip', ".#{options[:format]}"]).tap(&:binmode)
+      w, h = options[:size].scan(/\d+/)
+      scale = "'if(gt(a,16/9),bitand(#{w},0xfffe),-1)':'if(gt(a,16/9),-1,bitand(#{h},0xfffe))'"
+      command = <<-EOS
+        ffmpeg -y -i #{file.path.shellescape}
+          -c:v libx264 -b:v 450k -r 24
+          -c:a libvo_aacenc -b:a 96k -ar 44100
+          -filter:v scale=#{scale.shellescape}
+          -pix_fmt yuv420p
+          -b_strategy 1
+          #{output.path.shellescape}
+      EOS
+      Paperclip.run command.shellsplit.shelljoin
+      output
+    end
+  end
+end
+```
+
+To use this processor, we specify the processor in the attachment declaration:
+
+```ruby
+class MyModel
+  has_attached_file :video, styles: {standard: {size: '100x100', format: 'mp4'}}, \
+    processor: :video_encoder
+end
+```
+
+Note that the processor name is looked up in the `Paperclip` namespace, so
+`processor: :video_encoder` will use `Paperclip::VideoEncoder`.
+
+---
+
+Generators
+----------
+
+Sometimes you may want more control over how the style files are generated from
+the original. For example, it's faster to generate 3 thumbnails from the
+original image using 1 imagemagick invocation rather than the 3 that the
+built-in processor uses.
+
+For this, you can use a Generator, which is like a Processor, but takes the
+original file as input, and produces multiple files as output.
+
+Example:
+
+```ruby
+require 'shellwords'
+
+module Paperclip
+  class PhotoGenerator < Processor
+    def make
+      command = <<-EOS
+        convert #{file.path.shellescape}[0] -auto-orient -strip -quality 80
+        ( +clone -resize '100x100^' -write #{results[:a].path.shellescape} +delete )
+        ( +clone -resize '200x200^' -write #{results[:b].path.shellescape} +delete )
+                 -resize '300x300^'        #{results[:c].path.shellescape}
+      EOS
+      Paperclip.run command.shellsplit.shelljoin
+
+      # Return the hash of style name -> output file.
+      results
+    end
+
+    def results
+      @results ||= options.inject({}) do |results, (name, style)|
+        results[name] = Tempfile.new(['paperclip', '.jpg']).tap(&:binmode)
+        results
+      end
+    end
+  end
+end
+```
+
+Configure your attachment to use this generator with the `generator` option:
+
+```ruby
+class MyModel
+  has_attached_file :photo, styles: {a: '100x100', b: '200x200', c: '300x300'},
+    generator: :photo_generator
+end
+```
+
+Combining Processors and Generators
+-----------------------------------
+
+In the event both processors and generators are used, the pipeline looks like this:
+
+```
+                                    +------> style1 --> [style1 file]
+                                   /       processors
+                                  /
+  [original] -> original -> generator -----> style2 --> [style2 file]
+               processors         \        processors
+                                   \
+                                    +------> style3 --> [style3 file]
+                                           processors
+```
+
+First the original is post-processed. The output of this is then fed into the
+generator. Then the generated files are each post-processed.
 
 ---
 
