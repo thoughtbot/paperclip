@@ -312,6 +312,12 @@ module Paperclip
       time && time.to_f.to_i
     end
 
+    # Returns true when record is enqueued for background processing
+    # and job did not finish yet.
+    def processing_in_background
+      instance_read(:processing_in_background)
+    end
+
     # The time zone to use for timestamp interpolation.  Using the default
     # time zone ensures that results are consistent across all threads.
     def time_zone
@@ -473,6 +479,7 @@ module Paperclip
 
     def assign_background_processing
       if @options[:process_in_background].any?
+        instance_write(:processing_in_background, true)
         @enqueue_background_processing = true
       end
     end

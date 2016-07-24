@@ -1523,6 +1523,19 @@ describe Paperclip::Attachment do
 
       assert_equal 0, jobs.count
     end
+
+    it "populates avatar_processing_in_background column" do
+      ActiveRecord::Base.connection.add_column :dummies, :avatar_processing_in_background, :boolean
+      rebuild_class styles: { thumb: "100x100" },
+                    only_process: [:none],
+                    process_in_background: [:thumb]
+      GlobalID.app = "paperclip-test"
+      Dummy.send(:include, GlobalID::Identification)
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+
+      assert_equal true, @dummy.avatar_processing_in_background
+    end
   end
 
   context "An attached file" do

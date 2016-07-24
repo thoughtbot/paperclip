@@ -11,6 +11,11 @@ module Paperclip
       attachment = instance.send(attachment_name)
       styles = attachment.options[:process_in_background]
       attachment.generate_style_files(*styles)
+
+      if attachment.instance_respond_to?(:processing_in_background)
+        attachment.instance_write(:processing_in_background, false)
+        instance.save!
+      end
     end
   end
 end
