@@ -141,7 +141,7 @@ module Paperclip
         # It's possible, though unlikely, that the mime type is not in the
         # database, so just use the part after the '/' in the mime type as the
         # extension.
-        %r{/([^/]*)\Z}.match(attachment.content_type)[1]
+        %r{/([^/]*)\z}.match(attachment.content_type)[1]
       end
     end
 
