@@ -128,7 +128,7 @@ module Paperclip
           @s3_options     = @options[:s3_options]     || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
           @s3_protocol    = @options[:s3_protocol]    ||
-            Proc.new do |style, attachment|
+            ->(style, attachment) do
               permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
               permission  = permission.call(attachment, style) if permission.respond_to?(:call)
               (permission == :"public-read") ? 'http'.freeze : 'https'.freeze
