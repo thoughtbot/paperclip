@@ -83,7 +83,7 @@ module Paperclip
       @errors                = {}
       @dirty                 = false
       @interpolator          = options[:interpolator]
-      @url_generator         = options[:url_generator].new(self, @options)
+      @url_generator         = options[:url_generator].new(self)
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
 
