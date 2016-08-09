@@ -56,6 +56,20 @@ describe Paperclip::UrlGenerator do
       %{expected the interpolator to be passed #{mock_model.to_s}, but it wasn't}
   end
 
+  it "pulls out style from a default_url hash when no file is assigned" do
+    mock_model = FakeModel.new
+    mock_attachment = MockAttachment.new(model: mock_model)
+    mock_interpolator = MockInterpolator.new
+    default_urls = {style_name: lambda { |_| ":style.png" }}
+    options = { interpolator: mock_interpolator, default_url: default_urls }
+    url_generator = Paperclip::UrlGenerator.new(mock_attachment, options)
+
+    url_generator.for(:style_name, {})
+
+    assert mock_interpolator.has_interpolated_pattern?(':style.png'),
+      "expected the interpolator to be passed ':style.png' but it wasn't"
+  end
+
   it "URL-escapes spaces if asked to" do
     expected = "the expected result"
     mock_attachment = MockAttachment.new
