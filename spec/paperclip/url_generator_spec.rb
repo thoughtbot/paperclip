@@ -5,7 +5,7 @@ describe Paperclip::UrlGenerator do
   it "uses the given interpolator" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(result: expected)
-    mock_attachment = MockAttachment.new({ interpolator: mock_interpolator })
+    mock_attachment = MockAttachment.new(interpolator: mock_interpolator)
 
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
     result = url_generator.for(:style_name, {})
@@ -45,7 +45,11 @@ describe Paperclip::UrlGenerator do
     mock_model = FakeModel.new
     default_url = :to_s
     mock_interpolator = MockInterpolator.new
-    options = { interpolator: mock_interpolator, default_url: default_url, model: mock_model}
+    options = {
+      interpolator: mock_interpolator,
+      default_url: default_url,
+      model: mock_model,
+    }
     mock_attachment = MockAttachment.new(options)
 
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
@@ -122,7 +126,11 @@ describe Paperclip::UrlGenerator do
   it "produces URLs without the updated_at value when the updated_at value is nil" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new(result: expected)
-    options = { responds_to_updated_at: true, updated_at: nil, interpolator: mock_interpolator }
+    options = {
+      responds_to_updated_at: true,
+      updated_at: nil,
+      interpolator: mock_interpolator,
+    }
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
@@ -173,7 +181,11 @@ describe Paperclip::UrlGenerator do
   it "produces the correct URL when the instance has a file name" do
     expected = "the expected result"
     mock_interpolator = MockInterpolator.new
-    options = { interpolator: mock_interpolator, url: expected, original_filename: 'exists' }
+    options = {
+      interpolator: mock_interpolator,
+      url: expected,
+      original_filename: "exists",
+    }
     mock_attachment = MockAttachment.new(options)
 
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
