@@ -31,8 +31,8 @@ describe Paperclip::Validators do
     before do
       rebuild_class
       Dummy.validates_attachment :avatar, file_type_ignorance: true, file_name: [
-          { matches: /\A.*\.jpe?g\Z/i, message: :invalid_extension },
-          { matches: /\A.{,8}\..+\Z/i, message: [:too_long, count: 8] },
+          { matches: /\A.*\.jpe?g\z/i, message: :invalid_extension },
+          { matches: /\A.{,8}\..+\z/i, message: [:too_long, count: 8] },
       ]
     end
 

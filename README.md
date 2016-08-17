@@ -199,7 +199,7 @@ Quick Start
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { medium: "300x300>", thumb: "100x100>" }, default_url: "/images/:style/missing.png"
-  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\z/
 end
 ```
 
@@ -417,7 +417,7 @@ class ActiveRecord::Base
   # Validate content type
   validates_attachment_content_type :avatar, content_type: /\Aimage/
   # Validate filename
-  validates_attachment_file_name :avatar, matches: [/png\Z/, /jpe?g\Z/]
+  validates_attachment_file_name :avatar, matches: [/png\z/, /jpe?g\z/]
   # Explicitly do not validate
   do_not_validate_attachment_file_type :avatar
 end
