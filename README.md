@@ -30,6 +30,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Edit and New Views with Simple Form](#edit-and-new-views-with-simple-form)
   - [Controller](#controller)
   - [View Helpers](#view-helpers)
+  - [Checking a file exists](#checking-a-file-exists)
   - [Deleting an Attachment](#deleting-an-attachment)
 - [Usage](#usage)
 - [Validations](#validations)

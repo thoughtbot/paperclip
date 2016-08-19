@@ -1,5 +1,7 @@
 master:
 
+5.1.0 (2016-08-19):
+
 * Add default `content_type_detector` to `UploadedFileAdapter` (#2270)
 * Default S3 protocol to empty string (#2038)
 * Don't write original file if it wasn't reprocessed (#1993)
