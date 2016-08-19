@@ -120,7 +120,7 @@ module Paperclip
     # called on it, the attachment will *not* be deleted until +save+ is called. See the
     # Paperclip::Attachment documentation for more specifics. There are a number of options
     # you can set to change the behavior of a Paperclip attachment:
-    # * +url+: The full URL of where the attachment is publically accessible. This can just
+    # * +url+: The full URL of where the attachment is publicly accessible. This can just
     #   as easily point to a directory served directly through Apache as it can to an action
     #   that can control permissions. You can specify the full domain and path, but usually
     #   just an absolute path is sufficient. The leading slash *must* be included manually for
