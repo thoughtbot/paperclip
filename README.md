@@ -260,6 +260,16 @@ end
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
 
+### Checking a file exists
+
+There are two methods for checking if a file exists:
+
+- `file?` and `present?` checks if the `_file_name` field is populated
+- `exists?` checks if the file exists (will perform a TCP connection if stored in the cloud)
+
+Keep this in mind if you are checking if files are present in a loop. The first
+version is significantly more performant, but has different semantics.
+
 ### Deleting an Attachment
 
 Set the attribute to `nil` and save.
