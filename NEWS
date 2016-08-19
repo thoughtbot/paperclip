@@ -1,5 +1,10 @@
 master:
-* (port from 4.3) Improvement: the `URI adapter` now uses the content-disposition header to name the downloaded file.
+
+* Don't write original file if it wasn't reprocessed (#1993)
+* Disallow trailing newlines in regular expressions (#2266)
+* Support for readbyte in Paperclip attachments (#2034)
+* (port from 4.3) Uri io adapter uses the content-disposition filename (#2250)
+* General refactors and documentation improvements
 
 5.0.0 (2016-07-01):
 
