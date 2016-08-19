@@ -1,5 +1,7 @@
 master:
 
+* Add default `content_type_detector` to `UploadedFileAdapter` (#2270)
+* Default S3 protocol to empty string (#2038)
 * Don't write original file if it wasn't reprocessed (#1993)
 * Disallow trailing newlines in regular expressions (#2266)
 * Support for readbyte in Paperclip attachments (#2034)
