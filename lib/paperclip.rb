@@ -129,6 +129,8 @@ module Paperclip
     #   Paperclip::Attachment#interpolate for more information on variable interpolaton.
     #     :url => "/:class/:attachment/:id/:style_:filename"
     #     :url => "http://some.other.host/stuff/:class/:id_:extension"
+    # Note: When using the +s3+ storage option, the +url+ option expects particular values.
+    # See the Paperclip::Storage::S3#url documentation for specifics.
     # * +default_url+: The URL that will be returned if there is no attachment assigned.
     #   This field is interpolated just as the url is. The default value is
     #   "/:attachment/:style/missing.png"
