@@ -114,7 +114,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the correct bucket" do
@@ -252,7 +252,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an :s3_host_name path" do
-      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the S3 bucket with the correct host name" do
@@ -278,7 +278,7 @@ describe Paperclip::Storage::S3 do
 
     it "uses s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
-      assert_equal "http://s3.something.com/bucket/avatars/data", @dummy.avatar.url(:original, timestamp: false)
+      assert_equal "//s3.something.com/bucket/avatars/data", @dummy.avatar.url(:original, timestamp: false)
     end
   end
 
@@ -487,7 +487,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an S3 subdomain" do
-      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//bucket.s3.amazonaws.com/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -510,7 +510,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://something.something.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//something.something.com/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -534,8 +534,8 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://cdn1.example.com/avatars/data[^\.]}, @dummy.avatar.url
-      assert_match %r{^http://cdn2.example.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//cdn1.example.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//cdn2.example.com/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "still returns the bucket name" do
@@ -789,7 +789,7 @@ describe Paperclip::Storage::S3 do
       it "does not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
-        assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
+        assert_match %r{^//s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
       it "is rewound after flush_writes" do
@@ -1526,29 +1526,6 @@ describe Paperclip::Storage::S3 do
           }
         )
       end
-
-      context "when assigned" do
-        before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
-          @dummy = Dummy.new
-          @dummy.stubs(:private_attachment? => true)
-          @dummy.avatar = @file
-        end
-
-        after { @file.close }
-
-        context "and saved" do
-          before do
-            @dummy.save
-          end
-
-          it "succeeds" do
-            assert @dummy.avatar.url().include?       "https://"
-            assert @dummy.avatar.url(:thumb).include? "http://"
-          end
-        end
-      end
-
     end
   end
 

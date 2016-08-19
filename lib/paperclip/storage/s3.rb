@@ -50,10 +50,9 @@ module Paperclip
     #   Or globally:
     #     :s3_permissions => :private
     #
-    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http', 'https', or an empty string to generate protocol-relative URLs. Defaults to 'http'
-    #   when your :s3_permissions are :public_read (the default), and 'https' when your
-    #   :s3_permissions are anything else.
+    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets.
+    #   Can be either 'http', 'https', or an empty string to generate
+    #   protocol-relative URLs. Defaults to empty string.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
     #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
     #   runtime. Paperclip will call that Proc with attachment as the only argument.
@@ -131,12 +130,7 @@ module Paperclip
         base.instance_eval do
           @s3_options     = @options[:s3_options]     || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
-          @s3_protocol    = @options[:s3_protocol]    ||
-            Proc.new do |style, attachment|
-              permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
-              permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == :"public-read") ? 'http'.freeze : 'https'.freeze
-            end
+          @s3_protocol    = @options[:s3_protocol] || "".freeze
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
           merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
