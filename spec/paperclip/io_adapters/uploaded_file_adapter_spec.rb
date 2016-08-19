@@ -29,7 +29,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "gets the content type" do
-        assert_equal "image/x-png-by-browser", @subject.content_type
+        assert_equal "image/png", @subject.content_type
       end
 
       it "gets the file's size" do
@@ -98,7 +98,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "gets the content type" do
-        assert_equal "image/x-png-by-browser", @subject.content_type
+        assert_equal "image/png", @subject.content_type
       end
 
       it "gets the file's size" do
