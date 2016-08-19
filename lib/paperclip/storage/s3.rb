@@ -99,17 +99,21 @@ module Paperclip
     #   "x-amz-meta-" before sending it as a header on the object
     #   upload request. Can be defined both globally and within a style-specific hash.
     # * +s3_storage_class+: If this option is set to
-    #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
-    #   Redundancy Storage.  RRS enables customers to reduce their
+    #   <tt>:REDUCED_REDUNDANCY</tt>, the object will be stored using Reduced
+    #   Redundancy Storage. RRS enables customers to reduce their
     #   costs by storing non-critical, reproducible data at lower
     #   levels of redundancy than Amazon S3's standard storage.
     #
     #   You can set storage class on a per style bases by doing the following:
     #     :s3_storage_class => {
-    #       :thumb => :reduced_reduncancy
+    #       :thumb => :REDUCED_REDUNDANCY
     #     }
+    #
     #   Or globally:
-    #     :s3_storage_class => :reduced_redundancy
+    #     :s3_storage_class => :REDUCED_REDUNDANCY
+    #
+    #   Other storage classes, such as <tt>:STANDARD_IA</tt>, are also available—see the
+    #   documentation for the <tt>aws-sdk</tt> gem for the full list.
 
     module S3
       def self.extended base
