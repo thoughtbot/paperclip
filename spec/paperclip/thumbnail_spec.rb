@@ -483,7 +483,8 @@ describe Paperclip::Thumbnail do
     
     context "with a specified frame_index" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file,geometry: "50x50",
+        @thumb = Paperclip::Thumbnail.new(@file,
+                                          geometry: "50x50",
                                           frame_index: 5,
                                           format: :jpg,
                                           )
@@ -497,7 +498,8 @@ describe Paperclip::Thumbnail do
     
     context "with a specified frame_index out of bounds" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", 
+        @thumb = Paperclip::Thumbnail.new(@file,
+                                          geometry: "50x50",
                                           frame_index: 20,
                                           format: :jpg,
                                           )
