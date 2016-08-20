@@ -483,18 +483,24 @@ describe Paperclip::Thumbnail do
     
     context "with a specified frame_index" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", frame_index: 5, format: :jpg)
+        @thumb = Paperclip::Thumbnail.new(@file,geometry: "50x50",
+                                          frame_index: 5,
+                                          format: :jpg,
+                                          )
       end
 
-      it "creates the single frame thumbnail with the specified frame index when sent #make" do
-        dst = @thumb.make
+      it "creates the thumbnail from the frame index when sent #make" do
+        @thumb.make
         assert_equal @thumb.frame_index, 5
       end
     end
     
     context "with a specified frame_index out of bounds" do
       before do
-        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", frame_index: 20, format: :jpg)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", 
+                                          frame_index: 20,
+                                          format: :jpg,
+                                          )
       end
       
       it "errors when trying to create the thumbnail" do
@@ -522,5 +528,4 @@ describe Paperclip::Thumbnail do
       expect { thumb.make }.to_not raise_error
     end
   end
-
 end

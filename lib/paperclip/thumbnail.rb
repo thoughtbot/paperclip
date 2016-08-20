@@ -5,13 +5,12 @@ module Paperclip
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
                   :source_file_options, :animated, :auto_orient, :frame_index
 
-    #List of multi frame formats to check against the source file type
-    #this is not an exhaustive list, should be updated to include more formats
-    MULTI_FRAME_FORMATS = %w(mkv avi mp4 mov mpg mpeg gif) 
+    # List of multi frame formats to check against the source file type
+    # this is not an exhaustive list, should be updated to include more formats
+    MULTI_FRAME_FORMATS = %w(mkv avi mp4 mov mpg mpeg gif)
     
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
-
 
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
@@ -87,7 +86,7 @@ module Paperclip
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
         
         desired_frame = animated? ? "" : "[#{@frame_index.to_s}]"
-        success = convert(parameters, 
+        success = convert(parameters,
                           :source => "#{File.expand_path(src.path)}#{desired_frame}",
                           :dest => File.expand_path(dst.path),
                           )
@@ -117,14 +116,14 @@ module Paperclip
 
     # Return true if the source file format is animated
     def multi_frame_format?
-      #removing the leading . from the extension
+      # removing the leading . from the extension
       ext = @current_format.to_s[1..@current_format.length]
       MULTI_FRAME_FORMATS.include?(ext)
     end
     
     # Return true if the format is animated
     def animated?
-      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)  && identified_as_animated?
+      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?) && identified_as_animated?
     end
 
     # Return true if ImageMagick's +identify+ returns an animated format
