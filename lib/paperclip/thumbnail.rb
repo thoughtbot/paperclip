@@ -3,8 +3,12 @@ module Paperclip
   class Thumbnail < Processor
 
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
-                  :source_file_options, :animated, :auto_orient
+                  :source_file_options, :animated, :auto_orient, :frame_index
 
+    # List of multi frame formats to check against the source file type
+    # this is not an exhaustive list, should be updated to include more formats
+    MULTI_FRAME_FORMATS = %w(mkv avi mp4 mov mpg mpeg gif)
+    
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
 
@@ -25,6 +29,7 @@ module Paperclip
     #   +whiny+ - whether to raise an error when processing fails. Defaults to true
     #   +format+ - the desired filename extension
     #   +animated+ - whether to merge all the layers in the image. Defaults to true
+    #   +frame_index+ - the frame index of the source file to render as the thumbnail
     def initialize(file, options = {}, attachment = nil)
       super
 
@@ -36,17 +41,21 @@ module Paperclip
       @convert_options     = options[:convert_options]
       @whiny               = options.fetch(:whiny, true)
       @format              = options[:format]
+      @frame_index         = options.fetch(:frame_index, 0)
       @animated            = options.fetch(:animated, true)
       @auto_orient         = options.fetch(:auto_orient, true)
       if @auto_orient && @current_geometry.respond_to?(:auto_orient)
         @current_geometry.auto_orient
       end
-
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
 
       @current_format      = File.extname(@file.path)
       @basename            = File.basename(@file.path, @current_format)
+      
+      if !multi_frame_format?
+        @frame_index = 0
+      end
     end
 
     # Returns true if the +target_geometry+ is meant to crop.
@@ -75,8 +84,12 @@ module Paperclip
         parameters << ":dest"
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
-
-        success = convert(parameters, :source => "#{File.expand_path(src.path)}#{'[0]' unless animated?}", :dest => File.expand_path(dst.path))
+        
+        desired_frame = animated? ? "" : "[#{@frame_index.to_s}]"
+        success = convert(parameters,
+                          :source => "#{File.expand_path(src.path)}#{desired_frame}",
+                          :dest => File.expand_path(dst.path),
+                          )
       rescue Cocaine::ExitStatusError => e
         raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
       rescue Cocaine::CommandNotFoundError => e
@@ -101,9 +114,16 @@ module Paperclip
 
     protected
 
+    # Return true if the source file format is animated
+    def multi_frame_format?
+      # removing the leading . from the extension
+      ext = @current_format.to_s[1..@current_format.length]
+      MULTI_FRAME_FORMATS.include?(ext)
+    end
+    
     # Return true if the format is animated
     def animated?
-      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)  && identified_as_animated?
+      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?) && identified_as_animated?
     end
 
     # Return true if ImageMagick's +identify+ returns an animated format
