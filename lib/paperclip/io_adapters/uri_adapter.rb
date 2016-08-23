@@ -29,7 +29,8 @@ module Paperclip
 
     def filename_from_content_disposition
       if @content.meta.has_key?("content-disposition")
-        matches = @content.meta["content-disposition"].match(/filename="([^"]*)"/)
+        matches = @content.meta["content-disposition"].
+          match(/filename="([^"]*)"/)
         matches[1] if matches
       end
     end
