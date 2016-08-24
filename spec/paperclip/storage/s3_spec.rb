@@ -458,7 +458,7 @@ describe Paperclip::Storage::S3 do
           "question?mark.png"
         end
       end
-      file = Paperclip.io_adapters.for(stringio)
+      file = Paperclip.io_adapters.for(stringio, hash_digest: Digest::MD5)
       @dummy = Dummy.new
       @dummy.avatar = file
       @dummy.save

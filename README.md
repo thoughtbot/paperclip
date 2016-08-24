@@ -737,10 +737,10 @@ is specified in `:hash_data`. The default value for `:hash_data` is `":class/:at
 
 For more on this feature, read [the author's own explanation](https://github.com/thoughtbot/paperclip/pull/416)
 
-MD5 Checksum / Fingerprint
+Checksum / Fingerprint
 -------
 
-An MD5 checksum of the original file assigned will be placed in the model if it
+A checksum of the original file assigned will be placed in the model if it
 has an attribute named fingerprint.  Following the user model migration example
 above, the migration would look like the following:
 
@@ -755,6 +755,17 @@ class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
   end
 end
 ```
+
+The algorithm can be specified using a configuration option; it defaults to MD5
+for backwards compatibility with Paperclip 5 and earlier.
+
+```ruby
+has_attached_file :some_attachment, adapter_options: { hash_digest: Digest::SHA256 }
+```
+
+Run `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints` after
+changing the digest on existing attachments to update the fingerprints in the
+database.
 
 File Preservation for Soft-Delete
 -------

@@ -1,6 +1,7 @@
 module Paperclip
   class AttachmentAdapter < AbstractAdapter
-    def initialize(target)
+    def initialize(target, options = {})
+      super
       @target, @style = case target
       when Paperclip::Attachment
         [target, :original]

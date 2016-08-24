@@ -8,8 +8,20 @@ module Paperclip
     delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink, :to => :@tempfile
     alias :length :size
 
+    def initialize(target, options = {})
+      @target = target
+      @options = options
+    end
+
     def fingerprint
-      @fingerprint ||= Digest::MD5.file(path).to_s
+      @fingerprint ||= begin
+        digest = @options.fetch(:hash_digest).new
+        File.open(path, "rb") do |f|
+          buf = ""
+          digest.update(buf) while f.read(16384, buf)
+        end
+        digest.hexdigest
+      end
     end
 
     def read(length = nil, buffer = nil)
