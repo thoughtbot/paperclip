@@ -102,6 +102,8 @@ module Paperclip
     #   Redundancy Storage. RRS enables customers to reduce their
     #   costs by storing non-critical, reproducible data at lower
     #   levels of redundancy than Amazon S3's standard storage.
+    # * +use_accelerate_endpoint+: Use accelerate endpoint
+    #   http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html
     #
     #   You can set storage class on a per style bases by doing the following:
     #     :s3_storage_class => {
@@ -152,6 +154,8 @@ module Paperclip
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
           @http_proxy = @options[:http_proxy] || nil
+
+          @use_accelerate_endpoint = @options[:use_accelerate_endpoint] || false
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
@@ -232,6 +236,8 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
+          config[:use_accelerate_endpoint] = true if use_accelerate_endpoint?
+
           [:access_key_id, :secret_access_key, :credential_provider, :credentials].each do |opt|
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
@@ -255,6 +261,10 @@ module Paperclip
 
       def s3_object style_name = default_style
         s3_bucket.object style_name_as_path(style_name)
+      end
+
+      def use_accelerate_endpoint?
+        @use_accelerate_endpoint
       end
 
       def using_http_proxy?
