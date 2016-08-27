@@ -282,6 +282,59 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "use_accelerate_endpoint", :if => use_accelerate_endpoint_option_is_available_in_aws_sdk? do
+    context "defaults to false" do
+      before do
+        rebuild_model(
+          storage: :s3,
+          s3_credentials: {},
+          bucket: "bucket",
+          path: ":attachment/:basename:dotextension",
+          s3_host_name: "s3-ap-northeast-1.amazonaws.com",
+          s3_region: "ap-northeast-1"
+        )
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+        @dummy.stubs(:new_record?).returns(false)
+      end
+
+      it "returns a url based on an :s3_host_name path" do
+        assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]},
+          @dummy.avatar.url
+      end
+
+      it "uses the S3 client with the use_accelerate_endpoint config is false" do
+        expect(@dummy.avatar.s3_bucket.client.config.use_accelerate_endpoint).to be(false)
+      end
+    end
+
+    context "set to true", :if => use_accelerate_endpoint_option_is_available_in_aws_sdk? do
+      before do
+        rebuild_model(
+          storage: :s3,
+          s3_credentials: {},
+          bucket: "bucket",
+          path: ":attachment/:basename:dotextension",
+          s3_host_name: "s3-accelerate.amazonaws.com",
+          s3_region: "ap-northeast-1",
+          use_accelerate_endpoint: true
+        )
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+        @dummy.stubs(:new_record?).returns(false)
+      end
+
+      it "returns a url based on an :s3_host_name path" do
+        assert_match %r{^//s3-accelerate.amazonaws.com/bucket/avatars/data[^\.]},
+          @dummy.avatar.url
+      end
+
+      it "uses the S3 client with the use_accelerate_endpoint config is true" do
+        expect(@dummy.avatar.s3_bucket.client.config.use_accelerate_endpoint).to be(true)
+      end
+    end
+  end
+
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     before do
       rebuild_model (aws2_add_region).merge storage: :s3,

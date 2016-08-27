@@ -38,6 +38,7 @@ RSpec.configure do |config|
   config.include TestData
   config.include Reporting
   config.extend VersionHelper
+  config.extend ConditionalFilterHelper
   config.mock_framework = :mocha
   config.before(:all) do
     rebuild_model
