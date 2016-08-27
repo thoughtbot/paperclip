@@ -300,7 +300,7 @@ describe Paperclip::Storage::S3 do
         assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
       end
 
-      it "uses the S3 client with the use_accelerate_endpoint config is true" do
+      it "uses the S3 client with the use_accelerate_endpoint config is false" do
         expect(@dummy.avatar.s3_bucket.client.config.use_accelerate_endpoint).to be(false)
       end
     end
