@@ -155,7 +155,12 @@ module Paperclip
 
           @http_proxy = @options[:http_proxy] || nil
 
-          @use_accelerate_endpoint = @options[:use_accelerate_endpoint] || false
+          if @options.has_key?(:use_accelerate_endpoint) &&
+             Gem::Version.new(Aws::VERSION) < Gem::Version.new("2.3.0")
+            raise LoadError, ":use_accelerate_endpoint is only available from aws-sdk version 2.3.0. Please upgrade aws-sdk to a newer version."
+          end
+
+          @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
@@ -264,7 +269,7 @@ module Paperclip
       end
 
       def use_accelerate_endpoint?
-        @use_accelerate_endpoint
+        !!@use_accelerate_endpoint
       end
 
       def using_http_proxy?
