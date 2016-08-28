@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rspec', '~> 3.0')
   s.add_development_dependency('appraisal')
   s.add_development_dependency('mocha')
-  s.add_development_dependency('aws-sdk', '>= 2.0.34', '< 3.0')
+  s.add_development_dependency('aws-sdk', '>= 2.3.0', '< 3.0')
   s.add_development_dependency('bourne')
   s.add_development_dependency('cucumber', '~> 1.3.18')
   s.add_development_dependency('aruba', '~> 0.9.0')
