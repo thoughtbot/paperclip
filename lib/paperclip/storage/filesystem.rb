@@ -37,7 +37,7 @@ module Paperclip
         @queued_for_write.each do |style_name, file|
           FileUtils.mkdir_p(File.dirname(path(style_name)))
           begin
-            FileUtils.mv(file.path, path(style_name))
+            move_file(file.path, path(style_name))
           rescue SystemCallError
             File.open(path(style_name), "wb") do |new_file|
               while chunk = file.read(16 * 1024)
@@ -83,6 +83,17 @@ module Paperclip
 
       def copy_to_local_file(style, local_dest_path)
         FileUtils.cp(path(style), local_dest_path)
+      end
+
+      private
+
+      def move_file(src, dest)
+        # Support hardlinked files
+        if File.identical?(src, dest)
+          File.unlink(src)
+        else
+          FileUtils.mv(src, dest)
+        end
       end
     end
 
