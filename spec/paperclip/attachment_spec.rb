@@ -500,6 +500,7 @@ describe Paperclip::Attachment do
       @attachment.expects(:post_process).with(:thumb)
       @attachment.expects(:post_process).with(:large).never
       @attachment.assign(@file)
+      @attachment.save
     end
   end
 
