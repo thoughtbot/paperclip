@@ -567,6 +567,33 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "generating a url with a prefixed host alias" do
+    before do
+      rebuild_model(
+        aws2_add_region.merge(
+          storage: :s3,
+          s3_credentials: {
+            production: { bucket: "prod_bucket" },
+            development: { bucket: "dev_bucket" },
+          },
+          bucket: "bucket",
+          s3_host_alias: "something.something.com",
+          s3_prefixes_in_alias: 2,
+          path: "prefix1/prefix2/:attachment/:basename:dotextension",
+          url: ":s3_alias_url",
+        )
+      )
+      @dummy = Dummy.new
+      @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
+    end
+
+    it "returns a url with the prefixes removed" do
+      assert_match %r{^//something.something.com/avatars/data[^\.]},
+                   @dummy.avatar.url
+    end
+  end
+
   context "generating a url with a proc as the host alias" do
     before do
       rebuild_model (aws2_add_region).merge storage: :s3,
