@@ -65,6 +65,9 @@ module Paperclip
     # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
     #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
     #   link in the +url+ entry for more information about S3 domains and buckets.
+    # * +s3_prefixes_in_alias+: The number of prefixes that is prepended by
+    #   s3_host_alias. This will remove the prefixes from the path in
+    #   :s3_alias_url url interpolation
     # * +url+: There are four options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
     #   You can also specify a CNAME (which requires the CNAME to be specified as
@@ -164,7 +167,13 @@ module Paperclip
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          protocol = attachment.s3_protocol(style, true)
+          host = attachment.s3_host_alias
+          path = attachment.path(style).
+            split("/")[attachment.s3_prefixes_in_alias..-1].
+            join("/").
+            sub(%r{\A/}, "".freeze)
+          "#{protocol}//#{host}/#{path}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
@@ -211,6 +220,10 @@ module Paperclip
         @s3_host_alias = @options[:s3_host_alias]
         @s3_host_alias = @s3_host_alias.call(self) if @s3_host_alias.respond_to?(:call)
         @s3_host_alias
+      end
+
+      def s3_prefixes_in_alias
+        @s3_prefixes_in_alias ||= @options[:s3_prefixes_in_alias].to_i
       end
 
       def s3_url_options
