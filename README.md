@@ -47,7 +47,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Custom Attachment Processors](#custom-attachment-processors)
 - [Events](#events)
 - [URI Obfuscation](#uri-obfuscation)
-- [MD5 Checksum / Fingerprint](#md5-checksum--fingerprint)
+- [Checksum / Fingerprint](#checksum--fingerprint)
 - [File Preservation for Soft-Delete](#file-preservation-for-soft-delete)
 - [Dynamic Configuration](#dynamic-configuration)
   - [Dynamic Styles:](#dynamic-styles)
