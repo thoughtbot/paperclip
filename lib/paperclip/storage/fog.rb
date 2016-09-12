@@ -86,11 +86,14 @@ module Paperclip
       end
 
       def fog_public(style = default_style)
-        if @options.has_key?(:fog_public)
-          if @options[:fog_public].respond_to?(:has_key?) && @options[:fog_public].has_key?(style)
-            @options[:fog_public][style]
+        if @options.key?(:fog_public)
+          value = @options[:fog_public]
+          if value.respond_to?(:key?) && value.key?(style)
+            value[style]
+          elsif value.respond_to?(:call)
+            value.call(self)
           else
-            @options[:fog_public]
+            value
           end
         else
           true
