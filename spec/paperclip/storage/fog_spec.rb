@@ -266,6 +266,22 @@ describe Paperclip::Storage::Fog do
         end
       end
 
+      context "with fog_public as a proc" do
+        let(:proc) { ->(attachment) { !attachment } }
+
+        before do
+          rebuild_model(@options.merge(fog_public: proc))
+          @dummy = Dummy.new
+          @dummy.avatar = StringIO.new(".")
+          @dummy.save
+        end
+
+        it "sets the @fog_public instance variable to false" do
+          assert_equal proc, @dummy.avatar.instance_variable_get("@options")[:fog_public]
+          assert_equal false, @dummy.avatar.fog_public
+        end
+      end
+
       context "with styles set and fog_public set to false" do
         before do
           rebuild_model(@options.merge(fog_public: false, styles: { medium: "300x300>", thumb: "100x100>" }))
