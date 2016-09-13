@@ -628,6 +628,14 @@ JPGs will remain JPGs). `Paperclip::Thumbnail` uses ImageMagick to process
 images; [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
 has more information on the accepted style formats.
 
+ImageMagick supports a number of environment variables for controlling its resource limits. For example, you can enfore memory or execution time limits by setting the following variables in your application's process environment:
+
+* `MAGICK_MEMORY_LIMIT=128MiB`
+* `MAGICK_MAP_LIMIT=64MiB`
+* `MAGICK_TIME_LIMIT=30`
+
+For a full list of variables and description, see [ImageMagick's resources documentation](http://www.imagemagick.org/script/resources.php).
+
 ---
 
 Custom Attachment Processors
