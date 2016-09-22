@@ -45,10 +45,10 @@ module Paperclip
     #
     #   You can set permission on a per style bases by doing the following:
     #     :s3_permissions => {
-    #       :original => :private
+    #       :original => "private"
     #     }
     #   Or globally:
-    #     :s3_permissions => :private
+    #     :s3_permissions => "private"
     #
     # * +s3_protocol+: The protocol for the URLs generated to your S3 assets.
     #   Can be either 'http', 'https', or an empty string to generate
