@@ -30,10 +30,10 @@ module Paperclip
     end
 
     def media_type_mismatch?
-      supplied_type_mismatch? || calculated_type_mismatch?
+      extension_type_mismatch? || calculated_type_mismatch?
     end
 
-    def supplied_type_mismatch?
+    def extension_type_mismatch?
       supplied_media_type.present? && has_extension? && !media_types_from_name.include?(supplied_media_type)
     end
 
