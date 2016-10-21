@@ -34,11 +34,14 @@ module Paperclip
     end
 
     def extension_type_mismatch?
-      supplied_media_type.present? && has_extension? && !media_types_from_name.include?(supplied_media_type)
+      supplied_media_type.present? &&
+        has_extension? &&
+        !media_types_from_name.include?(supplied_media_type)
     end
 
     def calculated_type_mismatch?
-      supplied_media_type.present? && !calculated_content_type.include?(supplied_media_type)
+      supplied_media_type.present? &&
+        !calculated_content_type.include?(supplied_media_type)
     end
 
     def mapping_override_mismatch?
