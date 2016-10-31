@@ -37,7 +37,7 @@ module Paperclip
     # The convert method runs the convert binary with the provided arguments.
     # See Paperclip.run for the available options.
     def convert(arguments = "", local_options = {})
-      Paperclip.run(Gem.win_platform?"magick convert":"convert", arguments, local_options)
+      Paperclip.run(Gem.win_platform ? "magick convert" : "convert", arguments, local_options)
     end
 
     # The identify method runs the identify binary with the provided arguments.
