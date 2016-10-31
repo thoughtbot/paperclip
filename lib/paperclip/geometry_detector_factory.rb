@@ -16,7 +16,7 @@ module Paperclip
       begin
         orientation = Paperclip.options[:use_exif_orientation] ?
           "%[exif:orientation]" : "1"
-        if Gem.win_platform 
+        if Gem.win_platform?
           command = "magick identify"
         else 
           command = "identify"
