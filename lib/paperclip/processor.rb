@@ -43,7 +43,7 @@ module Paperclip
     # The identify method runs the identify binary with the provided arguments.
     # See Paperclip.run for the available options.
     def identify(arguments = "", local_options = {})
-      Paperclip.run(Gem.win_platform?"magick identify":"identify", arguments, local_options)
+      Paperclip.run(Gem.win_platform? ? "magick identify" : "identify", arguments, local_options)
     end
   end
 end
