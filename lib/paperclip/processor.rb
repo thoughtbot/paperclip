@@ -40,7 +40,7 @@ module Paperclip
       Paperclip.run(
         Gem.win_platform ? "magick convert" : "convert",
         arguments,
-        local_options
+        local_options,
       )
     end
 
@@ -50,7 +50,7 @@ module Paperclip
       Paperclip.run(
         Gem.win_platform? ? "magick identify" : "identify",
         arguments,
-        local_options
+        local_options,
       )
     end
   end
