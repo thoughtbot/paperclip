@@ -16,8 +16,13 @@ module Paperclip
       begin
         orientation = Paperclip.options[:use_exif_orientation] ?
           "%[exif:orientation]" : "1"
+        if Gem.win_platform 
+          command = "magick identify"
+        else 
+          command = "identify"
+        end
         Paperclip.run(
-          "identify",
+          command,
           "-format '%wx%h,#{orientation}' :file", {
             :file => "#{path}[0]"
           }, {
