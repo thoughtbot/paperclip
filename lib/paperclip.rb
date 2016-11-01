@@ -98,7 +98,8 @@ module Paperclip
       :swallow_stderr => true,
       :content_type_mappings => {},
       :use_exif_orientation => true,
-      :read_timeout => nil
+      :read_timeout => nil,
+      :is_windows => Gem.win_platform?
     }
   end
 
