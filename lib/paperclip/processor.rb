@@ -38,7 +38,7 @@ module Paperclip
     # See Paperclip.run for the available options.
     def convert(arguments = "", local_options = {})
       Paperclip.run(
-        Gem.win_platform ? "magick convert" : "convert",
+        Paperclip.options[:is_windows] ? "magick convert" : "convert",
         arguments,
         local_options,
       )
@@ -48,7 +48,7 @@ module Paperclip
     # See Paperclip.run for the available options.
     def identify(arguments = "", local_options = {})
       Paperclip.run(
-        Gem.win_platform? ? "magick identify" : "identify",
+        Paperclip.options[:is_windows] ? "magick identify" : "identify",
         arguments,
         local_options,
       )
