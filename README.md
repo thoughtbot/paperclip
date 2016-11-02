@@ -30,7 +30,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Edit and New Views with Simple Form](#edit-and-new-views-with-simple-form)
   - [Controller](#controller)
   - [View Helpers](#view-helpers)
-  - [Checking a file exists](#checking-a-file-exists)
+  - [Checking a File Exists](#checking-a-file-exists)
   - [Deleting an Attachment](#deleting-an-attachment)
 - [Usage](#usage)
 - [Validations](#validations)
@@ -40,7 +40,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
   - [Schema Definition](#schema-definition)
-  - [Vintage syntax](#vintage-syntax)
+  - [Vintage Syntax](#vintage-syntax)
 - [Storage](#storage)
   - [Understanding Storage](#understanding-storage)
 - [Post Processing](#post-processing)
@@ -261,7 +261,7 @@ end
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
 
-### Checking a file exists
+### Checking a File Exists
 
 There are two methods for checking if a file exists:
 
@@ -550,7 +550,7 @@ class AddAttachmentColumnsToUsers < ActiveRecord::Migration
 end
 ```
 
-### Vintage syntax
+### Vintage Syntax
 
 Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) is still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
