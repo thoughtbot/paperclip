@@ -90,14 +90,14 @@ module Paperclip
   #   image's orientation. Defaults to true.
   def self.options
     @options ||= {
-      :whiny => true,
-      :command_path => nil,
-      :log => true,
-      :log_command => true,
-      :swallow_stderr => true,
-      :content_type_mappings => {},
-      :use_exif_orientation => true,
-      :read_timeout => nil
+      command_path: nil,
+      content_type_mappings: {},
+      log: true,
+      log_command: true,
+      read_timeout: nil,
+      swallow_stderr: true,
+      use_exif_orientation: true,
+      whiny: true,
     }
   end
 
