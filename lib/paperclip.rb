@@ -91,7 +91,6 @@ module Paperclip
   def self.options
     @options ||= {
       :whiny => true,
-      :image_magick_path => nil,
       :command_path => nil,
       :log => true,
       :log_command => true,
