@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Tempfile do
   context "A Paperclip Tempfile" do
