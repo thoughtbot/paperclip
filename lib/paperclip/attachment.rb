@@ -337,8 +337,15 @@ module Paperclip
     # inconsistencies in timing of S3 commands. It's possible that calling
     # #reprocess! will lose data if the files are not kept.
     def reprocess!(*style_args)
-      saved_only_process, @options[:only_process] = @options[:only_process], style_args
-      saved_preserve_files, @options[:preserve_files] = @options[:preserve_files], true
+      saved_flags = @options.slice(
+        :only_process,
+        :preserve_files,
+        :check_validity_before_processing
+      )
+      @options[:only_process] = style_args
+      @options[:preserve_files] = true
+      @options[:check_validity_before_processing] = false
+
       begin
         assign(self)
         save
@@ -347,8 +354,7 @@ module Paperclip
         warn "#{e} - skipping file."
         false
       ensure
-        @options[:only_process] = saved_only_process
-        @options[:preserve_files] = saved_preserve_files
+        @options.merge!(saved_flags)
       end
     end
 

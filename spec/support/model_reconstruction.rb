@@ -27,7 +27,7 @@ module ModelReconstruction
     ActiveRecord::Base.connection.create_table :dummies, {force: true}, &block
   end
 
-  def modify_table table_name, &block
+  def modify_table &block
     ActiveRecord::Base.connection.change_table :dummies, &block
   end
 

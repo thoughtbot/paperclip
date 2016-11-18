@@ -53,6 +53,22 @@ describe Paperclip::Attachment do
     expect(dummy.avatar.path(:original)).to exist
   end
 
+  it "reprocess works with virtual content_type attribute" do
+    rebuild_class styles: { small: "100x>" }
+    modify_table { |t| t.remove :avatar_content_type }
+    Dummy.send :attr_accessor, :avatar_content_type
+    Dummy.validates_attachment_content_type(
+      :avatar,
+      content_type: %w(image/jpeg image/png)
+    )
+    Dummy.create!(avatar: File.new(fixture_file("50x50.png"), "rb"))
+
+    dummy = Dummy.first
+    dummy.avatar.reprocess!(:small)
+
+    expect(dummy.avatar.path(:small)).to exist
+  end
+
   context "having a not empty hash as a default option" do
     before do
       @old_default_options = Paperclip::Attachment.default_options.dup
