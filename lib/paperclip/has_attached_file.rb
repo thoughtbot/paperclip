@@ -15,6 +15,7 @@ module Paperclip
       define_getters
       define_setter
       define_query
+      define_tmp_id_getter_setter
       register_new_attachment
       add_active_record_callbacks
       add_paperclip_callbacks
@@ -71,6 +72,16 @@ module Paperclip
       name = @name
       @klass.send :define_method, "#{@name}?" do
         send(name).file?
+      end
+    end
+
+    def define_tmp_id_getter_setter
+      name = @name
+      @klass.send :define_method, "#{@name}_tmp_id" do
+        send(name).tmp_id
+      end
+      @klass.send :define_method, "#{@name}_tmp_id=" do |tmp_id|
+        send(name).tmp_id = tmp_id
       end
     end
 
