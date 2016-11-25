@@ -98,6 +98,7 @@ module Paperclip
       swallow_stderr: true,
       use_exif_orientation: true,
       whiny: true,
+      add_validation_errors_to: :both
     }
   end
 

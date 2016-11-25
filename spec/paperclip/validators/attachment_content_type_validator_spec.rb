@@ -67,6 +67,94 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     end
   end
 
+  context "with add_validation_errors_to not set (implicitly :both)" do
+    it "adds error to both attribute and base" do
+      build_validator content_type: "image/png", allow_nil: false
+      @dummy.stubs(avatar_content_type: nil)
+      @validator.validate(@dummy)
+
+      assert @dummy.errors[:avatar_content_type].present?,
+        "Error not added to attribute"
+
+      assert @dummy.errors[:avatar].present?,
+        "Error not added to base attribute"
+    end
+  end
+
+  context "with add_validation_errors_to set to :attribute globally" do
+    before do
+      Paperclip.options[:add_validation_errors_to] = :attribute
+    end
+
+    after do
+      Paperclip.options[:add_validation_errors_to] = :both
+    end
+
+    it "only adds error to attribute not base" do
+      build_validator content_type: "image/png", allow_nil: false
+      @dummy.stubs(avatar_content_type: nil)
+      @validator.validate(@dummy)
+
+      assert @dummy.errors[:avatar_content_type].present?,
+        "Error not added to attribute"
+
+      assert @dummy.errors[:avatar].blank?,
+        "Error added to base attribute"
+    end
+  end
+
+  context "with add_validation_errors_to set to :base globally" do
+    before do
+      Paperclip.options[:add_validation_errors_to] = :base
+    end
+
+    after do
+      Paperclip.options[:add_validation_errors_to] = :both
+    end
+
+    it "only adds error to base not attribute" do
+      build_validator content_type: "image/png", allow_nil: false
+      @dummy.stubs(avatar_content_type: nil)
+      @validator.validate(@dummy)
+
+      assert @dummy.errors[:avatar].present?,
+        "Error not added to base attribute"
+
+      assert @dummy.errors[:avatar_content_type].blank?,
+        "Error added to attribute"
+    end
+  end
+
+  context "with add_validation_errors_to set to :attribute" do
+    it "only adds error to attribute not base" do
+      build_validator content_type: "image/png", allow_nil: false,
+        add_validation_errors_to: :attribute
+      @dummy.stubs(avatar_content_type: nil)
+      @validator.validate(@dummy)
+
+      assert @dummy.errors[:avatar_content_type].present?,
+        "Error not added to attribute"
+
+      assert @dummy.errors[:avatar].blank?,
+        "Error added to base attribute"
+    end
+  end
+
+  context "with add_validation_errors_to set to :base" do
+    it "only adds error to base not attribute" do
+      build_validator content_type: "image/png", allow_nil: false,
+        add_validation_errors_to: :base
+      @dummy.stubs(avatar_content_type: nil)
+      @validator.validate(@dummy)
+
+      assert @dummy.errors[:avatar].present?,
+        "Error not added to base attribute"
+
+      assert @dummy.errors[:avatar_content_type].blank?,
+        "Error added to attribute"
+    end
+  end
+
   context "with a successful validation" do
     before do
       build_validator content_type: "image/png", allow_nil: false
