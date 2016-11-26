@@ -73,6 +73,66 @@ describe 'Temporary Upload Processing' do
           expect(dummy.avatar.tmp_url(:small)).to match %r{\A/system/tmp/3ac91f/small.png\?\d+\z}
         end
       end
+
+      context 'with tmp_url in tmp_url format' do
+        before do
+          rebuild_class tmp_url: '/system/tmp/:tmp_url'
+        end
+
+        it 'should raise error' do
+          expect { dummy.avatar.tmp_url }.to raise_error(Paperclip::Errors::InfiniteInterpolationError)
+        end
+      end
+    end
+  end
+
+  describe 'tmp_path' do
+    shared_examples_for 'should be nil' do
+      it 'should be nil' do
+        expect(dummy.avatar.tmp_path).to be_nil
+      end
+
+      it 'should work with style_name' do
+        expect(dummy.avatar.tmp_path(:small)).to be_nil
+      end
+    end
+
+    context 'with attachment but no tmp_id' do
+      let(:dummy) { Dummy.new(avatar: file) }
+      it_behaves_like 'should be nil'
+    end
+
+    context 'with tmp_id but no attachment' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'should be nil'
+    end
+
+    context 'with attachment and tmp_id' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
+
+      context 'with default tmp_path format' do
+        it 'should return correct path' do
+          expect(dummy.avatar.tmp_path).to match %r{/public/system/tmp/3ac91f/original/50x50.png\z}
+        end
+
+        it 'should work with style_name' do
+          expect(dummy.avatar.tmp_path(:small)).to match %r{/public/system/tmp/3ac91f/small/50x50.png\z}
+        end
+      end
+
+      context 'with alternative tmp_path format' do
+        before do
+          rebuild_class tmp_path: ':rails_root/public/system/tmp/:tmp_id/:style.:extension'
+        end
+
+        it 'should return correct path' do
+          expect(dummy.avatar.tmp_path).to match %r{/public/system/tmp/3ac91f/original.png\z}
+        end
+
+        it 'should work with style_name' do
+          expect(dummy.avatar.tmp_path(:small)).to match %r{/public/system/tmp/3ac91f/small.png\z}
+        end
+      end
     end
   end
 end

@@ -197,5 +197,14 @@ module Paperclip
     def tmp_id attachment, style_name
       attachment.tmp_id
     end
+
+    # Returns the interpolated temporary URL. Will raise an error if the url itself
+    # contains ":tmp_url" to prevent infinite recursion. This interpolation
+    # is used in the default :tmp_path to ease default specifications.
+    RIGHT_HERE2 = "#{__FILE__.gsub(%r{\A\./}, "")}:#{__LINE__ + 3}"
+    def tmp_url attachment, style_name
+      raise Errors::InfiniteInterpolationError if caller.any?{|b| b.index(RIGHT_HERE2) }
+      attachment.tmp_url(style_name, :timestamp => false, :escape => false)
+    end
   end
 end

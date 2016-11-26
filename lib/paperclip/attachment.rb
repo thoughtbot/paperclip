@@ -175,7 +175,16 @@ module Paperclip
     # URL, and the :bucket option refers to the S3 bucket.
     def path(style_name = default_style)
       path = original_filename.nil? ? nil : interpolate(path_option, style_name)
-      path.respond_to?(:unescape) ? path.unescape : path
+      unescape(path)
+    end
+
+    # Returns the path of the temporary upload as defined by the :url_path option. If the
+    # file is stored in the filesystem the path refers to the path of the file
+    # on disk. If the file is stored in S3, the path is the "key" part of the
+    # URL, and the :bucket option refers to the S3 bucket.
+    def tmp_path(style_name = default_style)
+      path = original_filename.nil? || tmp_id.nil? ? nil : interpolate(tmp_path_option, style_name)
+      unescape(path)
     end
 
     # :nodoc:
@@ -401,6 +410,10 @@ module Paperclip
       @options[:path].respond_to?(:call) ? @options[:path].call(self) : @options[:path]
     end
 
+    def tmp_path_option
+      @options[:tmp_path].respond_to?(:call) ? @options[:tmp_path].call(self) : @options[:tmp_path]
+    end
+
     def active_validator_classes
       @instance.class.validators.map(&:class)
     end
@@ -620,6 +633,11 @@ module Paperclip
     # Check if attachment database table has a created_at field which is not yet set
     def has_enabled_but_unset_created_at?
       able_to_store_created_at? && !instance_read(:created_at)
+    end
+
+    # Calls `unescape` method if available
+    def unescape(path)
+      path.respond_to?(:unescape) ? path.unescape : path
     end
   end
 end
