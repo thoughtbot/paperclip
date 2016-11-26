@@ -59,6 +59,20 @@ describe 'Temporary Upload Processing' do
           expect(dummy.avatar.tmp_url(:small)).to match %r{\A/system/tmp/3ac91f/small/50x50.png\?\d+\z}
         end
       end
+
+      context 'with alternative tmp_url format' do
+        before do
+          rebuild_class tmp_url: '/system/tmp/:tmp_id/:style.:extension'
+        end
+
+        it 'should return correct url' do
+          expect(dummy.avatar.tmp_url).to match %r{\A/system/tmp/3ac91f/original.png\?\d+\z}
+        end
+
+        it 'should work with style_name' do
+          expect(dummy.avatar.tmp_url(:small)).to match %r{\A/system/tmp/3ac91f/small.png\?\d+\z}
+        end
+      end
     end
   end
 end
