@@ -193,5 +193,9 @@ module Paperclip
     def style attachment, style_name
       style_name || attachment.default_style
     end
+
+    def tmp_id attachment, style_name
+      attachment.tmp_id
+    end
   end
 end

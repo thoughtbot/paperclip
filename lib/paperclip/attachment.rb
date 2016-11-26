@@ -27,6 +27,8 @@ module Paperclip
         :source_file_options   => {},
         :storage               => :filesystem,
         :styles                => {},
+        :tmp_path              => ":rails_root/public:tmp_url",
+        :tmp_url               => "/system/tmp/:tmp_id/:style/:filename",
         :url                   => "/system/:class/:attachment/:id_partition/:style/:filename",
         :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
@@ -147,6 +149,10 @@ module Paperclip
       else
         @url_generator.for(style_name, default_options.merge(options))
       end
+    end
+
+    def tmp_url(style_name = default_style, options = {})
+      @url_generator.for(style_name, default_options.merge(options).merge(:tmp => true))
     end
 
     def default_options

@@ -7,9 +7,20 @@ module Paperclip
     end
 
     def for(style_name, options)
-      interpolated = attachment_options[:interpolator].interpolate(
-        most_appropriate_url, @attachment, style_name
-      )
+      # The presence of options[:tmp] means we must return the temp. URL if possible, else nil.
+      if options[:tmp]
+        if @attachment.tmp_id.nil? || @attachment.original_filename.nil?
+          return nil
+        else
+          interpolated = attachment_options[:interpolator].interpolate(
+            attachment_options[:tmp_url], @attachment, style_name
+          )
+        end
+      else
+        interpolated = attachment_options[:interpolator].interpolate(
+          most_appropriate_url, @attachment, style_name,
+        )
+      end
 
       escaped = escape_url_as_needed(interpolated, options)
       timestamp_as_needed(escaped, options)
