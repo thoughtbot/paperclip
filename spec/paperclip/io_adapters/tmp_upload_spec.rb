@@ -7,6 +7,7 @@ describe 'Temporary Upload Processing' do
 
   before do
     rebuild_class styles: { small: "100x>", large: "500x>" }
+    FileUtils.rm_rf("#{Rails.root}/tmp/attachments")
   end
 
   describe '_tmp_id accessor' do
@@ -137,20 +138,38 @@ describe 'Temporary Upload Processing' do
   end
 
   describe 'save_tmp' do
-    let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
+    before do
+      dummy.avatar.save_tmp
+    end
 
-    context 'filesystem' do
-      before do
-        dummy.avatar.save_tmp
+    shared_examples_for 'does nothing' do
+      it 'does nothing' do
+        expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
       end
+    end
 
-      it 'saves files in right place' do
-        expect(dummy.avatar.tmp_path).to exist
-        expect(dummy.avatar.tmp_path(:small)).to exist
-      end
+    context 'with no tmp_id' do
+      let(:dummy) { Dummy.new(avatar: file) }
+      it_behaves_like 'does nothing'
+    end
+
+    context 'with no file' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'does nothing'
+    end
+
+    context 'with tmp_id and file' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
 
       it 'serializes the Attachment object to the right place' do
         expect("#{Rails.root}/tmp/attachments/3ac91f.yml").to exist
+      end
+
+      context 'with filesystem storage' do
+        it 'saves files in right place' do
+          expect(dummy.avatar.tmp_path).to exist
+          expect(dummy.avatar.tmp_path(:small)).to exist
+        end
       end
     end
   end
