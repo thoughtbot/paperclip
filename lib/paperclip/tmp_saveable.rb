@@ -1,5 +1,16 @@
 module Paperclip
   module TmpSaveable
+    attr_reader :tmp_id
+
+    def tmp_id=(id)
+      @tmp_id = id
+      @tmp_id_set_explicitly = true
+    end
+
+    def generate_tmp_id
+      self.tmp_id = SecureRandom.hex if tmp_id.nil? && !@tmp_id_set_explicitly
+    end
+
     # Processes and saves the current file at the location determined by tmp_path.
     # Also serializes this object in a known location so it can be used to find the saved tmp files later.
     # If there is no current file or tmp_id, does nothing.

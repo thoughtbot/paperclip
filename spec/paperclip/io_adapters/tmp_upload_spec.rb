@@ -12,11 +12,39 @@ describe 'Temporary Upload Processing' do
     FileUtils.rm_rf("#{Rails.root}/public/system")
   end
 
-  describe '_tmp_id accessor' do
-    it 'defaults to nil' do
-      expect(Dummy.new.avatar_tmp_id).to be_nil
+  describe 'tmp_id generation' do
+    let(:dummy) { Dummy.new }
+
+    it 'gets generated on new' do
+      expect(dummy.avatar.tmp_id).to match /\A[0-9a-f]+\z/
     end
 
+    it 'gets re-generated on find' do
+      first = dummy.avatar.tmp_id
+      dummy.save!
+      dummy2 = Dummy.find(dummy.id)
+      expect(dummy2.avatar.tmp_id).to match /\A[0-9a-f]+\z/
+      expect(dummy2.avatar.tmp_id).not_to eq first
+    end
+
+    context 'with explicit nil' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: nil) }
+
+      it 'doesnt replace nil' do
+        expect(dummy.avatar.tmp_id).to be nil
+      end
+    end
+
+    context 'with existing' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f') }
+
+      it 'doesnt replace existing' do
+        expect(dummy.avatar.tmp_id).to eq '3ac91f'
+      end
+    end
+  end
+
+  describe '_tmp_id accessor' do
     it 'can be set and retrieved' do
       dummy = Dummy.new(avatar_tmp_id: '3ac91f')
       expect(dummy.avatar_tmp_id).to eq '3ac91f'
@@ -25,7 +53,7 @@ describe 'Temporary Upload Processing' do
     it 'is not persisted' do
       dummy = Dummy.new(avatar_tmp_id: '3ac91f')
       dummy.save
-      expect(Dummy.find(dummy.id).avatar_tmp_id).to be_nil
+      expect(Dummy.find(dummy.id).avatar_tmp_id).not_to eq '3ac91f'
     end
   end
 
@@ -41,7 +69,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with attachment but no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'should be nil'
     end
 
@@ -101,7 +129,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with attachment but no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'should be nil'
     end
 
@@ -151,7 +179,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'does nothing'
     end
 
@@ -185,7 +213,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'normal behavior'
     end
 
@@ -219,7 +247,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'normal behavior'
     end
 
@@ -272,7 +300,7 @@ describe 'Temporary Upload Processing' do
     end
 
     context 'with no tmp_id' do
-      let(:dummy) { Dummy.new(avatar: file) }
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: nil) }
       it_behaves_like 'normal behavior'
     end
 

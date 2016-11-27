@@ -44,7 +44,7 @@ module Paperclip
 
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
                 :options, :interpolator, :source_file_options
-    attr_accessor :post_processing, :tmp_id
+    attr_accessor :post_processing
 
     # Creates an Attachment object. +name+ is the name of the attachment,
     # +instance+ is the model object instance it's attached to, and
