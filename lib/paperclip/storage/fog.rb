@@ -100,7 +100,8 @@ module Paperclip
         end
       end
 
-      def flush_writes
+      # `tmp` param not currently used
+      def flush_writes(tmp: false)
         for style, file in @queued_for_write do
           log("saving #{path(style)}")
           retried = false

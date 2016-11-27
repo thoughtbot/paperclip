@@ -19,7 +19,7 @@ module Paperclip
     #   saved by paperclip. If you set this to an explicit octal value (0755, 0644, etc) then
     #   that value will be used to set the permissions for an uploaded file. The default is 0666.
     #   If you set :override_file_permissions to false, the chmod will be skipped. This allows
-    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the 
+    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the
     #   added benefit of using the storage directories default umask on those that do.
     module Filesystem
       def self.extended base
@@ -33,13 +33,14 @@ module Paperclip
         end
       end
 
-      def flush_writes #:nodoc:
+      def flush_writes(tmp: false) #:nodoc:
         @queued_for_write.each do |style_name, file|
-          FileUtils.mkdir_p(File.dirname(path(style_name)))
+          path_to_save = tmp ? tmp_path(style_name) : path(style_name)
+          FileUtils.mkdir_p(File.dirname(path_to_save))
           begin
-            move_file(file.path, path(style_name))
+            move_file(file.path, path_to_save)
           rescue SystemCallError
-            File.open(path(style_name), "wb") do |new_file|
+            File.open(path_to_save, "wb") do |new_file|
               while chunk = file.read(16 * 1024)
                 new_file.write(chunk)
               end
@@ -47,7 +48,7 @@ module Paperclip
           end
           unless @options[:override_file_permissions] == false
             resolved_chmod = (@options[:override_file_permissions] & ~0111) || (0666 & ~File.umask)
-            FileUtils.chmod( resolved_chmod, path(style_name) )
+            FileUtils.chmod( resolved_chmod, path_to_save )
           end
           file.rewind
         end

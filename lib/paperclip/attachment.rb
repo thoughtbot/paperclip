@@ -251,15 +251,21 @@ module Paperclip
       @dirty
     end
 
+    # Processes and saves the current file at the location determined by tmp_path.
+    # If there is no current file or tmp_id, does nothing.
+    def save_tmp
+      save(tmp: true)
+    end
+
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
-    def save
+    def save(tmp: false)
       flush_deletes unless @options[:keep_old_files]
       process = only_process
       if process.any? && !process.include?(:original)
         @queued_for_write.except!(:original)
       end
-      flush_writes
+      flush_writes(tmp: tmp)
       @dirty = false
       true
     end

@@ -135,4 +135,19 @@ describe 'Temporary Upload Processing' do
       end
     end
   end
+
+  describe 'save_tmp' do
+    let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
+
+    context 'filesystem' do
+      before do
+        dummy.avatar.save_tmp
+      end
+
+      it 'saves files in right place' do
+        expect(dummy.avatar.tmp_path).to exist
+        expect(dummy.avatar.tmp_path(:small)).to exist
+      end
+    end
+  end
 end
