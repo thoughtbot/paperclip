@@ -297,6 +297,14 @@ describe 'Temporary Upload Processing' do
         expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
         expect("#{Rails.root}/public/system/tmp/3ac91f").not_to exist
       end
+
+      it 'sets model parameters' do
+        dummy.reload
+        expect(dummy.avatar_file_name).to eq '5k.png'
+        expect(dummy.avatar_content_type).to eq 'image/png'
+        expect(dummy.avatar_file_size).to eq 4456
+        expect(dummy.avatar_updated_at.to_i).to be_within(2.seconds).of(Time.now.to_i)
+      end
     end
 
     context 'with no tmp_id' do
@@ -345,6 +353,7 @@ describe 'Temporary Upload Processing' do
       # Set tmp ID on dummy but then call destroy
       dummy.avatar_tmp_id = '3ac91f'
       dummy.avatar.destroy
+      dummy.save
     end
 
     it 'nullifies file' do

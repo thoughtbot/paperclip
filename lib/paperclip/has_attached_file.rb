@@ -101,6 +101,7 @@ module Paperclip
     def add_active_record_callbacks
       name = @name
       @klass.send(:after_initialize) { send(name).send(:generate_tmp_id) }
+      @klass.send(:before_save) { send(name).send(:copy_saved_tmp_if_appropriate) }
       @klass.send(:after_save) { send(name).send(:save) }
       @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
       if @klass.respond_to?(:after_commit)

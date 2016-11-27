@@ -36,13 +36,14 @@ module Paperclip
     def copy_saved_tmp_if_appropriate
       if saved_tmp = matching_saved_tmp
         path = saved_tmp.tmp_path(:original)
-        unless dirty?
-          if @queued_for_delete.empty? && File.exists?(path)
-            assign(File.open(path))
-          end
-          saved_tmp.delete_tmp
+        if !dirty? && @queued_for_delete.empty? && File.exists?(path)
+          assign(File.open(path))
         end
       end
+    end
+
+    def clear_tmp
+      matching_saved_tmp.try(:delete_tmp)
     end
 
     # Returns the url of the temporary upload as defined by the :tmp_url option.

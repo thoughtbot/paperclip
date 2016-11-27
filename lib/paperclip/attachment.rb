@@ -249,7 +249,6 @@ module Paperclip
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save(tmp: false)
-      copy_saved_tmp_if_appropriate
       flush_deletes unless @options[:keep_old_files]
       process = only_process
       if process.any? && !process.include?(:original)
@@ -264,6 +263,7 @@ module Paperclip
     # nil to the attachment. Does NOT save. If you wish to clear AND save,
     # use #destroy.
     def clear(*styles_to_clear)
+      clear_tmp
       if styles_to_clear.any?
         queue_some_for_delete(*styles_to_clear)
       else
