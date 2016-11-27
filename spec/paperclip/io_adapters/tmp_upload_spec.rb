@@ -207,4 +207,37 @@ describe 'Temporary Upload Processing' do
       end
     end
   end
+
+  describe 'path with allow_tmp' do
+    shared_examples_for 'normal behavior' do
+      it 'returns the main path' do
+        expect(dummy.avatar.path(:original, allow_tmp: true)).to(
+          match %r{/system/dummies/avatars//original/50x50.png\z})
+      end
+    end
+
+    context 'with no tmp_id' do
+      let(:dummy) { Dummy.new(avatar: file) }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with tmp_id but no matching serialized attachment' do
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with existing main file and matching serialized attachment' do
+      let(:dummy) { Dummy.create(avatar: file) }
+
+      before do
+        Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        dummy.avatar_tmp_id = '3ac91f'
+      end
+
+      it 'returns the tmp path' do
+        expect(dummy.avatar.path(:original, allow_tmp: true)).to(
+          match %r{/system/tmp/3ac91f/original/5k.png\z})
+      end
+    end
+  end
 end

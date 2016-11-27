@@ -173,9 +173,15 @@ module Paperclip
     # file is stored in the filesystem the path refers to the path of the file
     # on disk. If the file is stored in S3, the path is the "key" part of the
     # URL, and the :bucket option refers to the S3 bucket.
-    def path(style_name = default_style)
-      path = original_filename.nil? ? nil : interpolate(path_option, style_name)
-      unescape(path)
+    # If options[:allow_tmp] is true, we look for a saved tmp upload and get the path
+    # to that if found.
+    def path(style_name = default_style, options = {})
+      if options[:allow_tmp] && saved_tmp = matching_saved_tmp
+        saved_tmp.tmp_path(style_name)
+      else
+        path = original_filename.nil? ? nil : interpolate(path_option, style_name)
+        unescape(path)
+      end
     end
 
     # Returns the path of the temporary upload as defined by the :url_path option. If the
