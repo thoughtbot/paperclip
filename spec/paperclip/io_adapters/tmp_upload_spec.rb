@@ -306,4 +306,27 @@ describe 'Temporary Upload Processing' do
       end
     end
   end
+
+  describe 'on destroy' do
+    let(:dummy) { Dummy.create(avatar: file) }
+
+    before do
+      # Call save_tmp on a separate model.
+      dummy2 = Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+
+      # Set tmp ID on dummy but then call destroy
+      dummy.avatar_tmp_id = '3ac91f'
+      dummy.avatar.destroy
+    end
+
+    it 'nullifies file' do
+      expect(dummy.avatar.file?).to be false
+    end
+
+    it 'removes tmp files' do
+      expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
+      expect("#{Rails.root}/public/system/tmp/3ac91f/original/5k.png").not_to exist
+      expect("#{Rails.root}/public/system/tmp/3ac91f/small/5k.png").not_to exist
+    end
+  end
 end
