@@ -234,6 +234,8 @@ describe 'Temporary Upload Processing' do
       it 'returns the tmp url' do
         expect(dummy.avatar.url(:original, allow_tmp: true)).to(
           match %r{\A/system/tmp/3ac91f/original/5k.png\?\d+\z})
+        expect(dummy.avatar.url(:small, allow_tmp: true)).to(
+          match %r{\A/system/tmp/3ac91f/small/5k.png\?\d+\z})
       end
     end
   end
@@ -268,6 +270,8 @@ describe 'Temporary Upload Processing' do
       it 'returns the tmp path' do
         expect(dummy.avatar.path(:original, allow_tmp: true)).to(
           match %r{/system/tmp/3ac91f/original/5k.png\z})
+        expect(dummy.avatar.path(:small, allow_tmp: true)).to(
+          match %r{/system/tmp/3ac91f/small/5k.png\z})
       end
     end
   end
