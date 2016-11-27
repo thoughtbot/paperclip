@@ -279,6 +279,7 @@ module Paperclip
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save(tmp: false)
+      copy_saved_tmp_if_present unless dirty?
       flush_deletes unless @options[:keep_old_files]
       process = only_process
       if process.any? && !process.include?(:original)
@@ -287,6 +288,23 @@ module Paperclip
       flush_writes(tmp: tmp)
       @dirty = false
       true
+    end
+
+    # If a matching saved temp upload exists, assigns that as the file for this model.
+    def copy_saved_tmp_if_present
+      if saved_tmp = matching_saved_tmp
+        path = saved_tmp.tmp_path(:original)
+        if File.exists?(path)
+          assign(File.open(path))
+          saved_tmp.delete_tmp
+        end
+      end
+    end
+
+    # Deletes matching tmp files
+    def delete_tmp
+      FileUtils.rm_rf(tmp_serialize_path)
+      [:original, *styles.keys].each { |s| FileUtils.rm_rf(tmp_path(s)) }
     end
 
     # Clears out the attachment. Has the same effect as previously assigning

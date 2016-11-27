@@ -197,7 +197,8 @@ describe 'Temporary Upload Processing' do
       let(:dummy) { Dummy.create(avatar: file) }
 
       before do
-        Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        # Call save_tmp on a separate model.
+        dummy2 = Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
         dummy.avatar_tmp_id = '3ac91f'
       end
 
@@ -230,13 +231,78 @@ describe 'Temporary Upload Processing' do
       let(:dummy) { Dummy.create(avatar: file) }
 
       before do
-        Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        # Call save_tmp on a separate model.
+        dummy2 = Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
         dummy.avatar_tmp_id = '3ac91f'
       end
 
       it 'returns the tmp path' do
         expect(dummy.avatar.path(:original, allow_tmp: true)).to(
           match %r{/system/tmp/3ac91f/original/5k.png\z})
+      end
+    end
+  end
+
+  describe 'saving tmp file as main on model save' do
+    shared_examples_for 'normal behavior' do
+      it 'saves normally' do
+        dummy.save
+        expect(dummy.avatar.path(:original)).to exist
+      end
+    end
+
+    shared_examples_for 'copies tmp file' do
+      before do
+        # Call save_tmp on a separate model.
+        dummy2 = Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        dummy.avatar_tmp_id = '3ac91f'
+        dummy.save
+      end
+
+      it 'saves tmp file as main' do
+        expect(dummy.avatar.url).to match /5k\.png/
+        expect(dummy.avatar.path).to exist
+      end
+
+      it 'removes tmp files and serialized model' do
+        expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
+        expect("#{Rails.root}/public/system/tmp/3ac91f/original/5k.png").not_to exist
+        expect("#{Rails.root}/public/system/tmp/3ac91f/small/5k.png").not_to exist
+      end
+    end
+
+    context 'with no tmp_id' do
+      let(:dummy) { Dummy.new(avatar: file) }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with tmp_id but no matching serialized attachment' do
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with no file but matching serialized attachment' do
+      let(:dummy) { Dummy.new }
+      it_behaves_like 'copies tmp file'
+    end
+
+    context 'with existing file and matching serialized attachment' do
+      let(:dummy) { Dummy.create(avatar: file, avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'copies tmp file'
+    end
+
+    context 'with freshly added regular file and matching serialized attachment' do
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: '3ac91f') }
+
+      before do
+        # Call save_tmp on a separate model.
+        dummy2 = Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        dummy.save
+      end
+
+      it 'prefers newly added regular file and leaves tmp file alone' do
+        expect(dummy.avatar.url).to match /50x50\.png/
+        expect("#{Rails.root}/tmp/attachments/3ac91f.yml").to exist
       end
     end
   end
