@@ -9,6 +9,7 @@ describe 'Temporary Upload Processing' do
   before do
     rebuild_class styles: { small: "100x>", large: "500x>" }
     FileUtils.rm_rf("#{Rails.root}/tmp/attachments")
+    FileUtils.rm_rf("#{Rails.root}/public/system")
   end
 
   describe '_tmp_id accessor' do
@@ -266,8 +267,7 @@ describe 'Temporary Upload Processing' do
 
       it 'removes tmp files and serialized model' do
         expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
-        expect("#{Rails.root}/public/system/tmp/3ac91f/original/5k.png").not_to exist
-        expect("#{Rails.root}/public/system/tmp/3ac91f/small/5k.png").not_to exist
+        expect("#{Rails.root}/public/system/tmp/3ac91f").not_to exist
       end
     end
 
@@ -325,8 +325,7 @@ describe 'Temporary Upload Processing' do
 
     it 'removes tmp files' do
       expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
-      expect("#{Rails.root}/public/system/tmp/3ac91f/original/5k.png").not_to exist
-      expect("#{Rails.root}/public/system/tmp/3ac91f/small/5k.png").not_to exist
+      expect("#{Rails.root}/public/system/tmp/3ac91f").not_to exist
     end
   end
 end

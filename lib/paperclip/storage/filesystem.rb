@@ -60,30 +60,19 @@ module Paperclip
 
       def flush_deletes #:nodoc:
         @queued_for_delete.each do |path|
-          begin
-            log("deleting #{path}")
-            FileUtils.rm(path) if File.exist?(path)
-          rescue Errno::ENOENT => e
-            # ignore file-not-found, let everything else pass
-          end
-          begin
-            while(true)
-              path = File.dirname(path)
-              FileUtils.rmdir(path)
-              break if File.exist?(path) # Ruby 1.9.2 does not raise if the removal failed.
-            end
-          rescue Errno::EEXIST, Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR, Errno::EACCES
-            # Stop trying to remove parent directories
-          rescue SystemCallError => e
-            log("There was an unexpected error while deleting directories: #{e.class}")
-            # Ignore it
-          end
+          delete_file_and_empty_parent_dirs(path)
         end
         @queued_for_delete = []
       end
 
       def copy_to_local_file(style, local_dest_path)
         FileUtils.cp(path(style), local_dest_path)
+      end
+
+      # Deletes matching tmp files
+      def delete_tmp
+        FileUtils.rm_rf(tmp_serialize_path)
+        [:original, *styles.keys].each { |s| delete_file_and_empty_parent_dirs(tmp_path(s)) }
       end
 
       private
@@ -94,6 +83,27 @@ module Paperclip
           File.unlink(src)
         else
           FileUtils.mv(src, dest)
+        end
+      end
+
+      def delete_file_and_empty_parent_dirs(path)
+        begin
+          log("deleting #{path}")
+          FileUtils.rm(path) if File.exist?(path)
+        rescue Errno::ENOENT => e
+          # ignore file-not-found, let everything else pass
+        end
+        begin
+          while(true)
+            path = File.dirname(path)
+            FileUtils.rmdir(path)
+            break if File.exist?(path) # Ruby 1.9.2 does not raise if the removal failed.
+          end
+        rescue Errno::EEXIST, Errno::ENOTEMPTY, Errno::ENOENT, Errno::EINVAL, Errno::ENOTDIR, Errno::EACCES
+          # Stop trying to remove parent directories
+        rescue SystemCallError => e
+          log("There was an unexpected error while deleting directories: #{e.class}")
+          # Ignore it
         end
       end
     end

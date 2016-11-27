@@ -270,7 +270,9 @@ module Paperclip
     # Retrieves a saved temporary Attachment object.
     def matching_saved_tmp
       if tmp_id.present? && File.exists?(tmp_serialize_path)
-        YAML::load(File.read(tmp_serialize_path))
+        YAML::load(File.read(tmp_serialize_path)).tap do |tmp|
+          tmp.send(:initialize_storage)
+        end
       else
         nil
       end
@@ -301,12 +303,6 @@ module Paperclip
           saved_tmp.delete_tmp
         end
       end
-    end
-
-    # Deletes matching tmp files
-    def delete_tmp
-      FileUtils.rm_rf(tmp_serialize_path)
-      [:original, *styles.keys].each { |s| FileUtils.rm_rf(tmp_path(s)) }
     end
 
     # Clears out the attachment. Has the same effect as previously assigning
