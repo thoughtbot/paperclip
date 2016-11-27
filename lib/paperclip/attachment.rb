@@ -252,8 +252,11 @@ module Paperclip
     end
 
     # Processes and saves the current file at the location determined by tmp_path.
+    # Also serializes this object in a known location so it can be used to find the saved tmp files later.
     # If there is no current file or tmp_id, does nothing.
     def save_tmp
+      FileUtils.mkdir_p(File.dirname(tmp_serialize_path))
+      File.open(tmp_serialize_path, 'w') { |f| f.write(YAML::dump(self)) }
       save(tmp: true)
     end
 
@@ -644,6 +647,12 @@ module Paperclip
     # Calls `unescape` method if available
     def unescape(path)
       path.respond_to?(:unescape) ? path.unescape : path
+    end
+
+    # Gets the path where an Attachment with tmp_id matching our current tmp_id should be serialized
+    # to for later retrieval and use.
+    def tmp_serialize_path
+      "#{Rails.root}/tmp/attachments/#{tmp_id}.yml"
     end
   end
 end

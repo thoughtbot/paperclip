@@ -148,6 +148,10 @@ describe 'Temporary Upload Processing' do
         expect(dummy.avatar.tmp_path).to exist
         expect(dummy.avatar.tmp_path(:small)).to exist
       end
+
+      it 'serializes the Attachment object to the right place' do
+        expect("#{Rails.root}/tmp/attachments/3ac91f.yml").to exist
+      end
     end
   end
 end
