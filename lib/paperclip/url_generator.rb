@@ -7,8 +7,13 @@ module Paperclip
     end
 
     def for(style_name, options)
+      # The presence of options[:allow_tmp] means we must return the URL of a previously
+      # stored temporary upload, if found.
+      if options[:allow_tmp] && saved_tmp = @attachment.matching_saved_tmp
+        return interpolated = saved_tmp.tmp_url
+
       # The presence of options[:tmp] means we must return the temp. URL if possible, else nil.
-      if options[:tmp]
+      elsif options[:tmp]
         if @attachment.tmp_id.nil? || @attachment.original_filename.nil?
           return nil
         else

@@ -261,6 +261,15 @@ module Paperclip
       save(tmp: true)
     end
 
+    # Retrieves a saved temporary Attachment object.
+    def matching_saved_tmp
+      if tmp_id.present? && File.exists?(tmp_serialize_path)
+        YAML::load(File.read(tmp_serialize_path))
+      else
+        nil
+      end
+    end
+
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save(tmp: false)

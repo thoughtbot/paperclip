@@ -3,6 +3,7 @@ require 'spec_helper'
 
 describe 'Temporary Upload Processing' do
   let(:file) { file = File.new(fixture_file("50x50.png"), 'rb') }
+  let(:file2) { file = File.new(fixture_file("5k.png"), 'rb') }
   let(:dummy_root) { "#{Rails.root}/public/system/dummies" }
 
   before do
@@ -170,6 +171,39 @@ describe 'Temporary Upload Processing' do
           expect(dummy.avatar.tmp_path).to exist
           expect(dummy.avatar.tmp_path(:small)).to exist
         end
+      end
+    end
+  end
+
+  describe 'url with allow_tmp' do
+    shared_examples_for 'normal behavior' do
+      it 'returns the main url' do
+        expect(dummy.avatar.url(:original, allow_tmp: true)).to(
+          match %r{\A/system/dummies/avatars//original/50x50.png\?\d+\z})
+      end
+    end
+
+    context 'with no tmp_id' do
+      let(:dummy) { Dummy.new(avatar: file) }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with tmp_id but no matching serialized attachment' do
+      let(:dummy) { Dummy.new(avatar: file, avatar_tmp_id: '3ac91f') }
+      it_behaves_like 'normal behavior'
+    end
+
+    context 'with existing main file and matching serialized attachment' do
+      let(:dummy) { Dummy.create(avatar: file) }
+
+      before do
+        Dummy.new(avatar_tmp_id: '3ac91f', avatar: file2).avatar.save_tmp
+        dummy.avatar_tmp_id = '3ac91f'
+      end
+
+      it 'returns the tmp url' do
+        expect(dummy.avatar.url(:original, allow_tmp: true)).to(
+          match %r{\A/system/tmp/3ac91f/original/5k.png\?\d+\z})
       end
     end
   end
