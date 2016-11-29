@@ -144,6 +144,7 @@ describe Paperclip::HasAttachedFile do
       stub('class',
            validates_each: nil,
            define_method: nil,
+           before_save: nil,
            after_save: nil,
            before_destroy: nil,
            after_commit: nil,
