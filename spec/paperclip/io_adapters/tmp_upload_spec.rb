@@ -170,12 +170,9 @@ describe 'Temporary Upload Processing' do
   end
 
   describe 'save_tmp' do
-    before do
-      dummy.avatar.save_tmp
-    end
-
     shared_examples_for 'does nothing' do
       it 'does nothing' do
+        dummy.avatar.save_tmp
         expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
       end
     end
@@ -194,14 +191,37 @@ describe 'Temporary Upload Processing' do
       let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
 
       it 'serializes the Attachment object to the right place' do
+        dummy.avatar.save_tmp
         expect("#{Rails.root}/tmp/attachments/3ac91f.yml").to exist
       end
 
       context 'with filesystem storage' do
         it 'saves files in right place' do
+          dummy.avatar.save_tmp
           expect(dummy.avatar.tmp_path).to exist
           expect(dummy.avatar.tmp_path(:small)).to exist
         end
+      end
+    end
+
+    context 'with tmp_id and file and a previous file' do
+      let(:dummy) { Dummy.new(avatar_tmp_id: '3ac91f', avatar: file) }
+
+      it 'saves new file and removes previous' do
+        dummy.avatar.save_tmp
+        old_orig_path = dummy.avatar.tmp_path
+        old_small_path = dummy.avatar.tmp_path(:small)
+        expect(old_orig_path).to exist
+        expect(old_small_path).to exist
+        dummy.avatar = file2
+        dummy.avatar.save_tmp
+        expect("#{Rails.root}/tmp/attachments/3ac91f.yml").to exist
+        expect(old_orig_path).not_to exist
+        expect(old_small_path).not_to exist
+        expect(dummy.avatar.tmp_path).to match /5k\.png\z/
+        expect(dummy.avatar.tmp_path(:small)).to match /5k\.png\z/
+        expect(dummy.avatar.tmp_path).to exist
+        expect(dummy.avatar.tmp_path(:small)).to exist
       end
     end
   end
