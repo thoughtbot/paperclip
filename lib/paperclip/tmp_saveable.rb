@@ -6,7 +6,7 @@ module Paperclip
     def self.clean_old_tmp_uploads!
       cutoff = Time.now.to_i - (Paperclip.options[:tmp_expiry] || 1.hour)
       Dir["#{tmp_serialize_root}/*.yml"].each do |f|
-        if (obj = deserialize(f)) && obj.updated_at.present? && obj.updated_at < cutoff
+        if (obj = deserialize_tmp(f)) && obj.updated_at.present? && obj.updated_at < cutoff
           obj.delete_tmp
         end
       end
@@ -16,7 +16,7 @@ module Paperclip
       "#{Rails.root}/tmp/attachments"
     end
 
-    def self.deserialize(path)
+    def self.deserialize_tmp(path)
       YAML::load(File.read(path)).tap do |tmp|
         tmp.send(:initialize_storage)
       end
@@ -44,7 +44,7 @@ module Paperclip
     # Retrieves a saved temporary Attachment object.
     def matching_saved_tmp
       if tmp_id.present? && File.exists?(tmp_serialize_path)
-        Paperclip::TmpSaveable.deserialize(tmp_serialize_path)
+        Paperclip::TmpSaveable.deserialize_tmp(tmp_serialize_path)
       else
         nil
       end
