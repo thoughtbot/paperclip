@@ -13,18 +13,20 @@ describe 'Temporary Upload Processing' do
   end
 
   describe 'tmp_id generation' do
-    let(:dummy) { Dummy.new }
+    context 'with brand new instance' do
+      let(:dummy) { Dummy.new }
 
-    it 'gets generated on new' do
-      expect(dummy.avatar.tmp_id).to match /\A[0-9a-f]+\z/
-    end
+      it 'gets generated on new' do
+        expect(dummy.avatar.tmp_id).to match /\A[0-9a-f]+\z/
+      end
 
-    it 'gets re-generated on find' do
-      first = dummy.avatar.tmp_id
-      dummy.save!
-      dummy2 = Dummy.find(dummy.id)
-      expect(dummy2.avatar.tmp_id).to match /\A[0-9a-f]+\z/
-      expect(dummy2.avatar.tmp_id).not_to eq first
+      it 'gets re-generated on find' do
+        first = dummy.avatar.tmp_id
+        dummy.save!
+        dummy2 = Dummy.find(dummy.id)
+        expect(dummy2.avatar.tmp_id).to match /\A[0-9a-f]+\z/
+        expect(dummy2.avatar.tmp_id).not_to eq first
+      end
     end
 
     context 'with explicit nil' do

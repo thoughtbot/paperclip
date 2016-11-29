@@ -92,6 +92,7 @@ module Paperclip
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
 
+      generate_tmp_id
       initialize_storage
     end
 
