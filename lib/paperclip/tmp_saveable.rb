@@ -2,6 +2,26 @@ module Paperclip
   module TmpSaveable
     attr_reader :tmp_id
 
+    # Deletes temporary uploads older than Paperclip.options[:tmp_expiry] (defaults to 1 hour).
+    def self.clean_old_tmp_uploads!
+      cutoff = Time.now.to_i - (Paperclip.options[:tmp_expiry] || 1.hour)
+      Dir["#{tmp_serialize_root}/*.yml"].each do |f|
+        if (obj = deserialize(f)) && obj.updated_at.present? && obj.updated_at < cutoff
+          obj.delete_tmp
+        end
+      end
+    end
+
+    def self.tmp_serialize_root
+      "#{Rails.root}/tmp/attachments"
+    end
+
+    def self.deserialize(path)
+      YAML::load(File.read(path)).tap do |tmp|
+        tmp.send(:initialize_storage)
+      end
+    end
+
     def tmp_id=(id)
       @tmp_id = id
       @tmp_id_set_explicitly = true
@@ -24,9 +44,7 @@ module Paperclip
     # Retrieves a saved temporary Attachment object.
     def matching_saved_tmp
       if tmp_id.present? && File.exists?(tmp_serialize_path)
-        YAML::load(File.read(tmp_serialize_path)).tap do |tmp|
-          tmp.send(:initialize_storage)
-        end
+        Paperclip::TmpSaveable.deserialize(tmp_serialize_path)
       else
         nil
       end
@@ -66,7 +84,7 @@ module Paperclip
     # Gets the path where an Attachment with tmp_id matching our current tmp_id should be serialized
     # to for later retrieval and use.
     def tmp_serialize_path
-      "#{Rails.root}/tmp/attachments/#{tmp_id}.yml"
+      "#{Paperclip::TmpSaveable.tmp_serialize_root}/#{tmp_id}.yml"
     end
   end
 end

@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'spec_helper'
+require 'timecop'
 
 describe 'Temporary Upload Processing' do
   let(:file) { file = File.new(fixture_file("50x50.png"), 'rb') }
@@ -389,6 +390,34 @@ describe 'Temporary Upload Processing' do
     it 'removes tmp files' do
       expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
       expect("#{Rails.root}/public/system/tmp/3ac91f").not_to exist
+    end
+  end
+
+  describe 'clean_old_tmp_uploads!' do
+    before do
+      dummy1, dummy2, dummy3 = nil, nil, nil
+      Timecop.travel(-90.minutes) do
+        (dummy1 = Dummy.new(avatar_tmp_id: 'aaaaaa', avatar: file)).avatar.save_tmp
+        (dummy2 = Dummy.new(avatar_tmp_id: 'bbbbbb', avatar: file)).avatar.save_tmp
+      end
+      # Update dummy1 after the cutoff
+      Timecop.travel(-45.minutes) do
+        dummy1.avatar = file2
+        dummy1.avatar.save_tmp
+      end
+      Timecop.travel(-30.minutes) do
+        (dummy3 = Dummy.new(avatar_tmp_id: 'cccccc', avatar: file)).avatar.save_tmp
+      end
+    end
+
+    it 'cleans uploads last updated more than an hour ago' do
+      Paperclip::TmpSaveable.clean_old_tmp_uploads!
+      expect("#{Rails.root}/tmp/attachments/aaaaaa.yml").to exist
+      expect("#{Rails.root}/public/system/tmp/aaaaaa").to exist
+      expect("#{Rails.root}/tmp/attachments/bbbbbb.yml").not_to exist
+      expect("#{Rails.root}/public/system/tmp/bbbbbb").not_to exist
+      expect("#{Rails.root}/tmp/attachments/cccccc.yml").to exist
+      expect("#{Rails.root}/public/system/tmp/cccccc").to exist
     end
   end
 end
