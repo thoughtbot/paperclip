@@ -23,7 +23,7 @@ When /^I modify my attachment definition to:$/ do |definition|
 end
 
 When /^I upload the fixture "([^"]*)"$/ do |filename|
-  run_simple %(bundle exec #{runner_command} "User.create!(:attachment => File.open('#{fixture_path(filename)}'))")
+  run_simple %(bundle exec rails runner "User.create!(:attachment => File.open('#{fixture_path(filename)}'))")
 end
 
 Then /^the attachment "([^"]*)" should have a dimension of (\d+x\d+)$/ do |filename, dimension|
@@ -56,7 +56,7 @@ Then /^the attachment should have the same content type as the fixture "([^"]*)"
       require "mime/types"
     end
 
-    attachment_content_type = `bundle exec #{runner_command} "puts User.last.attachment_content_type"`.strip
+    attachment_content_type = `bundle exec rails runner "puts User.last.attachment_content_type"`.strip
     expected = MIME::Types.type_for(filename).first.content_type
     expect(attachment_content_type).to eq(expected)
   end
@@ -64,14 +64,14 @@ end
 
 Then /^the attachment should have the same file name as the fixture "([^"]*)"$/ do |filename|
   cd(".") do
-    attachment_file_name = `bundle exec #{runner_command} "puts User.last.attachment_file_name"`.strip
+    attachment_file_name = `bundle exec rails runner "puts User.last.attachment_file_name"`.strip
     expect(attachment_file_name).to eq(File.name(fixture_path(filename)).to_s)
   end
 end
 
 Then /^the attachment should have the same file size as the fixture "([^"]*)"$/ do |filename|
   cd(".") do
-    attachment_file_size = `bundle exec #{runner_command} "puts User.last.attachment_file_size"`.strip
+    attachment_file_size = `bundle exec rails runner "puts User.last.attachment_file_size"`.strip
     expect(attachment_file_size).to eq(File.size(fixture_path(filename)).to_s)
   end
 end
@@ -84,7 +84,7 @@ end
 
 Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
-    columns = eval(`bundle exec #{runner_command} "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
     expect_columns = [
       ["#{attachment_name}_file_name", :string],
       ["#{attachment_name}_content_type", :string],
@@ -97,7 +97,7 @@ end
 
 Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
-    columns = eval(`bundle exec #{runner_command} "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
     expect_columns = [
       ["#{attachment_name}_file_name", :string],
       ["#{attachment_name}_content_type", :string],
