@@ -37,7 +37,7 @@ module Paperclip
     def save_tmp
       return unless tmp_id.present? && original_filename.present?
       FileUtils.mkdir_p(File.dirname(tmp_serialize_path))
-      File.open(tmp_serialize_path, 'w') { |f| f.write(YAML::dump(self)) }
+      File.open(tmp_serialize_path, "w") { |f| f.write(YAML::dump(self)) }
       save(tmp: true)
     end
 
