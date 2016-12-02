@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('mocha')
   s.add_development_dependency('aws-sdk', '>= 2.3.0', '< 3.0')
   s.add_development_dependency('bourne')
-  s.add_development_dependency('cucumber', '~> 1.3.18')
+  s.add_development_dependency('cucumber-rails')
   s.add_development_dependency('aruba', '~> 0.9.0')
   s.add_development_dependency('nokogiri')
   s.add_development_dependency('capybara')
@@ -48,7 +48,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('railties')
-  s.add_development_dependency('actionmailer', '>= 4.2.0')
   s.add_development_dependency('generator_spec')
   s.add_development_dependency('timecop')
 end
