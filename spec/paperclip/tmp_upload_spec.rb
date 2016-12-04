@@ -439,4 +439,20 @@ describe "Temporary Upload Processing" do
       expect("#{Rails.root}/public/system/tmp/cccccc").to exist
     end
   end
+
+  describe "validations" do
+    let(:dummy) { Dummy.new(avatar_tmp_id: "3ac91f", avatar: file) }
+
+    before do
+      rebuild_class
+      Dummy.validates_attachment :avatar, size: { less_than: file.size - 1 }
+    end
+
+    it "does nothing if validations failed" do
+      expect(dummy.errors[:avatar_file_size].join).to match /must be less than/
+      dummy.avatar.save_tmp
+      expect("#{Rails.root}/tmp/attachments/3ac91f.yml").not_to exist
+      expect("#{Rails.root}/public/system/tmp/3ac91f").not_to exist
+    end
+  end
 end
