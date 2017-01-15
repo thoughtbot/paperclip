@@ -240,7 +240,7 @@ end
 
 ```ruby
 def create
-  @user = User.create( user_params )
+  @user = User.create(user_params)
 end
 
 private
@@ -347,7 +347,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: "100x100#" }
 
   before_post_process :skip_for_audio
 
@@ -363,7 +363,7 @@ afterwards, then assign manually:
 
 ```ruby
 class Book < ActiveRecord::Base
-  has_attached_file :document, styles: {thumbnail: "60x60#"}
+  has_attached_file :document, styles: { thumbnail: "60x60#" }
   validates_attachment :document, content_type: { content_type: "application/pdf" }
   validates_something_else # Other validations that conflict with Paperclip's
 end
@@ -710,7 +710,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: "100x100#" }
 
   before_post_process :skip_for_audio
 
