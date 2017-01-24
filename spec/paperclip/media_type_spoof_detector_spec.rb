@@ -80,7 +80,7 @@ describe Paperclip::MediaTypeSpoofDetector do
   it 'bypasses media type spoofing detection if disabled in config' do
     begin
       Paperclip.options[:do_not_do_media_type_spoofing_detection] = true
-      # Example from earlier failing test
+      # See 'rejects a file that is named .html and identifies as PNG'
       file = File.open(fixture_file("5k.png"))
       assert ! Paperclip::MediaTypeSpoofDetector.using(file, "5k.html", "image/png").spoofed?
     ensure
