@@ -628,6 +628,14 @@ JPGs will remain JPGs). `Paperclip::Thumbnail` uses ImageMagick to process
 images; [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
 has more information on the accepted style formats.
 
+For more fine-grained control of the conversion process, the source_file_options and convert_options options can pass flags and settings directly to ImageMagick's powerful Convert tool, [documented here](https://www.imagemagick.org/script/convert.php). For example:
+
+```ruby
+has_attached_file :image, styles: { regular: ['800x800>', :png]}, 
+    source_file_options: { regular: "-density 96 -depth 8 -quality 85" },
+    convert_options: { regular: "-posterize 3"}
+```
+
 ImageMagick supports a number of environment variables for controlling its resource limits. For example, you can enforce memory or execution time limits by setting the following variables in your application's process environment:
 
 * `MAGICK_MEMORY_LIMIT=128MiB`
