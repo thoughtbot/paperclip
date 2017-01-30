@@ -628,7 +628,7 @@ JPGs will remain JPGs). `Paperclip::Thumbnail` uses ImageMagick to process
 images; [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
 has more information on the accepted style formats.
 
-For more fine-grained control of the conversion process, the source_file_options and convert_options options can pass flags and settings directly to ImageMagick's powerful Convert tool, [documented here](https://www.imagemagick.org/script/convert.php). For example:
+For more fine-grained control of the conversion process, `source_file_options` and `convert_options` can be used to pass flags and settings directly to ImageMagick's powerful Convert tool, [documented here](https://www.imagemagick.org/script/convert.php). For example:
 
 ```ruby
 has_attached_file :image, styles: { regular: ['800x800>', :png]}, 
