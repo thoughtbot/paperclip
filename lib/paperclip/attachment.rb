@@ -369,6 +369,8 @@ module Paperclip
     def instance_respond_to?(attr)
       instance.respond_to?(:"#{name}_#{attr}")
     end
+    
+    alias :present? :file?
 
     # Writes the attachment-specific attribute on the instance. For example,
     # instance_write(:file_name, "me.jpg") will write "me.jpg" to the instance's
