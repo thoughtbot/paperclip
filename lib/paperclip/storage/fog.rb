@@ -224,7 +224,8 @@ module Paperclip
       end
 
       def connection
-        @connection ||= ::Fog::Storage.new(fog_credentials)
+        instances = (Thread.current[:paperclip_fog_instances] ||= {})
+        instances[fog_credentials] ||= ::Fog::Storage.new(fog_credentials)
       end
 
       def directory
