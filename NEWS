@@ -1,3 +1,8 @@
+master:
+
+* Improvement: Better handling of the content-disposition header. Now supports file name that is either
+  enclosed or not in double quotes and is case insensitive as per RC6266 grammar
+
 6.0.0 (2018-03-09):
 
 * Improvement: Depend only on `aws-sdk-s3` instead of `aws-sdk` (https://github.com/thoughtbot/paperclip/pull/2481)

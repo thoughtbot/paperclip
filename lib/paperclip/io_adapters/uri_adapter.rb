@@ -34,9 +34,13 @@ module Paperclip
     end
 
     def filename_from_content_disposition
-      if @content.meta.key?("content-disposition")
-        matches = @content.meta["content-disposition"].match(/filename="([^"]*)"/)
-        matches[1].presence if matches
+      if @content.meta.key?("content-disposition") && @content.meta["content-disposition"].match(/filename/i)
+        # can include both filename and filename* values according to RCF6266. filename should come first
+        _, filename = @content.meta["content-disposition"].split(/filename\*?\s*=\s*/i)
+
+        # filename can be enclosed in quotes or not
+        matches = filename.match(/"(.*)"/)
+        matches ? matches[1] : filename.split(';')[0]
       end
     end
 
