@@ -57,7 +57,7 @@ describe Paperclip::UriAdapter do
       assert_equal 'image/png', @subject.content_type
     end
 
-    it 'accepts an orgiginal_filename' do
+    it 'accepts an original_filename' do
       @subject.original_filename = 'image.png'
       assert_equal 'image.png', @subject.original_filename
     end
@@ -116,6 +116,14 @@ describe Paperclip::UriAdapter do
 
     it "returns a file name" do
       assert_equal file_name, @subject.original_filename
+    end
+
+    context 'when file name has consecutive periods' do
+      let(:file_name) { 'test_document..pdf' }
+
+      it 'returns a file name' do
+        assert_equal file_name, @subject.original_filename
+      end
     end
   end
 
