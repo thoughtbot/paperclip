@@ -16,7 +16,7 @@ describe Paperclip::UriAdapter do
         stubs(:download_content).returns(@open_return)
 
       @uri = URI.parse("http://thoughtbot.com/images/thoughtbot-logo.png")
-      @subject = Paperclip.io_adapters.for(@uri)
+      @subject = Paperclip.io_adapters.for(@uri, hash_digest: Digest::MD5)
     end
 
     it "returns a file name" do

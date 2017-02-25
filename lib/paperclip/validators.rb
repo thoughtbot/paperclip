@@ -36,7 +36,7 @@ module Paperclip
         options = attributes.extract_options!.dup
 
         Paperclip::Validators.constants.each do |constant|
-          if constant.to_s =~ /\AAttachment(.+)Validator\Z/
+          if constant.to_s =~ /\AAttachment(.+)Validator\z/
             validator_kind = $1.underscore.to_sym
 
             if options.has_key?(validator_kind)

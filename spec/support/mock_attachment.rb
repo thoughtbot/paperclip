@@ -1,7 +1,9 @@
 class MockAttachment
   attr_accessor :updated_at, :original_filename
+  attr_reader :options
 
   def initialize(options = {})
+    @options = options
     @model = options[:model]
     @responds_to_updated_at = options[:responds_to_updated_at]
     @updated_at = options[:updated_at]

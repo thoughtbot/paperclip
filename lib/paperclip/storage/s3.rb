@@ -45,15 +45,14 @@ module Paperclip
     #
     #   You can set permission on a per style bases by doing the following:
     #     :s3_permissions => {
-    #       :original => :private
+    #       :original => "private"
     #     }
     #   Or globally:
-    #     :s3_permissions => :private
+    #     :s3_permissions => "private"
     #
-    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets. Can be either
-    #   'http', 'https', or an empty string to generate protocol-relative URLs. Defaults to 'http'
-    #   when your :s3_permissions are :public_read (the default), and 'https' when your
-    #   :s3_permissions are anything else.
+    # * +s3_protocol+: The protocol for the URLs generated to your S3 assets.
+    #   Can be either 'http', 'https', or an empty string to generate
+    #   protocol-relative URLs. Defaults to empty string.
     # * +s3_headers+: A hash of headers or a Proc. You may specify a hash such as
     #   {'Expires' => 1.year.from_now.httpdate}. If you use a Proc, headers are determined at
     #   runtime. Paperclip will call that Proc with attachment as the only argument.
@@ -66,6 +65,9 @@ module Paperclip
     # * +s3_host_alias+: The fully-qualified domain name (FQDN) that is the alias to the
     #   S3 domain of your bucket. Used with the :s3_alias_url url interpolation. See the
     #   link in the +url+ entry for more information about S3 domains and buckets.
+    # * +s3_prefixes_in_alias+: The number of prefixes that is prepended by
+    #   s3_host_alias. This will remove the prefixes from the path in
+    #   :s3_alias_url url interpolation
     # * +url+: There are four options for the S3 url. You can choose to have the bucket's name
     #   placed domain-style (bucket.s3.amazonaws.com) or path-style (s3.amazonaws.com/bucket).
     #   You can also specify a CNAME (which requires the CNAME to be specified as
@@ -99,17 +101,23 @@ module Paperclip
     #   "x-amz-meta-" before sending it as a header on the object
     #   upload request. Can be defined both globally and within a style-specific hash.
     # * +s3_storage_class+: If this option is set to
-    #   <tt>:reduced_redundancy</tt>, the object will be stored using Reduced
-    #   Redundancy Storage.  RRS enables customers to reduce their
+    #   <tt>:REDUCED_REDUNDANCY</tt>, the object will be stored using Reduced
+    #   Redundancy Storage. RRS enables customers to reduce their
     #   costs by storing non-critical, reproducible data at lower
     #   levels of redundancy than Amazon S3's standard storage.
+    # * +use_accelerate_endpoint+: Use accelerate endpoint
+    #   http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html
     #
     #   You can set storage class on a per style bases by doing the following:
     #     :s3_storage_class => {
-    #       :thumb => :reduced_reduncancy
+    #       :thumb => :REDUCED_REDUNDANCY
     #     }
+    #
     #   Or globally:
-    #     :s3_storage_class => :reduced_redundancy
+    #     :s3_storage_class => :REDUCED_REDUNDANCY
+    #
+    #   Other storage classes, such as <tt>:STANDARD_IA</tt>, are also available—see the
+    #   documentation for the <tt>aws-sdk</tt> gem for the full list.
 
     module S3
       def self.extended base
@@ -127,12 +135,7 @@ module Paperclip
         base.instance_eval do
           @s3_options     = @options[:s3_options]     || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
-          @s3_protocol    = @options[:s3_protocol]    ||
-            Proc.new do |style, attachment|
-              permission  = (@s3_permissions[style.to_s.to_sym] || @s3_permissions[:default])
-              permission  = permission.call(attachment, style) if permission.respond_to?(:call)
-              (permission == :"public-read") ? 'http'.freeze : 'https'.freeze
-            end
+          @s3_protocol    = @options[:s3_protocol] || "".freeze
           @s3_metadata = @options[:s3_metadata] || {}
           @s3_headers = {}
           merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
@@ -147,17 +150,30 @@ module Paperclip
             @s3_server_side_encryption = @options[:s3_server_side_encryption]
           end
 
-          unless @options[:url].to_s.match(/\A:s3.*url\Z/) || @options[:url] == ":asset_host".freeze
+          unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
             @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
             @options[:url]  = ":s3_path_url".freeze
           end
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
           @http_proxy = @options[:http_proxy] || nil
+
+          if @options.has_key?(:use_accelerate_endpoint) &&
+              Gem::Version.new(Aws::VERSION) < Gem::Version.new("2.3.0")
+            raise LoadError, ":use_accelerate_endpoint is only available from aws-sdk version 2.3.0. Please upgrade aws-sdk to a newer version."
+          end
+
+          @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
-          "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_alias}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
+          protocol = attachment.s3_protocol(style, true)
+          host = attachment.s3_host_alias
+          path = attachment.path(style).
+            split("/")[attachment.s3_prefixes_in_alias..-1].
+            join("/").
+            sub(%r{\A/}, "".freeze)
+          "#{protocol}//#{host}/#{path}"
         end unless Paperclip::Interpolations.respond_to? :s3_alias_url
         Paperclip.interpolates(:s3_path_url) do |attachment, style|
           "#{attachment.s3_protocol(style, true)}//#{attachment.s3_host_name}/#{attachment.bucket_name}/#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
@@ -206,6 +222,10 @@ module Paperclip
         @s3_host_alias
       end
 
+      def s3_prefixes_in_alias
+        @s3_prefixes_in_alias ||= @options[:s3_prefixes_in_alias].to_i
+      end
+
       def s3_url_options
         s3_url_options = @options[:s3_url_options] || {}
         s3_url_options = s3_url_options.call(instance) if s3_url_options.respond_to?(:call)
@@ -234,6 +254,8 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
+          config[:use_accelerate_endpoint] = use_accelerate_endpoint?
+
           [:access_key_id, :secret_access_key, :credential_provider, :credentials].each do |opt|
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
@@ -257,6 +279,10 @@ module Paperclip
 
       def s3_object style_name = default_style
         s3_bucket.object style_name_as_path(style_name)
+      end
+
+      def use_accelerate_endpoint?
+        !!@use_accelerate_endpoint
       end
 
       def using_http_proxy?

@@ -1,8 +1,5 @@
 module Paperclip
   class EmptyStringAdapter < AbstractAdapter
-    def initialize(target)
-    end
-
     def nil?
       false
     end

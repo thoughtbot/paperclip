@@ -2,9 +2,9 @@ class MockUrlGeneratorBuilder
   def initializer
   end
 
-  def new(attachment, attachment_options)
+  def new(attachment)
     @attachment = attachment
-    @attachment_options = attachment_options
+    @attachment_options = @attachment.options
     self
   end
 

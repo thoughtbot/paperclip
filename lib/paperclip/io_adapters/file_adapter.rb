@@ -1,7 +1,7 @@
 module Paperclip
   class FileAdapter < AbstractAdapter
-    def initialize(target)
-      @target = target
+    def initialize(target, options = {})
+      super
       cache_current_values
     end
 

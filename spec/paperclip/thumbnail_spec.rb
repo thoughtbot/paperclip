@@ -1,38 +1,6 @@
 require 'spec_helper'
 
 describe Paperclip::Thumbnail do
-  context "A Paperclip Tempfile" do
-    before do
-      @tempfile = Paperclip::Tempfile.new(["file", ".jpg"])
-    end
-
-    after { @tempfile.close }
-
-    it "has its path contain a real extension" do
-      assert_equal ".jpg", File.extname(@tempfile.path)
-    end
-
-    it "is a real Tempfile" do
-      assert @tempfile.is_a?(::Tempfile)
-    end
-  end
-
-  context "Another Paperclip Tempfile" do
-    before do
-      @tempfile = Paperclip::Tempfile.new("file")
-    end
-
-    after { @tempfile.close }
-
-    it "does not have an extension if not given one" do
-      assert_equal "", File.extname(@tempfile.path)
-    end
-
-    it "is a real Tempfile" do
-      assert @tempfile.is_a?(::Tempfile)
-    end
-  end
-
   context "An image" do
     before do
       @file = File.new(fixture_file("5k.png"), 'rb')
@@ -478,6 +446,41 @@ describe Paperclip::Thumbnail do
         dst = @thumb.make
         cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50", `#{cmd}`.chomp
+      end
+    end
+
+    context "with a specified frame_index" do
+      before do
+        @thumb = Paperclip::Thumbnail.new(
+          @file,
+          geometry: "50x50",
+          frame_index: 5,
+          format: :jpg,
+        )
+      end
+
+      it "creates the thumbnail from the frame index when sent #make" do
+        @thumb.make
+        assert_equal 5, @thumb.frame_index
+      end
+    end
+
+    context "with a specified frame_index out of bounds" do
+      before do
+        @thumb = Paperclip::Thumbnail.new(
+          @file,
+          geometry: "50x50",
+          frame_index: 20,
+          format: :jpg,
+        )
+      end
+
+      it "errors when trying to create the thumbnail" do
+        assert_raises(Paperclip::Error) do
+          silence_stream(STDERR) do
+            @thumb.make
+          end
+        end
       end
     end
   end

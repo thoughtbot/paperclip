@@ -35,29 +35,5 @@ module RailsCommandHelpers
   def framework_major_version
     framework_version.split(".").first.to_i
   end
-
-  def using_protected_attributes?
-    framework_major_version < 4
-  end
-
-  def new_application_command
-    "rails new"
-  end
-
-  def generator_command
-    if framework_major_version >= 4
-      "rails generate"
-    else
-      "script/rails generate"
-    end
-  end
-
-  def runner_command
-    if framework_major_version >= 4
-      "rails runner"
-    else
-      "script/rails runner"
-    end
-  end
 end
 World(RailsCommandHelpers)
