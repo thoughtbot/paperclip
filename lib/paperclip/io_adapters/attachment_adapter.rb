@@ -1,6 +1,7 @@
 module Paperclip
   class AttachmentAdapter < AbstractAdapter
-    def initialize(target)
+    def initialize(target, options = {})
+      super
       @target, @style = case target
       when Paperclip::Attachment
         [target, :original]
@@ -22,7 +23,7 @@ module Paperclip
 
     def copy_to_tempfile(source)
       if source.staged?
-        FileUtils.cp(source.staged_path(@style), destination.path)
+        link_or_copy_file(source.staged_path(@style), destination.path)
       else
         source.copy_to_local_file(@style, destination.path)
       end

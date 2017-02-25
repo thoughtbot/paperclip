@@ -4,8 +4,8 @@ module Paperclip
   class UriAdapter < AbstractAdapter
     attr_writer :content_type
 
-    def initialize(target)
-      @target = target
+    def initialize(target, options = {})
+      super
       @content = download_content
       cache_current_values
       @tempfile = copy_to_tempfile(@content)
@@ -29,8 +29,9 @@ module Paperclip
 
     def filename_from_content_disposition
       if @content.meta.has_key?("content-disposition")
-        @content.meta["content-disposition"].
-          match(/filename="([^"]*)"/)[1]
+        matches = @content.meta["content-disposition"].
+          match(/filename="([^"]*)"/)
+        matches[1] if matches
       end
     end
 

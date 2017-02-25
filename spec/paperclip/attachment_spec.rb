@@ -500,6 +500,7 @@ describe Paperclip::Attachment do
       @attachment.expects(:post_process).with(:thumb)
       @attachment.expects(:post_process).with(:large).never
       @attachment.assign(@file)
+      @attachment.save
     end
   end
 
@@ -1433,16 +1434,46 @@ describe Paperclip::Attachment do
         assert_nothing_raised { @dummy.avatar = @file }
       end
 
-      it "returns the right value when sent #avatar_fingerprint" do
-        @dummy.avatar = @file
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+      context "with explicitly set digest" do
+        before do
+          rebuild_class adapter_options: { hash_digest: Digest::SHA256 }
+          @dummy = Dummy.new
+        end
+
+        it "returns the right value when sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          assert_equal "734016d801a497f5579cdd4ef2ae1d020088c1db754dc434482d76dd5486520a",
+                       @dummy.avatar_fingerprint
+        end
+
+        it "returns the right value when saved, reloaded, and sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          @dummy.save
+          @dummy = Dummy.find(@dummy.id)
+          assert_equal "734016d801a497f5579cdd4ef2ae1d020088c1db754dc434482d76dd5486520a",
+                       @dummy.avatar_fingerprint
+        end
       end
 
-      it "returns the right value when saved, reloaded, and sent #avatar_fingerprint" do
-        @dummy.avatar = @file
-        @dummy.save
-        @dummy = Dummy.find(@dummy.id)
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_fingerprint
+      context "with the default digest" do
+        before do
+          rebuild_class # MD5 is the default
+          @dummy = Dummy.new
+        end
+
+        it "returns the right value when sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          assert_equal "aec488126c3b33c08a10c3fa303acf27",
+                       @dummy.avatar_fingerprint
+        end
+
+        it "returns the right value when saved, reloaded, and sent #avatar_fingerprint" do
+          @dummy.avatar = @file
+          @dummy.save
+          @dummy = Dummy.find(@dummy.id)
+          assert_equal "aec488126c3b33c08a10c3fa303acf27",
+                       @dummy.avatar_fingerprint
+        end
       end
     end
   end

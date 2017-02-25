@@ -1,5 +1,33 @@
 master:
-* (port from 4.3) Improvement: the `URI adapter` now uses the content-disposition header to name the downloaded file.
+
+* Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
+  [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
+* Improvement: make the fingerprint digest configurable per attachment. The
+  default remains MD5 but this will change in a future version because it is
+  not considered secure anymore against intentional file corruption. For more
+  info, see https://en.wikipedia.org/wiki/MD5#Security
+
+  You can change the digest used for an attachment by adding the
+  `:adapter_options` parameter to the `has_attached_file` options like this:
+  `has_attached_file :avatar, adapter_options: { hash_digest: Digest::SHA256 }`
+
+  Use the rake task to regenerate fingerprints with the new digest for a given
+  class. Note that this does **not** check the file integrity using the old
+  fingerprint. Run the following command to regenerate fingerprints for all
+  User attachments:
+  `CLASS=User rake paperclip:refresh:fingerprints`
+  You can optionally limit the attachment that will be processed, e.g:
+  `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints`
+
+5.1.0 (2016-08-19):
+
+* Add default `content_type_detector` to `UploadedFileAdapter` (#2270)
+* Default S3 protocol to empty string (#2038)
+* Don't write original file if it wasn't reprocessed (#1993)
+* Disallow trailing newlines in regular expressions (#2266)
+* Support for readbyte in Paperclip attachments (#2034)
+* (port from 4.3) Uri io adapter uses the content-disposition filename (#2250)
+* General refactors and documentation improvements
 
 5.0.0 (2016-07-01):
 

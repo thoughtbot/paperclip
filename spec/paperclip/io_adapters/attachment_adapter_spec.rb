@@ -13,7 +13,8 @@ describe Paperclip::AttachmentAdapter do
 
       @attachment.assign(@file)
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment)
+      @subject = Paperclip.io_adapters.for(@attachment,
+                                           hash_digest: Digest::MD5)
     end
 
     after do
@@ -65,7 +66,8 @@ describe Paperclip::AttachmentAdapter do
 
       @attachment.assign(@file)
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment)
+      @subject = Paperclip.io_adapters.for(@attachment,
+                                           hash_digest: Digest::MD5)
     end
 
     after do
@@ -92,7 +94,8 @@ describe Paperclip::AttachmentAdapter do
       FileUtils.cp @attachment.queued_for_write[:thumb].path, @thumb.path
 
       @attachment.save
-      @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb])
+      @subject = Paperclip.io_adapters.for(@attachment.styles[:thumb],
+                                           hash_digest: Digest::MD5)
     end
 
     after do
