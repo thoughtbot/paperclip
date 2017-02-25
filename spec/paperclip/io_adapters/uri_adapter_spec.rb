@@ -118,10 +118,10 @@ describe Paperclip::UriAdapter do
       assert_equal file_name, @subject.original_filename
     end
 
-    context 'when file name has consecutive periods' do
-      let(:file_name) { 'test_document..pdf' }
+    context "when file name has consecutive periods" do
+      let(:file_name) { "test_document..pdf" }
 
-      it 'returns a file name' do
+      it "returns a file name" do
         assert_equal file_name, @subject.original_filename
       end
     end
