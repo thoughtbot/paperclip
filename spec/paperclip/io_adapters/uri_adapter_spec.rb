@@ -57,7 +57,7 @@ describe Paperclip::UriAdapter do
       assert_equal 'image/png', @subject.content_type
     end
 
-    it 'accepts an original_filename' do
+    it "accepts an original_filename" do
       @subject.original_filename = 'image.png'
       assert_equal 'image.png', @subject.original_filename
     end
