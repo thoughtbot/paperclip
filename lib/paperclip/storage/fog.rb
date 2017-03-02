@@ -184,7 +184,7 @@ module Paperclip
       private
 
       def convert_time(time)
-        if time.is_a?(Fixnum)
+        if time.is_a?(0.class)
           time = Time.now + time
         end
         time

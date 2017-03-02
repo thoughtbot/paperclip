@@ -18,6 +18,7 @@ master:
   `CLASS=User rake paperclip:refresh:fingerprints`
   You can optionally limit the attachment that will be processed, e.g:
   `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints`
+* Ruby 2.4.0 compatibility (doen't use Fixnum anymore)
 
 5.1.0 (2016-08-19):
 
