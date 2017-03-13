@@ -40,13 +40,9 @@ describe Paperclip::Validators::AttachmentSizeValidator do
           "Unexpected error message on :avatar_file_size"
       end
 
-      it "adds error to the base dummy object" do
-        assert @dummy.errors[:avatar].present?,
-          "Error not added to base attribute"
-      end
-
-      it "adds error to base object as a string" do
-        expect(@dummy.errors[:avatar].first).to be_a String
+      it "should not add errors to base dummy object" do
+        assert @dummy.errors[:avatar].blank?,
+          "Unexpected error message on :avatar"
       end
 
       if options[:message]
