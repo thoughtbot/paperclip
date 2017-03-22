@@ -32,6 +32,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [View Helpers](#view-helpers)
   - [Checking a File Exists](#checking-a-file-exists)
   - [Deleting an Attachment](#deleting-an-attachment)
+  - [Uploading Multiple Images](#uploading-multiple-images)
 - [Usage](#usage)
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
@@ -278,6 +279,46 @@ Set the attribute to `nil` and save.
 ```ruby
 @user.avatar = nil
 @user.save
+```
+---
+### Uploading Multiple Images
+
+If you need to upload multiple images to create something like a gallery,
+you can begin by creating a "A Gallery has many Pictures" relationship, and "Picture has one avatar".
+```ruby
+class Gallery < ActiveRecord::Base
+  has_many :pictures, dependent: :destroy
+end
+
+class Picture < ActiveRecord::Base
+  has_attached_file :avatar, styles: { medium: "300x300>", thumb: "100x100>" }, default_url: "/images/:style/missing.png"
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+  belongs_to :gallery
+end
+
+```
+
+Then you enable multiple option in the form, and use 'file_field_tag' to pass array of avatars.
+```erb
+<%= f.label :Avatars %>
+<%= file_field_tag "avatars[]", type: :file , multiple: 'true'%>
+```
+
+Now in the create action in GalleryController, you can use create method on each pictures.
+```ruby
+def create
+  @gallery = Gallery.new(gallery_params)
+  if @gallery.save
+    if params[:avatars]
+      params[:avatars].each do |avatar|
+        @gallery.pictures.create(avatar: avatar)
+      end
+    end
+    redirect_to @gallery
+  else
+    render 'new'
+  end
+end
 ```
 ---
 
