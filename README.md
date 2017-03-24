@@ -13,6 +13,7 @@ https://github.com/thoughtbot/paperclip/releases
 [![Code Climate](https://codeclimate.com/github/thoughtbot/paperclip.svg)](https://codeclimate.com/github/thoughtbot/paperclip)
 [![Inline docs](http://inch-ci.org/github/thoughtbot/paperclip.svg)](http://inch-ci.org/github/thoughtbot/paperclip)
 [![Security](https://hakiri.io/github/thoughtbot/paperclip/master.svg)](https://hakiri.io/github/thoughtbot/paperclip/master)
+[![codebeat](https://codebeat.co/badges/dba1f81b-131a-4545-82fb-3296b662d82c)](https://codebeat.co/projects/github-com-thoughtbot-paperclip)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
