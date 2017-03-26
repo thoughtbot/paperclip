@@ -137,8 +137,6 @@ module Paperclip
           @s3_permissions = set_permissions(@options[:s3_permissions])
           @s3_protocol    = @options[:s3_protocol] || "".freeze
           @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = {}
-          merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
 
           @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
@@ -376,13 +374,17 @@ module Paperclip
 
             style_specific_options = styles[style]
 
+            s3_headers = {}
+
+            merge_s3_headers(@options[:s3_headers], s3_headers, @s3_metadata, style, file)
+
             if style_specific_options
-              merge_s3_headers( style_specific_options[:s3_headers], @s3_headers, @s3_metadata) if style_specific_options[:s3_headers]
+              merge_s3_headers( style_specific_options[:s3_headers], s3_headers, @s3_metadata, style, file) if style_specific_options[:s3_headers]
               @s3_metadata.merge!(style_specific_options[:s3_metadata]) if style_specific_options[:s3_metadata]
             end
 
             write_options[:metadata] = @s3_metadata unless @s3_metadata.empty?
-            write_options.merge!(@s3_headers)
+            write_options.merge!(s3_headers)
 
             s3_object(style).upload_file(file.path, write_options)
           rescue ::Aws::S3::Errors::NoSuchBucket
@@ -451,9 +453,11 @@ module Paperclip
         s3_protocol(style_name) == "https"
       end
 
-      def merge_s3_headers(http_headers, s3_headers, s3_metadata)
+      def merge_s3_headers(http_headers, s3_headers, s3_metadata, style, file)
         return if http_headers.nil?
-        http_headers = http_headers.call(instance) if http_headers.respond_to?(:call)
+        # keep backwards compatible with previous version that only took one argument
+        http_headers = http_headers.call(instance) if http_headers.respond_to?(:call) && http_headers.arity == 1
+        http_headers = http_headers.call(instance, style, file) if http_headers.respond_to?(:call) && http_headers.arity == 3
         http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
           when /\Ax-amz-meta-(.*)/i
