@@ -58,6 +58,10 @@ describe Paperclip::HasAttachedFile do
     it 'does define a media_type check if told to' do
       assert_adding_attachment('avatar').sets_up_media_type_check_validation
     end
+
+    it 'registers the activerecord reflections' do
+      assert_adding_attachment('avatar').registers_reflections
+    end
   end
 
   private
@@ -138,6 +142,15 @@ describe Paperclip::HasAttachedFile do
       expect(a_class).to have_received(:validates_media_type_spoof_detection)
     end
 
+    def registers_reflections
+      a_class = stub_class
+
+      Paperclip::HasAttachedFile.define_on(a_class,
+        @attachment_name, { validate_media_type: false })
+
+      expect(a_class._reflections.keys.include?(@attachment_name))
+    end
+
     private
 
     def stub_class
@@ -151,7 +164,9 @@ describe Paperclip::HasAttachedFile do
            define_paperclip_callbacks: nil,
            extend: nil,
            name: 'Billy',
-           validates_media_type_spoof_detection: nil
+           validates_media_type_spoof_detection: nil,
+           pluralize_table_names: true,
+           :"_reflections" => {}
           )
     end
   end
