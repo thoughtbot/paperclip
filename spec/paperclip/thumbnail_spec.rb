@@ -214,7 +214,9 @@ describe Paperclip::Thumbnail do
           silence_stream(STDERR) do
             expect {
               @thumb.make
-            }.to raise_error Paperclip::Error, /unrecognized option `-this-aint-no-option'/
+            }.to raise_error(
+              Paperclip::Error, /unrecognized option `-this-aint-no-option'/
+            )
           end
         end
 
