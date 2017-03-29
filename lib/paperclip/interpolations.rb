@@ -93,6 +93,12 @@ module Paperclip
       plural_cache.underscore_and_pluralize_class(attachment.instance.class)
     end
 
+    # Returns the underscored, pluralized version of the base class' class name.
+    # e.g. "vehicles" for a Car class that descends from Vehicle.
+    def base_class attachment, style_name
+      plural_cache.underscore_and_pluralize_class(attachment.instance.class.base_class)
+    end
+
     # Returns the basename of the file. e.g. "file" for "file.jpg"
     def basename attachment, style_name
       File.basename(attachment.original_filename, ".*".freeze)

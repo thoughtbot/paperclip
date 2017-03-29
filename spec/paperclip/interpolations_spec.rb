@@ -31,6 +31,21 @@ describe Paperclip::Interpolations do
     assert_equal "things", Paperclip::Interpolations.class(attachment, :style)
   end
 
+  it "returns the base class of the instance" do
+    class Grandparent ; end
+    class Parent < Grandparent; end
+    class Child < Parent
+      def self.base_class
+        Grandparent
+      end
+    end
+
+    attachment = mock
+    attachment.expects(:instance).returns(attachment)
+    attachment.expects(:class).returns(Child)
+    assert_equal "grandparents", Paperclip::Interpolations.base_class(attachment, :style)
+  end
+
   it "returns the basename of the file" do
     attachment = mock
     attachment.expects(:original_filename).returns("one.jpg").times(1)
