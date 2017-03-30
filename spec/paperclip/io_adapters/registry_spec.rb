@@ -15,6 +15,19 @@ describe Paperclip::AttachmentRegistry do
     end
   end
 
+  context "register" do
+    it "allows overriding" do
+      class OriginalAdapter; def initialize(_);end; end
+      class NewAdapter; def initialize(_);end; end
+
+      @subject = Paperclip::AdapterRegistry.new
+      @subject.register(OriginalAdapter) { |_| t == "string" }
+      @subject.register(NewAdapter) { |_| t == "string" }
+
+      assert_equal NewAdapter, @subject.handler_for("string")
+    end
+  end
+
   context "registered?" do
     before do
       class AdapterTest
