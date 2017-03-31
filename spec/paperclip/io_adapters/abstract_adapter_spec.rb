@@ -98,4 +98,11 @@ describe Paperclip::AbstractAdapter do
       expect { subject.original_filename = nil }.not_to raise_error
     end
   end
+
+  context "#original_filename=" do
+    it "should not fail with a nil original filename" do
+      adapter = TestAdapter.new
+      expect{ adapter.original_filename = nil }.not_to raise_error
+    end
+  end
 end
