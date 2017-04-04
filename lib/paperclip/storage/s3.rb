@@ -458,7 +458,7 @@ module Paperclip
         # keep backwards compatible with previous version that only took one argument
         http_headers = http_headers.call(instance) if http_headers.respond_to?(:call) && http_headers.arity == 1
         http_headers = http_headers.call(instance, style, file) if http_headers.respond_to?(:call) && http_headers.arity == 3
-        s3_headers.inject({}) do |headers,(name,value)|
+        http_headers.inject({}) do |headers,(name,value)|
           case name.to_s
           when /\Ax-amz-meta-(.*)/i
             s3_metadata[$1.downcase] = value
