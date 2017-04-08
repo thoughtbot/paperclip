@@ -7,7 +7,10 @@ module Paperclip
 
     # List of formats that we need to preserve animation
     ANIMATED_FORMATS = %w(gif)
-    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif)
+    
+    # List of formats where a frame (or page in case of a PDF file)
+    # can be chosen to generate a thumbnail from
+    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif .pdf)
 
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
