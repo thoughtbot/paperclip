@@ -81,7 +81,7 @@ module Paperclip
 
         parameters = parameters.flatten.compact.join(" ").strip.squeeze(" ")
 
-        frame = animated? ? "" : "[#{@frame_index}]"
+        frame = (animated? || @frame_index == :disabled) ? "" : "[#{@frame_index}]"
         convert(
           parameters,
           source: "#{File.expand_path(src.path)}#{frame}",
