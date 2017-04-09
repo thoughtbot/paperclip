@@ -84,7 +84,7 @@ end
 
 Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
-    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    columns = eval(`rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
     expect_columns = [
       ["#{attachment_name}_file_name", :string],
       ["#{attachment_name}_content_type", :string],
