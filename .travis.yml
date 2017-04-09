@@ -5,9 +5,6 @@ rvm:
 
 script: "bundle exec rake clean spec cucumber"
 
-before_install:
-  - gem install bundler -v '~> 1.10'
-
 gemfile:
   - gemfiles/4.2.gemfile
   - gemfiles/5.0.gemfile
