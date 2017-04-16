@@ -15,7 +15,7 @@ module Paperclip
         :default_style         => :original,
         :default_url           => "/:attachment/:style/missing.png",
         :escape_url            => true,
-        :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
+        :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%#'" ]/,
         :filename_cleaner      => nil,
         :hash_data             => ":class/:attachment/:id/:style/:updated_at",
         :hash_digest           => "SHA1",
