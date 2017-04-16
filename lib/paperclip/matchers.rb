@@ -1,4 +1,4 @@
-require 'paperclip/matchers/have_attached_file_matcher'
+require 'paperclip/matchers/contain_file_matcher'
 require 'paperclip/matchers/validate_attachment_presence_matcher'
 require 'paperclip/matchers/validate_attachment_content_type_matcher'
 require 'paperclip/matchers/validate_attachment_size_matcher'
@@ -21,7 +21,7 @@ module Paperclip
     #
     # Example:
     #   describe User do
-    #     it { should have_attached_file(:avatar) }
+    #     it { should contain_file(:avatar) }
     #     it { should validate_attachment_presence(:avatar) }
     #     it { should validate_attachment_content_type(:avatar).
     #                   allowing('image/png', 'image/gif').
@@ -49,7 +49,7 @@ module Paperclip
     #   require 'test_helper'
     #
     #   class UserTest < ActiveSupport::TestCase
-    #     should have_attached_file(:avatar)
+    #     should contain_file(:avatar)
     #     should validate_attachment_presence(:avatar)
     #     should validate_attachment_content_type(:avatar).
     #                  allowing('image/png', 'image/gif').
