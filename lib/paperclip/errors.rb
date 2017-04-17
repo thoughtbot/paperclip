@@ -30,5 +30,20 @@ module Paperclip
     # should be throwing this error upon the infinite loop as well.
     class InfiniteInterpolationError < Paperclip::Error
     end
+
+    # Wil be thrown if params validation fails in private controller.
+    class ControllerValidationError < Paperclip::Error
+    end
+
+    # Will be thrown if file does not exist on server.
+    class FileDoesNotExistError < Paperclip::Error
+    end
+
+    # Will be thrown if true is not returned from an attachment's owner's
+    # can_download_attachment? method.
+    class AccessDeniedError < Paperclip::Error
+    end
+
+
   end
 end

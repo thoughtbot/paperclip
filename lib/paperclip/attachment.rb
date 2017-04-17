@@ -76,7 +76,14 @@ module Paperclip
       @name_string       = name.to_s
       @instance          = instance
 
-      options = self.class.default_options.deep_merge(options)
+      defaults = self.class.default_options.dup
+
+      if options[:privacy] == :private # change default options if private before merging with options.
+        defaults[:path] = ":rails_root/:privacy#{defaults[:url]}"
+        defaults[:url] = "#{Rails.application.routes.url_helpers.paperclip_engine_path}/private/:klass/:id/:attachment_singular/:style" 
+      end
+
+      options = defaults.deep_merge(options)
 
       @options               = options
       @post_processing       = true

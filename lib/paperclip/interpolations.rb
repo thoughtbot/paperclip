@@ -193,5 +193,21 @@ module Paperclip
     def style attachment, style_name
       style_name || attachment.default_style
     end
+
+    # Returns the style, or the default style if nil is supplied.
+    def privacy attachment, style_name
+      attachment.options[:privacy]
+    end
+
+    # Returns the class name without pluarlizing it.
+    def klass attachment, style_name
+      attachment.instance.class
+    end
+
+    # Returns the attachment name without pluralizing it
+    def attachment_singular attachment, style_name
+      attachment.name
+    end
+
   end
 end

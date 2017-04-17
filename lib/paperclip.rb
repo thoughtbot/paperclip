@@ -57,6 +57,9 @@ require 'paperclip/attachment_registry'
 require 'paperclip/filename_cleaner'
 require 'paperclip/rails_environment'
 
+require 'paperclip/private_attachment_registry'
+require 'paperclip/engine'
+
 begin
   # Use mime/types/columnar if available, for reduced memory usage
   require "mime/types/columnar"
@@ -212,3 +215,8 @@ require 'paperclip/io_adapters/attachment_adapter'
 require 'paperclip/io_adapters/uploaded_file_adapter'
 require 'paperclip/io_adapters/uri_adapter'
 require 'paperclip/io_adapters/http_url_proxy_adapter'
+
+
+
+
+
