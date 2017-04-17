@@ -36,7 +36,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
 - [Security Validations](#security-validations)
-- [Private attachments](#private-attachments)
+- [Private Attachments](#private-attachments)
 - [Defaults](#defaults)
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
