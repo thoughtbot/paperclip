@@ -21,7 +21,7 @@ module Paperclip
         :hash_digest           => "SHA1",
         :interpolator          => Paperclip::Interpolations,
         :only_process          => [],
-        :path                  => ":rails_root/:privacy:url",
+        :path                  => ":rails_root/public:url",
         :preserve_files        => false,
         :processors            => [:thumbnail],
         :privacy               => :public,

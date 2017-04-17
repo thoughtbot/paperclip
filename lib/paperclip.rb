@@ -58,7 +58,7 @@ require 'paperclip/filename_cleaner'
 require 'paperclip/rails_environment'
 
 require 'paperclip/private_attachment_registry'
-require 'paperclip/engine'
+require 'paperclip/engine' if defined?(Rails)
 
 begin
   # Use mime/types/columnar if available, for reduced memory usage
