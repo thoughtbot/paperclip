@@ -459,7 +459,7 @@ Paperclip.options[:content_type_mappings] = {
 ```
 ---
 
-Private attachments
+Private Attachments
 --------------------------
 If you want to place files behind a controller in order to perform validation you can.
 
