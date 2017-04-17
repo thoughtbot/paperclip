@@ -36,7 +36,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
 - [Security Validations](#security-validations)
-- [Private/Secure attachments](#private-secure-attachments)
+- [Private attachments](#private-attachments)
 - [Defaults](#defaults)
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
@@ -459,7 +459,7 @@ Paperclip.options[:content_type_mappings] = {
 ```
 ---
 
-Private/Secure attachments
+Private attachments
 --------------------------
 If you want to place files behind a controller in order to perform validation you can.
 
