@@ -36,6 +36,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
 - [Security Validations](#security-validations)
+- [Private/Secure attachments](#private-secure-attachments)
 - [Defaults](#defaults)
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
@@ -455,6 +456,32 @@ list of content type mappings by creating `config/initializers/paperclip.rb`:
 Paperclip.options[:content_type_mappings] = {
   foo: %w(text/plain)
 }
+```
+---
+
+Private/Secure attachments
+--------------------------
+If you want to place files behind a controller in order to perform validation you can.
+
+In your routes.rb file mount the paperclip engine with any path you'd like. Ex:
+```ruby
+mount Paperclip::Engine => 'paperclip/'
+```
+
+In your ApplicationController add the method `paperclip_whitelist` and add the models with attachments you would like to serve privately. Ex:
+```ruby
+def paperclip_whitelist
+  [PrivateAttachment]
+end
+```
+
+Then in your model add `privacy: :private` to the has_attached_file options. Then add `can_download_attachment?`. Ex:
+```ruby
+  has_attached_file :attachment, privacy: :private
+
+  def can_download_attachment?(controller, params)
+    !controller.current_user.nil? && created_by == controller.current_user.id
+  end
 ```
 
 ---
