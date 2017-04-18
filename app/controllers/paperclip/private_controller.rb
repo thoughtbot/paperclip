@@ -47,6 +47,11 @@ module Paperclip
 
 		# Confirms the download is allowed.
 		def confirm_attachment_access!
+			# Passes self and params.dup to object.can_download_attachment? that is expected to return true, false, or raise AccessDeniedError.
+			# self is passed so that methods like current_user can be run. params.dup gets passed to do things like allow anyone if the style is :thumb but
+			# to only allow :original to paid users for example.
+			# Considering refactoring to use config options to specify the get user method and send the result of that method on self to 
+			# object.can_download_attachment? instead of passing controller instance.
 			raise ::Paperclip::Errors::AccessDeniedError unless @object.respond_to?(:can_download_attachment?) && @object.can_download_attachment?(self, params.dup)
 		end
 
