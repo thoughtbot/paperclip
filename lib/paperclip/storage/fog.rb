@@ -136,6 +136,26 @@ module Paperclip
         @queued_for_delete = []
       end
 
+      # Returns representation of the data of the file assigned to the given
+      # style, in the format most representative of the current storage.
+      def to_file(style = default_style)
+        if @queued_for_write[style]
+          @queued_for_write[style].rewind
+          @queued_for_write[style]
+        else
+
+          body      = directory.files.get(path(style)).body
+          filename  = path(style)
+          extname   = File.extname(filename)
+          basename  = File.basename(filename, extname)
+          file      = Tempfile.new([basename, extname])
+          file.binmode
+          file.write(body)
+          file.rewind
+          file
+        end
+      end
+
       def public_url(style = default_style)
         if @options[:fog_host]
           "#{dynamic_fog_host_for_style(style)}/#{path(style)}"

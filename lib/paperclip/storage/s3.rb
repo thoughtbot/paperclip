@@ -352,6 +352,24 @@ module Paperclip
         end
       end
 
+      # Returns representation of the data of the file assigned to the given
+      # style, in the format most representative of the current storage.
+      def to_file style = default_style
+        if @queued_for_write[style]
+          @queued_for_write[style].rewind
+          return @queued_for_write[style]
+        end
+
+        filename = path(style)
+        extname  = File.extname(filename)
+        basename = File.basename(filename, extname)
+        file = Tempfile.new([basename, extname])
+        file.binmode
+        file.write(s3_object(style).read)
+        file.rewind
+        return file
+      end
+
       def create_bucket
         s3_interface.bucket(bucket_name).create
       end
