@@ -17,7 +17,6 @@ https://github.com/thoughtbot/paperclip/releases
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Requirements](#requirements)
   - [Ruby and Rails](#ruby-and-rails)
   - [Image Processor](#image-processor)
@@ -43,6 +42,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Vintage Syntax](#vintage-syntax)
 - [Storage](#storage)
   - [Understanding Storage](#understanding-storage)
+- [IO Adapters](#io-adapters)
 - [Post Processing](#post-processing)
 - [Custom Attachment Processors](#custom-attachment-processors)
 - [Events](#events)
@@ -605,6 +605,34 @@ possible to place your files in a different location. You will need to change
 both the `:path` and `:url` options in order to make sure the files are unavailable
 to the public. Both `:path` and `:url` allow the same set of interpolated
 variables.
+
+---
+
+IO Adapters
+-----------
+
+When a file is uploaded or attached, it can be in one of a few different input
+forms, from Rails' UploadedFile object to a StringIO to a Tempfile or even a
+simple String that is a URL that points to an image.
+
+Paperclip will accept, by default, many of these sources. It also is capable of
+handling even more with a little configuration. The IO Adapters that handle
+images from non-local sources are not enabled by default. They can be enabled by
+adding a line similar to the following into `config/initializers/paperclip.rb`:
+
+```ruby
+Paperclip::DataUriAdapter.register
+```
+
+It's best to only enable a remote-loading adapter if you need it. Otherwise
+there's a chance that someone can gain insight into your internal network
+structure using it as a vector.
+
+The following adapters are *not* loaded by default:
+
+* `Paperclip::UriAdapter` - which accepts a `URI` instance.
+* `Paperclip::HttpUrlProxyAdapter` - which accepts a `http` string.
+* `Paperclip::DataUriAdapter` - which accepts a Base64-encoded `data:` string.
 
 ---
 

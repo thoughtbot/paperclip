@@ -1,5 +1,11 @@
 module Paperclip
   class FileAdapter < AbstractAdapter
+    def self.register
+      Paperclip.io_adapters.register self do |target|
+        File === target || ::Tempfile === target
+      end
+    end
+
     def initialize(target, options = {})
       super
       cache_current_values
@@ -8,7 +14,9 @@ module Paperclip
     private
 
     def cache_current_values
-      self.original_filename = @target.original_filename if @target.respond_to?(:original_filename)
+      if @target.respond_to?(:original_filename)
+        self.original_filename = @target.original_filename
+      end
       self.original_filename ||= File.basename(@target.path)
       @tempfile = copy_to_tempfile(@target)
       @content_type = ContentTypeDetector.new(@target.path).detect
@@ -17,6 +25,4 @@ module Paperclip
   end
 end
 
-Paperclip.io_adapters.register Paperclip::FileAdapter do |target|
-  File === target || Tempfile === target
-end
+Paperclip::FileAdapter.register

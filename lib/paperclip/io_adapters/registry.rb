@@ -12,6 +12,10 @@ module Paperclip
       @registered_handlers << [block, handler_class]
     end
 
+    def unregister(handler_class)
+      @registered_handlers.reject! { |_, klass| klass == handler_class }
+    end
+
     def handler_for(target)
       @registered_handlers.each do |tester, handler|
         return handler if tester.call(target)

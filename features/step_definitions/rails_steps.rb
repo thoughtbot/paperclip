@@ -22,6 +22,7 @@ Given /^I generate a new rails application$/ do
       gem "rubysl", :platform => :rbx
       """
     And I remove turbolinks
+    And I comment out lines that contain "action_mailer" in "config/environments/*.rb"
     And I empty the application.js file
     And I configure the application to use "paperclip" from this project
   }
@@ -45,6 +46,16 @@ Given "I remove turbolinks" do
     end
     transform_file("app/views/layouts/application.html.erb") do |content|
       content.gsub(', "data-turbolinks-track" => true', "")
+    end
+  end
+end
+
+Given /^I comment out lines that contain "([^"]+)" in "([^"]+)"$/ do |contains, glob|
+  cd(".") do
+    Dir.glob(glob).each do |file|
+      transform_file(file) do |content|
+        content.gsub(/^(.*?#{contains}.*?)$/) { |line| "# #{line}" }
+      end
     end
   end
 end
@@ -138,8 +149,10 @@ end
 
 Given /^I start the rails application$/ do
   cd(".") do
+    require "rails"
     require "./config/environment"
-    require "capybara/rails"
+    require "capybara"
+    Capybara.app = Rails.application
   end
 end
 
