@@ -251,7 +251,7 @@ module Paperclip
               userinfo += ":#{http_proxy_password}" if http_proxy_password
               proxy_opts[:userinfo] = userinfo
             end
-            config[:proxy_uri] = URI::HTTP.build(proxy_opts)
+            config[:http_proxy] = URI::HTTP.build(proxy_opts)
           end
 
           config[:use_accelerate_endpoint] = use_accelerate_endpoint?
