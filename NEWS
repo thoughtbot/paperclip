@@ -39,6 +39,7 @@ master:
 * Add `read_timeout` option to `UriAdapter#download_content` method [#2232]
 * Fix a nil error in content type validation matcher [#1910]
 * Documentation improvements
+* Add Rails Version to migration file. Required in Rails 5+
 
 5.0.0.beta2 (2016-04-01):
 
