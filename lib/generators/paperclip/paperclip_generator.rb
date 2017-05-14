@@ -13,7 +13,7 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   end
 
   def generate_migration
-    migration_template "paperclip_migration.rb.erb", "db/migrate/#{migration_file_name}", , rails_migration_version: rails_migration_version
+    migration_template "paperclip_migration.rb.erb", "db/migrate/#{migration_file_name}",  rails_migration_version: rails_migration_version
   end
 
   def migration_name
