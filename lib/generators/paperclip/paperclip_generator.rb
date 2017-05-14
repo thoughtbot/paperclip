@@ -13,7 +13,9 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   end
 
   def generate_migration
-    migration_template "paperclip_migration.rb.erb", "db/migrate/#{migration_file_name}",  rails_migration_version: rails_migration_version
+    migration_template "paperclip_migration.rb.erb", 
+      "db/migrate/#{migration_file_name}", 
+      rails_migration_version: rails_migration_version
   end
 
   def migration_name
@@ -29,9 +31,8 @@ class PaperclipGenerator < ActiveRecord::Generators::Base
   end
   
   def rails_migration_version
-     if Rails.version.start_with? '5'
-        "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
-     end
+    if Rails.version.start_with? "5"
+      "[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
+    end
   end
-
 end
