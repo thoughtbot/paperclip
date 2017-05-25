@@ -615,5 +615,9 @@ module Paperclip
     def has_enabled_but_unset_created_at?
       able_to_store_created_at? && !instance_read(:created_at)
     end
+    
+    def geometry
+      @geometry ||= Paperclip::Geometry.from_file self.path
+    end
   end
 end
