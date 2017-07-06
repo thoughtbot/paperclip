@@ -844,6 +844,16 @@ describe Paperclip::Attachment do
       @dummy.avatar = @file
     end
 
+    it "cancels the processing if instance contains any errors" do
+      @dummy.expects(:errors).with().returns([true])
+      @dummy.expects(:do_before_avatar).never
+      @dummy.expects(:do_after_avatar).never
+      @dummy.expects(:do_before_all).never
+      @dummy.expects(:do_after_all).never
+      Paperclip::Thumbnail.expects(:make).never
+      @dummy.avatar = @file
+    end
+
     it "cancels the processing if a before_post_process returns false" do
       @dummy.expects(:do_before_avatar).never
       @dummy.expects(:do_after_avatar).never
