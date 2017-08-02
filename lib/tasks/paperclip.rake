@@ -46,7 +46,7 @@ namespace :paperclip do
           attachment = instance.send(name)
           begin
             attachment.reprocess!(*styles)
-          rescue Exception => e
+          rescue => e
             Paperclip::Task.log_error("exception while processing #{klass} ID #{instance.id}:")
             Paperclip::Task.log_error(" " + e.message + "\n")
           end
