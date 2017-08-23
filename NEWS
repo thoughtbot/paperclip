@@ -1,3 +1,7 @@
+4.3.8 (8/23/2017):
+
+* Bug Fix: Backport "Ignore invalid content-disposition header (#2284)" to 4.3
+
 4.3.7 (7/1/2016):
 
 * Add deprecation warnings
