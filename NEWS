@@ -1,3 +1,7 @@
+master:
+
+* Improvement: Added support for preferred gem for s3 `aws-sdk-s3`
+
 5.2.1 (2018-01-25):
 
 * Bugfix: Fix copying files on Windows. (#2532)
