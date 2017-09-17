@@ -1,12 +1,18 @@
+language: ruby
+cache: bundler
+
 rvm:
   - 2.1
-  - 2.2.2
+  - 2.2
+  - 2.3
+  - 2.4
 
 script: "bundle exec rake clean spec cucumber"
 
-before_install:
-  - rvm @global do gem uninstall bundler -a -x
-  - rvm @global do gem install bundler -v 1.12.5
+addons:
+  apt:
+    packages:
+    - ghostscript
 
 gemfile:
   - gemfiles/4.2.gemfile
@@ -17,6 +23,3 @@ matrix:
   exclude:
     - gemfile: gemfiles/5.0.gemfile
       rvm: 2.1
-
-sudo: false
-cache: bundler
