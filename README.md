@@ -167,13 +167,13 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem 'paperclip', '~> 5.0.0'
+gem "paperclip", "~> 5.0.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
 ```ruby
-gem 'paperclip', git: 'git://github.com/thoughtbot/paperclip.git'
+gem "paperclip", git: "git://github.com/thoughtbot/paperclip.git"
 ```
 
 If you're trying to use features that don't seem to be in the latest released gem, but are
@@ -592,7 +592,7 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '~> 2.3.0'
+gem "aws-sdk", "~> 2.3.0"
 ```
 
 And then you can specify using S3 from `has_attached_file`.
