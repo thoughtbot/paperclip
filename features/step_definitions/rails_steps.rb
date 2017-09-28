@@ -8,17 +8,16 @@ Given /^I generate a new rails application$/ do
 
   steps %{
     And I turn off class caching
-    And I fix the application.rb for 3.0.12
     And I write to "Gemfile" with:
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", "1.3.8", :platform => [:ruby, :rbx]
+      gem "sqlite3", :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
-      gem "aws-sdk"
+      gem "aws-sdk", "~> 2.0.0"
       gem "racc", :platform => :rbx
       gem "rubysl", :platform => :rbx
       """
@@ -28,14 +27,6 @@ Given /^I generate a new rails application$/ do
   }
 
   FileUtils.chdir("../../..")
-end
-
-Given "I fix the application.rb for 3.0.12" do
-  cd(".") do
-    File.open("config/application.rb", "a") do |f|
-      f << "ActionController::Base.config.relative_url_root = ''"
-    end
-  end
 end
 
 Given "I allow the attachment to be submitted" do
@@ -174,7 +165,7 @@ end
 
 When /^I configure the application to use "([^\"]+)" from this project$/ do |name|
   append_to_gemfile "gem '#{name}', :path => '#{PROJECT_ROOT}'"
-  steps %{And I run `bundle install --local`}
+  steps %{And I successfully run `bundle install --local`}
 end
 
 When /^I configure the application to use "([^\"]+)"$/ do |gem_name|
