@@ -1,7 +1,17 @@
 module Paperclip
   class RailsEnvironment
+    include Singleton
+
     def self.get
-      new.get
+      instance.get
+    end
+
+    def self.version5?
+      if instance.rails_exists?
+        Rails.version.to_i == 5
+      else
+        false
+      end
     end
 
     def get
