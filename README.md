@@ -102,7 +102,7 @@ directory to its path.
 In development mode, you might add this line to `config/environments/development.rb)`:
 
 ```ruby
-Paperclip.options[:command_path] = "/usr/local/bin/"
+Paperclip.options[:command_path] = '/usr/local/bin/'
 ```
 
 If you're on Mac OS X, you'll want to run the following with [Homebrew] (http://www.brew.sh):
@@ -199,7 +199,7 @@ Quick Start
 
 ```ruby
 class User < ActiveRecord::Base
-  has_attached_file :avatar, styles: { medium: "300x300>", thumb: "100x100>" }, default_url: "/images/:style/missing.png"
+  has_attached_file :avatar, styles: { medium: '300x300>', thumb: '100x100>' }, default_url: '/images/:style/missing.png'
   validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\z/
 end
 ```
@@ -337,7 +337,7 @@ Lastly, you can also define multiple validations on a single attachment using `v
 
 ```ruby
 validates_attachment :avatar, presence: true,
-  content_type: { content_type: "image/jpeg" },
+  content_type: { content_type: 'image/jpeg' },
   size: { in: 0..10.kilobytes }
 ```
 
@@ -347,7 +347,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: '100x100#' }
 
   before_post_process :skip_for_audio
 
@@ -363,8 +363,8 @@ afterwards, then assign manually:
 
 ```ruby
 class Book < ActiveRecord::Base
-  has_attached_file :document, styles: {thumbnail: "60x60#"}
-  validates_attachment :document, content_type: { content_type: "application/pdf" }
+  has_attached_file :document, styles: { thumbnail: '60x60#' }
+  validates_attachment :document, content_type: { content_type: 'application/pdf' }
   validates_something_else # Other validations that conflict with Paperclip's
 end
 
@@ -396,7 +396,7 @@ image-y ones:
 
 ```ruby
 validates_attachment :avatar,
-  content_type: { content_type: ["image/jpeg", "image/gif", "image/png"] }
+  content_type: { content_type: ['image/jpeg', 'image/gif', 'image/png'] }
 ```
 
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
@@ -470,7 +470,7 @@ module YourApp
   class Application < Rails::Application
     # Other code...
 
-    config.paperclip_defaults = { storage: :fog, fog_credentials: { provider: "Local", local_root: "#{Rails.root}/public"}, fog_directory: "", fog_host: "localhost"}
+    config.paperclip_defaults = { storage: :fog, fog_credentials: { provider: 'Local', local_root: "#{Rails.root}/public"}, fog_directory: '', fog_host: 'localhost'}
   end
 end
 ```
@@ -481,9 +481,9 @@ An example Rails initializer would look something like this:
 
 ```ruby
 Paperclip::Attachment.default_options[:storage] = :fog
-Paperclip::Attachment.default_options[:fog_credentials] = { provider: "Local", local_root: "#{Rails.root}/public"}
-Paperclip::Attachment.default_options[:fog_directory] = ""
-Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
+Paperclip::Attachment.default_options[:fog_credentials] = { provider: 'Local', local_root: "#{Rails.root}/public"}
+Paperclip::Attachment.default_options[:fog_directory] = ''
+Paperclip::Attachment.default_options[:fog_host] = 'http://localhost:3000'
 ```
 ---
 
@@ -592,7 +592,7 @@ You may also choose to store your files using Amazon's S3 service. To do so, inc
 the `aws-sdk` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '~> 2.3.0'
+gem "aws-sdk", "~> 2.3.0"
 ```
 
 And then you can specify using S3 from `has_attached_file`.
@@ -619,7 +619,7 @@ a single geometry string, or an array containing a geometry and a format that
 the file will be converted to, like so:
 
 ```ruby
-has_attached_file :avatar, styles: { thumb: ["32x32#", :png] }
+has_attached_file :avatar, styles: { thumb: ['32x32#', :png] }
 ```
 
 This will convert the "thumb" style to a 32x32 square in PNG format, regardless
@@ -710,7 +710,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: '100x100#' }
 
   before_post_process :skip_for_audio
 
@@ -732,8 +732,8 @@ Example Usage:
 
 ```ruby
 has_attached_file :avatar, {
-    url: "/system/:hash.:extension",
-    hash_secret: "longSecretString"
+    url: '/system/:hash.:extension',
+    hash_secret: 'longSecretString'
 }
 ```
 
@@ -811,7 +811,7 @@ look as follows where a boss will receive a `300x300` thumbnail otherwise a
 
 ```ruby
 class User < ActiveRecord::Base
-  has_attached_file :avatar, styles: lambda { |attachment| { thumb: (attachment.instance.boss? ? "300x300>" : "100x100>") } }
+  has_attached_file :avatar, styles: lambda { |attachment| { thumb: (attachment.instance.boss? ? '300x300>' : '100x100>') } }
 end
 ```
 
@@ -881,14 +881,14 @@ namespace :paperclip do
     on roles(:app) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, "paperclip:refresh:missing_styles"
+          execute :rake, 'paperclip:refresh:missing_styles'
         end
       end
     end
   end
 end
 
-after("deploy:compile_assets", "paperclip:build_missing_styles")
+after('deploy:compile_assets', 'paperclip:build_missing_styles')
 ```
 
 Now you don't have to remember to refresh thumbnails in production every time you add a new style.
@@ -946,7 +946,7 @@ running tests concurrently.
 if ENV['PARALLEL_TEST_GROUPS']
   Paperclip::Attachment.default_options[:path] = ":rails_root/public/system/:rails_env/#{ENV['TEST_ENV_NUMBER'].to_i}/:class/:attachment/:id_partition/:filename"
 else
-  Paperclip::Attachment.default_options[:path] = ":rails_root/public/system/:rails_env/:class/:attachment/:id_partition/:filename"
+  Paperclip::Attachment.default_options[:path] = ':rails_root/public/system/:rails_env/:class/:attachment/:id_partition/:filename'
 end
 ```
 
