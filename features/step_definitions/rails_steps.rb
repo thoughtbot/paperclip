@@ -1,6 +1,6 @@
 Given /^I generate a new rails application$/ do
   steps %{
-    When I run `rails new #{APP_NAME} --skip-bundle`
+    When I successfully run `rails new #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
   }
 
