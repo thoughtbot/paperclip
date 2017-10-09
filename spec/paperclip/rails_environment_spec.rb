@@ -20,6 +20,18 @@ describe Paperclip::RailsEnvironment do
     end
   end
 
+  it "returns false when the Rails version is lower than 5" do
+    setting_rails_version_to("4.2.0") do
+      expect(Paperclip::RailsEnvironment.version5?).to be false
+    end
+  end
+
+  it "returns true when the Rails version is 5 or more" do
+    setting_rails_version_to("5.1.0") do
+      expect(Paperclip::RailsEnvironment.version5?).to be true
+    end
+  end
+
   def resetting_rails_to(new_value)
     begin
       previous_rails = Object.send(:remove_const, "Rails")
@@ -28,6 +40,16 @@ describe Paperclip::RailsEnvironment do
     ensure
       Object.send(:remove_const, "Rails") if Object.const_defined?("Rails")
       Object.const_set("Rails", previous_rails)
+    end
+  end
+
+  def setting_rails_version_to(version)
+    begin
+      current_version = Rails.version
+      Rails.stubs(:version).returns(version)
+      yield
+    ensure
+      Rails.stubs(:version).returns(current_version)
     end
   end
 end

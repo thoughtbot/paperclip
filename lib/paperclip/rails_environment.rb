@@ -22,8 +22,6 @@ module Paperclip
       end
     end
 
-    private
-
     def rails_exists?
       Object.const_defined?(:Rails)
     end

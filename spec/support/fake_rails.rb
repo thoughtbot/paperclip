@@ -4,7 +4,7 @@ class FakeRails
     @root = root
   end
 
-  attr_accessor :env, :root
+  attr_accessor :env, :root, :version
 
   def const_defined?(const)
     false
