@@ -1,5 +1,5 @@
 ##################################################
-#  NOTE FOR UPGRADING FROM 4.3.0 OR EARLIER       #
+#  NOTE FOR UPGRADING FROM 4.3.0 OR EARLIER      #
 ##################################################
 
 Paperclip is now compatible with aws-sdk >= 2.0.0.
