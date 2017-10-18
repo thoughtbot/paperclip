@@ -63,7 +63,7 @@ module Paperclip
     end
 
     def calculated_content_type
-      @calculated_content_type ||= type_from_file_command.chomp
+      @calculated_content_type ||= (type_from_file_command.chomp if type_from_file_command?)
     end
 
     def calculated_media_type
