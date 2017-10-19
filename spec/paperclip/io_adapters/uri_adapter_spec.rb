@@ -117,6 +117,18 @@ describe Paperclip::UriAdapter do
     it "returns a file name" do
       assert_equal file_name, @subject.original_filename
     end
+
+    context "with unquoted syntax" do
+      let(:meta) do
+        {
+          "content-disposition" => "attachment; filename=#{file_name};",
+        }
+      end
+
+      it "returns a file name with unquoted syntax" do
+        assert_equal file_name, @subject.original_filename
+      end
+    end
   end
 
   context "a url with restricted characters in the filename" do
