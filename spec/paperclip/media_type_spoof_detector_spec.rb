@@ -58,6 +58,32 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
   end
 
+  context "GIF file named without extension, but we're told GIF" do
+    let(:file) { File.open(fixture_file("animated")) }
+    let(:spoofed?) do
+      Paperclip::MediaTypeSpoofDetector.
+        using(file, "animated", "image/gif").
+        spoofed?
+    end
+
+    it "accepts the file" do
+      assert !spoofed?
+    end
+  end
+
+  context "GIF file named without extension, but we're told HTML" do
+    let(:file) { File.open(fixture_file("animated")) }
+    let(:spoofed?) do
+      Paperclip::MediaTypeSpoofDetector.
+        using(file, "animated", "text/html").
+        spoofed?
+    end
+
+    it "rejects the file" do
+      assert spoofed?
+    end
+  end
+
   it "does not reject if content_type is empty but otherwise checks out" do
     file = File.open(fixture_file("empty.html"))
     assert ! Paperclip::MediaTypeSpoofDetector.using(file, "empty.html", "").spoofed?

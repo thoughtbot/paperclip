@@ -11,7 +11,7 @@ module Paperclip
     end
 
     def spoofed?
-      if has_name? && has_extension? && media_type_mismatch? && mapping_override_mismatch?
+      if has_name? && media_type_mismatch? && mapping_override_mismatch?
         Paperclip.log("Content Type Spoof: Filename #{File.basename(@name)} (#{supplied_content_type} from Headers, #{content_types_from_name.map(&:to_s)} from Extension), content type discovered from file command: #{calculated_content_type}. See documentation to allow this combination.")
         true
       else
@@ -30,15 +30,18 @@ module Paperclip
     end
 
     def media_type_mismatch?
-      supplied_type_mismatch? || calculated_type_mismatch?
+      extension_type_mismatch? || calculated_type_mismatch?
     end
 
-    def supplied_type_mismatch?
-      supplied_media_type.present? && !media_types_from_name.include?(supplied_media_type)
+    def extension_type_mismatch?
+      supplied_media_type.present? &&
+        has_extension? &&
+        !media_types_from_name.include?(supplied_media_type)
     end
 
     def calculated_type_mismatch?
-      !media_types_from_name.include?(calculated_media_type)
+      supplied_media_type.present? &&
+        !calculated_content_type.include?(supplied_media_type)
     end
 
     def mapping_override_mismatch?
