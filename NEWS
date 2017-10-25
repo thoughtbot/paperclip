@@ -1,5 +1,16 @@
 master:
 
+* Improvement: Added `:do_not_do_media_type_spoofing_detection` option to Paperclip
+  to disable media type spoofing. Internally, this just returns `false` when calling 
+  `#spoofed?` on `MediaTypeSpoofDetector` when the configuration is set.
+
+  This is a reduction in security (hence the long and explicit config key) but this
+  would allow developers to make a decision on enabling/disabling Media Type Spoof
+  Detection on their environments.
+
+  A better implementation for this would be implementing this on a per-class basis
+  instead of a global configuration.
+
 * Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
   [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
 * Improvement: make the fingerprint digest configurable per attachment. The
