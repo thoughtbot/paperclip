@@ -1,5 +1,7 @@
 master:
 
+* Improvement: Better handling of the content-disposition header. Now supports file name that is either
+  enclosed or not in double quotes and is case insensitive as per RC6266 grammar
 * Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
   [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
 * Improvement: make the fingerprint digest configurable per attachment. The
