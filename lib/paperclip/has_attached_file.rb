@@ -15,6 +15,7 @@ module Paperclip
       define_getters
       define_setter
       define_query
+      define_tmp_id_getter_setter
       register_new_attachment
       add_active_record_callbacks
       add_paperclip_callbacks
@@ -74,6 +75,16 @@ module Paperclip
       end
     end
 
+    def define_tmp_id_getter_setter
+      name = @name
+      @klass.send :define_method, "#{@name}_tmp_id" do
+        send(name).tmp_id
+      end
+      @klass.send :define_method, "#{@name}_tmp_id=" do |tmp_id|
+        send(name).tmp_id = tmp_id
+      end
+    end
+
     def register_new_attachment
       Paperclip::AttachmentRegistry.register(@klass, @name, @options)
     end
@@ -89,6 +100,7 @@ module Paperclip
 
     def add_active_record_callbacks
       name = @name
+      @klass.send(:before_save) { send(name).send(:copy_saved_tmp_if_appropriate) }
       @klass.send(:after_save) { send(name).send(:save) }
       @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
       if @klass.respond_to?(:after_commit)

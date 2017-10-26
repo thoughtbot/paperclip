@@ -356,7 +356,8 @@ module Paperclip
         s3_interface.bucket(bucket_name).create
       end
 
-      def flush_writes #:nodoc:
+      # `tmp` param not currently used
+      def flush_writes(tmp: false) #:nodoc:
         @queued_for_write.each do |style, file|
         retries = 0
           begin

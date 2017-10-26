@@ -9,6 +9,8 @@ module Paperclip
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
+    include ::Paperclip::TmpSaveable
+
     def self.default_options
       @default_options ||= {
         :convert_options       => {},
@@ -27,6 +29,8 @@ module Paperclip
         :source_file_options   => {},
         :storage               => :filesystem,
         :styles                => {},
+        :tmp_path              => ":rails_root/public:tmp_url",
+        :tmp_url               => "/system/tmp/:tmp_id/:style/:filename",
         :url                   => "/system/:class/:attachment/:id_partition/:style/:filename",
         :url_generator         => Paperclip::UrlGenerator,
         :use_default_time_zone => true,
@@ -88,6 +92,7 @@ module Paperclip
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
 
+      generate_tmp_id
       initialize_storage
     end
 
@@ -167,9 +172,15 @@ module Paperclip
     # file is stored in the filesystem the path refers to the path of the file
     # on disk. If the file is stored in S3, the path is the "key" part of the
     # URL, and the :bucket option refers to the S3 bucket.
-    def path(style_name = default_style)
-      path = original_filename.nil? ? nil : interpolate(path_option, style_name)
-      path.respond_to?(:unescape) ? path.unescape : path
+    # If options[:allow_tmp] is true, we look for a saved tmp upload and get the path
+    # to that if found.
+    def path(style_name = default_style, options = {})
+      if options[:allow_tmp] && saved_tmp = matching_saved_tmp
+        saved_tmp.tmp_path(style_name)
+      else
+        path = original_filename.nil? ? nil : interpolate(path_option, style_name)
+        unescape(path)
+      end
     end
 
     # :nodoc:
@@ -238,13 +249,13 @@ module Paperclip
 
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
-    def save
+    def save(tmp: false)
       flush_deletes unless @options[:keep_old_files]
       process = only_process
       if process.any? && !process.include?(:original)
         @queued_for_write.except!(:original)
       end
-      flush_writes
+      flush_writes(tmp: tmp)
       @dirty = false
       true
     end
@@ -253,6 +264,7 @@ module Paperclip
     # nil to the attachment. Does NOT save. If you wish to clear AND save,
     # use #destroy.
     def clear(*styles_to_clear)
+      clear_tmp
       if styles_to_clear.any?
         queue_some_for_delete(*styles_to_clear)
       else
@@ -614,6 +626,11 @@ module Paperclip
     # Check if attachment database table has a created_at field which is not yet set
     def has_enabled_but_unset_created_at?
       able_to_store_created_at? && !instance_read(:created_at)
+    end
+
+    # Calls `unescape` method if available
+    def unescape(path)
+      path.respond_to?(:unescape) ? path.unescape : path
     end
   end
 end
