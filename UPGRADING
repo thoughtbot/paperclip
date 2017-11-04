@@ -1,4 +1,20 @@
 ##################################################
+#  DEPRECATION NOTICE                            #
+##################################################
+
+The 6.x version of Paperclip will change the behavior of the `:default_url`
+to be nil. In 5.x and earlier it is defaulted to 'missing.png'
+
+You can migrate to the new behavior now by adding to an initializer:
+
+Paperclip::Attachment.default_options[:default_url] = nil
+
+Alternatively, you can preserve existing behavior by adding:
+
+Paperclip::Attachment.default_options[:default_url] = '/:attachment/:style/missing.png'
+
+
+##################################################
 #  NOTE FOR UPGRADING FROM 4.3.0 OR EARLIER      #
 ##################################################
 

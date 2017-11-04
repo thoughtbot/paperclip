@@ -470,7 +470,11 @@ module YourApp
   class Application < Rails::Application
     # Other code...
 
-    config.paperclip_defaults = { storage: :fog, fog_credentials: { provider: "Local", local_root: "#{Rails.root}/public"}, fog_directory: "", fog_host: "localhost"}
+    config.paperclip_defaults = { storage: :fog,
+                                  fog_credentials: { provider: "Local", local_root: "#{Rails.root}/public"}, 
+                                  fog_directory: "", 
+                                  fog_host: "localhost",
+                                  default_url: "/:attachment/:style/missing.png" }
   end
 end
 ```
@@ -484,6 +488,7 @@ Paperclip::Attachment.default_options[:storage] = :fog
 Paperclip::Attachment.default_options[:fog_credentials] = { provider: "Local", local_root: "#{Rails.root}/public"}
 Paperclip::Attachment.default_options[:fog_directory] = ""
 Paperclip::Attachment.default_options[:fog_host] = "http://localhost:3000"
+Paperclip::Attachment.default_options[:default_url] = "/:attachment/:style/missing.png"
 ```
 ---
 
