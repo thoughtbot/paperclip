@@ -1,4 +1,3 @@
-# encoding: utf-8
 require 'uri'
 require 'paperclip/url_generator'
 require 'active_support/deprecation'
