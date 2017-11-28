@@ -254,11 +254,6 @@ describe Paperclip::Storage::S3 do
     it "returns a url based on an :s3_host_name path" do
       assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
-
-    it "uses the S3 bucket with the correct host name" do
-      assert_equal "s3.ap-northeast-1.amazonaws.com",
-        @dummy.avatar.s3_bucket.client.config.endpoint.host
-    end
   end
 
   context "dynamic s3_host_name" do
@@ -814,17 +809,19 @@ describe Paperclip::Storage::S3 do
     it "gets the right s3_host_name in production" do
       rails_env("production") do
         assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3.world-end.amazonaws.com},
-          @dummy.avatar.s3_bucket.client.config.endpoint.host
       end
     end
 
     it "gets the right s3_host_name in development" do
       rails_env("development") do
+<<<<<<< HEAD
         assert_match %r{^s3.ap-northeast-1.amazonaws.com},
           @dummy.avatar.s3_host_name
         assert_match %r{^s3.ap-northeast-1.amazonaws.com},
           @dummy.avatar.s3_bucket.client.config.endpoint.host
+=======
+        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
+>>>>>>> AWS client config do not use s3_host_name option
       end
     end
 
