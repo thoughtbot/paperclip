@@ -9,8 +9,8 @@ rvm:
 
 # FIXME: fails with modern bundler
 before_install:
-  - rvm @global do gem uninstall bundler -a -x
-  - rvm @global do gem install bundler -v 1.12.5
+  - rvm @global do gem uninstall bundler --all --executables || true
+  - rvm @global do gem install bundler --version 1.12.5
 
 script: "bundle exec rake clean spec cucumber"
 
