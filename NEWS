@@ -8,6 +8,10 @@ master:
 * (port from 4.3) Uri io adapter uses the content-disposition filename (#2250)
 * General refactors and documentation improvements
 
+5.1.1 (2017-12-14)
+
+* Bug Fix: Backport "Ignore invalid content-disposition header (#2284)" to 5.1
+
 5.0.0 (2016-07-01):
 
 * Improvement: Add `read_timeout` configuration for URI Adapter download_content method.
