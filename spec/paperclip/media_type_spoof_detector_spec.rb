@@ -76,4 +76,19 @@ describe Paperclip::MediaTypeSpoofDetector do
       Paperclip.options[:content_type_mappings] = {}
     end
   end
+
+  context "#type_from_file_command" do
+    let(:file) { File.new(fixture_file("empty.html")) }
+    let(:detector) { Paperclip::MediaTypeSpoofDetector.new(file, "html", "") }
+
+    it "does work with the output of old versions of file" do
+      Paperclip.stubs(:run).returns("text/html charset=us-ascii")
+      expect(detector.send(:type_from_file_command)).to eq("text/html")
+    end
+
+    it "does work with the output of new versions of file" do
+      Paperclip.stubs(:run).returns("text/html; charset=us-ascii")
+      expect(detector.send(:type_from_file_command)).to eq("text/html")
+    end
+  end
 end
