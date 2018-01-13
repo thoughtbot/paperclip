@@ -23,4 +23,18 @@ describe Paperclip::FileCommandContentTypeDetector do
     assert_equal "application/octet-stream",
       Paperclip::FileCommandContentTypeDetector.new("windows").detect
   end
+
+  context "#type_from_file_command" do
+    let(:detector) { Paperclip::FileCommandContentTypeDetector.new("html") }
+
+    it "does work with the output of old versions of file" do
+      Paperclip.stubs(:run).returns("text/html charset=us-ascii")
+      expect(detector.detect).to eq("text/html")
+    end
+
+    it "does work with the output of new versions of file" do
+      Paperclip.stubs(:run).returns("text/html; charset=us-ascii")
+      expect(detector.detect).to eq("text/html")
+    end
+  end
 end
