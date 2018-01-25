@@ -7,6 +7,11 @@ describe Paperclip::HttpUrlProxyAdapter do
     @open_return.stubs(:meta).returns({})
     Paperclip::HttpUrlProxyAdapter.any_instance.
       stubs(:download_content).returns(@open_return)
+    Paperclip::HttpUrlProxyAdapter.register
+  end
+
+  after do
+    Paperclip.io_adapters.unregister(described_class)
   end
 
   context "a new instance" do

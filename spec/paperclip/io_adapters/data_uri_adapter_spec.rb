@@ -1,7 +1,13 @@
 require 'spec_helper'
 
 describe Paperclip::DataUriAdapter do
+  before do
+    Paperclip::DataUriAdapter.register
+  end
+
   after do
+    Paperclip.io_adapters.unregister(described_class)
+
     if @subject
       @subject.close
     end

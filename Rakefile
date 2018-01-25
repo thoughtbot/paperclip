@@ -9,7 +9,7 @@ task :default => [:clean, :all]
 desc 'Test the paperclip plugin under all supported Rails versions.'
 task :all do |t|
   if ENV['BUNDLE_GEMFILE']
-    exec('rake spec cucumber')
+    exec('rake spec && cucumber')
   else
     exec("rm -f gemfiles/*.lock")
     Rake::Task["appraisal:gemfiles"].execute

@@ -12,4 +12,5 @@ group :development, :test do
   gem 'mime-types'
   gem 'builder'
   gem 'rubocop', require: false
+  gem 'rspec'
 end

@@ -61,7 +61,7 @@ module Paperclip
       FileUtils.ln(src, dest, force: true) # overwrite existing
       @destination.close
       @destination.open.binmode
-    rescue Errno::EXDEV, Errno::EPERM, Errno::ENOENT => e
+    rescue Errno::EXDEV, Errno::EPERM, Errno::ENOENT, Errno::EEXIST => e
       Paperclip.log("Link failed with #{e.message}; copying link #{src} to #{dest}")
       FileUtils.cp(src, dest)
     end

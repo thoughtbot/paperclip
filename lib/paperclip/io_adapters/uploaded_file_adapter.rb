@@ -1,5 +1,11 @@
 module Paperclip
   class UploadedFileAdapter < AbstractAdapter
+    def self.register
+      Paperclip.io_adapters.register self do |target|
+        target.class.name.include?("UploadedFile")
+      end
+    end
+
     def initialize(target, options = {})
       super
       cache_current_values
@@ -37,6 +43,4 @@ module Paperclip
   end
 end
 
-Paperclip.io_adapters.register Paperclip::UploadedFileAdapter do |target|
-  target.class.name.include?("UploadedFile")
-end
+Paperclip::UploadedFileAdapter.register

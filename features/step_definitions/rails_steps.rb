@@ -1,6 +1,6 @@
 Given /^I generate a new rails application$/ do
   steps %{
-    When I run `rails new #{APP_NAME} --skip-bundle`
+    When I successfully run `rails new #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
   }
 
@@ -8,34 +8,26 @@ Given /^I generate a new rails application$/ do
 
   steps %{
     And I turn off class caching
-    And I fix the application.rb for 3.0.12
     And I write to "Gemfile" with:
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", "1.3.8", :platform => [:ruby, :rbx]
+      gem "sqlite3", :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
-      gem "aws-sdk"
+      gem "aws-sdk", "~> 2.0.0"
       gem "racc", :platform => :rbx
       gem "rubysl", :platform => :rbx
       """
     And I remove turbolinks
+    And I comment out lines that contain "action_mailer" in "config/environments/*.rb"
     And I empty the application.js file
     And I configure the application to use "paperclip" from this project
   }
 
   FileUtils.chdir("../../..")
-end
-
-Given "I fix the application.rb for 3.0.12" do
-  cd(".") do
-    File.open("config/application.rb", "a") do |f|
-      f << "ActionController::Base.config.relative_url_root = ''"
-    end
-  end
 end
 
 Given "I allow the attachment to be submitted" do
@@ -54,6 +46,16 @@ Given "I remove turbolinks" do
     end
     transform_file("app/views/layouts/application.html.erb") do |content|
       content.gsub(', "data-turbolinks-track" => true', "")
+    end
+  end
+end
+
+Given /^I comment out lines that contain "([^"]+)" in "([^"]+)"$/ do |contains, glob|
+  cd(".") do
+    Dir.glob(glob).each do |file|
+      transform_file(file) do |content|
+        content.gsub(/^(.*?#{contains}.*?)$/) { |line| "# #{line}" }
+      end
     end
   end
 end
@@ -147,8 +149,10 @@ end
 
 Given /^I start the rails application$/ do
   cd(".") do
+    require "rails"
     require "./config/environment"
-    require "capybara/rails"
+    require "capybara"
+    Capybara.app = Rails.application
   end
 end
 
@@ -174,7 +178,7 @@ end
 
 When /^I configure the application to use "([^\"]+)" from this project$/ do |name|
   append_to_gemfile "gem '#{name}', :path => '#{PROJECT_ROOT}'"
-  steps %{And I run `bundle install --local`}
+  steps %{And I successfully run `bundle install --local`}
 end
 
 When /^I configure the application to use "([^\"]+)"$/ do |gem_name|

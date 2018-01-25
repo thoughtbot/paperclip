@@ -8,6 +8,11 @@ describe Paperclip::UriAdapter do
     @open_return = StringIO.new("xxx")
     @open_return.stubs(:content_type).returns(content_type)
     @open_return.stubs(:meta).returns(meta)
+    Paperclip::UriAdapter.register
+  end
+
+  after do
+    Paperclip.io_adapters.unregister(described_class)
   end
 
   context "a new instance" do

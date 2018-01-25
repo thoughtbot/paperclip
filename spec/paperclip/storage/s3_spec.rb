@@ -256,7 +256,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "uses the S3 bucket with the correct host name" do
-      assert_equal "s3-ap-northeast-1.amazonaws.com",
+      assert_equal "s3.ap-northeast-1.amazonaws.com",
         @dummy.avatar.s3_bucket.client.config.endpoint.host
     end
   end
@@ -821,8 +821,9 @@ describe Paperclip::Storage::S3 do
 
     it "gets the right s3_host_name in development" do
       rails_env("development") do
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com},
+        assert_match %r{^s3.ap-northeast-1.amazonaws.com},
+          @dummy.avatar.s3_host_name
+        assert_match %r{^s3.ap-northeast-1.amazonaws.com},
           @dummy.avatar.s3_bucket.client.config.endpoint.host
       end
     end

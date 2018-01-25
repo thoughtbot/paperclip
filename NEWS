@@ -1,11 +1,21 @@
-master:
+5.2.1 (2018-01-25):
 
+* Bugfix: Fix copying files on Windows. (#2532)
+
+5.2.0 (2018-01-23):
+
+* Security: Remove the automatic loading of URI adapters. Some of these
+  adapters can be specially crafted to expose your network topology. (#2435)
+* Bugfix: The rake task no longer rescues `Exception`. (#2476)
+* Bugfix: Handle malformed `Content-Disposition` headers (#2283)
+* Bugfix: The `:only_process` option works when passed a lambda again. (#2289)
 * Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
   [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
-* Improvement: make the fingerprint digest configurable per attachment. The
-  default remains MD5 but this will change in a future version because it is
-  not considered secure anymore against intentional file corruption. For more
-  info, see https://en.wikipedia.org/wiki/MD5#Security
+  (#2291)
+* Improvement: Make the fingerprint digest configurable per attachment. The
+  default remains MD5. Making this configurable means it can change in a future
+  version because it is not considered secure anymore against intentional file
+  corruption. For more info, see https://en.wikipedia.org/wiki/MD5#Security
 
   You can change the digest used for an attachment by adding the
   `:adapter_options` parameter to the `has_attached_file` options like this:
@@ -17,8 +27,16 @@ master:
   User attachments:
   `CLASS=User rake paperclip:refresh:fingerprints`
   You can optionally limit the attachment that will be processed, e.g:
-  `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints`
-* Ruby 2.4.0 compatibility (don't use Fixnum anymore)
+  `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints` (#2229)
+* Improvement: The new `frame_index` option on the thumbnail processor allows
+  you to select a specific frame from an animated upload to use as a thumbnail.
+  Initial support is for mkv, avi, MP4, mov, MPEG, and GIF. (#2155)
+* Improvement: Instead of copying files, use hard links. This is an
+  optimization. (#2120)
+* Improvement: S3 storage option `:s3_prefixes_in_alias`. (#2287)
+* Improvement: Fog option `:fog_public` can be a lambda. (#2302)
+* Improvement: One fewer warning on JRuby. (#2352)
+* Ruby 2.4.0 compatibility (doesn't use Fixnum anymore)
 
 5.1.0 (2016-08-19):
 
