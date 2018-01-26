@@ -1,4 +1,4 @@
-class <%= migration_class_name %> < ActiveRecord::Migration
+class <%= migration_class_name %> < ActiveRecord::Migration<%= rails_migration_version %>
   def self.up
     change_table :<%= table_name %> do |t|
 <% attachment_names.each do |attachment| -%>
