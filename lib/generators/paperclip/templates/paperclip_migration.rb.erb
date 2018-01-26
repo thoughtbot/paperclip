@@ -1,4 +1,8 @@
+<% if Paperclip::RailsEnvironment.version5? %>
+class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+<% else %>
 class <%= migration_class_name %> < ActiveRecord::Migration
+<% end %>
   def self.up
     change_table :<%= table_name %> do |t|
 <% attachment_names.each do |attachment| -%>
