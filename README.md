@@ -983,7 +983,7 @@ similar mechanism for whichever parallel testing library you use.
 
 **Integration Tests**
 
-Using integration tests with FactoryGirl may save multiple copies of
+Using integration tests with FactoryBot may save multiple copies of
 your test files within the app. To avoid this, specify a custom path in
 the `config/environments/test.rb` like so:
 
@@ -1000,11 +1000,11 @@ config.after(:suite) do
 end
 ```
 
-**Example of test configuration with Factory Girl**
+**Example of test configuration with Factory Bot**
 
 
 ```ruby
-FactoryGirl.define do
+FactoryBot.define do
   factory :user do
     avatar { File.new("#{Rails.root}/spec/support/fixtures/image.jpg") }
   end
