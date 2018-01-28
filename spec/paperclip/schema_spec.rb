@@ -29,7 +29,7 @@ describe Paperclip::Schema do
 
         expect(columns).to include(['avatar_file_name', :string])
         expect(columns).to include(['avatar_content_type', :string])
-        expect(columns).to include(['avatar_file_size', :integer])
+        expect(columns).to include(['avatar_file_size', :bigint])
         expect(columns).to include(['avatar_updated_at', :datetime])
       end
 

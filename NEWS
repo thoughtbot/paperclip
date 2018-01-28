@@ -1,5 +1,8 @@
 master:
 
+* Change database column type of attachment file size from unsigned 4-byte
+  `integer` to unsigned 8-byte `bigint`. The former type limits attachment
+  size to just over 2GB, which can easily be exceeded by a large video file.
 * Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
   [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
 * Improvement: make the fingerprint digest configurable per attachment. The

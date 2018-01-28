@@ -37,7 +37,7 @@ module ModelReconstruction
       table.column :other, :string
       table.column :avatar_file_name, :string
       table.column :avatar_content_type, :string
-      table.column :avatar_file_size, :integer
+      table.column :avatar_file_size, :bigint
       table.column :avatar_updated_at, :datetime
       table.column :avatar_fingerprint, :string
     end

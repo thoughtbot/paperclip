@@ -88,7 +88,7 @@ Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
     expect_columns = [
       ["#{attachment_name}_file_name", :string],
       ["#{attachment_name}_content_type", :string],
-      ["#{attachment_name}_file_size", :integer],
+      ["#{attachment_name}_file_size", :bigint],
       ["#{attachment_name}_updated_at", :datetime]
     ]
     expect(columns).to include(*expect_columns)
@@ -101,7 +101,7 @@ Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
     expect_columns = [
       ["#{attachment_name}_file_name", :string],
       ["#{attachment_name}_content_type", :string],
-      ["#{attachment_name}_file_size", :integer],
+      ["#{attachment_name}_file_size", :bigint],
       ["#{attachment_name}_updated_at", :datetime]
     ]
 
