@@ -1416,7 +1416,7 @@ describe Paperclip::Attachment do
 
     context "and avatar_file_size column" do
       before do
-        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :integer
+        ActiveRecord::Base.connection.add_column :dummies, :avatar_file_size, :bigint
         rebuild_class
         @dummy = Dummy.new
       end

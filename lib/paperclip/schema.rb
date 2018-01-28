@@ -5,7 +5,7 @@ module Paperclip
   module Schema
     COLUMNS = {:file_name    => :string,
                :content_type => :string,
-               :file_size    => :integer,
+               :file_size    => :bigint,
                :updated_at   => :datetime}
 
     def self.included(base)

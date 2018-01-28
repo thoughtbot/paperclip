@@ -3,6 +3,9 @@ master:
 * Improvement: Better handling of the content-disposition header. Now supports file name that is either
   enclosed or not in double quotes and is case insensitive as per RC6266 grammar
 * Improvement: Files without an extension will now be checked for spoofing attempts
+* Change database column type of attachment file size from unsigned 4-byte
+  `integer` to unsigned 8-byte `bigint`. The former type limits attachment
+  size to just over 2GB, which can easily be exceeded by a large video file.
 
 6.0.0 (2018-03-09):
 

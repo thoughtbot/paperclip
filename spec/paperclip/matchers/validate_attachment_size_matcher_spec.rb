@@ -7,7 +7,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
   before do
     reset_table("dummies") do |d|
       d.string :avatar_file_name
-      d.integer :avatar_file_size
+      d.bigint :avatar_file_size
     end
     reset_class "Dummy"
     Dummy.do_not_validate_attachment_file_type :avatar
