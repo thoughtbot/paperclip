@@ -36,6 +36,7 @@
 * Improvement: S3 storage option `:s3_prefixes_in_alias`. (#2287)
 * Improvement: Fog option `:fog_public` can be a lambda. (#2302)
 * Improvement: One fewer warning on JRuby. (#2352)
+* Ruby 2.4.0 compatibility (doesn't use Fixnum anymore)
 
 5.1.0 (2016-08-19):
 
