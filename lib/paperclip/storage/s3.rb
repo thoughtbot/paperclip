@@ -94,7 +94,8 @@ module Paperclip
     #   to interpolate. Keys should be unique, like filenames, and despite the fact that
     #   S3 (strictly speaking) does not support directories, you can still use a / to
     #   separate parts of your file name.
-    # * +s3_host_name+: If you are using your bucket in Tokyo region etc, write host_name.
+    # * +s3_host_name+: If you are using your bucket in Tokyo region
+    #   etc, write host_name (e.g., 's3-ap-northeast-1.amazonaws.com').
     # * +s3_region+: For aws-sdk v2, s3_region is required.
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
