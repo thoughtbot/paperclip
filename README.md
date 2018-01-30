@@ -206,6 +206,8 @@ end
 
 ### Migrations
 
+
+Assuming you have a `users` table, add an `avatar` column to the `users` table:
 ```ruby
 class AddAvatarColumnsToUsers < ActiveRecord::Migration
   def up
@@ -221,10 +223,11 @@ end
 (Or you can use the Rails migration generator: `rails generate paperclip user avatar`)
 
 ### Edit and New Views
-
+Make sure you have corresponding methods in your controller:
 ```erb
 <%= form_for @user, url: users_path, html: { multipart: true } do |form| %>
   <%= form.file_field :avatar %>
+  <%= form.submit %>
 <% end %>
 ```
 
@@ -233,6 +236,7 @@ end
 ```erb
 <%= simple_form_for @user, url: users_path do |form| %>
   <%= form.input :avatar, as: :file %>
+  <%= form.submit %>
 <% end %>
 ```
 
@@ -254,7 +258,7 @@ end
 ```
 
 ### View Helpers
-
+Add these to the view where you want your images displayed:
 ```erb
 <%= image_tag @user.avatar.url %>
 <%= image_tag @user.avatar.url(:medium) %>
