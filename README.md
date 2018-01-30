@@ -231,7 +231,7 @@ Make sure you have corresponding methods in your controller
 <% end %>
 ```
 
-### Edit and New Views with [Simple Form Gem](https://github.com/plataformatec/simple_form)
+### Edit and New Views with [Simple Form](https://github.com/plataformatec/simple_form)
 
 ```erb
 <%= simple_form_for @user, url: users_path do |form| %>
