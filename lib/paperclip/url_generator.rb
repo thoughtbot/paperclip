@@ -1,4 +1,5 @@
 require 'uri'
+require 'active_support/core_ext/module/delegation'
 
 module Paperclip
   class UrlGenerator
