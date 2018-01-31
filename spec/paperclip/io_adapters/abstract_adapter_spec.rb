@@ -98,4 +98,39 @@ describe Paperclip::AbstractAdapter do
       expect { subject.original_filename = nil }.not_to raise_error
     end
   end
+
+  context "#link_or_copy_file" do
+    class TestLinkOrCopyAdapter < Paperclip::AbstractAdapter
+      public :copy_to_tempfile, :destination
+    end
+
+    subject { TestLinkOrCopyAdapter.new(nil) }
+    let(:body) { "body" }
+
+    let(:file) do
+      t = Tempfile.new("destination")
+      t.print(body)
+      t.rewind
+      t
+    end
+
+    after do
+      file.close
+      file.unlink
+    end
+
+    it "should be able to read the file" do
+      expect(subject.copy_to_tempfile(file).read).to eq(body)
+    end
+
+    it "should be able to reopen the file after symlink has failed" do
+      FileUtils.expects(:ln).raises(Errno::EXDEV)
+      # after the failed symlink the file reports a size of zero
+      # which makes it necessary to reopen it
+      # we simulate this condition by closing the file
+      subject.destination.close
+
+      expect(subject.copy_to_tempfile(file).read).to eq(body)
+    end
+  end
 end
