@@ -538,7 +538,6 @@ module Paperclip
         unadapted_file = @queued_for_write[name]
         @queued_for_write[name] = Paperclip.io_adapters.
           for(@queued_for_write[name], @options[:adapter_options])
-        unadapted_file.close if unadapted_file.respond_to?(:close)
         @queued_for_write[name]
       rescue Paperclip::Errors::NotIdentifiedByImageMagickError => e
         log("An error was received while processing: #{e.inspect}")
@@ -590,7 +589,7 @@ module Paperclip
 
     def unlink_files(files)
       Array(files).each do |file|
-        file.close unless file.closed?
+        file.close
         file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
       end
     end
