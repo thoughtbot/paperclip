@@ -93,6 +93,34 @@ describe Paperclip::AbstractAdapter do
     end
   end
 
+  context "#copy_to_tempfile" do
+    around do |example|
+      FileUtils.module_eval do
+        class << self
+          alias paperclip_ln ln
+
+          def ln(*)
+            raise Errno::EXDEV
+          end
+        end
+      end
+
+      example.run
+
+      FileUtils.module_eval do
+        class << self
+          alias ln paperclip_ln
+          undef paperclip_ln
+        end
+      end
+    end
+
+    it "should return a readable file even when linking fails" do
+      src = open(fixture_file("5k.png"), "rb")
+      expect(subject.send(:copy_to_tempfile, src).read).to eq src.read
+    end
+  end
+
   context "#original_filename=" do
     it "should not fail with a nil original filename" do
       expect { subject.original_filename = nil }.not_to raise_error
