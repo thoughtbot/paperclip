@@ -1,3 +1,5 @@
+* Improvement: Make the flush_deletes log exceptions instead of ignoring it
+
 5.2.1 (2018-01-25):
 
 * Bugfix: Fix copying files on Windows. (#2532)

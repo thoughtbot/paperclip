@@ -19,7 +19,7 @@ module Paperclip
     #   saved by paperclip. If you set this to an explicit octal value (0755, 0644, etc) then
     #   that value will be used to set the permissions for an uploaded file. The default is 0666.
     #   If you set :override_file_permissions to false, the chmod will be skipped. This allows
-    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the 
+    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the
     #   added benefit of using the storage directories default umask on those that do.
     module Filesystem
       def self.extended base
@@ -64,6 +64,7 @@ module Paperclip
             FileUtils.rm(path) if File.exist?(path)
           rescue Errno::ENOENT => e
             # ignore file-not-found, let everything else pass
+            warn("#{e} - cannot delete #{path} from local directory")
           end
           begin
             while(true)

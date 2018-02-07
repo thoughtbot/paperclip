@@ -413,7 +413,7 @@ module Paperclip
             log("deleting #{path}")
             s3_bucket.object(path.sub(%r{\A/}, "")).delete
           rescue Aws::Errors::ServiceError => e
-            # Ignore this.
+            warn("#{e} - cannot delete #{path} from remote storage")
           end
         end
         @queued_for_delete = []
