@@ -41,7 +41,7 @@ describe Paperclip::ContentTypeDetector do
   end
 
   it 'returns a sensible default when the file command is missing' do
-    Paperclip.stubs(:run).raises(Cocaine::CommandLineError.new)
+    Paperclip.stubs(:run).raises(Terrapin::CommandLineError.new)
     @filename = "/path/to/something"
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
   end

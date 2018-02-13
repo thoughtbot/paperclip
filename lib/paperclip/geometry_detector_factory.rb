@@ -24,9 +24,9 @@ module Paperclip
             :swallow_stderr => true
           }
         )
-      rescue Cocaine::ExitStatusError
+      rescue Terrapin::ExitStatusError
         ""
-      rescue Cocaine::CommandNotFoundError => e
+      rescue Terrapin::CommandNotFoundError => e
         raise_because_imagemagick_missing
       end
     end
