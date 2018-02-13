@@ -27,12 +27,12 @@ module Paperclip
     #
     def run(cmd, arguments = "", interpolation_values = {}, local_options = {})
       command_path = options[:command_path]
-      cocaine_path_array = Cocaine::CommandLine.path.try(:split, Cocaine::OS.path_separator)
-      Cocaine::CommandLine.path = [cocaine_path_array, command_path].flatten.compact.uniq
+      terrapin_path_array = Terrapin::CommandLine.path.try(:split, Terrapin::OS.path_separator)
+      Terrapin::CommandLine.path = [terrapin_path_array, command_path].flatten.compact.uniq
       if logging? && (options[:log_command] || local_options[:log_command])
         local_options = local_options.merge(:logger => logger)
       end
-      Cocaine::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
+      Terrapin::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
     end
 
     # Find all instances of the given Active Record model +klass+ with attachment +name+.

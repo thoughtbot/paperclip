@@ -74,7 +74,7 @@ module Paperclip
       begin
         Paperclip.run("file", "-b --mime :file", file: @file.path).
           split(/[:;\s]+/).first
-      rescue Cocaine::CommandLineError
+      rescue Terrapin::CommandLineError
         ""
       end
     end
