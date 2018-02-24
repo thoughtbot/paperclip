@@ -3,8 +3,8 @@ module Paperclip
     # Amazon's S3 file hosting service is a scalable, easy place to store files for
     # distribution. You can find out more about it at http://aws.amazon.com/s3
     #
-    # To use Paperclip with S3, include the +aws-sdk+ gem in your Gemfile:
-    #   gem 'aws-sdk'
+    # To use Paperclip with S3, include the +aws-sdk-s3+ gem in your Gemfile:
+    #   gem 'aws-sdk-s3'
     # There are a few S3-specific options for has_attached_file:
     # * +s3_credentials+: Takes a path, a File, a Hash or a Proc. The path (or File) must point
     #   to a YAML file containing the +access_key_id+ and +secret_access_key+ that Amazon
@@ -96,7 +96,7 @@ module Paperclip
     #   separate parts of your file name.
     # * +s3_host_name+: If you are using your bucket in Tokyo region
     #   etc, write host_name (e.g., 's3-ap-northeast-1.amazonaws.com').
-    # * +s3_region+: For aws-sdk v2, s3_region is required.
+    # * +s3_region+: For aws-sdk-s3 s3_region is required.
     # * +s3_metadata+: These key/value pairs will be stored with the
     #   object.  This option works by prefixing each key with
     #   "x-amz-meta-" before sending it as a header on the object
@@ -118,19 +118,15 @@ module Paperclip
     #     :s3_storage_class => :REDUCED_REDUNDANCY
     #
     #   Other storage classes, such as <tt>:STANDARD_IA</tt>, are also available—see the
-    #   documentation for the <tt>aws-sdk</tt> gem for the full list.
+    #   documentation for the <tt>aws-sdk-s3</tt> gem for the full list.
 
     module S3
       def self.extended base
         begin
-          require 'aws-sdk'
+          require 'aws-sdk-s3'
         rescue LoadError => e
-          e.message << " (You may need to install the aws-sdk gem)"
+          e.message << " (You may need to install the aws-sdk-s3 gem)"
           raise e
-        end
-        if Gem::Version.new(Aws::VERSION) >= Gem::Version.new(2) &&
-           Gem::Version.new(Aws::VERSION) <= Gem::Version.new("2.0.33")
-          raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
         end
 
         base.instance_eval do
@@ -158,11 +154,6 @@ module Paperclip
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
           @http_proxy = @options[:http_proxy] || nil
-
-          if @options.has_key?(:use_accelerate_endpoint) &&
-              Gem::Version.new(Aws::VERSION) < Gem::Version.new("2.3.0")
-            raise LoadError, ":use_accelerate_endpoint is only available from aws-sdk version 2.3.0. Please upgrade aws-sdk to a newer version."
-          end
 
           @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end
