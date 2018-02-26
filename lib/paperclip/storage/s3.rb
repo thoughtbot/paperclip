@@ -120,6 +120,8 @@ module Paperclip
     #   Other storage classes, such as <tt>:STANDARD_IA</tt>, are also available—see the
     #   documentation for the <tt>aws-sdk</tt> gem for the full list.
 
+    MIN_SUPPORTED_AWS_SDK_VERSION = "2.0.34".freeze
+
     module S3
       def self.extended base
         begin
@@ -128,9 +130,8 @@ module Paperclip
           e.message << " (You may need to install the aws-sdk gem)"
           raise e
         end
-        if Gem::Version.new(Aws::VERSION) >= Gem::Version.new(2) &&
-           Gem::Version.new(Aws::VERSION) <= Gem::Version.new("2.0.33")
-          raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
+        if Gem::Version.new(Aws::VERSION) < Gem::Version.new(MIN_SUPPORTED_AWS_SDK_VERSION)
+          raise LoadError, "paperclip requires aws-sdk >= #{MIN_SUPPORTED_AWS_SDK_VERSION}.  Please upgrade aws-sdk to a newer version."
         end
 
         base.instance_eval do
