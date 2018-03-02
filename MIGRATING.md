@@ -163,12 +163,13 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
   end
 
   def checksum(attachment)
-    # local
+    # local files stored on disk:
     url = attachment.path
-    # remote
-    # url = attachment.url
+    Digest::MD5.base64digest(File.read(url))
 
-    Digest::MD5.base64digest(open(url).read)
+    # remote files stored on another person's computer:
+    # url = attachment.url
+    # Digest::MD5.base64digest(Net::HTTP.get(URI(url)))
   end
 end
 ```
@@ -255,7 +256,40 @@ image_tag @user.avatar.variant(resize: "250x250")
 
 ## Update your controllers
 
-This should require no update.
+This should _require_ no update. However, if you glance back at the database
+schema above, you may notice a join.
+
+For example, if your controller has
+
+```ruby
+def index
+  @users = User.all.order(:name)
+end
+```
+
+And your view has
+
+```
+<ul>
+  <% @users.each do |user| %>
+    <li><%= image_tag user.avatar.variant(resize: "10x10"), alt: user.name %></li>
+  <% end %>
+</ul>
+```
+
+Then you'll end up with an n+1 as you load each attachment in the loop.
+
+So while the controller and model will work without change, you will want to
+double-check your loops and add `includes` as needed. ActiveStorage adds an
+`avatar_attachment` and `avatar_blob` relationship to has-one relations, and
+`avatar_attachments` and `avatar_blobs` to has-many:
+
+
+```ruby
+def index
+  @users = User.all.order(:name).includes(:avatar_attachment)
+end
+```
 
 ## Update your models
 
