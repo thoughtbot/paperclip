@@ -139,11 +139,13 @@ describe Paperclip::Interpolations do
     assert_equal "000/000/023", Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
-  it "returns the partitioned id of the attachment when the id is an integer and above 999_999_999" do
+  it "returns the partitioned id when the id is above 999_999_999" do
     attachment = mock
-    attachment.expects(:id).returns(Paperclip::Interpolations::ID_PARTITION_LIMIT)
+    attachment.expects(:id).
+      returns(Paperclip::Interpolations::ID_PARTITION_LIMIT)
     attachment.expects(:instance).returns(attachment)
-    assert_equal "001/000/000/000", Paperclip::Interpolations.id_partition(attachment, :style)
+    assert_equal "001/000/000/000",
+      Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
   it "returns the partitioned id of the attachment when the id is a string" do
