@@ -125,10 +125,6 @@ describe Paperclip::AbstractAdapter do
 
     it "should be able to reopen the file after symlink has failed" do
       FileUtils.expects(:ln).raises(Errno::EXDEV)
-      # after the failed symlink the file reports a size of zero
-      # which makes it necessary to reopen it
-      # we simulate this condition by closing the file
-      subject.destination.close
 
       expect(subject.copy_to_tempfile(file).read).to eq(body)
     end
