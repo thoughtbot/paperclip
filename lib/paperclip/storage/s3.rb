@@ -123,14 +123,10 @@ module Paperclip
     module S3
       def self.extended base
         begin
-          require 'aws-sdk'
+          require 'aws-sdk-s3'
         rescue LoadError => e
-          e.message << " (You may need to install the aws-sdk gem)"
+          e.message << " (You may need to install the aws-sdk-s3 gem)"
           raise e
-        end
-        if Gem::Version.new(Aws::VERSION) >= Gem::Version.new(2) &&
-           Gem::Version.new(Aws::VERSION) <= Gem::Version.new("2.0.33")
-          raise LoadError, "paperclip does not support aws-sdk versions 2.0.0 - 2.0.33.  Please upgrade aws-sdk to a newer version."
         end
 
         base.instance_eval do
@@ -158,11 +154,6 @@ module Paperclip
           @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
 
           @http_proxy = @options[:http_proxy] || nil
-
-          if @options.has_key?(:use_accelerate_endpoint) &&
-              Gem::Version.new(Aws::VERSION) < Gem::Version.new("2.3.0")
-            raise LoadError, ":use_accelerate_endpoint is only available from aws-sdk version 2.3.0. Please upgrade aws-sdk to a newer version."
-          end
 
           @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end

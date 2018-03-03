@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'aws-sdk'
+require 'aws-sdk-s3'
 
 describe Paperclip::Storage::S3 do
   before do
@@ -282,7 +282,7 @@ describe Paperclip::Storage::S3 do
     end
   end
 
-  context "use_accelerate_endpoint", if: aws_accelerate_available? do
+  context "use_accelerate_endpoint" do
     context "defaults to false" do
       before do
         rebuild_model(
@@ -308,7 +308,7 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    context "set to true", if: aws_accelerate_available? do
+    context "set to true" do
       before do
         rebuild_model(
           storage: :s3,
