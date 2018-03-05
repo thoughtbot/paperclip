@@ -284,7 +284,6 @@ double-check your loops and add `includes` as needed. ActiveStorage adds an
 `avatar_attachment` and `avatar_blob` relationship to has-one relations, and
 `avatar_attachments` and `avatar_blobs` to has-many:
 
-
 ```ruby
 def index
   @users = User.all.order(:name).includes(:avatar_attachment)
