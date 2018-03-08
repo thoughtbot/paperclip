@@ -117,6 +117,7 @@ module Paperclip
             raise if retried
             retried = true
             directory.save
+            file.rewind
             retry
           ensure
             file.rewind
