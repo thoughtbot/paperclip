@@ -1,3 +1,7 @@
+6.0.0 (2018-03-09):
+
+* Improvement: Depend only on `aws-sdk-s3` instead of `aws-sdk` (https://github.com/thoughtbot/paperclip/pull/2481)
+
 5.3.0 (2018-03-09):
 
 * Improvement: Use `FactoryBot` instead of `FactoryGirl` (https://github.com/thoughtbot/paperclip/pull/2501)
