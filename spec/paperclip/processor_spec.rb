@@ -9,17 +9,17 @@ describe Paperclip::Processor do
   end
 
   context "Calling #convert" do
-    it "runs the convert command with Cocaine" do
+    it "runs the convert command with Terrapin" do
       Paperclip.options[:log_command] = false
-      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
+      Terrapin::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
       Paperclip::Processor.new('filename').convert("stuff")
     end
   end
 
   context "Calling #identify" do
-    it "runs the identify command with Cocaine" do
+    it "runs the identify command with Terrapin" do
       Paperclip.options[:log_command] = false
-      Cocaine::CommandLine.expects(:new).with("identify", "stuff", {}).returns(stub(:run))
+      Terrapin::CommandLine.expects(:new).with("identify", "stuff", {}).returns(stub(:run))
       Paperclip::Processor.new('filename').identify("stuff")
     end
   end

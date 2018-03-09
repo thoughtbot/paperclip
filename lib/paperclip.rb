@@ -67,7 +67,7 @@ end
 require 'mimemagic'
 require 'mimemagic/overlay'
 require 'logger'
-require 'cocaine'
+require 'terrapin'
 
 require 'paperclip/railtie' if defined?(Rails::Railtie)
 

@@ -1,6 +1,16 @@
-master:
+5.3.0 (2018-03-09):
 
-* Improvement: Added support for preferred gem for s3 `aws-sdk-s3`
+* Improvement: Use `FactoryBot` instead of `FactoryGirl` (https://github.com/thoughtbot/paperclip/pull/2501)
+* Improvement: README updates (https://github.com/thoughtbot/paperclip/pull/2411, https://github.com/thoughtbot/paperclip/pull/2433, https://github.com/thoughtbot/paperclip/pull/2374, https://github.com/thoughtbot/paperclip/pull/2417, https://github.com/thoughtbot/paperclip/pull/2536)
+* Improvement: Remove Ruby 2.4 deprecation warning (https://github.com/thoughtbot/paperclip/pull/2401)
+* Improvement: Rails 5 migration compatibility (https://github.com/thoughtbot/paperclip/pull/2470)
+* Improvement: Documentation around post processing (https://github.com/thoughtbot/paperclip/pull/2381)
+* Improvement: S3 hostname example documentation (https://github.com/thoughtbot/paperclip/pull/2379)
+* Bugfix: Allow paperclip to load in IRB (https://github.com/thoughtbot/paperclip/pull/2369)
+* Bugfix: MIME type detection (https://github.com/thoughtbot/paperclip/issues/2527)
+* Bugfix: Bad tempfile state after symlink failure (https://github.com/thoughtbot/paperclip/pull/2540)
+* Bugfix: Rewind file after Fog bucket creation (https://github.com/thoughtbot/paperclip/pull/2572)
+* Improvement: Use `Terrapin` instead of `Cocaine` (https://github.com/thoughtbot/paperclip/pull/2553)
 
 5.2.1 (2018-01-25):
 

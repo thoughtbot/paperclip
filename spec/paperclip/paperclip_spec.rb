@@ -4,40 +4,40 @@ describe Paperclip do
   context ".run" do
     before do
       Paperclip.options[:log_command] = false
-      Cocaine::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
-      @original_command_line_path = Cocaine::CommandLine.path
+      Terrapin::CommandLine.expects(:new).with("convert", "stuff", {}).returns(stub(:run))
+      @original_command_line_path = Terrapin::CommandLine.path
     end
 
     after do
       Paperclip.options[:log_command] = true
-      Cocaine::CommandLine.path = @original_command_line_path
+      Terrapin::CommandLine.path = @original_command_line_path
     end
 
-    it "runs the command with Cocaine" do
+    it "runs the command with Terrapin" do
       Paperclip.run("convert", "stuff")
     end
 
-    it "saves Cocaine::CommandLine.path that set before" do
-      Cocaine::CommandLine.path = "/opt/my_app/bin"
+    it "saves Terrapin::CommandLine.path that set before" do
+      Terrapin::CommandLine.path = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
-      expect(Cocaine::CommandLine.path).to match("/opt/my_app/bin")
+      expect(Terrapin::CommandLine.path).to match("/opt/my_app/bin")
     end
 
-    it "does not duplicate Cocaine::CommandLine.path on multiple runs" do
-      Cocaine::CommandLine.expects(:new).with("convert", "more_stuff", {}).returns(stub(:run))
-      Cocaine::CommandLine.path = nil
+    it "does not duplicate Terrapin::CommandLine.path on multiple runs" do
+      Terrapin::CommandLine.expects(:new).with("convert", "more_stuff", {}).returns(stub(:run))
+      Terrapin::CommandLine.path = nil
       Paperclip.options[:command_path] = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
       Paperclip.run("convert", "more_stuff")
 
       cmd_path = Paperclip.options[:command_path]
-      assert_equal 1, Cocaine::CommandLine.path.scan(cmd_path).count
+      assert_equal 1, Terrapin::CommandLine.path.scan(cmd_path).count
     end
   end
 
   it 'does not raise errors when doing a lot of running' do
     Paperclip.options[:command_path] = ["/usr/local/bin"] * 1024
-    Cocaine::CommandLine.path = "/something/else"
+    Terrapin::CommandLine.path = "/something/else"
     100.times do |x|
       Paperclip.run("echo", x.to_s)
     end
@@ -63,7 +63,7 @@ describe Paperclip do
   context "Calling Paperclip.run with a logger" do
     it "passes the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
-      Cocaine::CommandLine.expects(:new).with("convert", "stuff", logger: Paperclip.logger).returns(stub(:run))
+      Terrapin::CommandLine.expects(:new).with("convert", "stuff", logger: Paperclip.logger).returns(stub(:run))
       Paperclip.run("convert", "stuff")
     end
   end
