@@ -167,7 +167,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 5.2.1"
+gem "paperclip", "~> 6.0.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
