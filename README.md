@@ -222,6 +222,10 @@ end
 
 (Or you can use the Rails migration generator: `rails generate paperclip user avatar`)
 
+Add your Rails version after `AddAvatarColumnsToUsers < ActiveRecord::Migration`
+
+e.g : `AddAttachmentAvatarToUsers < ActiveRecord::Migration[5.1]`
+
 ### Edit and New Views
 Make sure you have corresponding methods in your controller:
 ```erb
