@@ -21,6 +21,7 @@ module Paperclip
         :hash_digest           => "SHA1",
         :interpolator          => Paperclip::Interpolations,
         :only_process          => [],
+        :process_in_background => [],
         :path                  => ":rails_root/public:url",
         :preserve_files        => false,
         :processors            => [:thumbnail],
@@ -53,6 +54,8 @@ module Paperclip
     # +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
     # +only_process+ - style args to be run through the post-processor. This defaults to the empty list (which is
     #                  a special case that indicates all styles should be processed)
+    # +process_in_background+ - an array of styles to be processed in background
+    #                           (requires "active_job")
     # +default_url+ - a URL for the missing image
     # +default_style+ - the style to use when an argument is not specified e.g. #url, #path
     # +storage+ - the storage mechanism. Defaults to :filesystem
@@ -315,6 +318,12 @@ module Paperclip
       time && time.to_f.to_i
     end
 
+    # Returns true when record is enqueued for background processing
+    # and job did not finish yet.
+    def processing_in_background
+      instance_read(:processing_in_background)
+    end
+
     # The time zone to use for timestamp interpolation.  Using the default
     # time zone ensures that results are consistent across all threads.
     def time_zone
@@ -389,6 +398,21 @@ module Paperclip
       end
     end
 
+    def generate_style_files(*styles)
+      @file = Paperclip.io_adapters.for(self)
+      @queued_for_write[:original] = @file
+      post_process(*styles)
+      flush_writes
+    end
+
+    def clear_enqueue_background_processing
+      @enqueue_background_processing = false
+    end
+
+    def enqueue_background_processing?
+      @enqueue_background_processing
+    end
+
     private
 
     def path_option
@@ -436,6 +460,7 @@ module Paperclip
       assign_file_information
       assign_fingerprint { @file.fingerprint }
       assign_timestamps
+      assign_background_processing
     end
 
     def assign_file_information
@@ -456,6 +481,13 @@ module Paperclip
       end
 
       instance_write(:updated_at, Time.now)
+    end
+
+    def assign_background_processing
+      if @options[:process_in_background].any?
+        instance_write(:processing_in_background, true)
+        @enqueue_background_processing = true
+      end
     end
 
     def post_process_file
