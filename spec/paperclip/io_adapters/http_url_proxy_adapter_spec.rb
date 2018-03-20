@@ -118,4 +118,18 @@ describe Paperclip::HttpUrlProxyAdapter do
       assert_equal filename, subject.original_filename
     end
   end
+ 
+  context "a url with special characters already escaped in the filename" do
+    it "returns a encoded filename" do
+      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
+        returns(@open_return)
+      url = "https://github.com/thoughtbot/paperclip-%C3%B6%C3%A4%C3%BC%E5%A"\
+        "D%97%C2%B4%C2%BD%E2%99%A5%C3%98%C2%B2%C3%88.png"
+      subject = Paperclip.io_adapters.for(url)
+      filename = "paperclip-%C3%B6%C3%A4%C3%BC%E5%AD%97%C2%B4%C2%BD%E2%99%A5"\
+        "%C3%98%C2%B2%C3%88.png"
+
+      assert_equal filename, subject.original_filename
+    end
+  end
 end
