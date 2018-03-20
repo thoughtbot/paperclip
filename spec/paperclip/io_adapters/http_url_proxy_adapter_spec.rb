@@ -118,7 +118,7 @@ describe Paperclip::HttpUrlProxyAdapter do
       assert_equal filename, subject.original_filename
     end
   end
-  
+ 
   context "a url with special characters already escaped in the filename" do
     it "returns a encoded filename" do
       Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
