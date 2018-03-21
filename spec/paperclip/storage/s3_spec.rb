@@ -1610,7 +1610,7 @@ describe Paperclip::Storage::S3 do
     end
   end
 
-  context "An attachment with S3 storage and metadata set using a proc as headers" do
+  context "An attachment with S3 storage and metadata set using a proc that takes a single argument as headers" do
     before do
       rebuild_model(
         (aws2_add_region).merge storage: :s3,
@@ -1651,6 +1651,63 @@ describe Paperclip::Storage::S3 do
                     acl: :"public-read",
                     content_disposition: 'attachment; filename="Custom Avatar Name.png"')
           end
+          @dummy.save
+        end
+
+        it "succeeds" do
+          assert true
+        end
+      end
+    end
+  end
+
+  context "An attachment with S3 storage and metadata set using a proc that takes 3 argument as headers" do
+    before do
+      rebuild_model(
+        (aws2_add_region).merge storage: :s3,
+        bucket: "testing",
+        path: ":attachment/:style/:basename:dotextension",
+        styles: {
+          thumb: "80x80>"
+        },
+        s3_credentials: {
+          'access_key_id' => "12345",
+          'secret_access_key' => "54321"
+        },
+        s3_headers: lambda {|attachment, style, file|
+          style === :original ? {'Content-Disposition' => "attachment; filename=\"#{file.original_filename}\""} : {}
+        }
+      )
+    end
+
+    context "when assigned" do
+      before do
+        @file = File.new(fixture_file('5k.png'), 'rb')
+        @dummy = Dummy.new
+        @dummy.avatar = @file
+      end
+
+      after { @file.close }
+
+      context "and saved" do
+        before do
+          object = stub
+          @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
+
+          object.expects(:upload_file)
+            .with(anything,
+                  content_type: "image/png",
+                  acl: :"public-read",
+                  content_disposition: 'attachment; filename="5k.png"')
+
+          object = stub
+          @dummy.avatar.stubs(:s3_object).with(:thumb).returns(object)
+
+          object.expects(:upload_file)
+            .with(anything,
+                  content_type: "image/png",
+                  acl: :"public-read")
+
           @dummy.save
         end
 
