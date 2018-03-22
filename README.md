@@ -337,7 +337,7 @@ Example Usage:
 validates_attachment_presence :avatar
 ```
 
-Lastly, you can also define multiple validations on a single attachment using `validates_attachment`:
+You can also define multiple validations on a single attachment using `validates_attachment`:
 
 ```ruby
 validates_attachment :avatar, presence: true,
@@ -405,6 +405,28 @@ validates_attachment :avatar,
 
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
 inferred content_type, regardless of the actual contents of the file.
+
+### Duplicate error messages
+
+By default Paperclip will copy validation errors from the attribute to the base
+of your model. Depending on how you display your validation errors, this can lead
+to confusing duplicate errors (one on the attribute and another referring to the
+base model).
+
+You can override this behaviour with the `add_validation_errors_to` option. By
+default this is set to `:both` but can be set to either `:attribute` or `:base`.
+
+* `:both` creates errors on both the attribute and base model.
+* `:attribute` only creates an error on the attribute of the model.
+* `:base` only creates an error on the base model.
+
+You can set this option globally:
+
+`Paperclip.options[:add_validation_errors_to] = :attribute`
+
+or pass it in to an individual validation declaration:
+
+`validates_attachment :document, content_type: { content_type: "application/pdf" }, add_validation_errors_to: :attribute`
 
 ---
 

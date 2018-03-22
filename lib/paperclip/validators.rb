@@ -20,10 +20,10 @@ module Paperclip
     ::Paperclip::REQUIRED_VALIDATORS = [AttachmentFileNameValidator, AttachmentContentTypeValidator, AttachmentFileTypeIgnoranceValidator]
 
     module ClassMethods
-      # This method is a shortcut to validator classes that is in
-      # "Attachment...Validator" format. It is almost the same thing as the
-      # +validates+ method that shipped with Rails, but this is customized to
-      # be using with attachment validators. This is helpful when you're using
+      # This method is a shortcut to the validator classes that are in
+      # "Attachment...Validator" format. It is almost the same as the
+      # +validates+ method that ships with Rails, but is customized for
+      # use with attachment validators. This is helpful when you're using
       # multiple attachment validators on a single attachment.
       #
       # Example of using the validator:
