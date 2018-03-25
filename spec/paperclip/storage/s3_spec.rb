@@ -3,17 +3,14 @@ require "aws-sdk-s3"
 
 describe Paperclip::Storage::S3 do
   before do
+    Aws.config[:region] = "fake-region"
     Aws.config[:stub_responses] = true
-  end
-
-  def aws2_add_region
-    { s3_region: 'us-east-1' }
   end
 
   context "Parsing S3 credentials" do
     before do
       @proxy_settings = {host: "127.0.0.1", port: 8888, user: "foo", password: "bar"}
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         http_proxy: @proxy_settings,
         s3_credentials: {not: :important}
@@ -58,7 +55,7 @@ describe Paperclip::Storage::S3 do
   context ":bucket option via :s3_credentials" do
 
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {bucket: 'testing'}
       @dummy = Dummy.new
     end
@@ -72,7 +69,7 @@ describe Paperclip::Storage::S3 do
   context ":bucket option" do
 
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing", s3_credentials: {}
       @dummy = Dummy.new
     end
@@ -86,7 +83,7 @@ describe Paperclip::Storage::S3 do
   context "missing :bucket option" do
 
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         http_proxy: @proxy_settings,
         s3_credentials: {not: :important}
 
@@ -103,7 +100,7 @@ describe Paperclip::Storage::S3 do
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
         path: ":attachment/:basename:dotextension",
@@ -130,7 +127,7 @@ describe Paperclip::Storage::S3 do
     ["http", :http, ""].each do |protocol|
       context "as #{protocol.inspect}" do
         before do
-          rebuild_model (aws2_add_region).merge storage: :s3,
+          rebuild_model storage: :s3,
             s3_protocol: protocol
           @dummy = Dummy.new
         end
@@ -144,7 +141,7 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: 'https'" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         s3_protocol: 'https',
         bucket: "bucket",
@@ -161,7 +158,7 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: ''" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         s3_protocol: '',
         bucket: "bucket",
@@ -178,7 +175,7 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: :https" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         s3_protocol: :https,
         bucket: "bucket",
@@ -195,7 +192,7 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: ''" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         s3_protocol: '',
         bucket: "bucket",
@@ -212,7 +209,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has the style in the path" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         styles: {
@@ -263,7 +260,7 @@ describe Paperclip::Storage::S3 do
 
   context "dynamic s3_host_name" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
         path: ":attachment/:basename:dotextension",
@@ -337,7 +334,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         styles: { large: ['500x500#', :jpg] },
         bucket: "bucket",
         path: ":attachment/:basename:dotextension",
@@ -372,7 +369,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has a proc for styles" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         styles: lambda { |attachment| attachment.instance.counter
           {thumbnail: { geometry: "50x50#",
                         s3_headers: {'Cache-Control' => 'max-age=31557600'}} }},
@@ -420,7 +417,6 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has styles" do
     before do
       rebuild_model(
-        (aws2_add_region).merge(
           storage: :s3,
           styles: { thumb: ["90x90#", :jpg] },
           bucket: "bucket",
@@ -428,7 +424,6 @@ describe Paperclip::Storage::S3 do
             "access_key_id" => "12345",
             "secret_access_key" => "54321" }
         )
-      )
 
       @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
@@ -472,7 +467,7 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has spaces in file name" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
+        storage: :s3,
         styles: { large: ["500x500#", :jpg] },
         bucket: "bucket",
         s3_credentials: { "access_key_id" => "12345",
@@ -497,7 +492,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has a question mark in file name" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         styles: { large: ['500x500#', :jpg] },
         bucket: "bucket",
         s3_credentials: {
@@ -529,7 +524,7 @@ describe Paperclip::Storage::S3 do
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
         path: ":attachment/:basename:dotextension",
@@ -547,7 +542,7 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
+        storage: :s3,
         s3_credentials: {
           production: { bucket: "prod_bucket" },
           development: { bucket: "dev_bucket" }
@@ -570,7 +565,6 @@ describe Paperclip::Storage::S3 do
   context "generating a url with a prefixed host alias" do
     before do
       rebuild_model(
-        aws2_add_region.merge(
           storage: :s3,
           s3_credentials: {
             production: { bucket: "prod_bucket" },
@@ -582,7 +576,6 @@ describe Paperclip::Storage::S3 do
           path: "prefix1/prefix2/:attachment/:basename:dotextension",
           url: ":s3_alias_url",
         )
-      )
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       @dummy.stubs(:new_record?).returns(false)
@@ -596,7 +589,7 @@ describe Paperclip::Storage::S3 do
 
   context "generating a url with a proc as the host alias" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: { bucket: "prod_bucket" },
         s3_host_alias: Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
         path: ":attachment/:basename:dotextension",
@@ -626,7 +619,7 @@ describe Paperclip::Storage::S3 do
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {},
         bucket: "bucket",
         path: ":attachment/:basename:dotextension",
@@ -657,7 +650,7 @@ describe Paperclip::Storage::S3 do
           url: ":s3_alias_url"
         }
 
-        rebuild_model (aws2_add_region).merge base_options.merge(options)
+        rebuild_model base_options.merge(options)
       }
     end
 
@@ -737,7 +730,7 @@ describe Paperclip::Storage::S3 do
 
   context "Generating a url with an expiration for each style" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {
           production: { bucket: "prod_bucket" },
           development: { bucket: "dev_bucket" }
@@ -770,7 +763,7 @@ describe Paperclip::Storage::S3 do
 
   context "Parsing S3 credentials with a bucket in them" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         s3_credentials: {
           production: { bucket: "prod_bucket" },
           development: { bucket: "dev_bucket" }
@@ -805,8 +798,7 @@ describe Paperclip::Storage::S3 do
         development: {
           s3_region: "ap-northeast-1",
           s3_host_name: "s3-ap-northeast-1.amazonaws.com" },
-        test: {
-          s3_region: "" }
+        test: {},
         }
       @dummy = Dummy.new
     end
@@ -828,19 +820,18 @@ describe Paperclip::Storage::S3 do
       end
     end
 
-    it "gets the right s3_host_name if the key does not exist" do
+    it "gets the right default s3_host_name if the key does not exist" do
       rails_env("test") do
         assert_match %r{^s3.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_raises(Aws::Errors::MissingRegionError) do
+        assert_match %r{^s3.fake-region.amazonaws.com},
           @dummy.avatar.s3_bucket.client.config.endpoint.host
-        end
       end
     end
   end
 
   context "An attachment with S3 storage" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -959,7 +950,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and bucket defined as a Proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: lambda { |attachment| "bucket_#{attachment.instance.other}" },
         s3_credentials: {not: :important}
     end
@@ -974,7 +965,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and S3 credentials defined as a Proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: {not: :important},
         s3_credentials: lambda { |attachment|
           Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
@@ -991,7 +982,7 @@ describe Paperclip::Storage::S3 do
     before do
       class DummyCredentialProvider; end
 
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         s3_credentials: {
           credentials: DummyCredentialProvider.new
@@ -1006,7 +997,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and S3 credentials in an unsupported manor" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing", s3_credentials: ["unsupported"]
       @dummy = Dummy.new
     end
@@ -1020,7 +1011,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and S3 credentials not supplied" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3, bucket: "testing"
+      rebuild_model storage: :s3, bucket: "testing"
       @dummy = Dummy.new
     end
 
@@ -1031,7 +1022,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and specific s3 headers set" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -1072,7 +1063,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and metadata set using header names" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -1113,7 +1104,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and metadata set using the :s3_metadata option" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -1155,7 +1146,7 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and storage class set" do
     context "using the header name" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
@@ -1196,18 +1187,18 @@ describe Paperclip::Storage::S3 do
 
     context "using per style hash" do
       before do
-        rebuild_model (aws2_add_region).merge :storage => :s3,
-          :bucket => "testing",
-          :path => ":attachment/:style/:basename.:extension",
-          :styles => {
-            :thumb => "80x80>"
+        rebuild_model storage: :s3,
+          bucket: "testing",
+          path: ":attachment/:style/:basename.:extension",
+          styles: {
+            thumb: "80x80>"
           },
-          :s3_credentials => {
+          s3_credentials: {
             'access_key_id' => "12345",
             'secret_access_key' => "54321"
           },
-          :s3_storage_class => {
-            :thumb => :reduced_redundancy
+          s3_storage_class: {
+            thumb: :reduced_redundancy
           }
       end
 
@@ -1247,17 +1238,17 @@ describe Paperclip::Storage::S3 do
 
     context "using global hash option" do
       before do
-        rebuild_model (aws2_add_region).merge :storage => :s3,
-          :bucket => "testing",
-          :path => ":attachment/:style/:basename.:extension",
-          :styles => {
-            :thumb => "80x80>"
+        rebuild_model storage: :s3,
+          bucket: "testing",
+          path: ":attachment/:style/:basename.:extension",
+          styles: {
+            thumb: "80x80>"
           },
-          :s3_credentials => {
+          s3_credentials: {
             'access_key_id' => "12345",
             'secret_access_key' => "54321"
           },
-          :s3_storage_class => :reduced_redundancy
+          s3_storage_class: :reduced_redundancy
       end
 
       context "when assigned" do
@@ -1295,7 +1286,7 @@ describe Paperclip::Storage::S3 do
     [nil, false, ''].each do |tech|
       before do
         rebuild_model(
-          (aws2_add_region).merge storage: :s3,
+          storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
@@ -1333,7 +1324,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and using AES256 encryption" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -1373,7 +1364,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and storage class set using the :storage_class option" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         s3_credentials: {
@@ -1419,7 +1410,7 @@ describe Paperclip::Storage::S3 do
       ENV['S3_SECRET'] = 'pathname_secret'
 
       rails_env('test') do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           s3_credentials: Pathname.new(fixture_file('s3.yml'))
 
         Dummy.delete_all
@@ -1445,7 +1436,7 @@ describe Paperclip::Storage::S3 do
       ENV['S3_SECRET'] = 'env_secret'
 
       rails_env('test') do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           s3_credentials: File.new(fixture_file('s3.yml'))
 
         Dummy.delete_all
@@ -1468,7 +1459,7 @@ describe Paperclip::Storage::S3 do
   context "S3 Permissions" do
     context "defaults to :public_read" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
@@ -1505,7 +1496,7 @@ describe Paperclip::Storage::S3 do
 
     context "string permissions set" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           s3_credentials: {
@@ -1543,7 +1534,7 @@ describe Paperclip::Storage::S3 do
 
     context "hash permissions set" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
+        rebuild_model storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           styles: {
@@ -1592,7 +1583,7 @@ describe Paperclip::Storage::S3 do
     context "proc permission set" do
       before do
         rebuild_model(
-          (aws2_add_region).merge storage: :s3,
+          storage: :s3,
           bucket: "testing",
           path: ":attachment/:style/:basename:dotextension",
           styles: {
@@ -1613,7 +1604,7 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and metadata set using a proc as headers" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
+        storage: :s3,
         bucket: "testing",
         path: ":attachment/:style/:basename:dotextension",
         styles: {
@@ -1663,7 +1654,7 @@ describe Paperclip::Storage::S3 do
 
   context "path is a proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
+      rebuild_model storage: :s3,
         path: ->(attachment) { attachment.instance.attachment_path }
 
       @dummy = Dummy.new

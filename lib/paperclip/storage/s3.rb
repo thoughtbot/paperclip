@@ -232,10 +232,9 @@ module Paperclip
 
       def s3_interface
         @s3_interface ||= begin
-          config = { region: s3_region }
+          config = {}
 
           if using_http_proxy?
-
             proxy_opts = { :host => http_proxy_host }
             proxy_opts[:port] = http_proxy_port if http_proxy_port
             if http_proxy_user
@@ -246,6 +245,7 @@ module Paperclip
             config[:proxy_uri] = URI::HTTP.build(proxy_opts)
           end
 
+          config[:region] = s3_region if s3_region
           config[:use_accelerate_endpoint] = use_accelerate_endpoint?
 
           [:access_key_id, :secret_access_key, :credential_provider, :credentials].each do |opt|
