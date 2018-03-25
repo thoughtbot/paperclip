@@ -35,6 +35,7 @@ https://github.com/thoughtbot/paperclip/releases
 - [Validations](#validations)
 - [Internationalization (I18n)](#internationalization-i18n)
 - [Security Validations](#security-validations)
+- [Private Attachments](#private-attachments)
 - [Defaults](#defaults)
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
@@ -459,6 +460,37 @@ list of content type mappings by creating `config/initializers/paperclip.rb`:
 Paperclip.options[:content_type_mappings] = {
   foo: %w(text/plain)
 }
+```
+---
+
+Private Attachments
+-------------------
+If you want to place files behind a controller in order to perform validation you can.
+
+In your routes.rb file mount the paperclip engine with any path you'd like. 
+Ex:
+```ruby
+mount Paperclip::Engine => 'paperclip/'
+```
+
+In your ApplicationController add the method `paperclip_whitelist` which returns an array of the models with attachments you would like to serve privately. 
+Ex:
+```ruby
+def paperclip_whitelist
+  [PrivateAttachment]
+end
+```
+
+Then in your model add `privacy: :private` to the has_attached_file options. Then add the method `can_download_attachment?`. 
+The method `can_download_attachment?` gets passed the controller instance and the params and is expected to return true, false, or raise Paperclip::Errors::AccessDeniedError.
+The controller is passed so that methods like current_user can be run on it to get the user instance for validation puprposes. Duplicated params gets passed to do things like allow anyone if the style is :thumb or to only allow :original to paid users.
+Ex:
+```ruby
+  has_attached_file :file, privacy: :private
+
+  def can_download_attachment?(controller, params)
+    params[:style] == :thumb || (!controller.current_user.nil? && created_by == controller.current_user.id)
+  end
 ```
 
 ---

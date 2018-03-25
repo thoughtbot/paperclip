@@ -76,6 +76,7 @@ module Paperclip
 
     def register_new_attachment
       Paperclip::AttachmentRegistry.register(@klass, @name, @options)
+      Paperclip::PrivateAttachmentRegistry.register(@klass, @name, @options) if @options[:privacy] == :private
     end
 
     def add_required_validations
