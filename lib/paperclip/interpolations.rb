@@ -30,6 +30,7 @@ module Paperclip
     # an interpolation pattern for Paperclip to use.
     def self.interpolate pattern, *args
       pattern = args.first.instance.send(pattern) if pattern.kind_of? Symbol
+      return unless pattern
       result = pattern.dup
       interpolators_cache.each do |method, token|
         result.gsub!(token) { send(method, *args) } if result.include?(token)

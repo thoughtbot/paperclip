@@ -11,6 +11,7 @@ module Paperclip
       interpolated = attachment_options[:interpolator].interpolate(
         most_appropriate_url, @attachment, style_name
       )
+      return unless interpolated
 
       escaped = escape_url_as_needed(interpolated, options)
       timestamp_as_needed(escaped, options)

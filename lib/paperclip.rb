@@ -131,11 +131,11 @@ module Paperclip
     #   Note: When using the +s3+ storage option, the +url+ option expects
     #   particular values. See the Paperclip::Storage::S3#url documentation for
     #   specifics.
-    # * +default_url+: The URL that will be returned if there is no attachment assigned.
-    #   This field is interpolated just as the url is. The default value is
-    #   "/:attachment/:style/missing.png"
-    #     has_attached_file :avatar, :default_url => "/images/default_:style_avatar.png"
-    #     User.new.avatar_url(:small) # => "/images/default_small_avatar.png"
+    # * +default_url+: The URL that will be returned if there is no attachment assigned,
+    #   useful for "missing" images. This field is interpolated just as the url is.
+    #   The default value is nil.
+    #     has_attached_file :avatar, :default_url => "/:attachment/missing_avatar_:style.png"
+    #     User.new.avatar_url(:small) # => "/images/missing_avatar_small.png"
     # * +styles+: A hash of thumbnail styles and their geometries. You can find more about
     #   geometry strings at the ImageMagick website
     #   (http://www.imagemagick.org/script/command-line-options.php#resize). Paperclip

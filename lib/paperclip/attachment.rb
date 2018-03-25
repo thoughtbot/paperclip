@@ -13,7 +13,7 @@ module Paperclip
       @default_options ||= {
         :convert_options       => {},
         :default_style         => :original,
-        :default_url           => "/:attachment/:style/missing.png",
+        :default_url           => nil,  # Paperclip::VERSION =~ /\A[1-5]\./ ? '/:attachment/:style/missing.png' : nil,
         :escape_url            => true,
         :restricted_characters => /[&$+,\/:;=?@<>\[\]\{\}\|\\\^~%# ]/,
         :filename_cleaner      => nil,
@@ -53,7 +53,7 @@ module Paperclip
     # +styles+ - a hash of options for processing the attachment. See +has_attached_file+ for the details
     # +only_process+ - style args to be run through the post-processor. This defaults to the empty list (which is
     #                  a special case that indicates all styles should be processed)
-    # +default_url+ - a URL for the missing image
+    # +default_url+ - an interpolatable URL for the missing image, e.g. "/:attachment/:style/missing.png". Defaults to nil
     # +default_style+ - the style to use when an argument is not specified e.g. #url, #path
     # +storage+ - the storage mechanism. Defaults to :filesystem
     # +use_timestamp+ - whether to append an anti-caching timestamp to image URLs. Defaults to true
