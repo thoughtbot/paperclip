@@ -471,6 +471,14 @@ module Paperclip
     end
 
     def reset_file_if_original_reprocessed
+      new_file_name = File.basename(@file.original_filename, ".*".freeze)
+      if (extension = ".#{interpolator.extension(self, :original)}")
+        new_file_name << extension
+      end
+      instance_write(:file_name, cleanup_filename(new_file_name))
+      instance_write(
+        :content_type, @queued_for_write[:original].content_type.to_s.strip
+      )
       instance_write(:file_size, @queued_for_write[:original].size)
       assign_fingerprint { @queued_for_write[:original].fingerprint }
       reset_updater

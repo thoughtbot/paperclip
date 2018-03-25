@@ -420,6 +420,27 @@ describe Paperclip::Attachment do
     end
   end
 
+  context "An attachment with an extension interpolation on the original style" do
+    before do
+      rebuild_model path: ":basename.:extension",
+        styles: { original: ["100x100", :jpg] },
+        default_style: :default
+      @attachment = Dummy.new.avatar
+      @file = File.open(fixture_file("5k.png"))
+      @file.stubs(:original_filename).returns("file.png")
+    end
+
+    it "returns the right extension for the filename" do
+      @attachment.assign(@file)
+      assert_equal "file.jpg", @attachment.original_filename
+    end
+
+    it "returns the right mime type" do
+      @attachment.assign(@file)
+      assert_equal "image/jpeg", @attachment.content_type
+    end
+  end
+
   context "An attachment with :convert_options" do
     before do
       rebuild_model styles: {
