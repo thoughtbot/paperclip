@@ -30,7 +30,8 @@ module Paperclip
     end
 
     def media_type_mismatch?
-      supplied_type_mismatch? || calculated_type_mismatch?
+      #if there are any media types from the filename, check for mismatch with calculated and supplied types
+      media_types_from_name.size > 0 && (supplied_type_mismatch? || calculated_type_mismatch?)
     end
 
     def supplied_type_mismatch?
