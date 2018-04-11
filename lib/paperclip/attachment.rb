@@ -112,6 +112,10 @@ module Paperclip
           assign_attributes
           post_process_file
           reset_file_if_original_reprocessed
+          # we won't be able to rollback to a previous version that's been
+          # queued for deletion on commit (it's already clobbered at this
+          # point), but at least ensure we don't delete the new one
+          ensure_current_file_not_queued_for_delete if @options[:keep_old_files_until_commit]
         end
       else
         nil
@@ -239,7 +243,7 @@ module Paperclip
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save
-      flush_deletes unless @options[:keep_old_files]
+      flush_deletes unless @options[:keep_old_files] || @options[:keep_old_files_until_commit]
       process = only_process
       if process.any? && !process.include?(:original)
         @queued_for_write.except!(:original)
@@ -565,7 +569,7 @@ module Paperclip
     def queue_all_for_delete #:nodoc:
       return if !file?
       unless @options[:preserve_files]
-        @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
+        @queued_for_delete += current_paths.map do |style|
           path(style) if exists?(style)
         end.compact
       end
@@ -575,6 +579,17 @@ module Paperclip
       instance_write(:fingerprint, nil)
       instance_write(:created_at, nil) if has_enabled_but_unset_created_at?
       instance_write(:updated_at, nil)
+    end
+
+    def ensure_current_file_not_queued_for_delete
+      paths_to_dequeue = current_paths
+      @queued_for_delete.reject! do |queue_item|
+        queue_item.in? paths_to_dequeue
+      end
+    end
+
+    def current_paths
+      [:original, *styles.keys].map { |style| path(style) }.uniq
     end
 
     def flush_errors #:nodoc:

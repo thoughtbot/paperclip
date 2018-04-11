@@ -92,7 +92,9 @@ module Paperclip
       @klass.send(:after_save) { send(name).send(:save) }
       @klass.send(:before_destroy) { send(name).send(:queue_all_for_delete) }
       if @klass.respond_to?(:after_commit)
-        @klass.send(:after_commit, on: :destroy) do
+        flush_after = [:destroy]
+        flush_after << :update if @options[:keep_old_files_until_commit]
+        @klass.send(:after_commit, on: flush_after) do
           send(name).send(:flush_deletes)
         end
       else
