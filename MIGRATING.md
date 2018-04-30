@@ -250,7 +250,7 @@ class Organization < ApplicationRecord
 end
 ```
 
-The following rake task would migrate all of off your assets:
+The following rake task would migrate all of your assets:
 
 ```ruby
 namespace :organizations do
