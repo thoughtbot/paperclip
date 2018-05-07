@@ -9,7 +9,8 @@ module Paperclip
     REGEXP = /\Ahttps?:\/\//
 
     def initialize(target, options = {})
-      super(URI(URI.escape(target)), options)
+      escaped = URI.escape(target)
+      super(URI(target == URI.unescape(target) ? escaped : target), options)
     end
   end
 end
