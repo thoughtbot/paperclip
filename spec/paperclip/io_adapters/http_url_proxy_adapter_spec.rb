@@ -73,6 +73,7 @@ describe Paperclip::HttpUrlProxyAdapter do
     it "returns a file name" do
       assert_equal "paperclip", subject.original_filename
     end
+
     it "preserves params" do
       assert_equal url, subject.instance_variable_get(:@target).to_s
     end
