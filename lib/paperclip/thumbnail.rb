@@ -85,7 +85,10 @@ module Paperclip
           dest: File.expand_path(dst.path),
         )
       rescue Terrapin::ExitStatusError => e
-        raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
+        if @whiny
+          message = "There was an error processing the thumbnail for #{@basename}:\n" + e.message
+          raise Paperclip::Error, message
+        end
       rescue Terrapin::CommandNotFoundError => e
         raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
