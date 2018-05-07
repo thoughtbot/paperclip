@@ -1,34 +1,33 @@
 Given /^I generate a new rails application$/ do
   steps %{
-    When I run `bundle exec #{new_application_command} #{APP_NAME} --skip-bundle`
+    When I successfully run `rails new #{APP_NAME} --skip-bundle`
     And I cd to "#{APP_NAME}"
+  }
+
+  FileUtils.chdir("tmp/aruba/testapp/")
+
+  steps %{
     And I turn off class caching
-    And I fix the application.rb for 3.0.12
     And I write to "Gemfile" with:
       """
       source "http://rubygems.org"
       gem "rails", "#{framework_version}"
-      gem "sqlite3", "1.3.8", :platform => [:ruby, :rbx]
+      gem "sqlite3", :platform => [:ruby, :rbx]
       gem "activerecord-jdbcsqlite3-adapter", :platform => :jruby
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
-      gem "aws-sdk"
+      gem "aws-sdk-s3"
       gem "racc", :platform => :rbx
       gem "rubysl", :platform => :rbx
       """
     And I remove turbolinks
+    And I comment out lines that contain "action_mailer" in "config/environments/*.rb"
     And I empty the application.js file
     And I configure the application to use "paperclip" from this project
   }
-end
 
-Given "I fix the application.rb for 3.0.12" do
-  cd(".") do
-    File.open("config/application.rb", "a") do |f|
-      f << "ActionController::Base.config.relative_url_root = ''"
-    end
-  end
+  FileUtils.chdir("../../..")
 end
 
 Given "I allow the attachment to be submitted" do
@@ -51,6 +50,16 @@ Given "I remove turbolinks" do
   end
 end
 
+Given /^I comment out lines that contain "([^"]+)" in "([^"]+)"$/ do |contains, glob|
+  cd(".") do
+    Dir.glob(glob).each do |file|
+      transform_file(file) do |content|
+        content.gsub(/^(.*?#{contains}.*?)$/) { |line| "# #{line}" }
+      end
+    end
+  end
+end
+
 Given /^I attach :attachment$/ do
   attach_attachment("attachment")
 end
@@ -60,11 +69,7 @@ Given /^I attach :attachment with:$/ do |definition|
 end
 
 def attach_attachment(name, definition = nil)
-  snippet = ""
-  if using_protected_attributes?
-    snippet += "attr_accessible :name, :#{name}\n"
-  end
-  snippet += "has_attached_file :#{name}"
+  snippet = "has_attached_file :#{name}"
   if definition
     snippet += ", \n"
     snippet += definition
@@ -86,19 +91,19 @@ Given "I empty the application.js file" do
 end
 
 Given /^I run a rails generator to generate a "([^"]*)" scaffold with "([^"]*)"$/ do |model_name, attributes|
-  step %[I successfully run `bundle exec #{generator_command} scaffold #{model_name} #{attributes}`]
+  step %[I successfully run `rails generate scaffold #{model_name} #{attributes}`]
 end
 
 Given /^I run a paperclip generator to add a paperclip "([^"]*)" to the "([^"]*)" model$/ do |attachment_name, model_name|
-  step %[I successfully run `bundle exec #{generator_command} paperclip #{model_name} #{attachment_name}`]
+  step %[I successfully run `rails generate paperclip #{model_name} #{attachment_name}`]
 end
 
 Given /^I run a migration$/ do
-  step %[I successfully run `bundle exec rake db:migrate --trace`]
+  step %[I successfully run `rake db:migrate --trace`]
 end
 
 When /^I rollback a migration$/ do
-  step %[I successfully run `bundle exec rake db:rollback STEPS=1 --trace`]
+  step %[I successfully run `rake db:rollback STEPS=1 --trace`]
 end
 
 Given /^I update my new user view to include the file upload field$/ do
@@ -144,8 +149,10 @@ end
 
 Given /^I start the rails application$/ do
   cd(".") do
+    require "rails"
     require "./config/environment"
-    require "capybara/rails"
+    require "capybara"
+    Capybara.app = Rails.application
   end
 end
 
@@ -171,7 +178,7 @@ end
 
 When /^I configure the application to use "([^\"]+)" from this project$/ do |name|
   append_to_gemfile "gem '#{name}', :path => '#{PROJECT_ROOT}'"
-  steps %{And I run `bundle install --local`}
+  steps %{And I successfully run `bundle install --local`}
 end
 
 When /^I configure the application to use "([^\"]+)"$/ do |gem_name|

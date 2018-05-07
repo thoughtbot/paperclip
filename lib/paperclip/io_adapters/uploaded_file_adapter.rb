@@ -1,7 +1,13 @@
 module Paperclip
   class UploadedFileAdapter < AbstractAdapter
-    def initialize(target)
-      @target = target
+    def self.register
+      Paperclip.io_adapters.register self do |target|
+        target.class.name.include?("UploadedFile")
+      end
+    end
+
+    def initialize(target, options = {})
+      super
       cache_current_values
 
       if @target.respond_to?(:tempfile)
@@ -24,7 +30,7 @@ module Paperclip
     end
 
     def content_type_detector
-      self.class.content_type_detector
+      self.class.content_type_detector || Paperclip::ContentTypeDetector
     end
 
     def determine_content_type
@@ -37,6 +43,4 @@ module Paperclip
   end
 end
 
-Paperclip.io_adapters.register Paperclip::UploadedFileAdapter do |target|
-  target.class.name.include?("UploadedFile")
-end
+Paperclip::UploadedFileAdapter.register

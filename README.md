@@ -17,7 +17,6 @@ https://github.com/thoughtbot/paperclip/releases
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Requirements](#requirements)
   - [Ruby and Rails](#ruby-and-rails)
   - [Image Processor](#image-processor)
@@ -30,6 +29,7 @@ https://github.com/thoughtbot/paperclip/releases
   - [Edit and New Views with Simple Form](#edit-and-new-views-with-simple-form)
   - [Controller](#controller)
   - [View Helpers](#view-helpers)
+  - [Checking a File Exists](#checking-a-file-exists)
   - [Deleting an Attachment](#deleting-an-attachment)
 - [Usage](#usage)
 - [Validations](#validations)
@@ -39,15 +39,16 @@ https://github.com/thoughtbot/paperclip/releases
 - [Migrations](#migrations-1)
   - [Add Attachment Column To A Table](#add-attachment-column-to-a-table)
   - [Schema Definition](#schema-definition)
-  - [Vintage syntax](#vintage-syntax)
+  - [Vintage Syntax](#vintage-syntax)
 - [Storage](#storage)
   - [Understanding Storage](#understanding-storage)
+- [IO Adapters](#io-adapters)
 - [Post Processing](#post-processing)
+- [Custom Attachment Processors](#custom-attachment-processors)
 - [Events](#events)
 - [URI Obfuscation](#uri-obfuscation)
-- [MD5 Checksum / Fingerprint](#md5-checksum--fingerprint)
+- [Checksum / Fingerprint](#checksum--fingerprint)
 - [File Preservation for Soft-Delete](#file-preservation-for-soft-delete)
-- [Custom Attachment Processors](#custom-attachment-processors)
 - [Dynamic Configuration](#dynamic-configuration)
   - [Dynamic Styles:](#dynamic-styles)
   - [Dynamic Processors:](#dynamic-processors)
@@ -86,7 +87,7 @@ Requirements
 ### Ruby and Rails
 
 Paperclip now requires Ruby version **>= 2.1** and Rails version **>= 4.2**
-(only if you're going to use Paperclip with Ruby on Rails.)
+(only if you're going to use Paperclip with Ruby on Rails).
 
 ### Image Processor
 
@@ -104,7 +105,7 @@ In development mode, you might add this line to `config/environments/development
 Paperclip.options[:command_path] = "/usr/local/bin/"
 ```
 
-If you're on Mac OS X, you'll want to run the following with [Homebrew] (http://www.brew.sh):
+If you're on Mac OS X, you'll want to run the following with [Homebrew](http://www.brew.sh):
 
     brew install imagemagick
 
@@ -166,7 +167,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 5.0.0"
+gem "paperclip", "~> 6.0.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
@@ -199,12 +200,14 @@ Quick Start
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { medium: "300x300>", thumb: "100x100>" }, default_url: "/images/:style/missing.png"
-  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\z/
 end
 ```
 
 ### Migrations
 
+
+Assuming you have a `users` table, add an `avatar` column to the `users` table:
 ```ruby
 class AddAvatarColumnsToUsers < ActiveRecord::Migration
   def up
@@ -220,10 +223,11 @@ end
 (Or you can use the Rails migration generator: `rails generate paperclip user avatar`)
 
 ### Edit and New Views
-
+Make sure you have corresponding methods in your controller:
 ```erb
 <%= form_for @user, url: users_path, html: { multipart: true } do |form| %>
   <%= form.file_field :avatar %>
+  <%= form.submit %>
 <% end %>
 ```
 
@@ -232,6 +236,7 @@ end
 ```erb
 <%= simple_form_for @user, url: users_path do |form| %>
   <%= form.input :avatar, as: :file %>
+  <%= form.submit %>
 <% end %>
 ```
 
@@ -239,7 +244,7 @@ end
 
 ```ruby
 def create
-  @user = User.create( user_params )
+  @user = User.create(user_params)
 end
 
 private
@@ -253,12 +258,22 @@ end
 ```
 
 ### View Helpers
-
+Add these to the view where you want your images displayed:
 ```erb
 <%= image_tag @user.avatar.url %>
 <%= image_tag @user.avatar.url(:medium) %>
 <%= image_tag @user.avatar.url(:thumb) %>
 ```
+
+### Checking a File Exists
+
+There are two methods for checking if a file exists:
+
+- `file?` and `present?` checks if the `_file_name` field is populated
+- `exists?` checks if the file exists (will perform a TCP connection if stored in the cloud)
+
+Keep this in mind if you are checking if files are present in a loop. The first
+version is significantly more performant, but has different semantics.
 
 ### Deleting an Attachment
 
@@ -336,7 +351,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: "100x100#" }
 
   before_post_process :skip_for_audio
 
@@ -352,7 +367,7 @@ afterwards, then assign manually:
 
 ```ruby
 class Book < ActiveRecord::Base
-  has_attached_file :document, styles: {thumbnail: "60x60#"}
+  has_attached_file :document, styles: { thumbnail: "60x60#" }
   validates_attachment :document, content_type: { content_type: "application/pdf" }
   validates_something_else # Other validations that conflict with Paperclip's
 end
@@ -417,7 +432,7 @@ class ActiveRecord::Base
   # Validate content type
   validates_attachment_content_type :avatar, content_type: /\Aimage/
   # Validate filename
-  validates_attachment_file_name :avatar, matches: [/png\Z/, /jpe?g\Z/]
+  validates_attachment_file_name :avatar, matches: [/png\z/, /jpe?g\z/]
   # Explicitly do not validate
   do_not_validate_attachment_file_type :avatar
 end
@@ -539,7 +554,7 @@ class AddAttachmentColumnsToUsers < ActiveRecord::Migration
 end
 ```
 
-### Vintage syntax
+### Vintage Syntax
 
 Vintage syntax (such as `t.has_attached_file` and `drop_attached_file`) is still supported in
 Paperclip 3.x, but you're advised to update those migration files to use this new syntax.
@@ -552,12 +567,13 @@ Storage
 Paperclip ships with 3 storage adapters:
 
 * File Storage
-* S3 Storage (via `aws-sdk`)
+* S3 Storage (via `aws-sdk-s3`)
 * Fog Storage
 
 If you would like to use Paperclip with another storage, you can install these
 gems along side with Paperclip:
 
+* [paperclip-azure](https://github.com/supportify/paperclip-azure)
 * [paperclip-azure-storage](https://github.com/gmontard/paperclip-azure-storage)
 * [paperclip-dropbox](https://github.com/janko-m/paperclip-dropbox)
 
@@ -577,10 +593,10 @@ _**NOTE**: This is a change from previous versions of Paperclip, but is overall 
 safer choice for the default file store._
 
 You may also choose to store your files using Amazon's S3 service. To do so, include
-the `aws-sdk` gem in your Gemfile:
+the `aws-sdk-s3` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '>= 2.0.34'
+gem 'aws-sdk-s3'
 ```
 
 And then you can specify using S3 from `has_attached_file`.
@@ -596,65 +612,121 @@ variables.
 
 ---
 
+IO Adapters
+-----------
+
+When a file is uploaded or attached, it can be in one of a few different input
+forms, from Rails' UploadedFile object to a StringIO to a Tempfile or even a
+simple String that is a URL that points to an image.
+
+Paperclip will accept, by default, many of these sources. It also is capable of
+handling even more with a little configuration. The IO Adapters that handle
+images from non-local sources are not enabled by default. They can be enabled by
+adding a line similar to the following into `config/initializers/paperclip.rb`:
+
+```ruby
+Paperclip::DataUriAdapter.register
+```
+
+It's best to only enable a remote-loading adapter if you need it. Otherwise
+there's a chance that someone can gain insight into your internal network
+structure using it as a vector.
+
+The following adapters are *not* loaded by default:
+
+* `Paperclip::UriAdapter` - which accepts a `URI` instance.
+* `Paperclip::HttpUrlProxyAdapter` - which accepts a `http` string.
+* `Paperclip::DataUriAdapter` - which accepts a Base64-encoded `data:` string.
+
+---
+
 Post Processing
 ---------------
 
 Paperclip supports an extensible selection of post-processors. When you define
 a set of styles for an attachment, by default it is expected that those
-"styles" are actually "thumbnails." However, you can do much more than just
-thumbnail images. By defining a subclass of Paperclip::Processor, you can
-perform any processing you want on the files that are attached. Any file in
-your Rails app's `lib/paperclip` and `lib/paperclip_processors` directories is
-automatically loaded by Paperclip, allowing you to easily define custom
-processors. You can specify a processor with the `:processors` option to
-`has_attached_file`:
-
-```ruby
-has_attached_file :scan, styles: { text: { quality: :better } },
-                         processors: [:ocr]
-```
-
-This would load the hypothetical class Paperclip::Ocr, which would have the
-hash "{ quality: :better }" passed to it along with the uploaded file. For
-more information about defining processors, see
-[Paperclip::Processor](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb).
-
-The default processor is Paperclip::Thumbnail. For backward compatibility
-reasons, you can pass a single geometry string or an array containing a
-geometry and a format that the file will be converted to, like so:
+"styles" are actually "thumbnails." These are processed by
+`Paperclip::Thumbnail`.  For backward compatibility reasons you can pass either
+a single geometry string, or an array containing a geometry and a format that
+the file will be converted to, like so:
 
 ```ruby
 has_attached_file :avatar, styles: { thumb: ["32x32#", :png] }
 ```
 
 This will convert the "thumb" style to a 32x32 square in PNG format, regardless
-of what was uploaded. If the format is not specified, it is kept the same (i.e.
-JPGs will remain JPGs). For more information on the accepted style formats, see
-[here](http://www.imagemagick.org/script/command-line-processing.php#geometry).
+of what was uploaded. If the format is not specified, it is kept the same (e.g.
+JPGs will remain JPGs). `Paperclip::Thumbnail` uses ImageMagick to process
+images; [ImageMagick's geometry documentation](http://www.imagemagick.org/script/command-line-processing.php#geometry)
+has more information on the accepted style formats.
+
+For more fine-grained control of the conversion process, `source_file_options` and `convert_options` can be used to pass flags and settings directly to ImageMagick's powerful Convert tool, [documented here](https://www.imagemagick.org/script/convert.php). For example:
+
+```ruby
+has_attached_file :image, styles: { regular: ['800x800>', :png]}, 
+    source_file_options: { regular: "-density 96 -depth 8 -quality 85" },
+    convert_options: { regular: "-posterize 3"}
+```
+
+ImageMagick supports a number of environment variables for controlling its resource limits. For example, you can enforce memory or execution time limits by setting the following variables in your application's process environment:
+
+* `MAGICK_MEMORY_LIMIT=128MiB`
+* `MAGICK_MAP_LIMIT=64MiB`
+* `MAGICK_TIME_LIMIT=30`
+
+For a full list of variables and description, see [ImageMagick's resources documentation](http://www.imagemagick.org/script/resources.php).
+
+---
+
+Custom Attachment Processors
+-------
+
+You can write your own custom attachment processors to carry out tasks like
+adding watermarks, compressing images, or encrypting files. Custom processors
+must be defined within the `Paperclip` module, inherit from
+`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb)),
+and implement a `make` method that returns a `File`. All files in your Rails
+app's `lib/paperclip` and `lib/paperclip_processors` directories will be
+automatically loaded by Paperclip. Processors are specified using the
+`:processors` option to `has_attached_file`:
+
+```ruby
+has_attached_file :scan, styles: { text: { quality: :better } },
+                         processors: [:ocr]
+```
+
+This would load the hypothetical class `Paperclip::Ocr`, and pass it the
+options hash `{ quality: :better }`, along with the uploaded file.
 
 Multiple processors can be specified, and they will be invoked in the order
-they are defined in the `:processors` array. Each successive processor will
-be given the result of the previous processor's execution. All processors will
-receive the same parameters, which are defined in the `:styles` hash.
-For example, assuming we had this definition:
+they are defined in the `:processors` array. Each successive processor is given
+the result from the previous processor. All processors receive the same
+parameters, which are defined in the `:styles` hash.  For example, assuming we
+had this definition:
 
 ```ruby
 has_attached_file :scan, styles: { text: { quality: :better } },
                          processors: [:rotator, :ocr]
 ```
 
-then both the :rotator processor and the :ocr processor would receive the
-options `{ quality: :better }`. This parameter may not mean anything to one
-or more or the processors, and they are expected to ignore it.
+Both the `:rotator` processor and the `:ocr` processor would receive the
+options `{ quality: :better }`. If a processor receives an option it doesn't
+recognise, it's expected to ignore it.
 
 _NOTE: Because processors operate by turning the original attachment into the
 styles, no processors will be run if there are no styles defined._
 
 If you're interested in caching your thumbnail's width, height and size in the
-database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta) gem.
+database, take a look at the [paperclip-meta](https://github.com/teeparham/paperclip-meta)
+gem.
 
 Also, if you're interested in generating the thumbnail on-the-fly, you might want
-to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly) gem.
+to look into the [attachment_on_the_fly](https://github.com/drpentode/Attachment-on-the-Fly)
+gem.
+
+Paperclip's thumbnail generator (see [`lib/paperclip/thumbnail.rb`](lib/paperclip/thumbnail.rb))
+is implemented as a processor, and may be a good reference for writing your own
+processors.
 
 ---
 
@@ -678,7 +750,7 @@ called with valid attachments._
 
 ```ruby
 class Message < ActiveRecord::Base
-  has_attached_file :asset, styles: {thumb: "100x100#"}
+  has_attached_file :asset, styles: { thumb: "100x100#" }
 
   before_post_process :skip_for_audio
 
@@ -713,10 +785,10 @@ is specified in `:hash_data`. The default value for `:hash_data` is `":class/:at
 
 For more on this feature, read [the author's own explanation](https://github.com/thoughtbot/paperclip/pull/416)
 
-MD5 Checksum / Fingerprint
+Checksum / Fingerprint
 -------
 
-An MD5 checksum of the original file assigned will be placed in the model if it
+A checksum of the original file assigned will be placed in the model if it
 has an attribute named fingerprint.  Following the user model migration example
 above, the migration would look like the following:
 
@@ -732,6 +804,17 @@ class AddAvatarFingerprintColumnToUser < ActiveRecord::Migration
 end
 ```
 
+The algorithm can be specified using a configuration option; it defaults to MD5
+for backwards compatibility with Paperclip 5 and earlier.
+
+```ruby
+has_attached_file :some_attachment, adapter_options: { hash_digest: Digest::SHA256 }
+```
+
+Run `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints` after
+changing the digest on existing attachments to update the fingerprints in the
+database.
+
 File Preservation for Soft-Delete
 -------
 
@@ -739,30 +822,11 @@ An option is available to preserve attachments in order to play nicely with soft
 
 ```ruby
 has_attached_file :some_attachment, {
-    preserve_files: "true",
+    preserve_files: true,
 }
 ```
 
 This will prevent ```some_attachment``` from being wiped out when the model gets destroyed, so it will still exist when the object is restored later.
-
----
-
-Custom Attachment Processors
--------
-
-Custom attachment processors can be implemented and their only requirement is
-to inherit from `Paperclip::Processor` (see `lib/paperclip/processor.rb`).
-For example, when `:styles` are specified for an image attachment, the
-thumbnail processor (see `lib/paperclip/thumbnail.rb`) is loaded without having
-to specify it as a `:processor` parameter to `has_attached_file`.  When any
-other processor is defined, it must be called out in the `:processors`
-parameter if it is to be applied to the attachment.  The thumbnail processor
-uses the ImageMagick `convert` command to do the work of resizing image
-thumbnails.  It would be easy to create a custom processor that watermarks
-an image using ImageMagick's `composite` command.  Following the
-implementation pattern of the thumbnail processor would be a way to implement a
-watermark processor.  All kinds of attachment processors can be created;
-a few utility examples would be compression and encryption processors.
 
 ---
 
@@ -931,7 +995,7 @@ similar mechanism for whichever parallel testing library you use.
 
 **Integration Tests**
 
-Using integration tests with FactoryGirl may save multiple copies of
+Using integration tests with FactoryBot may save multiple copies of
 your test files within the app. To avoid this, specify a custom path in
 the `config/environments/test.rb` like so:
 
@@ -948,11 +1012,11 @@ config.after(:suite) do
 end
 ```
 
-**Example of test configuration with Factory Girl**
+**Example of test configuration with Factory Bot**
 
 
 ```ruby
-FactoryGirl.define do
+FactoryBot.define do
   factory :user do
     avatar { File.new("#{Rails.root}/spec/support/fixtures/image.jpg") }
   end
@@ -980,13 +1044,13 @@ Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/grap
 License
 -------
 
-Paperclip is Copyright © 2008-2016 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright © 2008-2017 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
 
 About thoughtbot
 ----------------
 
-![thoughtbot](https://thoughtbot.com/logo.png)
+![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
 
 Paperclip is maintained and funded by thoughtbot.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.

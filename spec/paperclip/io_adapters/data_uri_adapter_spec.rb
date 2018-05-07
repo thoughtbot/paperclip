@@ -1,7 +1,13 @@
 require 'spec_helper'
 
 describe Paperclip::DataUriAdapter do
+  before do
+    Paperclip::DataUriAdapter.register
+  end
+
   after do
+    Paperclip.io_adapters.unregister(described_class)
+
     if @subject
       @subject.close
     end
@@ -20,7 +26,7 @@ describe Paperclip::DataUriAdapter do
   context "a new instance" do
     before do
       @contents = "data:image/png;base64,#{original_base64_content}"
-      @subject = Paperclip.io_adapters.for(@contents)
+      @subject = Paperclip.io_adapters.for(@contents, hash_digest: Digest::MD5)
     end
 
     it "returns a nondescript file name" do

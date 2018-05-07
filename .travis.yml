@@ -1,26 +1,25 @@
+language: ruby
+sudo: false
+
 rvm:
   - 2.1
-  - 2.2.2
+  - 2.2
+  - 2.3
+  - 2.4
 
 script: "bundle exec rake clean spec cucumber"
 
+addons:
+  apt:
+    packages:
+    - ghostscript
+
 gemfile:
-  - gemfiles/4.2.awsv2.0.gemfile
-  - gemfiles/4.2.awsv2.1.gemfile
-  - gemfiles/5.0.awsv2.0.gemfile
-  - gemfiles/5.0.awsv2.1.gemfile
+  - gemfiles/4.2.gemfile
+  - gemfiles/5.0.gemfile
 
 matrix:
   fast_finish: true
   exclude:
-    - gemfile: gemfiles/5.0.awsv2.0.gemfile
-      rvm: 2.0
-    - gemfile: gemfiles/5.0.awsv2.1.gemfile
-      rvm: 2.0
-    - gemfile: gemfiles/5.0.awsv2.0.gemfile
+    - gemfile: gemfiles/5.0.gemfile
       rvm: 2.1
-    - gemfile: gemfiles/5.0.awsv2.1.gemfile
-      rvm: 2.1
-
-sudo: false
-cache: bundler

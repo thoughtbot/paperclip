@@ -17,7 +17,7 @@ describe Paperclip::UploadedFileAdapter do
           tempfile: tempfile,
           path: tempfile.path
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
       end
 
       it "gets the right filename" do
@@ -29,7 +29,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "gets the content type" do
-        assert_equal "image/x-png-by-browser", @subject.content_type
+        assert_equal "image/png", @subject.content_type
       end
 
       it "gets the file's size" do
@@ -63,7 +63,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
       end
 
       it "does not generate paths that include restricted characters" do
@@ -86,7 +86,7 @@ describe Paperclip::UploadedFileAdapter do
           head: "",
           path: fixture_file("5k.png")
         )
-        @subject = Paperclip.io_adapters.for(@file)
+        @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
       end
 
       it "gets the right filename" do
@@ -98,7 +98,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "gets the content type" do
-        assert_equal "image/x-png-by-browser", @subject.content_type
+        assert_equal "image/png", @subject.content_type
       end
 
       it "gets the file's size" do

@@ -206,6 +206,11 @@ describe Paperclip::Storage::Fog do
           assert @dummy.save
           assert @connection.directories.get(@fog_directory)
         end
+
+        it "sucessfully rewinds the file during bucket creation" do
+          assert @dummy.save
+          expect(Paperclip.io_adapters.for(@dummy.avatar).read.length).to be > 0
+        end
       end
 
       context "with a bucket" do
@@ -269,6 +274,22 @@ describe Paperclip::Storage::Fog do
 
         it 'sets the @fog_public instance variable to false' do
           assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
+          assert_equal false, @dummy.avatar.fog_public
+        end
+      end
+
+      context "with fog_public as a proc" do
+        let(:proc) { ->(attachment) { !attachment } }
+
+        before do
+          rebuild_model(@options.merge(fog_public: proc))
+          @dummy = Dummy.new
+          @dummy.avatar = StringIO.new(".")
+          @dummy.save
+        end
+
+        it "sets the @fog_public instance variable to false" do
+          assert_equal proc, @dummy.avatar.instance_variable_get("@options")[:fog_public]
           assert_equal false, @dummy.avatar.fog_public
         end
       end

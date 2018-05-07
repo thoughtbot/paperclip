@@ -1,4 +1,70 @@
-master:
+6.0.0 (2018-03-09):
+
+* Improvement: Depend only on `aws-sdk-s3` instead of `aws-sdk` (https://github.com/thoughtbot/paperclip/pull/2481)
+
+5.3.0 (2018-03-09):
+
+* Improvement: Use `FactoryBot` instead of `FactoryGirl` (https://github.com/thoughtbot/paperclip/pull/2501)
+* Improvement: README updates (https://github.com/thoughtbot/paperclip/pull/2411, https://github.com/thoughtbot/paperclip/pull/2433, https://github.com/thoughtbot/paperclip/pull/2374, https://github.com/thoughtbot/paperclip/pull/2417, https://github.com/thoughtbot/paperclip/pull/2536)
+* Improvement: Remove Ruby 2.4 deprecation warning (https://github.com/thoughtbot/paperclip/pull/2401)
+* Improvement: Rails 5 migration compatibility (https://github.com/thoughtbot/paperclip/pull/2470)
+* Improvement: Documentation around post processing (https://github.com/thoughtbot/paperclip/pull/2381)
+* Improvement: S3 hostname example documentation (https://github.com/thoughtbot/paperclip/pull/2379)
+* Bugfix: Allow paperclip to load in IRB (https://github.com/thoughtbot/paperclip/pull/2369)
+* Bugfix: MIME type detection (https://github.com/thoughtbot/paperclip/issues/2527)
+* Bugfix: Bad tempfile state after symlink failure (https://github.com/thoughtbot/paperclip/pull/2540)
+* Bugfix: Rewind file after Fog bucket creation (https://github.com/thoughtbot/paperclip/pull/2572)
+* Improvement: Use `Terrapin` instead of `Cocaine` (https://github.com/thoughtbot/paperclip/pull/2553)
+
+5.2.1 (2018-01-25):
+
+* Bugfix: Fix copying files on Windows. (#2532)
+
+5.2.0 (2018-01-23):
+
+* Security: Remove the automatic loading of URI adapters. Some of these
+  adapters can be specially crafted to expose your network topology. (#2435)
+* Bugfix: The rake task no longer rescues `Exception`. (#2476)
+* Bugfix: Handle malformed `Content-Disposition` headers (#2283)
+* Bugfix: The `:only_process` option works when passed a lambda again. (#2289)
+* Improvement: Added `:use_accelerate_endpoint` option when using S3 to enable
+  [Amazon S3 Transfer Acceleration](http://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
+  (#2291)
+* Improvement: Make the fingerprint digest configurable per attachment. The
+  default remains MD5. Making this configurable means it can change in a future
+  version because it is not considered secure anymore against intentional file
+  corruption. For more info, see https://en.wikipedia.org/wiki/MD5#Security
+
+  You can change the digest used for an attachment by adding the
+  `:adapter_options` parameter to the `has_attached_file` options like this:
+  `has_attached_file :avatar, adapter_options: { hash_digest: Digest::SHA256 }`
+
+  Use the rake task to regenerate fingerprints with the new digest for a given
+  class. Note that this does **not** check the file integrity using the old
+  fingerprint. Run the following command to regenerate fingerprints for all
+  User attachments:
+  `CLASS=User rake paperclip:refresh:fingerprints`
+  You can optionally limit the attachment that will be processed, e.g:
+  `CLASS=User ATTACHMENT=avatar rake paperclip:refresh:fingerprints` (#2229)
+* Improvement: The new `frame_index` option on the thumbnail processor allows
+  you to select a specific frame from an animated upload to use as a thumbnail.
+  Initial support is for mkv, avi, MP4, mov, MPEG, and GIF. (#2155)
+* Improvement: Instead of copying files, use hard links. This is an
+  optimization. (#2120)
+* Improvement: S3 storage option `:s3_prefixes_in_alias`. (#2287)
+* Improvement: Fog option `:fog_public` can be a lambda. (#2302)
+* Improvement: One fewer warning on JRuby. (#2352)
+* Ruby 2.4.0 compatibility (doesn't use Fixnum anymore)
+
+5.1.0 (2016-08-19):
+
+* Add default `content_type_detector` to `UploadedFileAdapter` (#2270)
+* Default S3 protocol to empty string (#2038)
+* Don't write original file if it wasn't reprocessed (#1993)
+* Disallow trailing newlines in regular expressions (#2266)
+* Support for readbyte in Paperclip attachments (#2034)
+* (port from 4.3) Uri io adapter uses the content-disposition filename (#2250)
+* General refactors and documentation improvements
 
 5.0.0 (2016-07-01):
 

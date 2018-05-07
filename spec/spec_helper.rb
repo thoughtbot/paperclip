@@ -22,7 +22,8 @@ FIXTURES_DIR = File.join(File.dirname(__FILE__), "fixtures")
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config['test'])
-unless ActiveRecord::VERSION::STRING < "4.2"
+if ActiveRecord::VERSION::STRING >= "4.2" &&
+    ActiveRecord::VERSION::STRING < "5.0"
   ActiveRecord::Base.raise_in_transactional_callbacks = true
 end
 Paperclip.options[:logger] = ActiveRecord::Base.logger

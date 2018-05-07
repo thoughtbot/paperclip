@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'aws-sdk'
+require "spec_helper"
+require "aws-sdk-s3"
 
 describe Paperclip::Storage::S3 do
   before do
@@ -114,7 +114,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an S3 path" do
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//s3.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the correct bucket" do
@@ -237,7 +237,7 @@ describe Paperclip::Storage::S3 do
     end
   end
 
-  # if using aws-sdk-v2, the s3_host_name will be defined by the s3_region
+  # the s3_host_name will be defined by the s3_region
   context "s3_host_name" do
     before do
       rebuild_model storage: :s3,
@@ -252,11 +252,11 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an :s3_host_name path" do
-      assert_match %r{^http://s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "uses the S3 bucket with the correct host name" do
-      assert_equal "s3-ap-northeast-1.amazonaws.com",
+      assert_equal "s3.ap-northeast-1.amazonaws.com",
         @dummy.avatar.s3_bucket.client.config.endpoint.host
     end
   end
@@ -278,7 +278,60 @@ describe Paperclip::Storage::S3 do
 
     it "uses s3_host_name as a proc if available" do
       @dummy.value = "s3.something.com"
-      assert_equal "http://s3.something.com/bucket/avatars/data", @dummy.avatar.url(:original, timestamp: false)
+      assert_equal "//s3.something.com/bucket/avatars/data", @dummy.avatar.url(:original, timestamp: false)
+    end
+  end
+
+  context "use_accelerate_endpoint" do
+    context "defaults to false" do
+      before do
+        rebuild_model(
+          storage: :s3,
+          s3_credentials: {},
+          bucket: "bucket",
+          path: ":attachment/:basename:dotextension",
+          s3_host_name: "s3-ap-northeast-1.amazonaws.com",
+          s3_region: "ap-northeast-1",
+        )
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+        @dummy.stubs(:new_record?).returns(false)
+      end
+
+      it "returns a url based on an :s3_host_name path" do
+        assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]},
+          @dummy.avatar.url
+      end
+
+      it "uses the S3 client with the use_accelerate_endpoint config is false" do
+        expect(@dummy.avatar.s3_bucket.client.config.use_accelerate_endpoint).to be(false)
+      end
+    end
+
+    context "set to true" do
+      before do
+        rebuild_model(
+          storage: :s3,
+          s3_credentials: {},
+          bucket: "bucket",
+          path: ":attachment/:basename:dotextension",
+          s3_host_name: "s3-accelerate.amazonaws.com",
+          s3_region: "ap-northeast-1",
+          use_accelerate_endpoint: true,
+        )
+        @dummy = Dummy.new
+        @dummy.avatar = stringy_file
+        @dummy.stubs(:new_record?).returns(false)
+      end
+
+      it "returns a url based on an :s3_host_name path" do
+        assert_match %r{^//s3-accelerate.amazonaws.com/bucket/avatars/data[^\.]},
+          @dummy.avatar.url
+      end
+
+      it "uses the S3 client with the use_accelerate_endpoint config is true" do
+        expect(@dummy.avatar.s3_bucket.client.config.use_accelerate_endpoint).to be(true)
+      end
     end
   end
 
@@ -364,6 +417,58 @@ describe Paperclip::Storage::S3 do
     end
   end
 
+  context "An attachment that uses S3 for storage and has styles" do
+    before do
+      rebuild_model(
+        (aws2_add_region).merge(
+          storage: :s3,
+          styles: { thumb: ["90x90#", :jpg] },
+          bucket: "bucket",
+          s3_credentials: {
+            "access_key_id" => "12345",
+            "secret_access_key" => "54321" }
+        )
+      )
+
+      @file = File.new(fixture_file("5k.png"), "rb")
+      @dummy = Dummy.new
+      @dummy.avatar = @file
+      @dummy.save
+    end
+
+    context "reprocess" do
+      before do
+        @object = stub
+        @dummy.avatar.stubs(:s3_object).with(:original).returns(@object)
+        @dummy.avatar.stubs(:s3_object).with(:thumb).returns(@object)
+        @object.stubs(:get).yields(@file.read)
+        @object.stubs(:exists?).returns(true)
+      end
+
+      it "uploads original" do
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/png",
+          acl: :"public-read").returns(true)
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: :"public-read").returns(true)
+        @dummy.avatar.reprocess!
+      end
+
+      it "doesn't upload original" do
+        @object.expects(:upload_file).with(
+          anything,
+          content_type: "image/jpeg",
+          acl: :"public-read").returns(true)
+        @dummy.avatar.reprocess!(:thumb)
+      end
+    end
+
+    after { @file.close }
+  end
+
   context "An attachment that uses S3 for storage and has spaces in file name" do
     before do
       rebuild_model(
@@ -406,7 +511,7 @@ describe Paperclip::Storage::S3 do
           "question?mark.png"
         end
       end
-      file = Paperclip.io_adapters.for(stringio)
+      file = Paperclip.io_adapters.for(stringio, hash_digest: Digest::MD5)
       @dummy = Dummy.new
       @dummy.avatar = file
       @dummy.save
@@ -435,7 +540,7 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on an S3 subdomain" do
-      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//bucket.s3.amazonaws.com/avatars/data[^\.]}, @dummy.avatar.url
     end
   end
 
@@ -458,7 +563,34 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://something.something.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//something.something.com/avatars/data[^\.]}, @dummy.avatar.url
+    end
+  end
+
+  context "generating a url with a prefixed host alias" do
+    before do
+      rebuild_model(
+        aws2_add_region.merge(
+          storage: :s3,
+          s3_credentials: {
+            production: { bucket: "prod_bucket" },
+            development: { bucket: "dev_bucket" },
+          },
+          bucket: "bucket",
+          s3_host_alias: "something.something.com",
+          s3_prefixes_in_alias: 2,
+          path: "prefix1/prefix2/:attachment/:basename:dotextension",
+          url: ":s3_alias_url",
+        )
+      )
+      @dummy = Dummy.new
+      @dummy.avatar = stringy_file
+      @dummy.stubs(:new_record?).returns(false)
+    end
+
+    it "returns a url with the prefixes removed" do
+      assert_match %r{^//something.something.com/avatars/data[^\.]},
+                   @dummy.avatar.url
     end
   end
 
@@ -482,8 +614,8 @@ describe Paperclip::Storage::S3 do
     end
 
     it "returns a url based on the host_alias" do
-      assert_match %r{^http://cdn1.example.com/avatars/data[^\.]}, @dummy.avatar.url
-      assert_match %r{^http://cdn2.example.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//cdn1.example.com/avatars/data[^\.]}, @dummy.avatar.url
+      assert_match %r{^//cdn2.example.com/avatars/data[^\.]}, @dummy.avatar.url
     end
 
     it "still returns the bucket name" do
@@ -661,7 +793,7 @@ describe Paperclip::Storage::S3 do
     end
   end
 
-  # for aws-sdk-v2 the bucket.name is determined by the :s3_region
+  # the bucket.name is determined by the :s3_region
   context "Parsing S3 credentials with a s3_host_name in them" do
     before do
       rebuild_model storage: :s3,
@@ -689,8 +821,9 @@ describe Paperclip::Storage::S3 do
 
     it "gets the right s3_host_name in development" do
       rails_env("development") do
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com}, @dummy.avatar.s3_host_name
-        assert_match %r{^s3-ap-northeast-1.amazonaws.com},
+        assert_match %r{^s3.ap-northeast-1.amazonaws.com},
+          @dummy.avatar.s3_host_name
+        assert_match %r{^s3.ap-northeast-1.amazonaws.com},
           @dummy.avatar.s3_bucket.client.config.endpoint.host
       end
     end
@@ -737,7 +870,7 @@ describe Paperclip::Storage::S3 do
       it "does not get a bucket to get a URL" do
         @dummy.avatar.expects(:s3).never
         @dummy.avatar.expects(:s3_bucket).never
-        assert_match %r{^http://s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
+        assert_match %r{^//s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
       it "is rewound after flush_writes" do
@@ -1207,7 +1340,7 @@ describe Paperclip::Storage::S3 do
           'access_key_id' => "12345",
           'secret_access_key' => "54321"
         },
-        s3_server_side_encryption: :aes256
+        s3_server_side_encryption: "AES256"
     end
 
     context "when assigned" do
@@ -1227,7 +1360,7 @@ describe Paperclip::Storage::S3 do
           object.expects(:upload_file)
             .with(anything, content_type: "image/png",
                   acl: :"public-read",
-                  server_side_encryption: :aes256)
+                  server_side_encryption: "AES256")
           @dummy.save
         end
 
@@ -1474,29 +1607,6 @@ describe Paperclip::Storage::S3 do
           }
         )
       end
-
-      context "when assigned" do
-        before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
-          @dummy = Dummy.new
-          @dummy.stubs(:private_attachment? => true)
-          @dummy.avatar = @file
-        end
-
-        after { @file.close }
-
-        context "and saved" do
-          before do
-            @dummy.save
-          end
-
-          it "succeeds" do
-            assert @dummy.avatar.url().include?       "https://"
-            assert @dummy.avatar.url(:thumb).include? "http://"
-          end
-        end
-      end
-
     end
   end
 

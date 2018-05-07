@@ -1,7 +1,12 @@
 module Paperclip
   class NilAdapter < AbstractAdapter
-    def initialize(target)
+    def self.register
+      Paperclip.io_adapters.register self do |target|
+        target.nil? || ((Paperclip::Attachment === target) && !target.present?)
+      end
     end
+
+    def initialize(_target, _options = {}); end
 
     def original_filename
       ""
@@ -19,7 +24,7 @@ module Paperclip
       true
     end
 
-    def read(*args)
+    def read(*_args)
       nil
     end
 
@@ -29,6 +34,4 @@ module Paperclip
   end
 end
 
-Paperclip.io_adapters.register Paperclip::NilAdapter do |target|
-  target.nil? || ( (Paperclip::Attachment === target) && !target.present? )
-end
+Paperclip::NilAdapter.register
