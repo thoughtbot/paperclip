@@ -167,7 +167,7 @@ Paperclip is distributed as a gem, which is how it should be used in your app.
 Include the gem in your Gemfile:
 
 ```ruby
-gem "paperclip", "~> 5.2.1"
+gem "paperclip", "~> 6.0.0"
 ```
 
 Or, if you want to get the latest, you can get master from the main paperclip repository:
@@ -341,7 +341,7 @@ Lastly, you can also define multiple validations on a single attachment using `v
 
 ```ruby
 validates_attachment :avatar, presence: true,
-  content_type: { content_type: "image/jpeg" },
+  content_type: "image/jpeg",
   size: { in: 0..10.kilobytes }
 ```
 
@@ -368,7 +368,7 @@ afterwards, then assign manually:
 ```ruby
 class Book < ActiveRecord::Base
   has_attached_file :document, styles: { thumbnail: "60x60#" }
-  validates_attachment :document, content_type: { content_type: "application/pdf" }
+  validates_attachment :document, content_type: "application/pdf"
   validates_something_else # Other validations that conflict with Paperclip's
 end
 
@@ -400,7 +400,7 @@ image-y ones:
 
 ```ruby
 validates_attachment :avatar,
-  content_type: { content_type: ["image/jpeg", "image/gif", "image/png"] }
+  content_type: ["image/jpeg", "image/gif", "image/png"]
 ```
 
 `Paperclip::ContentTypeDetector` will attempt to match a file's extension to an
@@ -567,7 +567,7 @@ Storage
 Paperclip ships with 3 storage adapters:
 
 * File Storage
-* S3 Storage (via `aws-sdk`)
+* S3 Storage (via `aws-sdk-s3`)
 * Fog Storage
 
 If you would like to use Paperclip with another storage, you can install these
@@ -593,10 +593,10 @@ _**NOTE**: This is a change from previous versions of Paperclip, but is overall 
 safer choice for the default file store._
 
 You may also choose to store your files using Amazon's S3 service. To do so, include
-the `aws-sdk` gem in your Gemfile:
+the `aws-sdk-s3` gem in your Gemfile:
 
 ```ruby
-gem 'aws-sdk', '~> 2.3.0'
+gem 'aws-sdk-s3'
 ```
 
 And then you can specify using S3 from `has_attached_file`.

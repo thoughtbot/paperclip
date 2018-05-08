@@ -61,7 +61,9 @@ module Paperclip
         Paperclip.log("Trying to link #{src} to #{dest}")
         FileUtils.ln(src, dest, force: true) # overwrite existing
       rescue Errno::EXDEV, Errno::EPERM, Errno::ENOENT, Errno::EEXIST => e
-        Paperclip.log("Link failed with #{e.message}; copying link #{src} to #{dest}")
+        Paperclip.log(
+          "Link failed with #{e.message}; copying link #{src} to #{dest}"
+        )
         FileUtils.cp(src, dest)
       end
 

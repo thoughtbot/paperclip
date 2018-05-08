@@ -17,7 +17,7 @@ Given /^I generate a new rails application$/ do
       gem "jruby-openssl", :platform => :jruby
       gem "capybara"
       gem "gherkin"
-      gem "aws-sdk", "~> 2.0.0"
+      gem "aws-sdk-s3"
       gem "racc", :platform => :rbx
       gem "rubysl", :platform => :rbx
       """

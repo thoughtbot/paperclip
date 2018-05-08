@@ -84,9 +84,12 @@ module Paperclip
           source: "#{File.expand_path(src.path)}#{frame}",
           dest: File.expand_path(dst.path),
         )
-      rescue Cocaine::ExitStatusError => e
-        raise Paperclip::Error, "There was an error processing the thumbnail for #{@basename}" if @whiny
-      rescue Cocaine::CommandNotFoundError => e
+      rescue Terrapin::ExitStatusError => e
+        if @whiny
+          message = "There was an error processing the thumbnail for #{@basename}:\n" + e.message
+          raise Paperclip::Error, message
+        end
+      rescue Terrapin::CommandNotFoundError => e
         raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `convert` command. Please install ImageMagick.")
       end
 
@@ -122,9 +125,9 @@ module Paperclip
         @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
       end
       @identified_as_animated
-    rescue Cocaine::ExitStatusError => e
+    rescue Terrapin::ExitStatusError => e
       raise Paperclip::Error, "There was an error running `identify` for #{@basename}" if @whiny
-    rescue Cocaine::CommandNotFoundError => e
+    rescue Terrapin::CommandNotFoundError => e
       raise Paperclip::Errors::CommandNotFoundError.new("Could not run the `identify` command. Please install ImageMagick.")
     end
   end

@@ -48,7 +48,7 @@ describe Paperclip::Thumbnail do
       it "lets us know when a command isn't found versus a processing error" do
         old_path = ENV['PATH']
         begin
-          Cocaine::CommandLine.path = ''
+          Terrapin::CommandLine.path = ''
           Paperclip.options[:command_path] = ''
           ENV['PATH'] = ''
           assert_raises(Paperclip::Errors::CommandNotFoundError) do
@@ -102,7 +102,7 @@ describe Paperclip::Thumbnail do
 
       output_file = thumb.make
 
-      command = Cocaine::CommandLine.new("identify", "-format %wx%h :file")
+      command = Terrapin::CommandLine.new("identify", "-format %wx%h :file")
       assert_equal "50x50", command.run(file: output_file.path).strip
     end
 
@@ -179,17 +179,19 @@ describe Paperclip::Thumbnail do
         end
 
         it "errors when trying to create the thumbnail" do
-          assert_raises(Paperclip::Error) do
-            silence_stream(STDERR) do
+          silence_stream(STDERR) do
+            expect {
               @thumb.make
-            end
+            }.to raise_error(
+              Paperclip::Error, /unrecognized option `-this-aint-no-option'/
+            )
           end
         end
 
         it "lets us know when a command isn't found versus a processing error" do
           old_path = ENV['PATH']
           begin
-            Cocaine::CommandLine.path = ''
+            Terrapin::CommandLine.path = ''
             Paperclip.options[:command_path] = ''
             ENV['PATH'] = ''
             assert_raises(Paperclip::Errors::CommandNotFoundError) do

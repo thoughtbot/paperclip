@@ -206,6 +206,11 @@ describe Paperclip::Storage::Fog do
           assert @dummy.save
           assert @connection.directories.get(@fog_directory)
         end
+
+        it "sucessfully rewinds the file during bucket creation" do
+          assert @dummy.save
+          expect(Paperclip.io_adapters.for(@dummy.avatar).read.length).to be > 0
+        end
       end
 
       context "with a bucket" do
