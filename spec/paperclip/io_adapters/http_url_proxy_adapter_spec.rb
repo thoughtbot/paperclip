@@ -69,17 +69,18 @@ describe Paperclip::HttpUrlProxyAdapter do
   end
 
   context "a url with query params" do
-    before do
-      @url = "https://github.com/thoughtbot/paperclip?file=test"
-      @subject = Paperclip.io_adapters.for(@url)
-    end
+    subject { Paperclip.io_adapters.for(url) }
 
-    after do
-      @subject.close
-    end
+    after { subject.close }
+
+    let(:url) { "https://github.com/thoughtbot/paperclip?file=test" }
 
     it "returns a file name" do
-      assert_equal "paperclip", @subject.original_filename
+      assert_equal "paperclip", subject.original_filename
+    end
+
+    it "preserves params" do
+      assert_equal url, subject.instance_variable_get(:@target).to_s
     end
   end
 
