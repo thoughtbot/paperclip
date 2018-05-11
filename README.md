@@ -1,6 +1,26 @@
 Paperclip
 =========
 
+# Deprecated
+
+**[Paperclip is deprecated]**.
+
+For new projects, we recommend Rails' own [ActiveStorage].
+
+For existing projects, please consult and contribute to [the migration guide].
+
+We will leave the Issues open as a discussion forum _only_. We do _not_
+guarantee a response from us in the Issues.
+
+We are no longer accepting pull requests _except_ pull requests against the
+migration guide. All other pull requests will be closed without merging.
+
+[Paperclip is deprecated]: https://robots.thoughtbot.com/closing-the-trombone
+[ActiveStorage]: http://guides.rubyonrails.org/active_storage_overview.html
+[migration guide]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
+
+# Existing documentation
+
 ## Documentation valid for `master` branch
 
 Please check the documentation for the paperclip version you are using:
