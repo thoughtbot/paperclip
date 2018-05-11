@@ -17,7 +17,7 @@ migration guide. All other pull requests will be closed without merging.
 
 [Paperclip is deprecated]: https://robots.thoughtbot.com/closing-the-trombone
 [ActiveStorage]: http://guides.rubyonrails.org/active_storage_overview.html
-[migration guide]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
+[the migration guide]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
 
 # Existing documentation
 
