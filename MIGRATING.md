@@ -107,8 +107,7 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
 
     active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare(<<-SQL)
       INSERT INTO active_storage_blobs (
-        key, filename, content_type, metadata, byte_size,
-        checksum, created_at
+        `key`, filename, content_type, metadata, byte_size, checksum, created_at
       ) VALUES (?, ?, ?, '{}', ?, ?, ?)
     SQL
 
