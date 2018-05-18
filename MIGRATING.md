@@ -194,9 +194,8 @@ That `xMRXuT6nqpoiConJFQJFt6c9` is the `active_storage_blobs.key` value. In the
 migration above we simply used the filename but you may wish to use a UUID
 instead.
 
-Migrating the files on an external file host (S3, Azure Storage, GCS, etc.) is
-out of scope for this initial document. Here is how it would look for local
-disk storage:
+
+### Moving local storage files
 
 ```ruby
 #!bin/rails runner
@@ -224,6 +223,71 @@ ActiveStorageAttachment.find_each do |attachment|
   FileUtils.cp(source, dest)
 end
 ```
+
+### Moving files on a remote host (S3, Azure Storage, GCS, etc.)
+One of the most straightforward ways to move assets stored on a remote host is to
+use a rake task that regenerates the file names and places them in the proper file
+structure/hierarchy.
+
+Assuming you have a model configured similarly to the example below:
+
+```ruby
+class Organization < ApplicationRecord
+  # New ActiveStorage declaration
+  has_one_attached :logo
+
+  # Old Paperclip config
+  # must be removed BEFORE to running the rake task so that
+  # all of the new ActiveStorage goodness can be used when
+  # calling organization.logo
+  has_attached_file :logo,
+                    path: "/organizations/:id/:basename_:style.:extension",
+                    default_url: "https://s3.amazonaws.com/xxxxx/organizations/missing_:style.jpg",
+                    default_style: :normal,
+                    styles: { thumb: "64x64#", normal: "400x400>" },
+                    convert_options: { thumb: "-quality 100 -strip", normal: "-quality 75 -strip" }
+end
+```
+
+The following rake task would migrate all of your assets:
+
+```ruby
+namespace :organizations do
+  task migrate_to_active_storage: :environment do
+    Organization.where.not(logo_file_name: nil).find_each do |organization|
+      # This step helps us catch any attachments we might have uploaded that
+      # don't have an explicit file extension in the filename
+      image = organization.logo_file_name
+      ext = File.extname(image)
+      image_original = URI.unescape(image.gsub(ext, "_original#{ext}"))
+
+      # this url pattern can be changed to reflect whatever service you use
+      logo_url = "https://s3.amazonaws.com/xxxxx/organizations/#{organization.id}/#{image_original}"
+      organization.logo.attach(io: open(logo_url),
+                                   filename: organization.logo_file_name,
+                                   content_type: organization.logo_content_type)
+    end
+  end
+end
+```
+
+An added advantage of this method is that you're creating a copy of all assets,
+which is handy in the event you need to rollback your deploy.
+
+This also means that you can run the rake task from your development machine and
+completely migrate the assets before your deploy, minimizing the chances that you'll
+have a timed-out deployment.
+
+The main drawback of this method is the same as its benefit - you are essentially duplicating
+all of your assets. These days storage and bandwidth are relatively cheap, but in some instances
+where you have a huge volume of files, or very large file sizes, this might get a little less feasible.
+
+In my experience I was able to move tens of thousands of images in a matter of a couple of hours, just by
+running the migration overnight on my MacBook Pro.
+
+Once you've confirmed that the migration and deploy have gone successfully you can safely delete the old assets
+from your remote host.
+
 
 ## Update your tests
 
