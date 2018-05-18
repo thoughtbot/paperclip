@@ -1,4 +1,3 @@
-# encoding: utf-8
 module Paperclip
   # The Style class holds the definition of a thumbnail style,  applying
   # whatever processing is required to normalize the definition and delaying
