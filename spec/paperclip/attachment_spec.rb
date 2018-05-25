@@ -863,16 +863,16 @@ describe Paperclip::Attachment do
       @dummy.expects(:do_before_avatar).never
       @dummy.expects(:do_after_avatar).never
       @dummy.expects(:do_before_all).with().returns(false)
-      @dummy.expects(:do_after_all)
+      @dummy.expects(:do_after_all).never
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
     end
 
     it "cancels the processing if a before_avatar_post_process returns false" do
       @dummy.expects(:do_before_avatar).with().returns(false)
-      @dummy.expects(:do_after_avatar)
+      @dummy.expects(:do_after_avatar).never
       @dummy.expects(:do_before_all).with().returns(true)
-      @dummy.expects(:do_after_all)
+      @dummy.expects(:do_after_all).never
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
     end
