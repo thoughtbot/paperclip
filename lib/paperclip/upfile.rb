@@ -7,14 +7,7 @@ module Paperclip
   module Upfile
     # Infer the MIME-type of the file from the extension.
     def content_type
-      types = MIME::Types.type_for(self.original_filename)
-      if types.length == 0
-        type_from_file_command
-      elsif types.length == 1
-        types.first.content_type
-      else
-        iterate_over_array_to_find_best_option(types)
-      end
+      type_from_file_command
     end
 
     def iterate_over_array_to_find_best_option(types)
