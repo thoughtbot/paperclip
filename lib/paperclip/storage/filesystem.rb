@@ -37,6 +37,7 @@ module Paperclip
         @queued_for_write.each do |style_name, file|
           FileUtils.mkdir_p(File.dirname(path(style_name)))
           begin
+             p file
             move_file(file.path, path(style_name))
           rescue SystemCallError
             File.open(path(style_name), "wb") do |new_file|

@@ -30,6 +30,7 @@ module Paperclip
     end
 
     def for(target, options = {})
+      p "AdapterRegistry#for(#{target}, #{options})"
       handler_for(target).new(target, options)
     end
   end

@@ -5,7 +5,7 @@ module Paperclip
     OS_RESTRICTED_CHARACTERS = %r{[/:]}
 
     attr_reader :content_type, :original_filename, :size, :tempfile
-    delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink, :to => :@tempfile
+    delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink, :to => :tempfile
     alias :length :size
 
     def initialize(target, options = {})
@@ -46,6 +46,10 @@ module Paperclip
     end
 
     private
+
+    def tempfile
+      @tempfile
+    end
 
     def destination
       @destination ||= TempfileFactory.new.generate(@original_filename.to_s)

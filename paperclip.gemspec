@@ -51,4 +51,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency('railties')
   s.add_development_dependency('generator_spec')
   s.add_development_dependency('timecop')
+  s.add_development_dependency('pry-byebug')
 end

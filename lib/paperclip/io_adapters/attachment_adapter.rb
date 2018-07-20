@@ -1,5 +1,7 @@
 module Paperclip
   class AttachmentAdapter < AbstractAdapter
+    @@_tempfile_cache = {}
+
     def self.register
       Paperclip.io_adapters.register self do |target|
         Paperclip::Attachment === target || Paperclip::Style === target
@@ -27,7 +29,25 @@ module Paperclip
       @size = @tempfile.size || @target.size
     end
 
+    ### Mike, you added this and the insanity in copy_to_tempfile, plus the getter in AbstractAdapter
+    def tempfile
+      if @tempfile.nil? || @tempfile.path.nil? || !File.exist?(@tempfile.path)
+        @tempfile = copy_to_tempfile(@target)
+      end
+
+      @tempfile
+    end
+
     def copy_to_tempfile(source)
+      if @@_tempfile_cache[source].nil? || @@_tempfile_cache[source].path.nil? || !File.exist?(@@_tempfile_cache[source].path)
+        @@_tempfile_cache[source] = uncached_copy_to_tempfile(source)
+      end
+
+      @@_tempfile_cache[source]
+    end
+
+    def uncached_copy_to_tempfile(source)
+      p "AttachmentAdapter#uncached_copy_to_tempfile(#{source})"
       if source.staged?
         link_or_copy_file(source.staged_path(@style), destination.path)
       else
@@ -39,6 +59,7 @@ module Paperclip
           raise
         end
       end
+
       destination
     end
   end

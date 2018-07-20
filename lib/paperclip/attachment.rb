@@ -337,6 +337,7 @@ module Paperclip
     # inconsistencies in timing of S3 commands. It's possible that calling
     # #reprocess! will lose data if the files are not kept.
     def reprocess!(*style_args)
+      p "Attachment#reprocess!(#{style_args})"
       saved_flags = @options.slice(
         :only_process,
         :preserve_files,
@@ -600,7 +601,11 @@ module Paperclip
     def unlink_files(files)
       Array(files).each do |file|
         file.close unless file.closed?
-        file.unlink if file.respond_to?(:unlink) && file.path.present? && File.exist?(file.path)
+
+        begin
+          file.unlink if file.respond_to?(:unlink)
+        rescue Errno::ENOENT
+        end
       end
     end
 
