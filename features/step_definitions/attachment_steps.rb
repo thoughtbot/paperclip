@@ -84,12 +84,12 @@ end
 
 Then /^I should have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
-    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.sql_type] }.inspect"`.strip)
     expect_columns = [
-      ["#{attachment_name}_file_name", :string],
-      ["#{attachment_name}_content_type", :string],
-      ["#{attachment_name}_file_size", :bigint],
-      ["#{attachment_name}_updated_at", :datetime]
+      ["#{attachment_name}_file_name", "varchar"],
+      ["#{attachment_name}_content_type", "varchar"],
+      ["#{attachment_name}_file_size", "bigint"],
+      ["#{attachment_name}_updated_at", "datetime"]
     ]
     expect(columns).to include(*expect_columns)
   end
@@ -97,12 +97,12 @@ end
 
 Then /^I should not have attachment columns for "([^"]*)"$/ do |attachment_name|
   cd(".") do
-    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.type] }.inspect"`.strip)
+    columns = eval(`bundle exec rails runner "puts User.columns.map{ |column| [column.name, column.sql_type] }.inspect"`.strip)
     expect_columns = [
-      ["#{attachment_name}_file_name", :string],
-      ["#{attachment_name}_content_type", :string],
-      ["#{attachment_name}_file_size", :bigint],
-      ["#{attachment_name}_updated_at", :datetime]
+      ["#{attachment_name}_file_name", "varchar"],
+      ["#{attachment_name}_content_type", "varchar"],
+      ["#{attachment_name}_file_size", "bigint"],
+      ["#{attachment_name}_updated_at", "datetime"]
     ]
 
     expect(columns).not_to include(*expect_columns)
