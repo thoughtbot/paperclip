@@ -1,11 +1,19 @@
-master:
+6.1.0 (2018-07-27):
 
-* Improvement: Better handling of the content-disposition header. Now supports file name that is either
-  enclosed or not in double quotes and is case insensitive as per RC6266 grammar
-* Improvement: Files without an extension will now be checked for spoofing attempts
-* Change database column type of attachment file size from unsigned 4-byte
-  `integer` to unsigned 8-byte `bigint`. The former type limits attachment
-  size to just over 2GB, which can easily be exceeded by a large video file.
+* BUGFIX: Don't double-encode URLs (Roderick Monje).
+* BUGFIX: Only use the content_type when it exists (Jean-Philippe Doyle).
+* STABILITY: Better handling of the content-disposition header. Now supports
+  file name that is either enclosed or not in double quotes and is case
+  insensitive as per RC6266 grammar (Hasan Kumar, Yves Riel).
+* STABILITY: Change database column type of attachment file size from unsigned 4-byte
+  `integer` to unsigned 8-byte `bigint`. The former type limits attachment size
+  to just over 2GB, which can easily be exceeded by a large video file (Laurent
+  Arnoud, Alen Zamanyan).
+* STABILITY: Better error message when thumbnail processing errors (Hayden Ball).
+* STABILITY: Fix file linking issues around Windows (Akihiko Odaki).
+* STABILITY: Files without an extension will now be checked for spoofing attempts
+  (George Walters II).
+* STABILITY: Manually close Tempfiles when we are done with them (Erkki Eilonen).
 
 6.0.0 (2018-03-09):
 
