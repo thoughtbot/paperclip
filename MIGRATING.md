@@ -16,20 +16,49 @@ The process of going from Paperclip to ActiveStorage is as follows:
 
 ## Apply the ActiveStorage database migrations
 
-Follow [the instructions for installing ActiveStorage]. You'll very likely want
-to add the `mini_magick` gem to your Gemfile.
+You'll very likely want to add the `mini_magick` gem to your Gemfile.
+
+Make sure your `config/application.rb` requires the ActiveStorage engine:
+
+```rb
+# config/application.rb
+require "active_storage/engine"
+```
+
+Then, follow [the instructions for installing ActiveStorage].
+
 
 ```sh
 rails active_storage:install
 ```
 
-[the instructions for installing ActiveStorage]: https://github.com/rails/rails/blob/master/activestorage/README.md#installation
+[the instructions for installing ActiveStorage]: https://github.com/rails/rails/tree/5-2-stable/activestorage#installation
 
 ## Configure storage
 
 Again, follow [the instructions for configuring ActiveStorage].
 
-[the instructions for configuring ActiveStorage]: http://edgeguides.rubyonrails.org/active_storage_overview.html#setup
+It's worth highlighting that, by default, ActiveStorage's
+[`DiskService`][active-storage-service] will store files locally in
+`Rails.root.join("storage")`. When storing files locally, Paperclip, by default,
+writes to `Rails.root.join("public", "system")`.
+
+Make sure to exclude your locally stored files from version control.
+
+For instance, if you're using Git, add `storage/` to your `.gitignore`.
+
+```diff
+  !.keep
+  /.bundle
+  /.byebug_history
+  /.tmp/*
+  /log/*
+  /public/system/
++ storage/
+```
+
+[the instructions for configuring ActiveStorage]: https://guides.rubyonrails.org/v5.2/active_storage_overview.html#setup
+[active-storage-service]: https://api.rubyonrails.org/v5.2/classes/ActiveStorage/Service.html
 
 ## Copy the database data over
 
@@ -92,8 +121,6 @@ your migration_. Otherwise, see the next section first and modify the migration
 to taste.
 
 ```ruby
-Dir[Rails.root.join("app/models/**/*.rb")].sort.each { |file| require file }
-
 class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
   require 'open-uri'
 
@@ -200,15 +227,7 @@ instead.
 ```ruby
 #!bin/rails runner
 
-class ActiveStorageBlob < ActiveRecord::Base
-end
-
-class ActiveStorageAttachment < ActiveRecord::Base
-  belongs_to :blob, class_name: 'ActiveStorageBlob'
-  belongs_to :record, polymorphic: true
-end
-
-ActiveStorageAttachment.find_each do |attachment|
+ActiveStorage::Attachment.find_each do |attachment|
   name = attachment.name
 
   source = attachment.record.send(name).path
@@ -304,6 +323,35 @@ RSpec::Matchers.define :have_attached_file do |name|
 end
 ```
 
+If you were using a Factory or a Fixture that set the Paperclip-generated
+columns' values directly, you'll likely need to attach the Files instead.
+
+For example, you could replace a `FactoryBot` factory definition's Paperclip
+attributes with File I/O using
+[`ActiveSupport::Testing::FixtureFiles#file_fixture`][file-fixture]:
+
+```diff
+factory :user do
+  trait :with_avatar do
+-    avatar_file_name { "avatar.jpg" }
+-    avatar_file_type { "image/jpg" }
+-    avatar_file_size { 1024 }
++   transient do
++     avatar_file { file_fixture("avatar.jpg") }
++
++     after :build do |user, evaluator|
++       user.avatar.attach(
++         io: evaluator.avatar_file.open,
++         filename: evaluator.avatar_file.basename.to_s,
++       )
++     end
++   end
+  end
+end
+```
+
+[file-fixture]: https://api.rubyonrails.org/v5.2/classes/ActiveSupport/Testing/FileFixtures.html
+
 ## Update your views
 
 In Paperclip it looks like this:
@@ -344,15 +392,34 @@ And your view has
 Then you'll end up with an n+1 as you load each attachment in the loop.
 
 So while the controller and model will work without change, you will want to
-double-check your loops and add `includes` as needed. ActiveStorage adds an
-`avatar_attachment` and `avatar_blob` relationship to has-one relations, and
-`avatar_attachments` and `avatar_blobs` to has-many:
+double-check your loops and add `includes` as needed.
+
+ActiveStorage automatically declares `ActiveStorage::Attachement` and
+`ActiveStorage::Blob` relationships to your models, along with eager-loading
+scopes.
+
+For example, a `has_one_attached :avatar` declaration will generate a `has_one
+:avatar_attachment` relationship along with a
+[`.with_attached_avatar`][has-one-eager-loading-scope] scope for eager loading
+attachments and blobs.
+
+A `has_many_attached :avatars` declaration will generate a `has_many
+:avatar_attachments` relationship along with a
+[`.with_attached_avatars`][has-many-eager-loading-scope] scope for eager loading
+attachments and blobs.
+
+When eager-loading transitive relationships, you'll need to specify the
+relationship names directly, like `includes(avatar_attachment: :blob)` or
+`includes(avatar_attachments: :blob)`:
 
 ```ruby
 def index
-  @users = User.all.order(:name).includes(:avatar_attachment)
+  @users = User.all.order(:name).includes(avatar_attachment: :blob)
 end
 ```
+
+[has-one-eager-loading-scope]: https://api.rubyonrails.org/v5.2/classes/ActiveStorage/Attached/Macros.html#method-i-has_one_attached
+[has-many-eager-loading-scope]: https://api.rubyonrails.org/v5.2/classes/ActiveStorage/Attached/Macros.html#method-i-has_many_attached
 
 ## Update your models
 
@@ -367,9 +434,55 @@ end
 
 Any resizing is done in the view as a variant.
 
-[the guide on attaching files to records]: http://edgeguides.rubyonrails.org/active_storage_overview.html#attaching-files-to-records
+[the guide on attaching files to records]: https://guides.rubyonrails.org/v5.2/active_storage_overview.html#attaching-files-to-records
+
+### Validations
+
+Unlike Paperclip, [which shipped with built-in attachment
+validations][paperclip-validations], ActiveStorage does have built-in support for
+validating an attachment's content type or file size (which can be useful for
+[preventing content type spoofing][security-validations]).
+
+There are alternatives that support some of Paperclip's file validations.
+
+For instance, here are some changes you could make to migrate a
+Paperclip-enabled model to use validations provided by the [`file_validations`
+gem][file-validations]:
+
+
+```diff
+class User < ApplicationRecord
+  # ...
+
+-  validates_attachment_content_type :avatar, content_type: /\Aimage/
+-  validates_attachment_file_name :avatar, matches: /jpe?g\z/
++  validates :avatar, file_content_type: {
++    allow: ["image/jpeg", "image/png"],
++    if: -> { avatar.attached? },
++  }
+```
+
+[paperclip-validations]: https://github.com/thoughtbot/paperclip/tree/v6.1.0#validations
+[security-validations]: https://github.com/thoughtbot/paperclip/tree/v6.1.0#security-validations
+[file-validations]: https://github.com/musaffa/file_validators/tree/v2.3.0#examples
 
 ## Remove Paperclip
+
+Make sure to delete any files Paperclip was storing locally. You can also update
+your version control to no longer ignore the directory.
+
+For instance, if you're using Git, remove `public/system/` from your
+`.gitignore`.
+
+```diff
+  !.keep
+  /.bundle
+  /.byebug_history
+  /.tmp/*
+  /log/*
+- /public/system/
+  storage/
+```
 
 Remove the Gem from your `Gemfile` and run `bundle`. Run your tests because
 you're done!
