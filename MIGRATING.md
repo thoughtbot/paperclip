@@ -134,7 +134,7 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
 
     active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare('active_storage_blob_statement', <<-SQL)
       INSERT INTO active_storage_blobs (
-        `key`, filename, content_type, metadata, byte_size, checksum, created_at
+        key, filename, content_type, metadata, byte_size, checksum, created_at
       ) VALUES ($1, $2, $3, '{}', $4, $5, $6)
     SQL
 
@@ -458,8 +458,8 @@ validating an attachment's content type or file size (which can be useful for
 There are alternatives that support some of Paperclip's file validations.
 
 For instance, here are some changes you could make to migrate a
-Paperclip-enabled model to use validations provided by the [`file_validations`
-gem][file-validations]:
+Paperclip-enabled model to use validations provided by the [`file_validators`
+gem][file-validators]:
 
 
 ```diff
@@ -476,7 +476,7 @@ class User < ApplicationRecord
 
 [paperclip-validations]: https://github.com/thoughtbot/paperclip/tree/v6.1.0#validations
 [security-validations]: https://github.com/thoughtbot/paperclip/tree/v6.1.0#security-validations
-[file-validations]: https://github.com/musaffa/file_validators/tree/v2.3.0#examples
+[file-validators]: https://github.com/musaffa/file_validators/tree/v2.3.0#examples
 
 ## Remove Paperclip
 
