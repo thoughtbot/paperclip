@@ -37,6 +37,27 @@ module Paperclip
       }
     end
 
+    def self.attachment_class_cache
+      @attachment_class_cache ||= Hash.new do |hash, storage|
+        storage_name = storage.to_s.downcase.camelize
+        unless Storage.const_defined?(storage_name, false)
+          raise Errors::StorageMethodNotFound, "Cannot load storage module '#{storage_name}'"
+        end
+        hash[storage] =
+          if storage_name == storage
+            storage_module = Storage.const_get(storage_name)
+            Class.new(self) { include(storage_module) }.tap { |x| const_set(storage_name, x) }
+          else
+            hash[storage_name]
+          end
+      end
+    end
+
+    def self.build(name, instance, options = {})
+      storage = options[:storage] || default_options[:storage]
+      attachment_class_cache[storage].new(name, instance, options)
+    end
+
     attr_reader :name, :instance, :default_style, :convert_options, :queued_for_write, :whiny,
                 :options, :interpolator, :source_file_options
     attr_accessor :post_processing
@@ -74,7 +95,7 @@ module Paperclip
       @name_string       = name.to_s
       @instance          = instance
 
-      options = self.class.default_options.deep_merge(options)
+      options = Attachment.default_options.deep_merge(options)
 
       @options               = options
       @post_processing       = true
@@ -86,8 +107,6 @@ module Paperclip
       @url_generator         = options[:url_generator].new(self)
       @source_file_options   = options[:source_file_options]
       @whiny                 = options[:whiny]
-
-      initialize_storage
     end
 
     # What gets called when you call instance.attachment = File. It clears
@@ -424,16 +443,6 @@ module Paperclip
 
     def log message #:nodoc:
       Paperclip.log(message)
-    end
-
-    def initialize_storage #:nodoc:
-      storage_class_name = @options[:storage].to_s.downcase.camelize
-      begin
-        storage_module = Paperclip::Storage.const_get(storage_class_name)
-      rescue NameError
-        raise Errors::StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
-      end
-      self.extend(storage_module)
     end
 
     def assign_attributes

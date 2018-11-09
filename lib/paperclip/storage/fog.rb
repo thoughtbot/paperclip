@@ -39,7 +39,7 @@ module Paperclip
     #     { :multipart_chunk_size => 104857600 }
 
     module Fog
-      def self.extended base
+      def self.included(*)
         begin
           require 'fog'
         rescue LoadError => e
@@ -47,14 +47,17 @@ module Paperclip
           raise e
         end unless defined?(Fog)
 
-        base.instance_eval do
-          unless @options[:url].to_s.match(/\A:fog.*url\z/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, '')
-            @options[:url]   = ':fog_public_url'
-          end
-          Paperclip.interpolates(:fog_public_url) do |attachment, style|
-            attachment.public_url(style)
-          end unless Paperclip::Interpolations.respond_to? :fog_public_url
+        Paperclip.interpolates(:fog_public_url) do |attachment, style|
+          attachment.public_url(style)
+        end unless Paperclip::Interpolations.respond_to? :fog_public_url
+      end
+
+      def initialize(*)
+        super
+
+        unless @options[:url].to_s.match(/\A:fog.*url\z/)
+          @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, '')
+          @options[:url]   = ':fog_public_url'
         end
       end
 

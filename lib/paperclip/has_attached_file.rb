@@ -44,7 +44,7 @@ module Paperclip
         attachment = instance_variable_get(ivar)
 
         if attachment.nil?
-          attachment = Attachment.new(name, self, options)
+          attachment = Attachment.build(name, self, options)
           instance_variable_set(ivar, attachment)
         end
 

@@ -121,41 +121,12 @@ module Paperclip
     #   documentation for the <tt>aws-sdk-s3</tt> gem for the full list.
 
     module S3
-      def self.extended base
+      def self.included(*)
         begin
           require "aws-sdk-s3"
         rescue LoadError => e
           e.message << " (You may need to install the aws-sdk-s3 gem)"
           raise e
-        end
-
-        base.instance_eval do
-          @s3_options     = @options[:s3_options]     || {}
-          @s3_permissions = set_permissions(@options[:s3_permissions])
-          @s3_protocol    = @options[:s3_protocol] || "".freeze
-          @s3_metadata = @options[:s3_metadata] || {}
-          @s3_headers = {}
-          merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
-
-          @s3_storage_class = set_storage_class(@options[:s3_storage_class])
-
-          @s3_server_side_encryption = "AES256"
-          if @options[:s3_server_side_encryption].blank?
-            @s3_server_side_encryption = false
-          end
-          if @s3_server_side_encryption
-            @s3_server_side_encryption = @options[:s3_server_side_encryption]
-          end
-
-          unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
-            @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
-            @options[:url]  = ":s3_path_url".freeze
-          end
-          @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
-
-          @http_proxy = @options[:http_proxy] || nil
-
-          @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
         end
 
         Paperclip.interpolates(:s3_alias_url) do |attachment, style|
@@ -176,6 +147,37 @@ module Paperclip
         Paperclip.interpolates(:asset_host) do |attachment, style|
           "#{attachment.path(style).sub(%r{\A/}, "".freeze)}"
         end unless Paperclip::Interpolations.respond_to? :asset_host
+      end
+
+      def initialize(*)
+        super
+
+        @s3_options     = @options[:s3_options]     || {}
+        @s3_permissions = set_permissions(@options[:s3_permissions])
+        @s3_protocol    = @options[:s3_protocol] || "".freeze
+        @s3_metadata = @options[:s3_metadata] || {}
+        @s3_headers = {}
+        merge_s3_headers(@options[:s3_headers], @s3_headers, @s3_metadata)
+
+        @s3_storage_class = set_storage_class(@options[:s3_storage_class])
+
+        @s3_server_side_encryption = "AES256"
+        if @options[:s3_server_side_encryption].blank?
+          @s3_server_side_encryption = false
+        end
+        if @s3_server_side_encryption
+          @s3_server_side_encryption = @options[:s3_server_side_encryption]
+        end
+
+        unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
+          @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
+          @options[:url]  = ":s3_path_url".freeze
+        end
+        @options[:url] = @options[:url].inspect if @options[:url].is_a?(Symbol)
+
+        @http_proxy = @options[:http_proxy] || nil
+
+        @use_accelerate_endpoint = @options[:use_accelerate_endpoint]
       end
 
       def expiring_url(time = 3600, style_name = default_style)
