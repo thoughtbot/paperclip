@@ -328,7 +328,7 @@ Here's one that is similar in spirit to the Paperclip-supplied matcher:
 
 ```ruby
 RSpec::Matchers.define :have_attached_file do |name|
-  matches do |record|
+  match do |record|
     file = record.send(name)
     file.respond_to?(:variant) && file.respond_to?(:attach)
   end
