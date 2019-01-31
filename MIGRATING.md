@@ -451,7 +451,7 @@ Any resizing is done in the view as a variant.
 ### Validations
 
 Unlike Paperclip, [which shipped with built-in attachment
-validations][paperclip-validations], ActiveStorage does have built-in support for
+validations][paperclip-validations], ActiveStorage does not have built-in support for
 validating an attachment's content type or file size (which can be useful for
 [preventing content type spoofing][security-validations]).
 
