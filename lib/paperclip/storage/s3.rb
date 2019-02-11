@@ -219,7 +219,9 @@ module Paperclip
       def s3_server_side_encryption
         return false if @options[:s3_server_side_encryption].blank?
         s3_server_side_encryption = @options[:s3_server_side_encryption]
-        s3_server_side_encryption = s3_server_side_encryption.call(instance) if s3_server_side_encryption.respond_to?(:call)
+        if s3_server_side_encryption.respond_to?(:call)
+          s3_server_side_encryption = s3_server_side_encryption.call(instance)
+        end
         s3_server_side_encryption
       end
 
