@@ -130,7 +130,6 @@ module Paperclip
         end
 
         base.instance_eval do
-          @s3_options     = @options[:s3_options]     || {}
           @s3_permissions = set_permissions(@options[:s3_permissions])
           @s3_protocol    = @options[:s3_protocol] || "".freeze
           @s3_metadata = @options[:s3_metadata] || {}
@@ -139,13 +138,6 @@ module Paperclip
 
           @s3_storage_class = set_storage_class(@options[:s3_storage_class])
 
-          @s3_server_side_encryption = "AES256"
-          if @options[:s3_server_side_encryption].blank?
-            @s3_server_side_encryption = false
-          end
-          if @s3_server_side_encryption
-            @s3_server_side_encryption = @options[:s3_server_side_encryption]
-          end
 
           unless @options[:url].to_s.match(/\A:s3.*url\z/) || @options[:url] == ":asset_host".freeze
             @options[:path] = path_option.gsub(/:url/, @options[:url]).sub(/\A:rails_root\/public\/system/, "".freeze)
@@ -218,6 +210,19 @@ module Paperclip
         @s3_prefixes_in_alias ||= @options[:s3_prefixes_in_alias].to_i
       end
 
+      def s3_options
+        s3_options = @options[:s3_options] || {}
+        s3_options = s3_options.call(instance) if s3_options.respond_to?(:call)
+        s3_options
+      end
+
+      def s3_server_side_encryption
+        return false if @options[:s3_server_side_encryption].blank?
+        s3_server_side_encryption = @options[:s3_server_side_encryption]
+        s3_server_side_encryption = s3_server_side_encryption.call(instance) if s3_server_side_encryption.respond_to?(:call)
+        s3_server_side_encryption
+      end
+
       def s3_url_options
         s3_url_options = @options[:s3_url_options] || {}
         s3_url_options = s3_url_options.call(instance) if s3_url_options.respond_to?(:call)
@@ -252,7 +257,7 @@ module Paperclip
             config[opt] = s3_credentials[opt] if s3_credentials[opt]
           end
 
-          obtain_s3_instance_for(config.merge(@s3_options))
+          obtain_s3_instance_for(config.merge(s3_options))
         end
       end
 
@@ -362,7 +367,7 @@ module Paperclip
             storage_class = s3_storage_class(style)
             write_options.merge!(:storage_class => storage_class) if storage_class
 
-            if @s3_server_side_encryption
+            if s3_server_side_encryption
               write_options[:server_side_encryption] = @s3_server_side_encryption
             end
 
