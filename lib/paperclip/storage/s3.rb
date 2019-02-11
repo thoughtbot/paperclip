@@ -131,6 +131,7 @@ module Paperclip
 
         base.instance_eval do
           @s3_options     = @options[:s3_options]     || {}
+          @s3_options     = @s3_options.call(self) if @s3_options.is_a?(Proc)
           @s3_permissions = set_permissions(@options[:s3_permissions])
           @s3_protocol    = @options[:s3_protocol] || "".freeze
           @s3_metadata = @options[:s3_metadata] || {}
