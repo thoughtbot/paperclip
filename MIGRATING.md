@@ -116,7 +116,7 @@ create_table "active_storage_blobs", force: :cascade do |t|
 end
 ```
 
-So, assuming you want to leave the files in the exact same place,  _this is
+So, assuming you want to leave the files in the exact same place, _this is
 your migration_. Otherwise, see the next section first and modify the migration
 to taste.
 
@@ -406,7 +406,7 @@ Then you'll end up with an n+1 as you load each attachment in the loop.
 So while the controller and model will work without change, you will want to
 double-check your loops and add `includes` as needed.
 
-ActiveStorage automatically declares `ActiveStorage::Attachement` and
+ActiveStorage automatically declares `ActiveStorage::Attachment` and
 `ActiveStorage::Blob` relationships to your models, along with eager-loading
 scopes.
 
