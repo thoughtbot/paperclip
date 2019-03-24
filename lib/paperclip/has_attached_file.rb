@@ -41,9 +41,10 @@ module Paperclip
 
       @klass.send :define_method, @name do |*args|
         ivar = "@attachment_#{name}"
-        attachment = instance_variable_get(ivar)
 
-        if attachment.nil?
+        if instance_variable_defined?(ivar)
+          attachment = instance_variable_get(ivar)
+        else
           attachment = Attachment.new(name, self, options)
           instance_variable_set(ivar, attachment)
         end
