@@ -1,5 +1,8 @@
 # Migrating from Paperclip to ActiveStorage
 
+* [Video presentation](https://www.youtube.com/watch?v=tZ_WNUytO9o).
+* [En español](https://github.com/thoughtbot/paperclip/blob/master/MIGRATING-ES.md).
+
 Paperclip and ActiveStorage solve similar problems with similar solutions, so
 transitioning from one to the other is straightforward data re-writing.
 

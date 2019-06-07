@@ -7,7 +7,9 @@ Paperclip
 
 For new projects, we recommend Rails' own [ActiveStorage].
 
-For existing projects, please consult and contribute to [the migration guide] ([en español]).
+For existing projects, please consult and contribute to the migration guide,
+available [in English], [en español], and as [a video] recorded at RailsConf
+2019.
 
 
 We will leave the Issues open as a discussion forum _only_. We do _not_
@@ -18,8 +20,9 @@ migration guide. All other pull requests will be closed without merging.
 
 [Paperclip is deprecated]: https://robots.thoughtbot.com/closing-the-trombone
 [ActiveStorage]: http://guides.rubyonrails.org/active_storage_overview.html
-[the migration guide]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
+[in English]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
 [en español]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING-ES.md
+[a video]: https://www.youtube.com/watch?v=tZ_WNUytO9o
 
 # Existing documentation
 
