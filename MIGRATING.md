@@ -132,9 +132,17 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
     # sqlite
     # get_blob_id = 'LAST_INSERT_ROWID()'
 
+    # mysql
+    # active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare('active_storage_blob_statement', <<-SQL)
+    #   INSERT INTO active_storage_blobs (
+    #     `key`, filename, content_type, metadata, byte_size, checksum, created_at
+    #   ) VALUES ($1, $2, $3, '{}', $4, $5, $6)
+    # SQL
+
+    # postgres
     active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare('active_storage_blob_statement', <<-SQL)
       INSERT INTO active_storage_blobs (
-        `key`, filename, content_type, metadata, byte_size, checksum, created_at
+        "key", filename, content_type, metadata, byte_size, checksum, created_at
       ) VALUES ($1, $2, $3, '{}', $4, $5, $6)
     SQL
 
