@@ -134,6 +134,8 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
     # get_blob_id = 'LAST_INSERT_ID()'
     # sqlite
     # get_blob_id = 'LAST_INSERT_ROWID()'
+    # mysql
+    # get_blob_id = '(SELECT LAST_INSERT_ID())'
 
     active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare('active_storage_blob_statement', <<-SQL)
       INSERT INTO active_storage_blobs (
@@ -146,6 +148,22 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
         name, record_type, record_id, blob_id, created_at
       ) VALUES ($1, $2, $3, #{get_blob_id}, $4)
     SQL
+    
+    # mysql
+    # active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare(<<-SQL
+    #   INSERT INTO active_storage_blobs
+    #   ( `key`, `filename`, `content_type`, `metadata`, `byte_size`, `checksum`, `created_at` )
+    #   VALUES
+    #   ( ?, ?, ?, '{}', ?, ?, ? )
+    # SQL
+    # )
+    # active_storage_attachment_statement = ActiveRecord::Base.connection.raw_connection.prepare(<<-SQL
+    #   INSERT INTO active_storage_attachments
+    #   ( `name`, `record_type`, `record_id`, `blob_id`, `created_at` )
+    #   VALUES
+    #   (?, ?, ?, #{get_blob_id}, ?)
+    # SQL
+    # )
 
     Rails.application.eager_load!
     models = ActiveRecord::Base.descendants.reject(&:abstract_class?)
@@ -185,6 +203,32 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
                 instance.id,
                 instance.updated_at.iso8601,
               ])
+            
+            # mysql - execute prepared statements
+            # begin
+            #   active_storage_blob_statement.execute(
+            #     key(instance, attachment),
+            #     instance.send("#{attachment}_file_name"),
+            #     instance.send("#{attachment}_content_type"),
+            #     instance.send("#{attachment}_file_size"),
+            #     checksum(instance.send(attachment)),
+            #     instance.updated_at.iso8601
+            #   )
+            # rescue Mysql2::Error => e
+            #   2300 is a duplicate key issue - that likely means the script was already run
+            #   raise e unless e.sql_state == '23000'
+            # end
+            # begin
+            #   active_storage_attachment_statement.execute(
+            #     attachment,
+            #     model.name,
+            #     instance.id,
+            #     instance.updated_at.to_s(:db)
+            #   )
+            # rescue Mysql2::Error => e
+            #   2300 is a duplicate key issue - that likely means the script was already run
+            #   raise e unless e.sql_state == '23000'
+            # end
           end
         end
       end
