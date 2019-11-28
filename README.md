@@ -1,43 +1,24 @@
 Paperclip
 =========
 
-# Deprecated
+We plan to support and maintain paperclip, as well as clean it up.
 
-**[Paperclip is deprecated]**.
-
-For new projects, we recommend Rails' own [ActiveStorage].
-
-For existing projects, please consult and contribute to the migration guide,
-available [in English], [en español], and as [a video] recorded at RailsConf
-2019.
-
-
-We will leave the Issues open as a discussion forum _only_. We do _not_
-guarantee a response from us in the Issues.
-
-We are no longer accepting pull requests _except_ pull requests against the
-migration guide. All other pull requests will be closed without merging.
-
-[Paperclip is deprecated]: https://robots.thoughtbot.com/closing-the-trombone
-[ActiveStorage]: http://guides.rubyonrails.org/active_storage_overview.html
-[in English]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
-[en español]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING-ES.md
-[a video]: https://www.youtube.com/watch?v=tZ_WNUytO9o
+Please feel free to contribute Issues and pull requests.
 
 # Existing documentation
 
 ## Documentation valid for `master` branch
 
 Please check the documentation for the paperclip version you are using:
-https://github.com/thoughtbot/paperclip/releases
+https://github.com/kreeti/paperclip/releases
 
 ---
 
-[![Build Status](https://secure.travis-ci.org/thoughtbot/paperclip.svg?branch=master)](http://travis-ci.org/thoughtbot/paperclip)
-[![Dependency Status](https://gemnasium.com/thoughtbot/paperclip.svg?travis)](https://gemnasium.com/thoughtbot/paperclip)
-[![Code Climate](https://codeclimate.com/github/thoughtbot/paperclip.svg)](https://codeclimate.com/github/thoughtbot/paperclip)
-[![Inline docs](http://inch-ci.org/github/thoughtbot/paperclip.svg)](http://inch-ci.org/github/thoughtbot/paperclip)
-[![Security](https://hakiri.io/github/thoughtbot/paperclip/master.svg)](https://hakiri.io/github/thoughtbot/paperclip/master)
+[![Build Status](https://secure.travis-ci.org/kreeti/paperclip.svg?branch=master)](http://travis-ci.org/kreeti/paperclip)
+[![Dependency Status](https://gemnasium.com/kreeti/paperclip.svg?travis)](https://gemnasium.com/kreeti/paperclip)
+[![Code Climate](https://codeclimate.com/github/kreeti/paperclip.svg)](https://codeclimate.com/github/kreeti/paperclip)
+[![Inline docs](http://inch-ci.org/github/kreeti/paperclip.svg)](http://inch-ci.org/github/kreeti/paperclip)
+[![Security](https://hakiri.io/github/kreeti/paperclip/master.svg)](https://hakiri.io/github/kreeti/paperclip/master)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -83,7 +64,6 @@ https://github.com/thoughtbot/paperclip/releases
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
-- [About thoughtbot](#about-thoughtbot)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -198,7 +178,7 @@ gem "paperclip", "~> 6.0.0"
 Or, if you want to get the latest, you can get master from the main paperclip repository:
 
 ```ruby
-gem "paperclip", git: "git://github.com/thoughtbot/paperclip.git"
+gem "paperclip", git: "git://github.com/kreeti/paperclip.git"
 ```
 
 If you're trying to use features that don't seem to be in the latest released gem, but are
@@ -437,7 +417,7 @@ Internationalization (I18n)
 ---------------------------
 
 For using or adding locale files in different languages, check the project
-https://github.com/thoughtbot/paperclip-i18n.
+https://github.com/kreeti/paperclip-i18n.
 
 Security Validations
 ====================
@@ -688,7 +668,7 @@ has more information on the accepted style formats.
 For more fine-grained control of the conversion process, `source_file_options` and `convert_options` can be used to pass flags and settings directly to ImageMagick's powerful Convert tool, [documented here](https://www.imagemagick.org/script/convert.php). For example:
 
 ```ruby
-has_attached_file :image, styles: { regular: ['800x800>', :png]}, 
+has_attached_file :image, styles: { regular: ['800x800>', :png]},
     source_file_options: { regular: "-density 96 -depth 8 -quality 85" },
     convert_options: { regular: "-posterize 3"}
 ```
@@ -709,7 +689,7 @@ Custom Attachment Processors
 You can write your own custom attachment processors to carry out tasks like
 adding watermarks, compressing images, or encrypting files. Custom processors
 must be defined within the `Paperclip` module, inherit from
-`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/thoughtbot/paperclip/blob/master/lib/paperclip/processor.rb)),
+`Paperclip::Processor` (see [`lib/paperclip/processor.rb`](https://github.com/kreeti/paperclip/blob/master/lib/paperclip/processor.rb)),
 and implement a `make` method that returns a `File`. All files in your Rails
 app's `lib/paperclip` and `lib/paperclip_processors` directories will be
 automatically loaded by Paperclip. Processors are specified using the
@@ -1056,33 +1036,18 @@ If you'd like to contribute a feature or bugfix: Thanks! To make sure your
 fix/feature has a high chance of being included, please read the following
 guidelines:
 
-1. Post a [pull request](https://github.com/thoughtbot/paperclip/compare/).
+1. Post a [pull request](https://github.com/kreeti/paperclip/compare/).
 2. Make sure there are tests! We will not accept any patch that is not tested.
    It's a rare time when explicit tests aren't needed. If you have questions
    about writing tests for paperclip, please open a
-   [GitHub issue](https://github.com/thoughtbot/paperclip/issues/new).
+   [GitHub issue](https://github.com/kreeti/paperclip/issues/new).
 
 Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for more details on contributing and running test.
 
-Thank you to all [the contributors](https://github.com/thoughtbot/paperclip/graphs/contributors)!
+Thank you to all [the contributors](https://github.com/kreeti/paperclip/graphs/contributors)!
 
 License
 -------
 
-Paperclip is Copyright © 2008-2017 thoughtbot, inc. It is free software, and may be
+Paperclip is Copyright &copy; 2008-2017 thoughtbot, inc. It is free software, and may be
 redistributed under the terms specified in the MIT-LICENSE file.
-
-About thoughtbot
-----------------
-
-![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
-
-Paperclip is maintained and funded by thoughtbot.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open source software!
-See [our other projects][community] or
-[hire us][hire] to design, develop, and grow your product.
-
-[community]: https://thoughtbot.com/community?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
