@@ -4,11 +4,10 @@ require 'active_record'
 require 'active_record/version'
 require 'active_support'
 require 'active_support/core_ext'
-require 'mocha/api'
-require 'bourne'
 require 'ostruct'
 require 'pathname'
 require 'activerecord-import'
+require 'yaml'
 
 ROOT = Pathname(File.expand_path(File.join(File.dirname(__FILE__), '..')))
 
@@ -39,7 +38,7 @@ RSpec.configure do |config|
   config.include TestData
   config.include Reporting
   config.extend VersionHelper
-  config.mock_framework = :mocha
+
   config.before(:all) do
     rebuild_model
   end

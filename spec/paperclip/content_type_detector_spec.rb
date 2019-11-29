@@ -18,9 +18,8 @@ describe Paperclip::ContentTypeDetector do
   end
 
   it 'returns content type of file if it is an acceptable type' do
-    MIME::Types.stubs(:type_for).returns([MIME::Type.new('application/mp4'), MIME::Type.new('video/mp4'), MIME::Type.new('audio/mp4')])
-    Paperclip::ContentTypeDetector.any_instance
-      .stubs(:type_from_file_contents).returns("video/mp4")
+    allow(MIME::Types).to receive(:type_for).and_return([MIME::Type.new('application/mp4'), MIME::Type.new('video/mp4'), MIME::Type.new('audio/mp4')])
+    allow_any_instance_of(Paperclip::ContentTypeDetector).to receive(:type_from_file_contents).and_return("video/mp4")
     @filename = "my_file.mp4"
     assert_equal "video/mp4", Paperclip::ContentTypeDetector.new(@filename).detect
   end
@@ -41,7 +40,7 @@ describe Paperclip::ContentTypeDetector do
   end
 
   it 'returns a sensible default when the file command is missing' do
-    Paperclip.stubs(:run).raises(Terrapin::CommandLineError.new)
+    allow(Paperclip).to receive(:run).and_raise(Terrapin::CommandLineError.new)
     @filename = "/path/to/something"
     assert_equal "application/octet-stream", Paperclip::ContentTypeDetector.new(@filename).detect
   end

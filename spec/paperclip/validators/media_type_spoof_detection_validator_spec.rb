@@ -26,8 +26,8 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
 
-    detector = mock("detector", :spoofed? => true)
-    Paperclip::MediaTypeSpoofDetector.stubs(:using).returns(detector)
+    detector = double("detector", :spoofed? => true)
+    allow(Paperclip::MediaTypeSpoofDetector).to receive(:using).and_return(detector)
     @validator.validate(@dummy)
 
     assert_equal I18n.t("errors.messages.spoofed_media_type"), @dummy.errors[:avatar].first
@@ -37,16 +37,12 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
-    Paperclip::MediaTypeSpoofDetector.stubs(:using).returns(stub(:spoofed? => false))
-
+    expect(Paperclip::MediaTypeSpoofDetector).to receive(:using).once.and_return(double("detector", :spoofed? => false))
     @dummy.valid?
-
-    assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.once }
   end
 
   it "does not run when attachment is not dirty" do
-    Paperclip::MediaTypeSpoofDetector.stubs(:using).never
+    expect(Paperclip::MediaTypeSpoofDetector).to_not receive(:using)
     @dummy.valid?
-    assert_received(Paperclip::MediaTypeSpoofDetector, :using){|e| e.never }
   end
 end
