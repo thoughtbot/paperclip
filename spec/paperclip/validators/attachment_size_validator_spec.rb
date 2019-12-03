@@ -15,7 +15,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
   def self.should_allow_attachment_file_size(size)
     context "when the attachment size is #{size}" do
       it "adds error to dummy object" do
-        @dummy.stubs(:avatar_file_size).returns(size)
+        allow(@dummy).to receive(:avatar_content_type).and_return(size)
         @validator.validate(@dummy)
         assert @dummy.errors[:avatar_file_size].blank?,
           "Expect an error message on :avatar_file_size, got none."
@@ -31,7 +31,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
   def self.should_not_allow_attachment_file_size(size, options = {})
     context "when the attachment size is #{size}" do
       before do
-        @dummy.stubs(:avatar_file_size).returns(size)
+        allow(@dummy).to receive(:avatar_file_size).and_return(size)
         @validator.validate(@dummy)
       end
 
