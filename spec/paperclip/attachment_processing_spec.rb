@@ -9,7 +9,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment_content_type :avatar, content_type: "image/png"
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles)
+      expect(attachment).to receive(:post_process_styles)
 
       attachment.assign(file)
     end
@@ -19,7 +19,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment_content_type :avatar, not: "image/png"
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles).never
+      expect(attachment).not_to receive(:post_process_styles)
 
       attachment.assign(file)
     end
@@ -29,7 +29,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment_content_type :avatar, content_type: "image/tiff"
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles).never
+      expect(attachment).not_to receive(:post_process_styles)
 
       attachment.assign(file)
     end
@@ -39,7 +39,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment_content_type :avatar, content_type: "image/tiff", if: lambda{false}
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles)
+      expect(attachment).to receive(:post_process_styles)
 
       attachment.assign(invalid_assignment)
     end
@@ -51,7 +51,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment :avatar, content_type: {content_type: "image/png"}
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles)
+      expect(attachment).to receive(:post_process_styles)
 
       attachment.assign(file)
     end
@@ -61,7 +61,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment :avatar, content_type: {not: "image/png"}
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles).never
+      expect(attachment).not_to receive(:post_process_styles)
 
       attachment.assign(file)
     end
@@ -71,7 +71,7 @@ describe 'Attachment Processing' do
       Dummy.validates_attachment :avatar, content_type: {content_type: "image/tiff"}
       instance = Dummy.new
       attachment = instance.avatar
-      attachment.expects(:post_process_styles).never
+      expect(attachment).not_to receive(:post_process_styles)
 
       attachment.assign(file)
     end
