@@ -13,9 +13,9 @@ describe Paperclip::AbstractAdapter do
 
   context "content type from file contents" do
     before do
-      subject.stubs(:path).returns("image.png")
-      Paperclip.stubs(:run).returns("image/png\n")
-      Paperclip::ContentTypeDetector.any_instance.stubs(:type_from_mime_magic).returns("image/png")
+      allow(subject).to receive(:path).and_return("image.png")
+      allow(Paperclip).to receive(:run).and_return("image/png\n")
+      allow(Paperclip::ContentTypeDetector.any_instance).to receive(:type_from_mime_magic).and_return("image/png")
     end
 
     it "returns the content type without newline" do
@@ -36,7 +36,7 @@ describe Paperclip::AbstractAdapter do
 
     [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink].each do |method|
       it "delegates #{method} to @tempfile" do
-        subject.tempfile.stubs(method)
+        allow(subject.tempfile).to receive(method)
         subject.public_send(method)
         assert_received subject.tempfile, method
       end
@@ -70,7 +70,7 @@ describe Paperclip::AbstractAdapter do
     subject { TestAdapter.new(nil, options) }
 
     before do
-      subject.stubs(:path).returns(fixture_file("50x50.png"))
+      allow(subject).to receive(:path).and_return(fixture_file("50x50.png"))
     end
 
     context "MD5" do
@@ -152,7 +152,7 @@ describe Paperclip::AbstractAdapter do
     end
 
     it "should be able to reopen the file after symlink has failed" do
-      FileUtils.expects(:ln).raises(Errno::EXDEV)
+      expect(FileUtils).to receive(:ln).and_raise(Errno::EXDEV)
 
       expect(subject.copy_to_tempfile(file).read).to eq(body)
     end

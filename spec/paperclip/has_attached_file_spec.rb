@@ -67,7 +67,7 @@ describe Paperclip::HasAttachedFile do
   end
 
   class AttachmentAdder
-    include Mocha::API
+    # include Mocha::API
     include RSpec::Matchers
 
     def initialize(attachment_name, options = {})

@@ -6,8 +6,8 @@ describe Paperclip::UriAdapter do
 
   before do
     @open_return = StringIO.new("xxx")
-    @open_return.stubs(:content_type).returns(content_type)
-    @open_return.stubs(:meta).returns(meta)
+    allow(@open_return).to receive(:content_type).and_return(content_type)
+    allow(@open_return).to receive(:meta).and_return(meta)
     Paperclip::UriAdapter.register
   end
 
@@ -19,8 +19,8 @@ describe Paperclip::UriAdapter do
     let(:meta) { { "content-type" => "image/png" } }
 
     before do
-      Paperclip::UriAdapter.any_instance.
-        stubs(:download_content).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).
+        to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("http://thoughtbot.com/images/thoughtbot-logo.png")
       @subject = Paperclip.io_adapters.for(@uri, hash_digest: Digest::MD5)
@@ -76,8 +76,8 @@ describe Paperclip::UriAdapter do
     let(:meta) { { "content-type" => "text/html" } }
 
     before do
-      Paperclip::UriAdapter.any_instance.
-        stubs(:download_content).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).
+        to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("http://thoughtbot.com")
       @subject = Paperclip.io_adapters.for(@uri)
@@ -94,8 +94,8 @@ describe Paperclip::UriAdapter do
 
   context "a url with query params" do
     before do
-      Paperclip::UriAdapter.any_instance.
-        stubs(:download_content).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).
+        to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("https://github.com/thoughtbot/paperclip?file=test")
       @subject = Paperclip.io_adapters.for(@uri)
@@ -111,8 +111,8 @@ describe Paperclip::UriAdapter do
     let(:filename_from_path) { "paperclip" }
 
     before do
-      Paperclip::UriAdapter.any_instance.
-        stubs(:download_content).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).
+        to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse(
         "https://github.com/thoughtbot/#{filename_from_path}?file=test")
@@ -174,8 +174,8 @@ describe Paperclip::UriAdapter do
 
   context "a url with restricted characters in the filename" do
     before do
-      Paperclip::UriAdapter.any_instance.
-        stubs(:download_content).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).
+        to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
@@ -192,7 +192,7 @@ describe Paperclip::UriAdapter do
 
   describe "#download_content" do
     before do
-      Paperclip::UriAdapter.any_instance.stubs(:open).returns(@open_return)
+      allow(Paperclip::UriAdapter.any_instance).to receive(:open).and_return(@open_return)
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
     end

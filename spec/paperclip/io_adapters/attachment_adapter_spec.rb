@@ -61,7 +61,7 @@ describe Paperclip::AttachmentAdapter do
     before do
       file_contents = IO.read(fixture_file("animated.gif"))
       @file = StringIO.new(file_contents)
-      @file.stubs(:original_filename).returns('image:restricted.gif')
+      allow(@file).to receive(:original_filename).and_return('image:restricted.gif')
       @file.binmode
 
       @attachment.assign(@file)

@@ -12,14 +12,14 @@ describe Paperclip::FileCommandContentTypeDetector do
   end
 
   it 'returns a sensible default when the file command is missing' do
-    Paperclip.stubs(:run).raises(Terrapin::CommandLineError.new)
+    allow(Paperclip).to receive(:run).and_raise(Terrapin::CommandLineError.new)
     @filename = "/path/to/something"
     assert_equal "application/octet-stream",
       Paperclip::FileCommandContentTypeDetector.new(@filename).detect
   end
 
   it 'returns a sensible default on the odd chance that run returns nil' do
-    Paperclip.stubs(:run).returns(nil)
+    allow(Paperclip).to receive(:run).and_return(nil)
     assert_equal "application/octet-stream",
       Paperclip::FileCommandContentTypeDetector.new("windows").detect
   end
@@ -28,12 +28,12 @@ describe Paperclip::FileCommandContentTypeDetector do
     let(:detector) { Paperclip::FileCommandContentTypeDetector.new("html") }
 
     it "does work with the output of old versions of file" do
-      Paperclip.stubs(:run).returns("text/html charset=us-ascii")
+      allow(Paperclip).to receive(:run).and_return("text/html charset=us-ascii")
       expect(detector.detect).to eq("text/html")
     end
 
     it "does work with the output of new versions of file" do
-      Paperclip.stubs(:run).returns("text/html; charset=us-ascii")
+      allow(Paperclip).to receive(:run).and_return("text/html; charset=us-ascii")
       expect(detector.detect).to eq("text/html")
     end
   end

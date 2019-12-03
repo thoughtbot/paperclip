@@ -3,9 +3,9 @@ require 'spec_helper'
 describe Paperclip::HttpUrlProxyAdapter do
   before do
     @open_return = StringIO.new("xxx")
-    @open_return.stubs(:meta).returns("content-type" => "image/png")
-    Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
-      returns(@open_return)
+    allow(@open_return).to receive(:meta).and_return("content-type" => "image/png")
+    allow(Paperclip::HttpUrlProxyAdapter.any_instance).to receive(:download_content).
+      and_return(@open_return)
     Paperclip::HttpUrlProxyAdapter.register
   end
 
@@ -108,8 +108,7 @@ describe Paperclip::HttpUrlProxyAdapter do
 
   context "a url with special characters in the filename" do
     before do
-      Paperclip::HttpUrlProxyAdapter.any_instance.stubs(:download_content).
-        returns(@open_return)
+      allow(Paperclip::HttpUrlProxyAdapter.any_instance).to receive(:download_content).and_return(@open_return)
     end
 
     let(:filename) do

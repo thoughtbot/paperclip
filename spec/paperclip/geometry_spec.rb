@@ -162,7 +162,7 @@ describe Paperclip::Geometry do
 
     it "does not generate from a file with no path" do
       file = mock("file", path: "")
-      file.stubs(:respond_to?).with(:path).returns(true)
+      allow(file).to receive(:respond_to?).with(:path).and_return(true)
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end
 
