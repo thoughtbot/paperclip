@@ -83,7 +83,7 @@ describe Paperclip::Thumbnail do
       end
 
       it "sends the right command to convert when sent #make" do
-        @thumb.expects(:convert).with do |*arg|
+        expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
@@ -118,7 +118,7 @@ describe Paperclip::Thumbnail do
       end
 
       it "sends the right command to convert when sent #make" do
-        @thumb.expects(:convert).with do |*arg|
+        expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == '-strip :source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
@@ -159,7 +159,7 @@ describe Paperclip::Thumbnail do
       end
 
       it "sends the right command to convert when sent #make" do
-        @thumb.expects(:convert).with do |*arg|
+        expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
           arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
@@ -221,7 +221,7 @@ describe Paperclip::Thumbnail do
     context "being thumbnailed with default animated option (true)" do
       it "calls identify to check for animated images when sent #make" do
         thumb = Paperclip::Thumbnail.new(@file, geometry: "100x50#")
-        thumb.expects(:identify).at_least_once.with do |*arg|
+        expect(thumb).to receive(:identify).at_least(1).times do |*arg|
           arg[0] == '-format %m :file' &&
           arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
         end

@@ -75,7 +75,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
 
     it "be skipped" do
       dummy = Dummy.new
-      dummy.avatar.expects(:post_process).never
+      expect(dummy.avatar).to_not receive(:post_process)
       expect(matcher.greater_than(1024)).to accept(dummy)
     end
   end

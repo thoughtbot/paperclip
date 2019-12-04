@@ -77,7 +77,7 @@ describe Paperclip::FileAdapter do
         before do
           allow(MIME::Types).to receive(:type_for).and_return([])
           allow(Paperclip).to receive(:run).and_return("application/vnd.ms-office\n")
-          allow(Paperclip::ContentTypeDetector.any_instance)
+          allow_any_instance_of(Paperclip::ContentTypeDetector)
             .to receive(:type_from_mime_magic).and_return("application/vnd.ms-office")
 
           @subject = Paperclip.io_adapters.for(@file)

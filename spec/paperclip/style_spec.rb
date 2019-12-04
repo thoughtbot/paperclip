@@ -103,7 +103,7 @@ describe Paperclip::Style do
       @attachment = attachment path: ":basename.:extension",
                                styles: {thumb: "100x100", large: "400x400"},
                                convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
-      @attachment.expects(:extra_options_for).never
+      expect(@attachment).to_not receive(:extra_options_for)
       @style = @attachment.styles[:thumb]
     end
 
@@ -113,9 +113,9 @@ describe Paperclip::Style do
                                convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
-      @file.stubs(:original_filename).returns("file.jpg")
+      allow(@file).to receive(:original_filename).and_return("file.jpg")
 
-      @attachment.expects(:extra_options_for).with(:thumb)
+      expect(@attachment).to receive(:extra_options_for).with(:thumb)
       @attachment.styles[:thumb].convert_options
     end
   end
@@ -125,7 +125,7 @@ describe Paperclip::Style do
       @attachment = attachment path: ":basename.:extension",
                                styles: {thumb: "100x100", large: "400x400"},
                                source_file_options: {all: "-density 400", thumb: "-depth 8"}
-      @attachment.expects(:extra_source_file_options_for).never
+      expect(@attachment).to_not receive(:extra_source_file_options_for)
       @style = @attachment.styles[:thumb]
     end
 
@@ -135,9 +135,9 @@ describe Paperclip::Style do
                                source_file_options: {all: "-density 400", thumb: "-depth 8"}
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
-      @file.stubs(:original_filename).returns("file.jpg")
+      allow(@file).to receive(:original_filename).and_return("file.jpg")
 
-      @attachment.expects(:extra_source_file_options_for).with(:thumb)
+      expect(@attachment).to receive(:extra_source_file_options_for).with(:thumb)
       @attachment.styles[:thumb].source_file_options
     end
   end
@@ -157,7 +157,7 @@ describe Paperclip::Style do
     end
 
     it "does not get processors from the attachment" do
-      @attachment.expects(:processors).never
+      expect(@attachment).to_not receive(:processors)
       assert_not_equal [:thumbnail], @style.processors
     end
 
@@ -200,7 +200,7 @@ describe Paperclip::Style do
                                  }
                                }
       @file = StringIO.new("...")
-      @file.stubs(:original_filename).returns("file.jpg")
+      allow(@file).to receive(:original_filename).and_return("file.jpg")
     end
 
     it "has empty options for :thumb style" do

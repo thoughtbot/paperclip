@@ -19,7 +19,7 @@ describe Paperclip::UriAdapter do
     let(:meta) { { "content-type" => "image/png" } }
 
     before do
-      allow(Paperclip::UriAdapter.any_instance).
+      allow_any_instance_of(Paperclip::UriAdapter).
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("http://thoughtbot.com/images/thoughtbot-logo.png")
@@ -76,7 +76,7 @@ describe Paperclip::UriAdapter do
     let(:meta) { { "content-type" => "text/html" } }
 
     before do
-      allow(Paperclip::UriAdapter.any_instance).
+      allow_any_instance_of(Paperclip::UriAdapter).
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("http://thoughtbot.com")
@@ -94,7 +94,7 @@ describe Paperclip::UriAdapter do
 
   context "a url with query params" do
     before do
-      allow(Paperclip::UriAdapter.any_instance).
+      allow_any_instance_of(Paperclip::UriAdapter).
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("https://github.com/thoughtbot/paperclip?file=test")
@@ -111,7 +111,7 @@ describe Paperclip::UriAdapter do
     let(:filename_from_path) { "paperclip" }
 
     before do
-      allow(Paperclip::UriAdapter.any_instance).
+      allow_any_instance_of(Paperclip::UriAdapter).
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse(
@@ -174,7 +174,7 @@ describe Paperclip::UriAdapter do
 
   context "a url with restricted characters in the filename" do
     before do
-      allow(Paperclip::UriAdapter.any_instance).
+      allow_any_instance_of(Paperclip::UriAdapter).
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
@@ -192,7 +192,7 @@ describe Paperclip::UriAdapter do
 
   describe "#download_content" do
     before do
-      allow(Paperclip::UriAdapter.any_instance).to receive(:open).and_return(@open_return)
+      allow_any_instance_of(Paperclip::UriAdapter).to receive(:open).and_return(@open_return)
       @uri = URI.parse("https://github.com/thoughtbot/paper:clip.jpg")
       @subject = Paperclip.io_adapters.for(@uri)
     end
@@ -203,7 +203,7 @@ describe Paperclip::UriAdapter do
 
     context "with default read_timeout" do
       it "calls open without options" do
-        @subject.expects(:open).with(@uri, {}).at_least_once
+        expect(@subject).to receive(:open).with(@uri, {}).at_least(1).times
       end
     end
 
@@ -213,7 +213,7 @@ describe Paperclip::UriAdapter do
       end
 
       it "calls open with read_timeout option" do
-        @subject.expects(:open).with(@uri, read_timeout: 120).at_least_once
+        expect(@subject).to receive(:open).with(@uri, read_timeout: 120).at_least(1).times
       end
     end
   end

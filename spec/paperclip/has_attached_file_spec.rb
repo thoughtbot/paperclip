@@ -75,7 +75,7 @@ describe Paperclip::HasAttachedFile do
       @stubbed_class = stub_class
       if options.present?
         options[:unstub_methods].each do |method|
-          @stubbed_class.unstub(method)
+          allow(@stubbed_class).to receive(method).and_call_original
         end
       end
     end
@@ -90,7 +90,7 @@ describe Paperclip::HasAttachedFile do
 
     def defines_class_method(method_name)
       a_class = @stubbed_class
-      a_class.class.stubs(:define_method)
+      allow(a_class.class).to receive(:define_method)
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {})
 
@@ -107,7 +107,7 @@ describe Paperclip::HasAttachedFile do
 
     def registers_attachment
       a_class = @stubbed_class
-      Paperclip::AttachmentRegistry.stubs(:register)
+      allow(Paperclip::AttachmentRegistry).to receive(:register)
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, {size: 1})
 

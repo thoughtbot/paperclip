@@ -191,7 +191,7 @@ describe Paperclip::Storage::Fog do
       end
 
       it "passes the content type to the Fog::Storage::AWS::Files instance" do
-        Fog::Storage::AWS::Files.any_instance.expects(:create).with do |hash|
+        allow_any_instance_of(Fog::Storage::AWS::Files).to receive(:create).with do |hash|
           hash[:content_type]
         end
         @dummy.save
@@ -372,7 +372,7 @@ describe Paperclip::Storage::Fog do
       end
 
       context "with a valid bucket name for a subdomain" do
-        before { @dummy.stubs(:new_record?).returns(false) }
+        before { allow(@dummy).to receive(:new_record?).and_return(false) }
 
         it "provides an url in subdomain style" do
           assert_match(/^https:\/\/papercliptests.s3.amazonaws.com\/avatars\/5k.png/, @dummy.avatar.url)
@@ -437,7 +437,7 @@ describe Paperclip::Storage::Fog do
           @dynamic_fog_directory = 'dynamicpaperclip'
           rebuild_model(@options.merge(fog_directory: lambda { |attachment| attachment.instance.bucket_name }))
           @dummy = Dummy.new
-          @dummy.stubs(:bucket_name).returns(@dynamic_fog_directory)
+          allow(@dummy).to receive(:bucket_name).and_return(@dynamic_fog_directory)
           @dummy.avatar = @file
           @dummy.save
         end
@@ -455,7 +455,7 @@ describe Paperclip::Storage::Fog do
         before do
           rebuild_model(@options.merge(fog_host: lambda { |attachment| attachment.instance.fog_host }))
           @dummy = Dummy.new
-          @dummy.stubs(:fog_host).returns('http://dynamicfoghost.com')
+          allow(@dummy).to receive(:fog_host).and_return('http://dynamicfoghost.com')
           @dummy.avatar = @file
           @dummy.save
         end
@@ -506,7 +506,7 @@ describe Paperclip::Storage::Fog do
           }
           rebuild_model(@options.merge(fog_credentials: lambda { |attachment| attachment.instance.fog_credentials }))
           @dummy = Dummy.new
-          @dummy.stubs(:fog_credentials).returns(@dynamic_fog_credentials)
+          allow(@dummy).to receive(:fog_credentials).and_return(@dynamic_fog_credentials)
           @dummy.avatar = @file
           @dummy.save
         end
@@ -526,8 +526,8 @@ describe Paperclip::Storage::Fog do
         end
 
         it "applies the options to the fog #create call" do
-          files = stub
-          @dummy.avatar.stubs(:directory).returns stub(files: files)
+          files = spy
+          allow(@dummy.avatar).to receive(:directory).and_return stub(files: files)
           files.expects(:create).with(
             has_entries(multipart_chunk_size: 104857600),
           )
@@ -551,7 +551,7 @@ describe Paperclip::Storage::Fog do
       @file = File.new(fixture_file('5k.png'), 'rb')
       @dummy = Dummy.new
       @dummy.avatar = @file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     after do

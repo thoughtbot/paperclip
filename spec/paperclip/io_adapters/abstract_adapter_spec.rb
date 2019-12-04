@@ -15,7 +15,7 @@ describe Paperclip::AbstractAdapter do
     before do
       allow(subject).to receive(:path).and_return("image.png")
       allow(Paperclip).to receive(:run).and_return("image/png\n")
-      allow(Paperclip::ContentTypeDetector.any_instance).to receive(:type_from_mime_magic).and_return("image/png")
+      allow_any_instance_of(Paperclip::ContentTypeDetector).to receive(:type_from_mime_magic).and_return("image/png")
     end
 
     it "returns the content type without newline" do
@@ -31,14 +31,14 @@ describe Paperclip::AbstractAdapter do
 
   context "delegation" do
     before do
-      subject.tempfile = stub("Tempfile")
+      subject.tempfile = spy("Tempfile")
     end
 
     [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink].each do |method|
       it "delegates #{method} to @tempfile" do
         allow(subject.tempfile).to receive(method)
         subject.public_send(method)
-        assert_received subject.tempfile, method
+        expect(subject.tempfile).to have_received(method)
       end
     end
   end

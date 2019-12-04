@@ -110,7 +110,7 @@ describe Paperclip::Storage::S3 do
         url: ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -151,7 +151,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -168,7 +168,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a protocol-relative URL" do
@@ -185,7 +185,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -202,7 +202,7 @@ describe Paperclip::Storage::S3 do
         path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an S3 path" do
@@ -248,7 +248,7 @@ describe Paperclip::Storage::S3 do
         s3_region: "ap-northeast-1"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an :s3_host_name path" do
@@ -273,7 +273,7 @@ describe Paperclip::Storage::S3 do
         attr_accessor :value
       end
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "uses s3_host_name as a proc if available" do
@@ -295,7 +295,7 @@ describe Paperclip::Storage::S3 do
         )
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
-        @dummy.stubs(:new_record?).returns(false)
+        allow(@dummy).to receive(:new_record?).and_return(false)
       end
 
       it "returns a url based on an :s3_host_name path" do
@@ -321,7 +321,7 @@ describe Paperclip::Storage::S3 do
         )
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
-        @dummy.stubs(:new_record?).returns(false)
+        allow(@dummy).to receive(:new_record?).and_return(false)
       end
 
       it "returns a url based on an :s3_host_name path" do
@@ -349,7 +349,7 @@ describe Paperclip::Storage::S3 do
         File.open(fixture_file('5k.png'), 'rb') do |file|
           @dummy = Dummy.new
           @dummy.avatar = file
-          @dummy.stubs(:new_record?).returns(false)
+          allow(@dummy).to receive(:new_record?).and_return(false)
         end
     end
 
@@ -396,14 +396,14 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
         @dummy.avatar = @file
 
-        object = stub
-        @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
-        @dummy.avatar.stubs(:s3_object).with(:thumbnail).returns(object)
+        object = spy
+        allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(object)
+        allow(@dummy.avatar).to receive(:s3_object).with(:thumbnail).and_return(object)
 
-        object.expects(:upload_file)
+        expect(object).to receive(:upload_file)
           .with(anything, content_type: 'image/png',
                 acl: :"public-read")
-        object.expects(:upload_file)
+        expect(object).to receive(:upload_file)
           .with(anything, content_type: 'image/png',
                 acl: :"public-read",
                 cache_control: 'max-age=31557600')
@@ -438,30 +438,30 @@ describe Paperclip::Storage::S3 do
 
     context "reprocess" do
       before do
-        @object = stub
-        @dummy.avatar.stubs(:s3_object).with(:original).returns(@object)
-        @dummy.avatar.stubs(:s3_object).with(:thumb).returns(@object)
-        @object.stubs(:get).yields(@file.read)
-        @object.stubs(:exists?).returns(true)
+        @object = spy
+        allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(@object)
+        allow(@dummy.avatar).to receive(:s3_object).with(:thumb).and_return(@object)
+        allow(@object).to receive(:get).and_yield(@file.read)
+        allow(@object).to receive(:exists?).and_return(true)
       end
 
       it "uploads original" do
-        @object.expects(:upload_file).with(
+        expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/png",
-          acl: :"public-read").returns(true)
-        @object.expects(:upload_file).with(
+          acl: :"public-read").and_return(true)
+        expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/jpeg",
-          acl: :"public-read").returns(true)
+          acl: :"public-read").and_return(true)
         @dummy.avatar.reprocess!
       end
 
       it "doesn't upload original" do
-        @object.expects(:upload_file).with(
+        expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/jpeg",
-          acl: :"public-read").returns(true)
+          acl: :"public-read").and_return(true)
         @dummy.avatar.reprocess!(:thumb)
       end
     end
@@ -482,7 +482,7 @@ describe Paperclip::Storage::S3 do
       File.open(fixture_file("spaced file.png"), "rb") do |file|
         @dummy = Dummy.new
         @dummy.avatar = file
-        @dummy.stubs(:new_record?).returns(false)
+        allow(@dummy).to receive(:new_record?).and_return(false)
       end
     end
 
@@ -515,7 +515,7 @@ describe Paperclip::Storage::S3 do
       @dummy = Dummy.new
       @dummy.avatar = file
       @dummy.save
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a replaced version for path" do
@@ -536,7 +536,7 @@ describe Paperclip::Storage::S3 do
         url: ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on an S3 subdomain" do
@@ -559,7 +559,7 @@ describe Paperclip::Storage::S3 do
         )
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on the host_alias" do
@@ -585,7 +585,7 @@ describe Paperclip::Storage::S3 do
       )
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url with the prefixes removed" do
@@ -610,7 +610,7 @@ describe Paperclip::Storage::S3 do
       end
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a url based on the host_alias" do
@@ -633,7 +633,7 @@ describe Paperclip::Storage::S3 do
         url: ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-      @dummy.stubs(:new_record?).returns(false)
+      allow(@dummy).to receive(:new_record?).and_return(false)
     end
 
     it "returns a relative URL for Rails to calculate assets host" do
@@ -668,10 +668,10 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
 
-        object = stub
-        @dummy.avatar.stubs(:s3_object).returns(object)
+        object = spy
+        allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-        object.expects(:presigned_url).with(:get, expires_in: 3600)
+        expect(object).to receive(:presigned_url).with(:get, expires_in: 3600)
         @dummy.avatar.expiring_url
       end
     end
@@ -683,9 +683,9 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
 
-        object = stub
-        @dummy.avatar.stubs(:s3_object).returns(object)
-        object.expects(:presigned_url)
+        object = spy
+        allow(@dummy.avatar).to receive(:s3_object).and_return(object)
+        expect(object).to receive(:presigned_url)
           .with(:get, expires_in: 3600,
                 response_content_disposition: "inline")
         @dummy.avatar.expiring_url
@@ -699,16 +699,16 @@ describe Paperclip::Storage::S3 do
         @dummy = Dummy.new
 
         @file = stringy_file
-        @file.stubs(:original_filename).returns("5k.png\n\n")
-        Paperclip.stubs(:run).returns('image/png')
-        @file.stubs(:content_type).returns("image/png\n\n")
-        @file.stubs(:to_tempfile).returns(@file)
+        allow(@file).to receive(:original_filename).and_return("5k.png\n\n")
+        allow(Paperclip).to receive(:run).and_return('image/png')
+        allow(@file).to receive(:content_type).and_return("image/png\n\n")
+        allow(@file).to receive(:to_tempfile).and_return(@file)
 
         @dummy.avatar = @file
 
-        object = stub
-        @dummy.avatar.stubs(:s3_object).returns(object)
-        object.expects(:presigned_url)
+        object = spy
+        allow(@dummy.avatar).to receive(:s3_object).and_return(object)
+        expect(object).to receive(:presigned_url)
           .with(:get, expires_in: 3600, response_content_type: "image/png")
         @dummy.avatar.expiring_url
       end
@@ -754,16 +754,16 @@ describe Paperclip::Storage::S3 do
     end
 
     it "generates a url for the thumb" do
-      object = stub
-      @dummy.avatar.stubs(:s3_object).with(:thumb).returns(object)
-      object.expects(:presigned_url).with(:get, expires_in: 1800)
+      object = spy
+      allow(@dummy.avatar).to receive(:s3_object).with(:thumb).and_return(object)
+      expect(object).to receive(:presigned_url).with(:get, expires_in: 1800)
       @dummy.avatar.expiring_url(1800, :thumb)
     end
 
     it "generates a url for the default style" do
-      object = stub
-      @dummy.avatar.stubs(:s3_object).with(:original).returns(object)
-      object.expects(:presigned_url).with(:get, expires_in: 1800)
+      object = spy
+      allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(object)
+      expect(object).to receive(:presigned_url).with(:get, expires_in: 1800)
       @dummy.avatar.expiring_url(1800)
     end
   end
@@ -862,27 +862,27 @@ describe Paperclip::Storage::S3 do
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
         @dummy.avatar = @file
-        @dummy.stubs(:new_record?).returns(false)
+        allow(@dummy).to receive(:new_record?).and_return(false)
       end
 
       after { @file.close }
 
       it "does not get a bucket to get a URL" do
-        @dummy.avatar.expects(:s3).never
-        @dummy.avatar.expects(:s3_bucket).never
+        expect(@dummy.avatar).to_not receive(:s3)
+        expect(@dummy.avatar).to_not receive(:s3_bucket)
         assert_match %r{^//s3\.amazonaws\.com/testing/avatars/original/5k\.png}, @dummy.avatar.url
       end
 
       it "is rewound after flush_writes" do
         @dummy.avatar.instance_eval "def after_flush_writes; end"
-        @dummy.avatar.stubs(:s3_object).returns(stub(upload_file: true))
+        allow(@dummy.avatar).to receive(:s3_object).and_return(spy(upload_file: true))
         files = @dummy.avatar.queued_for_write.values.each(&:read)
         @dummy.save
         assert files.none?(&:eof?), "Expect all the files to be rewound."
       end
 
       it "is removed after after_flush_writes" do
-        @dummy.avatar.stubs(:s3_object).returns(stub(upload_file: true))
+        allow(@dummy.avatar).to receive(:s3_object).and_return(spy(upload_file: true))
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
         assert paths.none?{ |path| File.exist?(path) },
@@ -890,10 +890,10 @@ describe Paperclip::Storage::S3 do
       end
 
       it "will retry to save again but back off on SlowDown" do
-        @dummy.avatar.stubs(:sleep)
-        Aws::S3::Object.any_instance.stubs(:upload_file).
-          raises(Aws::S3::Errors::SlowDown.new(stub,
-                                               stub(status: 503, body: "")))
+        allow(@dummy.avatar).to receive(:sleep)
+        allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).
+          and_raise(Aws::S3::Errors::SlowDown.new(spy,
+                                               spy(status: 503, body: "")))
         expect {@dummy.save}.to raise_error(Aws::S3::Errors::SlowDown)
         expect(@dummy.avatar).to have_received(:sleep).with(1)
         expect(@dummy.avatar).to have_received(:sleep).with(2)
@@ -904,9 +904,9 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
-          object.expects(:upload_file)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
+          expect(object).to receive(:upload_file)
             .with(anything, content_type: 'image/png', acl: :"public-read")
           @dummy.save
         end
@@ -918,11 +918,11 @@ describe Paperclip::Storage::S3 do
 
       context "and saved without a bucket" do
         before do
-          Aws::S3::Bucket.any_instance.expects(:create)
-          Aws::S3::Object.any_instance.stubs(:upload_file).
-            raises(Aws::S3::Errors::NoSuchBucket
-                    .new(stub,
-                         stub(status: 404, body: "<foo/>"))).then.returns(nil)
+          allow_any_instance_of(Aws::S3::Bucket).to receive(:create)
+          allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).
+            and_raise(Aws::S3::Errors::NoSuchBucket
+                    .new(spy,
+                         spy(status: 404, body: "<foo/>"))).then.and_return(nil)
           @dummy.save
         end
 
@@ -933,8 +933,8 @@ describe Paperclip::Storage::S3 do
 
       context "and remove" do
         before do
-          Aws::S3::Object.any_instance.stubs(:exists?).returns(true)
-          Aws::S3::Object.any_instance.stubs(:delete)
+          allow_any_instance_of(Aws::S3::Object).to receive(:exists?).and_return(true)
+          allow_any_instance_of(Aws::S3::Object).to receive(:delete)
           @dummy.destroy
         end
 
@@ -945,8 +945,8 @@ describe Paperclip::Storage::S3 do
 
       context 'that the file were missing' do
         before do
-          Aws::S3::Object.any_instance.stubs(:exists?)
-            .raises(Aws::S3::Errors::ServiceError.new("rspec stub raises",
+          allow_any_instance_of(Aws::S3::Object).to receive(:exists?)
+            .and_raise(Aws::S3::Errors::ServiceError.new("rspec stub raises",
                                                       "object exists?"))
         end
 
@@ -1052,10 +1052,10 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          object.expects(:upload_file)
+          expect(object).to receive(:upload_file)
             .with(anything,
                   content_type: 'image/png',
                   acl: :"public-read",
@@ -1093,10 +1093,10 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          object.expects(:upload_file)
+          expect(object).to receive(:upload_file)
             .with(anything,
                   content_type: 'image/png',
                   acl: :"public-read",
@@ -1134,10 +1134,10 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          object.expects(:upload_file)
+          expect(object).to receive(:upload_file)
             .with(anything,
                   content_type: 'image/png',
                   acl: :"public-read",
@@ -1176,10 +1176,10 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
-            @dummy.avatar.stubs(:s3_object).returns(object)
+            object = spy
+            allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            object.expects(:upload_file)
+            expect(object).to receive(:upload_file)
               .with(anything,
                     content_type: 'image/png',
                     acl: :"public-read",
@@ -1222,9 +1222,9 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
+            object = spy
             [:thumb, :original].each do |style|
-              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
               expected_options = {
                 :content_type => "image/png",
@@ -1232,7 +1232,7 @@ describe Paperclip::Storage::S3 do
               }
               expected_options.merge!(:storage_class => :reduced_redundancy) if style == :thumb
 
-              object.expects(:upload_file)
+              expect(object).to receive(:upload_file)
                 .with(anything, expected_options)
             end
             @dummy.save
@@ -1271,11 +1271,11 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
+            object = spy
             [:thumb, :original].each do |style|
-              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-              object.expects(:upload_file)
+              expect(object).to receive(:upload_file)
                 .with(anything, :content_type => "image/png",
                       acl: :"public-read",
                       :storage_class => :reduced_redundancy)
@@ -1315,10 +1315,10 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
-            @dummy.avatar.stubs(:s3_object).returns(object)
+            object = spy
+            allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            object.expects(:upload_file)
+            expect(object).to receive(:upload_file)
               .with(anything, :content_type => "image/png", acl: :"public-read")
             @dummy.save
           end
@@ -1354,10 +1354,10 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          object.expects(:upload_file)
+          expect(object).to receive(:upload_file)
             .with(anything, content_type: "image/png",
                   acl: :"public-read",
                   server_side_encryption: "AES256")
@@ -1394,10 +1394,10 @@ describe Paperclip::Storage::S3 do
 
       context "and saved" do
         before do
-          object = stub
-          @dummy.avatar.stubs(:s3_object).returns(object)
+          object = spy
+          allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          object.expects(:upload_file)
+          expect(object).to receive(:upload_file)
             .with(anything,
                   content_type: "image/png",
                   acl: :"public-read",
@@ -1488,10 +1488,10 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
-            @dummy.avatar.stubs(:s3_object).returns(object)
+            object = spy
+            allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            object.expects(:upload_file)
+            expect(object).to receive(:upload_file)
               .with(anything, content_type: "image/png", acl: :"public-read")
             @dummy.save
           end
@@ -1526,10 +1526,10 @@ describe Paperclip::Storage::S3 do
 
         context "and saved" do
           before do
-            object = stub
-            @dummy.avatar.stubs(:s3_object).returns(object)
+            object = spy
+            allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            object.expects(:upload_file)
+            expect(object).to receive(:upload_file)
               .with(anything, content_type: "image/png", acl: :private)
             @dummy.save
           end
@@ -1571,10 +1571,10 @@ describe Paperclip::Storage::S3 do
         context "and saved" do
           before do
             [:thumb, :original].each do |style|
-              object = stub
-              @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+              object = spy
+              allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-              object.expects(:upload_file)
+              expect(object).to receive(:upload_file)
                 .with(anything,
                       content_type: "image/png",
                       acl: style == :thumb ? :public_read : :private)
@@ -1633,7 +1633,7 @@ describe Paperclip::Storage::S3 do
       before do
         @file = File.new(fixture_file('5k.png'), 'rb')
         @dummy = Dummy.new
-        @dummy.stubs(name: 'Custom Avatar Name.png')
+        allow(@dummy).to receive(:name).with('Custom Avatar Name.png')
         @dummy.avatar = @file
       end
 
@@ -1642,10 +1642,10 @@ describe Paperclip::Storage::S3 do
       context "and saved" do
         before do
           [:thumb, :original].each do |style|
-            object = stub
-            @dummy.avatar.stubs(:s3_object).with(style).returns(object)
+            object = spy
+            allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-            object.expects(:upload_file)
+            expect(object).to receive(:upload_file)
               .with(anything,
                     content_type: "image/png",
                     acl: :"public-read",
