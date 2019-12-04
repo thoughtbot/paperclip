@@ -191,7 +191,7 @@ describe Paperclip::Storage::Fog do
       end
 
       it "passes the content type to the Fog::Storage::AWS::Files instance" do
-        allow_any_instance_of(Fog::Storage::AWS::Files).to receive(:create).with do |hash|
+        allow_any_instance_of(Fog::Storage::AWS::Files).to receive(:create) do |hash|
           hash[:content_type]
         end
         @dummy.save
@@ -527,7 +527,7 @@ describe Paperclip::Storage::Fog do
 
         it "applies the options to the fog #create call" do
           files = spy
-          allow(@dummy.avatar).to receive(:directory).and_return stub(files: files)
+          allow(@dummy.avatar).to receive(:directory).and_return spy(files: files)
           files.expects(:create).with(
             has_entries(multipart_chunk_size: 104857600),
           )
