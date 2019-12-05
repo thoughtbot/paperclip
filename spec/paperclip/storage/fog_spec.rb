@@ -191,7 +191,7 @@ describe Paperclip::Storage::Fog do
       end
 
       it "passes the content type to the Fog::Storage::AWS::Files instance" do
-        allow_any_instance_of(Fog::Storage::AWS::Files).to receive(:create) do |hash|
+        allow(Fog::Storage::AWS::Files.any_instance).to receive(:create) do |hash|
           hash[:content_type]
         end
         @dummy.save

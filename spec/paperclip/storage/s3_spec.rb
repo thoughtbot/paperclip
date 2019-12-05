@@ -920,7 +920,7 @@ describe Paperclip::Storage::S3 do
         before do
           expect_any_instance_of(Aws::S3::Bucket).to receive(:create)
           allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).
-            and_raise(Aws::S3::Errors::NoSuchBucket.new(double, double(status: 404, body: "<foo/>")))
+            and_raise(Aws::S3::Errors::NoSuchBucket.new(spy, spy(status: 404, body: "<foo/>")))
           allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).and_return(nil)
           @dummy.save
         end
