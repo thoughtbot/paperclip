@@ -127,7 +127,7 @@ describe Paperclip::HasAttachedFile do
 
       Paperclip::HasAttachedFile.define_on(a_class, @attachment_name, { validate_media_type: false })
 
-      expect(a_class).to have_received(:validates_media_type_spoof_detection).never
+      expect(a_class).to_not have_received(:validates_media_type_spoof_detection)
     end
 
     def sets_up_media_type_check_validation

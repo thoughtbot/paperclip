@@ -161,7 +161,7 @@ describe Paperclip::Geometry do
     end
 
     it "does not generate from a file with no path" do
-      file = spy("file", path: "")
+      file = double("file", path: "")
       allow(file).to receive(:respond_to?).with(:path).and_return(true)
       expect { @geo = Paperclip::Geometry.from_file(file) }.to raise_error(Paperclip::Errors::NotIdentifiedByImageMagickError)
     end

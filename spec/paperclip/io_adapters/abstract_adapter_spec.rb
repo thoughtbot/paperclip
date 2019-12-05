@@ -31,7 +31,7 @@ describe Paperclip::AbstractAdapter do
 
   context "delegation" do
     before do
-      subject.tempfile = spy("Tempfile")
+      subject.tempfile = double("Tempfile")
     end
 
     [:binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink].each do |method|

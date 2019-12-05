@@ -26,7 +26,7 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
 
-    detector = spy("detector", :spoofed? => true)
+    detector = double("detector", spoofed?: true)
     allow(Paperclip::MediaTypeSpoofDetector).to receive(:using).and_return(detector)
     @validator.validate(@dummy)
 
@@ -37,7 +37,7 @@ describe Paperclip::Validators::MediaTypeSpoofDetectionValidator do
     build_validator
     file = File.new(fixture_file("5k.png"), "rb")
     @dummy.avatar.assign(file)
-    expect(Paperclip::MediaTypeSpoofDetector).to receive(:using).once.and_return(spy("detector", :spoofed? => false))
+    expect(Paperclip::MediaTypeSpoofDetector).to receive(:using).once.and_return(double("detector", spoofed?: false))
     @dummy.valid?
   end
 

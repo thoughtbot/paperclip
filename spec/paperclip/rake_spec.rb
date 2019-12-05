@@ -57,7 +57,7 @@ describe Rake do
 
     context "when there is an error in reprocess!" do
       before do
-        @errors = spy('errors')
+        @errors = double('errors')
         allow(@errors).to receive(:full_messages).and_return([''])
         allow(@errors).to receive(:blank?).and_return(false)
         allow(@bogus_instance).to receive(:errors).and_return(@errors)

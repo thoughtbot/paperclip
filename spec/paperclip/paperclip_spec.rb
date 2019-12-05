@@ -4,7 +4,7 @@ describe Paperclip do
   context ".run" do
     before do
       Paperclip.options[:log_command] = false
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", {}).and_return(spy(:run))
+      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", {}).and_return(double(run: nil))
       @original_command_line_path = Terrapin::CommandLine.path
     end
 
@@ -24,7 +24,7 @@ describe Paperclip do
     end
 
     it "does not duplicate Terrapin::CommandLine.path on multiple runs" do
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "more_stuff", {}).and_return(spy(:run))
+      expect(Terrapin::CommandLine).to receive(:new).with("convert", "more_stuff", {}).and_return(double(run: nil))
       Terrapin::CommandLine.path = nil
       Paperclip.options[:command_path] = "/opt/my_app/bin"
       Paperclip.run("convert", "stuff")
@@ -63,7 +63,7 @@ describe Paperclip do
   context "Calling Paperclip.run with a logger" do
     it "passes the defined logger if :log_command is set" do
       Paperclip.options[:log_command] = true
-      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", logger: Paperclip.logger).and_return(spy(:run))
+      expect(Terrapin::CommandLine).to receive(:new).with("convert", "stuff", logger: Paperclip.logger).and_return(double(run: nil))
       Paperclip.run("convert", "stuff")
     end
   end
