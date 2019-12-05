@@ -13,7 +13,7 @@ describe Rake do
       @valid_instance = Dummy.new
       allow(@valid_instance.avatar).to receive(:reprocess!)
       allow(Paperclip::Task).to receive(:log_error)
-      allow(Paperclip).to receive(:each_instance_with_attachment).and_yield @bogus_instance, @valid_instance
+      allow(Paperclip).to receive(:each_instance_with_attachment).and_yield(@bogus_instance).and_yield(@valid_instance)
     end
     context "when there is an exception in reprocess!" do
       before do
