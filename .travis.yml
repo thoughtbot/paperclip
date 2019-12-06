@@ -12,7 +12,7 @@ script: "bundle exec rake clean spec cucumber"
 addons:
   apt:
     packages:
-    - libjpeg
+    - imagemagick libmagickcore-dev libmagickwand-dev libjpeg
     - ghostscript
 
 gemfile:
