@@ -11,8 +11,11 @@ script: "bundle exec rake clean spec cucumber"
 
 addons:
   apt:
+    update: true
     packages:
-    - imagemagick libmagickcore-dev libmagickwand-dev libjpeg
+    - libjpeg-dev
+    - libpng-dev
+    - libgif-dev
     - ghostscript
 
 gemfile:
