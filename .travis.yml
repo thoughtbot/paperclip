@@ -1,5 +1,4 @@
 language: ruby
-# sudo: false
 
 rvm:
   - 2.1
@@ -13,9 +12,6 @@ addons:
   apt:
     update: true
     packages:
-    - libjpeg-dev
-    - libpng-dev
-    - libgif-dev
     - ghostscript
 
 before_install:
