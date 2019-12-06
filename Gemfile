@@ -13,4 +13,5 @@ group :development, :test do
   gem 'builder'
   gem 'rubocop', require: false
   gem 'rspec'
+  gem 'sprockets', '3.7.2'
 end
