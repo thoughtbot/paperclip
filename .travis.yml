@@ -1,5 +1,4 @@
 language: ruby
-sudo: false
 
 rvm:
   - 2.1
@@ -11,8 +10,12 @@ script: "bundle exec rake clean spec cucumber"
 
 addons:
   apt:
+    update: true
     packages:
     - ghostscript
+
+before_install:
+  - sudo rm /etc/ImageMagick-6/policy.xml
 
 gemfile:
   - gemfiles/4.2.gemfile

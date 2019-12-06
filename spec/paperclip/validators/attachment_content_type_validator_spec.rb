@@ -15,7 +15,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "with a nil content type" do
     before do
       build_validator content_type: "image/jpg"
-      @dummy.stubs(avatar_content_type: nil)
+      allow(@dummy).to receive_messages(avatar_content_type: nil)
       @validator.validate(@dummy)
     end
 
@@ -28,7 +28,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "as true" do
       before do
         build_validator content_type: "image/png", allow_nil: true
-        @dummy.stubs(avatar_content_type: nil)
+        allow(@dummy).to receive_messages(avatar_content_type: nil)
         @validator.validate(@dummy)
       end
 
@@ -40,7 +40,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "as false" do
       before do
         build_validator content_type: "image/png", allow_nil: false
-        @dummy.stubs(avatar_content_type: nil)
+        allow(@dummy).to receive_messages(avatar_content_type: nil)
         @validator.validate(@dummy)
       end
 
@@ -53,7 +53,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "with a failing validation" do
     before do
       build_validator content_type: "image/png", allow_nil: false
-      @dummy.stubs(avatar_content_type: nil)
+      allow(@dummy).to receive_messages(avatar_content_type: nil)
       @validator.validate(@dummy)
     end
 
@@ -70,7 +70,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
   context "with a successful validation" do
     before do
       build_validator content_type: "image/png", allow_nil: false
-      @dummy.stubs(avatar_content_type: "image/png")
+      allow(@dummy).to receive_messages(avatar_content_type: "image/png")
       @validator.validate(@dummy)
     end
 
@@ -84,7 +84,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "as true" do
       before do
         build_validator content_type: "image/png", allow_blank: true
-        @dummy.stubs(avatar_content_type: "")
+        allow(@dummy).to receive_messages(avatar_content_type: "")
         @validator.validate(@dummy)
       end
 
@@ -96,7 +96,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     context "as false" do
       before do
         build_validator content_type: "image/png", allow_blank: false
-        @dummy.stubs(avatar_content_type: "")
+        allow(@dummy).to receive_messages(avatar_content_type: "")
         @validator.validate(@dummy)
       end
 
@@ -111,7 +111,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a string" do
         before do
           build_validator content_type: "image/jpg"
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -123,7 +123,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as an regexp" do
         before do
           build_validator content_type: /^image\/.*/
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -135,7 +135,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a list" do
         before do
           build_validator content_type: ["image/png", "image/jpg", "image/jpeg"]
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -149,7 +149,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a string" do
         before do
           build_validator content_type: "image/png"
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -162,7 +162,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a regexp" do
         before do
           build_validator content_type: /^text\/.*/
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -176,7 +176,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         context "without interpolation" do
           before do
             build_validator content_type: "image/png", message: "should be a PNG image"
-            @dummy.stubs(avatar_content_type: "image/jpg")
+            allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
             @validator.validate(@dummy)
           end
 
@@ -188,7 +188,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         context "with interpolation" do
           before do
             build_validator content_type: "image/png", message: "should have content type %{types}"
-            @dummy.stubs(avatar_content_type: "image/jpg")
+            allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
             @validator.validate(@dummy)
           end
 
@@ -205,7 +205,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a string" do
         before do
           build_validator not: "image/gif"
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -217,7 +217,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as an regexp" do
         before do
           build_validator not: /^text\/.*/
-          @dummy.stubs(avatar_content_type: "image/jpg")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/jpg")
           @validator.validate(@dummy)
         end
 
@@ -229,7 +229,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a list" do
         before do
           build_validator not: ["image/png", "image/jpg", "image/jpeg"]
-          @dummy.stubs(avatar_content_type: "image/gif")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/gif")
           @validator.validate(@dummy)
         end
 
@@ -243,7 +243,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a string" do
         before do
           build_validator not: "image/png"
-          @dummy.stubs(avatar_content_type: "image/png")
+          allow(@dummy).to receive_messages(avatar_content_type: "image/png")
           @validator.validate(@dummy)
         end
 
@@ -256,7 +256,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
       context "as a regexp" do
         before do
           build_validator not: /^text\/.*/
-          @dummy.stubs(avatar_content_type: "text/plain")
+          allow(@dummy).to receive_messages(avatar_content_type: "text/plain")
           @validator.validate(@dummy)
         end
 
@@ -270,7 +270,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         context "without interpolation" do
           before do
             build_validator not: "image/png", message: "should not be a PNG image"
-            @dummy.stubs(avatar_content_type: "image/png")
+            allow(@dummy).to receive_messages(avatar_content_type: "image/png")
             @validator.validate(@dummy)
           end
 
@@ -282,7 +282,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
         context "with interpolation" do
           before do
             build_validator not: "image/png", message: "should not have content type %{types}"
-            @dummy.stubs(avatar_content_type: "image/png")
+            allow(@dummy).to receive_messages(avatar_content_type: "image/png")
             @validator.validate(@dummy)
           end
 

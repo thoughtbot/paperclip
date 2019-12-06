@@ -48,7 +48,6 @@ module Paperclip
       !Array(mapped_content_type).include?(calculated_content_type)
     end
 
-
     def supplied_content_type
       @content_type
     end

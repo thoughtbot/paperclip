@@ -53,7 +53,7 @@ describe Paperclip::MediaTypeSpoofDetector do
     end
 
     it "logs info about the detected spoof" do
-      Paperclip.expects(:log).with('Content Type Spoof: Filename empty.html (image/jpg from Headers, ["text/html"] from Extension), content type discovered from file command: text/html. See documentation to allow this combination.')
+      expect(Paperclip).to receive(:log).with('Content Type Spoof: Filename empty.html (image/jpg from Headers, ["text/html"] from Extension), content type discovered from file command: text/html. See documentation to allow this combination.')
       spoofed?
     end
   end
@@ -108,12 +108,12 @@ describe Paperclip::MediaTypeSpoofDetector do
     let(:detector) { Paperclip::MediaTypeSpoofDetector.new(file, "html", "") }
 
     it "does work with the output of old versions of file" do
-      Paperclip.stubs(:run).returns("text/html charset=us-ascii")
+      allow(Paperclip).to receive(:run).and_return("text/html charset=us-ascii")
       expect(detector.send(:type_from_file_command)).to eq("text/html")
     end
 
     it "does work with the output of new versions of file" do
-      Paperclip.stubs(:run).returns("text/html; charset=us-ascii")
+      allow(Paperclip).to receive(:run).and_return("text/html; charset=us-ascii")
       expect(detector.send(:type_from_file_command)).to eq("text/html")
     end
   end

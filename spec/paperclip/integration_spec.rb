@@ -153,9 +153,9 @@ describe 'Paperclip' do
 
     it "allows us to selectively create each thumbnail" do
       skip <<-EXPLANATION
-	#reprocess! calls #assign which calls Paperclip.io_adapters.for 
+	#reprocess! calls #assign which calls Paperclip.io_adapters.for
 	which creates the tempfile. #assign then calls #post_process_file which
-	calls MediaTypeSpoofDetectionValidator#validate_each which calls 
+	calls MediaTypeSpoofDetectionValidator#validate_each which calls
 	Paperclip.io_adapters.for, which creates another tempfile. That first
 	tempfile is the one that leaks.
       EXPLANATION
@@ -231,7 +231,7 @@ describe 'Paperclip' do
 
       context 'and deleted where the delete fails' do
         it "does not die if an unexpected SystemCallError happens" do
-          FileUtils.stubs(:rmdir).raises(Errno::EPIPE)
+          allow(FileUtils).to receive(:rmdir).and_raise(Errno::EPIPE)
           assert_nothing_raised do
             @dummy.avatar.clear
             @dummy.save
@@ -284,7 +284,7 @@ describe 'Paperclip' do
   end
 
   it "skips chmod operation, when override_file_permissions is set to false (e.g. useful when using CIFS mounts)" do
-    FileUtils.expects(:chmod).never
+    expect(FileUtils).to_not receive(:chmod)
 
     rebuild_model override_file_permissions: false
     dummy = Dummy.create!
@@ -471,7 +471,7 @@ describe 'Paperclip' do
       before do
         @dummy.avatar.options[:styles][:mini] = "25x25#"
         @dummy.avatar.instance_variable_set :@normalized_styles, nil
-        Time.stubs(now: Time.now + 10)
+        allow(Time).to receive(:now).and_return(Time.now + 10)
         @dummy.avatar.reprocess!
         @dummy.reload
       end
@@ -657,7 +657,7 @@ describe 'Paperclip' do
 
       context "with non-english character in the file name" do
         before do
-          @file.stubs(:original_filename).returns("クリップ.png")
+          allow(@file).to receive(:original_filename).and_return("クリップ.png")
           @dummy.avatar = @file
         end
 

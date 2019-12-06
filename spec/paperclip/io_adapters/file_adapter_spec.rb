@@ -60,7 +60,7 @@ describe Paperclip::FileAdapter do
 
       context "file with multiple possible content type" do
         before do
-          MIME::Types.stubs(:type_for).returns([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
+          allow(MIME::Types).to receive(:type_for).and_return([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
           @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
         end
 
@@ -75,10 +75,10 @@ describe Paperclip::FileAdapter do
 
       context "file with content type derived from file contents on *nix" do
         before do
-          MIME::Types.stubs(:type_for).returns([])
-          Paperclip.stubs(:run).returns("application/vnd.ms-office\n")
-          Paperclip::ContentTypeDetector.any_instance
-            .stubs(:type_from_mime_magic).returns("application/vnd.ms-office")
+          allow(MIME::Types).to receive(:type_for).and_return([])
+          allow(Paperclip).to receive(:run).and_return("application/vnd.ms-office\n")
+          allow_any_instance_of(Paperclip::ContentTypeDetector)
+            .to receive(:type_from_mime_magic).and_return("application/vnd.ms-office")
 
           @subject = Paperclip.io_adapters.for(@file)
         end
@@ -94,7 +94,7 @@ describe Paperclip::FileAdapter do
         @file = File.open(fixture_file("animated.gif")) do |file|
           StringIO.new(file.read)
         end
-        @file.stubs(:original_filename).returns('image:restricted.gif')
+        allow(@file).to receive(:original_filename).and_return('image:restricted.gif')
         @subject = Paperclip.io_adapters.for(@file)
       end
 
