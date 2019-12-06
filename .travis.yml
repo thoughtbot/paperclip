@@ -16,7 +16,7 @@ addons:
     - libjpeg-dev
     - libpng-dev
     - libgif-dev
-    - ghostscript-9.20
+    - ghostscript
 
 before_install:
   - gem update --system
