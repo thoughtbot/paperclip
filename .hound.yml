@@ -79,7 +79,7 @@ Style/CaseIndentation:
   Description: Indentation of when in a case/when/[else/]end.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#indent-when-to-case
   Enabled: true
-  IndentWhenRelativeTo: case
+  EnforcedStyle: case
   SupportedStyles:
   - case
   - end
@@ -157,10 +157,6 @@ Style/Encoding:
   Description: Use UTF-8 as the source file encoding.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#utf-8
   Enabled: false
-  EnforcedStyle: always
-  SupportedStyles:
-  - when_needed
-  - always
 Style/FileName:
   Description: Use snake_case for source file names.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#snake-case-files
@@ -169,7 +165,7 @@ Style/FileName:
 Style/FirstParameterIndentation:
   Description: Checks the indentation of the first parameter in a method call.
   Enabled: true
-  EnforcedStyle: special_for_inner_method_call_in_parentheses
+  EnforcedStyle: consistent
   SupportedStyles:
   - consistent
   - special_for_inner_method_call
@@ -210,11 +206,11 @@ Style/HashSyntax:
   SupportedStyles:
   - ruby19
   - hash_rockets
-Style/IfUnlessModifier:
+Metrics/LineLength:
   Description: Favor modifier if/unless usage when you have a single-line body.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#if-as-a-modifier
   Enabled: false
-  MaxLineLength: 80
+  Max: 80
 Style/IndentationWidth:
   Description: Use 2 spaces for indentation.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#spaces-indentation
@@ -311,7 +307,7 @@ Style/PredicateName:
   - is_
   - has_
   - have_
-  NamePrefixBlacklist:
+  ForbiddenPrefixes:
   - is_
 Style/RaiseArgs:
   Description: Checks the arguments passed to raise/fail.
@@ -435,7 +431,15 @@ Style/TrailingBlankLines:
   SupportedStyles:
   - final_newline
   - final_blank_line
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
+  Description: Checks for trailing comma in parameter lists and literals.
+  StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-trailing-array-commas
+  Enabled: false
+  EnforcedStyleForMultiline: no_comma
+  SupportedStyles:
+  - comma
+  - no_comma
+Style/TrailingCommaInHashLiteral:
   Description: Checks for trailing comma in parameter lists and literals.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-trailing-array-commas
   Enabled: false
@@ -450,7 +454,7 @@ Style/TrivialAccessors:
   ExactNameMatch: false
   AllowPredicates: false
   AllowDSLWriters: false
-  Whitelist:
+  AllowedMethods:
   - to_ary
   - to_a
   - to_c
@@ -476,11 +480,6 @@ Style/VariableName:
   SupportedStyles:
   - snake_case
   - camelCase
-Style/WhileUntilModifier:
-  Description: Favor modifier while/until usage when you have a single-line body.
-  StyleGuide: https://github.com/bbatsov/ruby-style-guide#while-as-a-modifier
-  Enabled: false
-  MaxLineLength: 80
 Style/WordArray:
   Description: Use %w or %W for arrays of words.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#percent-w
@@ -541,14 +540,14 @@ Lint/AssignmentInCondition:
 Lint/EndAlignment:
   Description: Align ends correctly.
   Enabled: true
-  AlignWith: keyword
+  EnforcedStyleAlignWith: keyword
   SupportedStyles:
   - keyword
   - variable
 Lint/DefEndAlignment:
   Description: Align ends corresponding to defs correctly.
   Enabled: true
-  AlignWith: start_of_line
+  EnforcedStyleAlignWith: start_of_line
   SupportedStyles:
   - start_of_line
   - def
@@ -752,7 +751,7 @@ Style/LineEndConcatenation:
   Description: Use \ instead of + or << to concatenate two string literals at line
     end.
   Enabled: false
-Style/MethodCallParentheses:
+Style/MethodCallWithoutArgsParentheses:
   Description: Do not use parentheses for method calls with no arguments.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-args-no-parens
   Enabled: true
@@ -799,7 +798,7 @@ Style/OneLineConditional:
   Description: Favor the ternary operator(?:) over if/then/else/end constructs.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#ternary-operator
   Enabled: false
-Style/OpMethod:
+Naming/BinaryOperatorParameterName:
   Description: When defining binary operators, name the argument other.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#other-arg
   Enabled: false
@@ -905,10 +904,10 @@ Style/UnlessElse:
   Description: Do not use unless with else. Rewrite these with the positive case first.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-else-with-unless
   Enabled: true
-Style/UnneededCapitalW:
+Style/RedundantCapitalW:
   Description: Checks for %W when interpolation is not needed.
   Enabled: true
-Style/UnneededPercentQ:
+Style/RedundantPercentQ:
   Description: Checks for %q/%Q when single quotes or double quotes would do.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#percent-q
   Enabled: true
@@ -974,13 +973,9 @@ Lint/EnsureReturn:
 Lint/Eval:
   Description: The use of eval represents a serious security risk.
   Enabled: true
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Description: Don't suppress exception.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#dont-hide-exceptions
-  Enabled: false
-Lint/InvalidCharacterLiteral:
-  Description: Checks for invalid character literals with a non-escaped whitespace
-    character.
   Enabled: false
 Lint/LiteralInCondition:
   Description: Checks of literals used in conditions.
@@ -1012,7 +1007,7 @@ Lint/SpaceBeforeFirstArg:
   Description: Put a space between a method name and the first argument in a method
     call without parentheses.
   Enabled: true
-Lint/StringConversionInInterpolation:
+Lint/RedundantStringCoercion:
   Description: Checks for Object#to_s usage in string interpolation.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#no-to-s
   Enabled: true
