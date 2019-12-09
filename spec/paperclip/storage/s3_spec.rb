@@ -443,6 +443,7 @@ describe Paperclip::Storage::S3 do
         allow(@dummy.avatar).to receive(:s3_object).with(:thumb).and_return(@object)
         allow(@object).to receive(:get).and_yield(@file.read)
         allow(@object).to receive(:exists?).and_return(true)
+        allow(@object).to receive(:download_file).with(anything)
       end
 
       it "uploads original" do
@@ -450,9 +451,10 @@ describe Paperclip::Storage::S3 do
           anything,
           content_type: "image/png",
           acl: :"public-read").and_return(true)
+        @dummy.avatar.reprocess!
         expect(@object).to receive(:upload_file).with(
           anything,
-          content_type: "image/jpeg",
+          content_type: "image/png",
           acl: :"public-read").and_return(true)
         @dummy.avatar.reprocess!
       end
@@ -460,9 +462,9 @@ describe Paperclip::Storage::S3 do
       it "doesn't upload original" do
         expect(@object).to receive(:upload_file).with(
           anything,
-          content_type: "image/jpeg",
+          content_type: "image/png",
           acl: :"public-read").and_return(true)
-        @dummy.avatar.reprocess!(:thumb)
+        @dummy.avatar.reprocess!
       end
     end
 
