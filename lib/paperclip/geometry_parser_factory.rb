@@ -1,6 +1,6 @@
 module Paperclip
   class GeometryParser
-    FORMAT = /\b(\d*)x?(\d*)\b(?:,(\d?))?(\@\>|\>\@|[\>\<\#\@\%^!])?/i
+    FORMAT = /\b(\d*)x?(\d*)\b(?:,(\d?))?(\@\>|\>\@|[\>\<\#\@\%^!])?/i.freeze
     def initialize(string)
       @string = string
     end
@@ -8,10 +8,10 @@ module Paperclip
     def make
       if match
         Geometry.new(
-          :height => @height,
-          :width => @width,
-          :modifier => @modifier,
-          :orientation => @orientation
+          height: @height,
+          width: @width,
+          modifier: @modifier,
+          orientation: @orientation
         )
       end
     end

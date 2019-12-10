@@ -1,5 +1,3 @@
 module Paperclip
-  unless defined?(Paperclip::VERSION)
-    VERSION = "6.1.0".freeze
-  end
+  VERSION = "6.1.0" unless defined?(Paperclip::VERSION)
 end

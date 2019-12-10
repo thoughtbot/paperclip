@@ -12,7 +12,8 @@ module Paperclip
       if RUBY_PLATFORM =~ /java/
         case prefix_suffix
         when String
-          prefix, suffix = prefix_suffix, ''
+          prefix = prefix_suffix
+          suffix = ""
         when Array
           prefix, suffix = *prefix_suffix
         else
@@ -32,12 +33,10 @@ module Paperclip
     # for binary mode is ASCII-8BIT. This behavior is what's in CRuby, but not
     # in JRuby
     def binmode
-      set_encoding('ASCII-8BIT')
+      set_encoding("ASCII-8BIT")
       super
     end
   end
 end
 
-if RUBY_PLATFORM =~ /java/
-  ::Tempfile.send :include, Paperclip::TempfileEncoding
-end
+::Tempfile.include Paperclip::TempfileEncoding if RUBY_PLATFORM =~ /java/

@@ -15,9 +15,7 @@ module Paperclip
 
       attachment_names = Paperclip::AttachmentRegistry.names_for(klass)
 
-      if attachment_names.empty?
-        raise "Class #{klass.name} has no attachments specified"
-      end
+      raise "Class #{klass.name} has no attachments specified" if attachment_names.empty?
 
       if name.present? && attachment_names.map(&:to_s).include?(name.to_s)
         [name]
@@ -69,9 +67,7 @@ namespace :paperclip do
           if file = Paperclip.io_adapters.for(attachment, attachment.options[:adapter_options])
             instance.send("#{name}_file_name=", instance.send("#{name}_file_name").strip)
             instance.send("#{name}_content_type=", file.content_type.to_s.strip)
-            if instance.respond_to?("#{name}_file_size")
-              instance.send("#{name}_file_size=", file.size)
-            end
+            instance.send("#{name}_file_size=", file.size) if instance.respond_to?("#{name}_file_size")
             instance.save(validate: false)
           else
             true

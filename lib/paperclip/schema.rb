@@ -1,23 +1,25 @@
-require 'active_support/deprecation'
+require "active_support/deprecation"
 
 module Paperclip
   # Provides helper methods that can be used in migrations.
   module Schema
-    COLUMNS = {:file_name    => :string,
-               :content_type => :string,
-               :file_size    => :bigint,
-               :updated_at   => :datetime}
+    COLUMNS = { file_name: :string,
+                content_type: :string,
+                file_size: :bigint,
+                updated_at: :datetime }.freeze
 
-    def self.included(base)
-      ActiveRecord::ConnectionAdapters::Table.send :include, TableDefinition
-      ActiveRecord::ConnectionAdapters::TableDefinition.send :include, TableDefinition
-      ActiveRecord::ConnectionAdapters::AbstractAdapter.send :include, Statements
-      ActiveRecord::Migration::CommandRecorder.send :include, CommandRecorder
+    def self.included(_base)
+      ActiveRecord::ConnectionAdapters::Table.include TableDefinition
+      ActiveRecord::ConnectionAdapters::TableDefinition.include TableDefinition
+      ActiveRecord::ConnectionAdapters::AbstractAdapter.include Statements
+      ActiveRecord::Migration::CommandRecorder.include CommandRecorder
     end
 
     module Statements
       def add_attachment(table_name, *attachment_names)
-        raise ArgumentError, "Please specify attachment name in your add_attachment call in your migration." if attachment_names.empty?
+        if attachment_names.empty?
+          raise ArgumentError, "Please specify attachment name in your add_attachment call in your migration."
+        end
 
         options = attachment_names.extract_options!
 
@@ -30,7 +32,9 @@ module Paperclip
       end
 
       def remove_attachment(table_name, *attachment_names)
-        raise ArgumentError, "Please specify attachment name in your remove_attachment call in your migration." if attachment_names.empty?
+        if attachment_names.empty?
+          raise ArgumentError, "Please specify attachment name in your remove_attachment call in your migration."
+        end
 
         attachment_names.each do |attachment_name|
           COLUMNS.keys.each do |column_name|

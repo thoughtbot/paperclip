@@ -1,4 +1,4 @@
-require 'active_model/validations/presence'
+require "active_model/validations/presence"
 
 module Paperclip
   module Validators
@@ -9,9 +9,7 @@ module Paperclip
           record.errors.add(attribute, :spoofed_media_type)
         end
 
-        if adapter.tempfile
-          adapter.tempfile.close(true)
-        end
+        adapter.tempfile.close(true) if adapter.tempfile
       end
     end
 

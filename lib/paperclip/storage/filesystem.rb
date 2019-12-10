@@ -19,11 +19,10 @@ module Paperclip
     #   saved by paperclip. If you set this to an explicit octal value (0755, 0644, etc) then
     #   that value will be used to set the permissions for an uploaded file. The default is 0666.
     #   If you set :override_file_permissions to false, the chmod will be skipped. This allows
-    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the 
+    #   you to use paperclip on filesystems that don't understand unix file permissions, and has the
     #   added benefit of using the storage directories default umask on those that do.
     module Filesystem
-      def self.extended base
-      end
+      def self.extended(base); end
 
       def exists?(style_name = default_style)
         if original_filename
@@ -46,8 +45,8 @@ module Paperclip
             end
           end
           unless @options[:override_file_permissions] == false
-            resolved_chmod = (@options[:override_file_permissions] & ~0111) || (0666 & ~File.umask)
-            FileUtils.chmod( resolved_chmod, path(style_name) )
+            resolved_chmod = (@options[:override_file_permissions] & ~0o111) || (0o666 & ~File.umask)
+            FileUtils.chmod(resolved_chmod, path(style_name))
           end
           file.rewind
         end
@@ -66,7 +65,7 @@ module Paperclip
             # ignore file-not-found, let everything else pass
           end
           begin
-            while(true)
+            loop do
               path = File.dirname(path)
               FileUtils.rmdir(path)
               break if File.exist?(path) # Ruby 1.9.2 does not raise if the removal failed.
@@ -96,6 +95,5 @@ module Paperclip
         end
       end
     end
-
   end
 end

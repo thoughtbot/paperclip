@@ -5,11 +5,7 @@ module Paperclip
     end
 
     def get
-      if rails_exists? && rails_environment_exists?
-        Rails.env
-      else
-        nil
-      end
+      Rails.env if rails_exists? && rails_environment_exists?
     end
 
     private

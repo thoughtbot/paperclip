@@ -4,13 +4,12 @@ module Paperclip
   # the evaluation of block parameters until useful context is available.
 
   class Style
-
     attr_reader :name, :attachment, :format
 
     # Creates a Style object. +name+ is the name of the attachment,
     # +definition+ is the style definition from has_attached_file, which
     # can be string, array or hash
-    def initialize name, definition, attachment
+    def initialize(name, definition, attachment)
       @name = name
       @attachment = attachment
       if definition.is_a? Hash
@@ -70,8 +69,8 @@ module Paperclip
     # Arguments other than the standard geometry, format etc are just passed through from
     # initialization and any procs are called here, just before post-processing.
     def processor_options
-      args = {:style => name}
-      @other_args.each do |k,v|
+      args = { style: name }
+      @other_args.each do |k, v|
         args[k] = v.respond_to?(:call) ? v.call(attachment) : v
       end
       [:processors, :geometry, :format, :whiny, :convert_options, :source_file_options].each do |k|
@@ -103,6 +102,5 @@ module Paperclip
       base = attachment.options[:default_format]
       base.respond_to?(:call) ? base.call(attachment, name) : base
     end
-
   end
 end

@@ -21,16 +21,15 @@ module Paperclip
   class Processor
     attr_accessor :file, :options, :attachment
 
-    def initialize file, options = {}, attachment = nil
+    def initialize(file, options = {}, attachment = nil)
       @file = file
       @options = options
       @attachment = attachment
     end
 
-    def make
-    end
+    def make; end
 
-    def self.make file, options = {}, attachment = nil
+    def self.make(file, options = {}, attachment = nil)
       new(file, options, attachment).make
     end
 
@@ -40,7 +39,7 @@ module Paperclip
       Paperclip.run(
         Paperclip.options[:is_windows] ? "magick convert" : "convert",
         arguments,
-        local_options,
+        local_options
       )
     end
 
@@ -50,7 +49,7 @@ module Paperclip
       Paperclip.run(
         Paperclip.options[:is_windows] ? "magick identify" : "identify",
         arguments,
-        local_options,
+        local_options
       )
     end
   end

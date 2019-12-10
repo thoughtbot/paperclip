@@ -1,11 +1,11 @@
-require 'active_support/core_ext/module/delegation'
+require "active_support/core_ext/module/delegation"
 
 module Paperclip
   class AbstractAdapter
-    OS_RESTRICTED_CHARACTERS = %r{[/:]}
+    OS_RESTRICTED_CHARACTERS = %r{[/:]}.freeze
 
     attr_reader :content_type, :original_filename, :size, :tempfile
-    delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink, :to => :@tempfile
+    delegate :binmode, :binmode?, :close, :close!, :closed?, :eof?, :path, :readbyte, :rewind, :unlink, to: :@tempfile
     alias :length :size
 
     def initialize(target, options = {})
@@ -29,11 +29,12 @@ module Paperclip
     end
 
     def inspect
-      "#{self.class}: #{self.original_filename}"
+      "#{self.class}: #{original_filename}"
     end
 
     def original_filename=(new_filename)
       return unless new_filename
+
       @original_filename = new_filename.gsub(OS_RESTRICTED_CHARACTERS, "_")
     end
 

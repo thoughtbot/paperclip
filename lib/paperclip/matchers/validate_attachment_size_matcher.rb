@@ -11,31 +11,32 @@ module Paperclip
       #                 greater_than(1024) }
       #   it { should validate_attachment_size(:icon).
       #                 in(0..100) }
-      def validate_attachment_size name
+      def validate_attachment_size(name)
         ValidateAttachmentSizeMatcher.new(name)
       end
 
       class ValidateAttachmentSizeMatcher
-        def initialize attachment_name
+        def initialize(attachment_name)
           @attachment_name = attachment_name
         end
 
-        def less_than size
+        def less_than(size)
           @high = size
           self
         end
 
-        def greater_than size
+        def greater_than(size)
           @low = size
           self
         end
 
-        def in range
-          @low, @high = range.first, range.last
+        def in(range)
+          @low = range.first
+          @high = range.last
           self
         end
 
-        def matches? subject
+        def matches?(subject)
           @subject = subject
           @subject = @subject.new if @subject.class == Class
           lower_than_low? && higher_than_low? && lower_than_high? && higher_than_high?
@@ -56,7 +57,7 @@ module Paperclip
 
         protected
 
-        def override_method object, method, &replacement
+        def override_method(object, method, &replacement)
           (class << object; self; end).class_eval do
             define_method(method, &replacement)
           end
@@ -64,8 +65,8 @@ module Paperclip
 
         def passes_validation_with_size(new_size)
           file = StringIO.new(".")
-          override_method(file, :size){ new_size }
-          override_method(file, :to_tempfile){ file }
+          override_method(file, :size) { new_size }
+          override_method(file, :to_tempfile) { file }
 
           @subject.send(@attachment_name).post_processing = false
           @subject.send(@attachment_name).assign(file)

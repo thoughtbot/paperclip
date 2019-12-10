@@ -10,11 +10,11 @@ module Paperclip
       super
       cache_current_values
 
-      if @target.respond_to?(:tempfile)
-        @tempfile = copy_to_tempfile(@target.tempfile)
-      else
-        @tempfile = copy_to_tempfile(@target)
-      end
+      @tempfile = if @target.respond_to?(:tempfile)
+                    copy_to_tempfile(@target.tempfile)
+                  else
+                    copy_to_tempfile(@target)
+                  end
     end
 
     class << self
@@ -35,9 +35,7 @@ module Paperclip
 
     def determine_content_type
       content_type = @target.content_type.to_s.strip
-      if content_type_detector
-        content_type = content_type_detector.new(@target.path).detect
-      end
+      content_type = content_type_detector.new(@target.path).detect if content_type_detector
       content_type
     end
   end

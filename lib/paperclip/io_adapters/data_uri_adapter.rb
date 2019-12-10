@@ -6,7 +6,7 @@ module Paperclip
       end
     end
 
-    REGEXP = /\Adata:([-\w]+\/[-\w\+\.]+)?;base64,(.*)/m
+    REGEXP = /\Adata:([-\w]+\/[-\w\+\.]+)?;base64,(.*)/m.freeze
 
     def initialize(target_uri, options = {})
       super(extract_target(target_uri), options)

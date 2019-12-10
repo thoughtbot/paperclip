@@ -1,4 +1,4 @@
-require 'active_model/validations/presence'
+require "active_model/validations/presence"
 
 module Paperclip
   module Validators
@@ -26,4 +26,3 @@ module Paperclip
     end
   end
 end
-

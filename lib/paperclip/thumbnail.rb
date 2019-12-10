@@ -1,13 +1,12 @@
 module Paperclip
   # Handles thumbnailing images that are uploaded.
   class Thumbnail < Processor
-
     attr_accessor :current_geometry, :target_geometry, :format, :whiny, :convert_options,
                   :source_file_options, :animated, :auto_orient, :frame_index
 
     # List of formats that we need to preserve animation
-    ANIMATED_FORMATS = %w(gif)
-    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif)
+    ANIMATED_FORMATS = %w(gif).freeze
+    MULTI_FRAME_FORMATS = %w(.mkv .avi .mp4 .mov .mpg .mpeg .gif).freeze
 
     # Creates a Thumbnail object set to work on the +file+ given. It
     # will attempt to transform the image into one defined by +target_geometry+
@@ -31,7 +30,7 @@ module Paperclip
       super
 
       geometry             = options[:geometry].to_s
-      @crop                = geometry[-1,1] == '#'
+      @crop                = geometry[-1, 1] == "#"
       @target_geometry     = options.fetch(:string_geometry_parser, Geometry).parse(geometry)
       @current_geometry    = options.fetch(:file_geometry_parser, Geometry).from_file(@file)
       @source_file_options = options[:source_file_options]
@@ -40,9 +39,7 @@ module Paperclip
       @format              = options[:format]
       @animated            = options.fetch(:animated, true)
       @auto_orient         = options.fetch(:auto_orient, true)
-      if @auto_orient && @current_geometry.respond_to?(:auto_orient)
-        @current_geometry.auto_orient
-      end
+      @current_geometry.auto_orient if @auto_orient && @current_geometry.respond_to?(:auto_orient)
       @source_file_options = @source_file_options.split(/\s+/) if @source_file_options.respond_to?(:split)
       @convert_options     = @convert_options.split(/\s+/)     if @convert_options.respond_to?(:split)
 
@@ -82,7 +79,7 @@ module Paperclip
         convert(
           parameters,
           source: "#{File.expand_path(src.path)}#{frame}",
-          dest: File.expand_path(dst.path),
+          dest: File.expand_path(dst.path)
         )
       rescue Terrapin::ExitStatusError => e
         if @whiny
@@ -116,13 +113,13 @@ module Paperclip
     end
 
     def animated?
-      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?)  && identified_as_animated?
+      @animated && (ANIMATED_FORMATS.include?(@format.to_s) || @format.blank?) && identified_as_animated?
     end
 
     # Return true if ImageMagick's +identify+ returns an animated format
     def identified_as_animated?
       if @identified_as_animated.nil?
-        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", :file => "#{@file.path}[0]").to_s.downcase.strip
+        @identified_as_animated = ANIMATED_FORMATS.include? identify("-format %m :file", file: "#{@file.path}[0]").to_s.downcase.strip
       end
       @identified_as_animated
     rescue Terrapin::ExitStatusError => e

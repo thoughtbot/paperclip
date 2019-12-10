@@ -25,37 +25,37 @@
 #
 # See the +has_attached_file+ documentation for more details.
 
-require 'erb'
-require 'digest'
-require 'tempfile'
-require 'paperclip/version'
-require 'paperclip/geometry_parser_factory'
-require 'paperclip/geometry_detector_factory'
-require 'paperclip/geometry'
-require 'paperclip/processor'
-require 'paperclip/processor_helpers'
-require 'paperclip/tempfile'
-require 'paperclip/thumbnail'
-require 'paperclip/interpolations/plural_cache'
-require 'paperclip/interpolations'
-require 'paperclip/tempfile_factory'
-require 'paperclip/style'
-require 'paperclip/attachment'
-require 'paperclip/storage'
-require 'paperclip/callbacks'
-require 'paperclip/file_command_content_type_detector'
-require 'paperclip/media_type_spoof_detector'
-require 'paperclip/content_type_detector'
-require 'paperclip/glue'
-require 'paperclip/errors'
-require 'paperclip/missing_attachment_styles'
-require 'paperclip/validators'
-require 'paperclip/logger'
-require 'paperclip/helpers'
-require 'paperclip/has_attached_file'
-require 'paperclip/attachment_registry'
-require 'paperclip/filename_cleaner'
-require 'paperclip/rails_environment'
+require "erb"
+require "digest"
+require "tempfile"
+require "paperclip/version"
+require "paperclip/geometry_parser_factory"
+require "paperclip/geometry_detector_factory"
+require "paperclip/geometry"
+require "paperclip/processor"
+require "paperclip/processor_helpers"
+require "paperclip/tempfile"
+require "paperclip/thumbnail"
+require "paperclip/interpolations/plural_cache"
+require "paperclip/interpolations"
+require "paperclip/tempfile_factory"
+require "paperclip/style"
+require "paperclip/attachment"
+require "paperclip/storage"
+require "paperclip/callbacks"
+require "paperclip/file_command_content_type_detector"
+require "paperclip/media_type_spoof_detector"
+require "paperclip/content_type_detector"
+require "paperclip/glue"
+require "paperclip/errors"
+require "paperclip/missing_attachment_styles"
+require "paperclip/validators"
+require "paperclip/logger"
+require "paperclip/helpers"
+require "paperclip/has_attached_file"
+require "paperclip/attachment_registry"
+require "paperclip/filename_cleaner"
+require "paperclip/rails_environment"
 
 begin
   # Use mime/types/columnar if available, for reduced memory usage
@@ -64,12 +64,12 @@ rescue LoadError
   require "mime/types"
 end
 
-require 'mimemagic'
-require 'mimemagic/overlay'
-require 'logger'
-require 'terrapin'
+require "mimemagic"
+require "mimemagic/overlay"
+require "logger"
+require "terrapin"
 
-require 'paperclip/railtie' if defined?(Rails::Railtie)
+require "paperclip/railtie" if defined?(Rails::Railtie)
 
 # The base module that gets included in ActiveRecord::Base. See the
 # documentation for Paperclip::ClassMethods for more useful information.
@@ -201,15 +201,15 @@ module Paperclip
 end
 
 # This stuff needs to be run after Paperclip is defined.
-require 'paperclip/io_adapters/registry'
-require 'paperclip/io_adapters/abstract_adapter'
-require 'paperclip/io_adapters/empty_string_adapter'
-require 'paperclip/io_adapters/identity_adapter'
-require 'paperclip/io_adapters/file_adapter'
-require 'paperclip/io_adapters/stringio_adapter'
-require 'paperclip/io_adapters/data_uri_adapter'
-require 'paperclip/io_adapters/nil_adapter'
-require 'paperclip/io_adapters/attachment_adapter'
-require 'paperclip/io_adapters/uploaded_file_adapter'
-require 'paperclip/io_adapters/uri_adapter'
-require 'paperclip/io_adapters/http_url_proxy_adapter'
+require "paperclip/io_adapters/registry"
+require "paperclip/io_adapters/abstract_adapter"
+require "paperclip/io_adapters/empty_string_adapter"
+require "paperclip/io_adapters/identity_adapter"
+require "paperclip/io_adapters/file_adapter"
+require "paperclip/io_adapters/stringio_adapter"
+require "paperclip/io_adapters/data_uri_adapter"
+require "paperclip/io_adapters/nil_adapter"
+require "paperclip/io_adapters/attachment_adapter"
+require "paperclip/io_adapters/uploaded_file_adapter"
+require "paperclip/io_adapters/uri_adapter"
+require "paperclip/io_adapters/http_url_proxy_adapter"

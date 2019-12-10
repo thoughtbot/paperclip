@@ -6,8 +6,7 @@ module Paperclip
       end
     end
 
-    def initialize
-    end
+    def initialize; end
 
     def new(target, _)
       target

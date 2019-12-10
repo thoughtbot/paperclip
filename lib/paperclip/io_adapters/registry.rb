@@ -24,7 +24,7 @@ module Paperclip
     end
 
     def registered?(target)
-      @registered_handlers.any? do |tester, handler|
+      @registered_handlers.any? do |_tester, handler|
         handler === target
       end
     end

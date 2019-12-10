@@ -26,7 +26,9 @@ module Paperclip
           file_exists
         end
 
-        raise LoadError, "Could not find the '#{name}' processor in any of these paths: #{directories.join(', ')}" unless required.any?
+        unless required.any?
+          raise LoadError, "Could not find the '#{name}' processor in any of these paths: #{directories.join(', ')}"
+        end
       end
     end
 

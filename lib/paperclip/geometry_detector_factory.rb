@@ -13,22 +13,19 @@ module Paperclip
     private
 
     def geometry_string
-      begin
-        orientation = Paperclip.options[:use_exif_orientation] ?
-          "%[exif:orientation]" : "1"
-        Paperclip.run(
-          Paperclip.options[:is_windows] ? "magick identify" : "identify",
-          "-format '%wx%h,#{orientation}' :file", {
-            :file => "#{path}[0]"
-          }, {
-            :swallow_stderr => true
-          }
-        )
-      rescue Terrapin::ExitStatusError
-        ""
-      rescue Terrapin::CommandNotFoundError => e
-        raise_because_imagemagick_missing
-      end
+      orientation = Paperclip.options[:use_exif_orientation] ?
+        "%[exif:orientation]" : "1"
+      Paperclip.run(
+        Paperclip.options[:is_windows] ? "magick identify" : "identify",
+        "-format '%wx%h,#{orientation}' :file", {
+          file: "#{path}[0]"
+        },
+        swallow_stderr: true
+      )
+    rescue Terrapin::ExitStatusError
+      ""
+    rescue Terrapin::CommandNotFoundError => e
+      raise_because_imagemagick_missing
     end
 
     def path

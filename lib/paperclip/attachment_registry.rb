@@ -1,4 +1,4 @@
-require 'singleton'
+require "singleton"
 
 module Paperclip
   class AttachmentRegistry
@@ -35,7 +35,7 @@ module Paperclip
     end
 
     def clear
-      @attachments = Hash.new { |h,k| h[k] = {} }
+      @attachments = Hash.new { |h, k| h[k] = {} }
     end
 
     def names_for(klass)

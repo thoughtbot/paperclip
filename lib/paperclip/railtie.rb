@@ -1,11 +1,11 @@
-require 'paperclip'
-require 'paperclip/schema'
+require "paperclip"
+require "paperclip/schema"
 
 module Paperclip
-  require 'rails'
+  require "rails"
 
   class Railtie < Rails::Railtie
-    initializer 'paperclip.insert_into_active_record' do |app|
+    initializer "paperclip.insert_into_active_record" do |app|
       ActiveSupport.on_load :active_record do
         Paperclip::Railtie.insert
       end
@@ -24,7 +24,7 @@ module Paperclip
 
       if defined?(ActiveRecord)
         Paperclip.options[:logger] = ActiveRecord::Base.logger
-        ActiveRecord::Base.send(:include, Paperclip::Glue)
+        ActiveRecord::Base.include Paperclip::Glue
       end
     end
   end

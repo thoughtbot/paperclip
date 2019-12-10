@@ -10,32 +10,32 @@ module Paperclip
       #                   allowing('image/png', 'image/gif').
       #                   rejecting('text/plain', 'text/xml') }
       #   end
-      def validate_attachment_content_type name
+      def validate_attachment_content_type(name)
         ValidateAttachmentContentTypeMatcher.new(name)
       end
 
       class ValidateAttachmentContentTypeMatcher
-        def initialize attachment_name
+        def initialize(attachment_name)
           @attachment_name = attachment_name
           @allowed_types = []
           @rejected_types = []
         end
 
-        def allowing *types
+        def allowing(*types)
           @allowed_types = types.flatten
           self
         end
 
-        def rejecting *types
+        def rejecting(*types)
           @rejected_types = types.flatten
           self
         end
 
-        def matches? subject
+        def matches?(subject)
           @subject = subject
           @subject = @subject.new if @subject.class == Class
           @allowed_types && @rejected_types &&
-          allowed_types_allowed? && rejected_types_rejected?
+            allowed_types_allowed? && rejected_types_rejected?
         end
 
         def failure_message
@@ -54,23 +54,24 @@ module Paperclip
 
         def accepted_types_and_failures
           if @allowed_types.present?
-            "Accept content types: #{@allowed_types.join(", ")}\n".tap do |message|
-              if @missing_allowed_types.present?
-                message << "  #{@missing_allowed_types.join(", ")} were rejected."
-              else
-                message << "  All were accepted successfully."
-              end
+            "Accept content types: #{@allowed_types.join(', ')}\n".tap do |message|
+              message << if @missing_allowed_types.present?
+                           "  #{@missing_allowed_types.join(', ')} were rejected."
+                         else
+                           "  All were accepted successfully."
+                         end
             end
           end
         end
+
         def rejected_types_and_failures
           if @rejected_types.present?
-            "Reject content types: #{@rejected_types.join(", ")}\n".tap do |message|
-              if @missing_rejected_types.present?
-                message << "  #{@missing_rejected_types.join(", ")} were accepted."
-              else
-                message << "  All were rejected successfully."
-              end
+            "Reject content types: #{@rejected_types.join(', ')}\n".tap do |message|
+              message << if @missing_rejected_types.present?
+                           "  #{@missing_rejected_types.join(', ')} were accepted."
+                         else
+                           "  All were rejected successfully."
+                         end
             end
           end
         end

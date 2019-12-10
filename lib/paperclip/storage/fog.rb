@@ -39,26 +39,30 @@ module Paperclip
     #     { :multipart_chunk_size => 104857600 }
 
     module Fog
-      def self.extended base
-        begin
-          require 'fog'
-        rescue LoadError => e
-          e.message << " (You may need to install the fog gem)"
-          raise e
-        end unless defined?(Fog)
+      def self.extended(base)
+        unless defined?(Fog)
+          begin
+            require "fog"
+          rescue LoadError => e
+            e.message << " (You may need to install the fog gem)"
+            raise e
+          end
+        end
 
         base.instance_eval do
           unless @options[:url].to_s.match(/\A:fog.*url\z/)
-            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, '')
-            @options[:url]   = ':fog_public_url'
+            @options[:path]  = @options[:path].gsub(/:url/, @options[:url]).gsub(/\A:rails_root\/public\/system\//, "")
+            @options[:url]   = ":fog_public_url"
           end
-          Paperclip.interpolates(:fog_public_url) do |attachment, style|
-            attachment.public_url(style)
-          end unless Paperclip::Interpolations.respond_to? :fog_public_url
+          unless Paperclip::Interpolations.respond_to? :fog_public_url
+            Paperclip.interpolates(:fog_public_url) do |attachment, style|
+              attachment.public_url(style)
+            end
+          end
         end
       end
 
-      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /\A(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}\z))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]\z/
+      AWS_BUCKET_SUBDOMAIN_RESTRICTON_REGEX = /\A(?:[a-z]|\d(?!\d{0,2}(?:\.\d{1,3}){3}\z))(?:[a-z0-9]|\.(?![\.\-])|\-(?![\.])){1,61}[a-z0-9]\z/.freeze
 
       def exists?(style = default_style)
         if original_filename
@@ -101,20 +105,21 @@ module Paperclip
       end
 
       def flush_writes
-        for style, file in @queued_for_write do
+        @queued_for_write.each do |style, file|
           log("saving #{path(style)}")
           retried = false
           begin
             attributes = fog_file.merge(
-              :body         => file,
-              :key          => path(style),
-              :public       => fog_public(style),
-              :content_type => file.content_type
+              body: file,
+              key: path(style),
+              public: fog_public(style),
+              content_type: file.content_type
             )
             attributes.merge!(@options[:fog_options]) if @options[:fog_options]
             directory.files.create(attributes)
           rescue Excon::Errors::NotFound
             raise if retried
+
             retried = true
             directory.save
             file.rewind
@@ -130,9 +135,9 @@ module Paperclip
       end
 
       def flush_deletes
-        for path in @queued_for_delete do
+        @queued_for_delete.each do |path|
           log("deleting #{path}")
-          directory.files.new(:key => path).destroy
+          directory.files.new(key: path).destroy
         end
         @queued_for_delete = []
       end
@@ -141,10 +146,10 @@ module Paperclip
         if @options[:fog_host]
           "#{dynamic_fog_host_for_style(style)}/#{path(style)}"
         else
-          if fog_credentials[:provider] == 'AWS'
+          if fog_credentials[:provider] == "AWS"
             "#{scheme}://#{host_name_for_directory}/#{path(style)}"
           else
-            directory.files.new(:key => path(style)).public_url
+            directory.files.new(key: path(style)).public_url
           end
         end
       end
@@ -162,7 +167,7 @@ module Paperclip
           expiring_url = url(style_name)
         end
 
-        return expiring_url
+        expiring_url
       end
 
       def parse_credentials(creds)
@@ -172,9 +177,10 @@ module Paperclip
 
       def copy_to_local_file(style, local_dest_path)
         log("copying #{path(style)} to local file #{local_dest_path}")
-        ::File.open(local_dest_path, 'wb') do |local_file|
+        ::File.open(local_dest_path, "wb") do |local_file|
           file = directory.files.get(path(style))
           return false unless file
+
           local_file.write(file.body)
         end
       rescue ::Fog::Errors::Error => e
@@ -185,9 +191,7 @@ module Paperclip
       private
 
       def convert_time(time)
-        if time.is_a?(Integer)
-          time = Time.now + time
-        end
+        time = Time.now + time if time.is_a?(Integer)
         time
       end
 
@@ -195,7 +199,7 @@ module Paperclip
         if @options[:fog_host].respond_to?(:call)
           @options[:fog_host].call(self)
         else
-          (@options[:fog_host] =~ /%d/) ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
+          @options[:fog_host] =~ /%d/ ? @options[:fog_host] % (path(style).hash % 4) : @options[:fog_host]
         end
       end
 
@@ -210,9 +214,9 @@ module Paperclip
       def find_credentials(creds)
         case creds
         when File
-          YAML::load(ERB.new(File.read(creds.path)).result)
+          YAML::safe_load(ERB.new(File.read(creds.path)).result)
         when String, Pathname
-          YAML::load(ERB.new(File.read(creds)).result)
+          YAML::safe_load(ERB.new(File.read(creds)).result)
         when Hash
           creds
         else
@@ -241,7 +245,7 @@ module Paperclip
       end
 
       def scheme
-        @scheme ||= fog_credentials[:scheme] || 'https'
+        @scheme ||= fog_credentials[:scheme] || "https"
       end
     end
   end

@@ -8,16 +8,16 @@ module Paperclip
       #   describe User do
       #     it { should have_attached_file(:avatar) }
       #   end
-      def have_attached_file name
+      def have_attached_file(name)
         HaveAttachedFileMatcher.new(name)
       end
 
       class HaveAttachedFileMatcher
-        def initialize attachment_name
+        def initialize(attachment_name)
           @attachment_name = attachment_name
         end
 
-        def matches? subject
+        def matches?(subject)
           @subject = subject
           @subject = @subject.class unless Class === @subject
           responds? && has_column?
@@ -40,7 +40,7 @@ module Paperclip
 
         def responds?
           methods = @subject.instance_methods.map(&:to_s)
-          methods.include?("#{@attachment_name}") &&
+          methods.include?(@attachment_name.to_s) &&
             methods.include?("#{@attachment_name}=") &&
             methods.include?("#{@attachment_name}?")
         end

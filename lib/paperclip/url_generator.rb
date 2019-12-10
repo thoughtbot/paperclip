@@ -1,5 +1,5 @@
-require 'uri'
-require 'active_support/core_ext/module/delegation'
+require "uri"
+require "active_support/core_ext/module/delegation"
 
 module Paperclip
   class UrlGenerator
@@ -42,8 +42,8 @@ module Paperclip
 
     def timestamp_as_needed(url, options)
       if options[:timestamp] && timestamp_possible?
-        delimiter_char = url.match(/\?.+=/) ? '&' : '?'
-        "#{url}#{delimiter_char}#{@attachment.updated_at.to_s}"
+        delimiter_char = url.match(/\?.+=/) ? "&" : "?"
+        "#{url}#{delimiter_char}#{@attachment.updated_at}"
       else
         url
       end
@@ -65,7 +65,7 @@ module Paperclip
       if url.respond_to?(:escape)
         url.escape
       else
-        URI.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
+        URI.escape(url).gsub(escape_regex) { |m| "%#{m.ord.to_s(16).upcase}" }
       end
     end
 

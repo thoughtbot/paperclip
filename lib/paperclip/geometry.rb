@@ -1,10 +1,9 @@
 module Paperclip
-
   # Defines the geometry of an image.
   class Geometry
     attr_accessor :height, :width, :modifier
 
-    EXIF_ROTATED_ORIENTATION_VALUES = [5, 6, 7, 8]
+    EXIF_ROTATED_ORIENTATION_VALUES = [5, 6, 7, 8].freeze
 
     # Gives a Geometry representing the given height and width
     def initialize(width = nil, height = nil, modifier = nil)
@@ -92,16 +91,16 @@ module Paperclip
     # destination Geometry would be completely filled by the source image, and any
     # overhanging image would be cropped. Useful for square thumbnail images. The cropping
     # is weighted at the center of the Geometry.
-    def transformation_to dst, crop = false
+    def transformation_to(dst, crop = false)
       if crop
-        ratio = Geometry.new( dst.width / self.width, dst.height / self.height )
+        ratio = Geometry.new(dst.width / width, dst.height / height)
         scale_geometry, scale = scaling(dst, ratio)
         crop_geometry         = cropping(dst, ratio, scale)
       else
-        scale_geometry        = dst.to_s
+        scale_geometry = dst.to_s
       end
 
-      [ scale_geometry, crop_geometry ]
+      [scale_geometry, crop_geometry]
     end
 
     # resize to a new geometry
@@ -112,16 +111,16 @@ module Paperclip
     def resize_to(geometry)
       new_geometry = Paperclip::Geometry.parse geometry
       case new_geometry.modifier
-      when '!', '#'
+      when "!", "#"
         new_geometry
-      when '>'
-        if new_geometry.width >= self.width && new_geometry.height >= self.height
+      when ">"
+        if new_geometry.width >= width && new_geometry.height >= height
           self
         else
           scale_to new_geometry
         end
-      when '<'
-        if new_geometry.width <= self.width || new_geometry.height <= self.height
+      when "<"
+        if new_geometry.width <= width || new_geometry.height <= height
           self
         else
           scale_to new_geometry
@@ -133,26 +132,26 @@ module Paperclip
 
     private
 
-    def scaling dst, ratio
+    def scaling(dst, ratio)
       if ratio.horizontal? || ratio.square?
-        [ "%dx" % dst.width, ratio.width ]
+        ["%dx" % dst.width, ratio.width]
       else
-        [ "x%d" % dst.height, ratio.height ]
+        ["x%d" % dst.height, ratio.height]
       end
     end
 
-    def cropping dst, ratio, scale
+    def cropping(dst, ratio, scale)
       if ratio.horizontal? || ratio.square?
-        "%dx%d+%d+%d" % [ dst.width, dst.height, 0, (self.height * scale - dst.height) / 2 ]
+        "%dx%d+%d+%d" % [dst.width, dst.height, 0, (height * scale - dst.height) / 2]
       else
-        "%dx%d+%d+%d" % [ dst.width, dst.height, (self.width * scale - dst.width) / 2, 0 ]
+        "%dx%d+%d+%d" % [dst.width, dst.height, (width * scale - dst.width) / 2, 0]
       end
     end
 
     # scale to the requested geometry and preserve the aspect ratio
     def scale_to(new_geometry)
-      scale = [new_geometry.width.to_f / self.width.to_f , new_geometry.height.to_f / self.height.to_f].min
-      Paperclip::Geometry.new((self.width * scale).round, (self.height * scale).round)
+      scale = [new_geometry.width.to_f / width.to_f, new_geometry.height.to_f / height.to_f].min
+      Paperclip::Geometry.new((width * scale).round, (height * scale).round)
     end
   end
 end

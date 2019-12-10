@@ -38,7 +38,7 @@ module Paperclip
 
         # filename can be enclosed in quotes or not
         matches = filename.match(/"(.*)"/)
-        matches ? matches[1] : filename.split(';')[0]
+        matches ? matches[1] : filename.split(";")[0]
       end
     end
 

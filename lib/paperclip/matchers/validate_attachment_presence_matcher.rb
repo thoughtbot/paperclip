@@ -7,16 +7,16 @@ module Paperclip
       # describe User do
       #   it { should validate_attachment_presence(:avatar) }
       # end
-      def validate_attachment_presence name
+      def validate_attachment_presence(name)
         ValidateAttachmentPresenceMatcher.new(name)
       end
 
       class ValidateAttachmentPresenceMatcher
-        def initialize attachment_name
+        def initialize(attachment_name)
           @attachment_name = attachment_name
         end
 
-        def matches? subject
+        def matches?(subject)
           @subject = subject
           @subject = subject.new if subject.class == Class
           error_when_not_valid? && no_error_when_valid?
@@ -50,7 +50,7 @@ module Paperclip
           expected_message = [
             @attachment_name.to_s.titleize,
             I18n.t(:blank, scope: [:errors, :messages])
-          ].join(' ')
+          ].join(" ")
           @subject.errors.full_messages.exclude?(expected_message)
         end
       end

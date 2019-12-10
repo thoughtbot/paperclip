@@ -9,11 +9,11 @@ module Paperclip
     def initialize(target, options = {})
       super
       @target, @style = case target
-      when Paperclip::Attachment
-        [target, :original]
-      when Paperclip::Style
-        [target.attachment, target.name]
-      end
+                        when Paperclip::Attachment
+                          [target, :original]
+                        when Paperclip::Style
+                          [target.attachment, target.name]
+                        end
 
       cache_current_values
     end

@@ -24,7 +24,7 @@ module Paperclip
     end
 
     def copy_to_tempfile(source)
-      while data = source.read(16*1024)
+      while data = source.read(16 * 1024)
         destination.write(data)
       end
       destination.rewind

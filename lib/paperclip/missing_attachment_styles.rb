@@ -1,11 +1,11 @@
-require 'paperclip/attachment_registry'
-require 'set'
+require "paperclip/attachment_registry"
+require "set"
 
 module Paperclip
   class << self
     attr_writer :registered_attachments_styles_path
     def registered_attachments_styles_path
-      @registered_attachments_styles_path ||= Rails.root.join('public/system/paperclip_attachments.yml').to_s
+      @registered_attachments_styles_path ||= Rails.root.join("public/system/paperclip_attachments.yml").to_s
     end
   end
 
@@ -18,7 +18,7 @@ module Paperclip
   private_class_method :get_registered_attachments_styles
 
   def self.save_current_attachments_styles!
-    File.open(Paperclip.registered_attachments_styles_path, 'w') do |f|
+    File.open(Paperclip.registered_attachments_styles_path, "w") do |f|
       YAML.dump(current_attachments_styles, f)
     end
   end
@@ -36,7 +36,8 @@ module Paperclip
     Hash.new.tap do |current_styles|
       Paperclip::AttachmentRegistry.each_definition do |klass, attachment_name, attachment_attributes|
         # TODO: is it even possible to take into account Procs?
-        next if attachment_attributes[:styles].kind_of?(Proc)
+        next if attachment_attributes[:styles].is_a?(Proc)
+
         attachment_attributes[:styles].try(:keys).try(:each) do |style_name|
           klass_sym = klass.to_s.to_sym
           current_styles[klass_sym] ||= Hash.new
@@ -63,7 +64,11 @@ module Paperclip
     Hash.new.tap do |missing_styles|
       current_styles.each do |klass, attachment_definitions|
         attachment_definitions.each do |attachment_name, styles|
-          registered = registered_styles[klass][attachment_name] || [] rescue []
+          registered = begin
+                         registered_styles[klass][attachment_name] || []
+                       rescue StandardError
+                         []
+                       end
           missed = styles - registered
           if missed.present?
             klass_sym = klass.to_s.to_sym

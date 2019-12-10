@@ -2,7 +2,7 @@ module Paperclip
   module Validators
     class AttachmentContentTypeValidator < ActiveModel::EachValidator
       def initialize(options)
-        options[:allow_nil] = true unless options.has_key?(:allow_nil)
+        options[:allow_nil] = true unless options.key?(:allow_nil)
         super
       end
 
@@ -40,7 +40,7 @@ module Paperclip
       end
 
       def mark_invalid(record, attribute, types)
-        record.errors.add attribute, :invalid, options.merge(:types => types.join(', '))
+        record.errors.add attribute, :invalid, options.merge(types: types.join(", "))
       end
 
       def allowed_types
@@ -52,7 +52,7 @@ module Paperclip
       end
 
       def check_validity!
-        unless options.has_key?(:content_type) || options.has_key?(:not)
+        unless options.key?(:content_type) || options.key?(:not)
           raise ArgumentError, "You must pass in either :content_type or :not to the validator"
         end
       end

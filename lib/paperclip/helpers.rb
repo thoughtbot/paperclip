@@ -4,7 +4,7 @@ module Paperclip
       yield(self) if block_given?
     end
 
-    def interpolates key, &block
+    def interpolates(key, &block)
       Paperclip::Interpolations[key] = block
     end
 
@@ -30,7 +30,7 @@ module Paperclip
       terrapin_path_array = Terrapin::CommandLine.path.try(:split, Terrapin::OS.path_separator)
       Terrapin::CommandLine.path = [terrapin_path_array, command_path].flatten.compact.uniq
       if logging? && (options[:log_command] || local_options[:log_command])
-        local_options = local_options.merge(:logger => logger)
+        local_options = local_options.merge(logger: logger)
       end
       Terrapin::CommandLine.new(cmd, arguments, local_options).run(interpolation_values)
     end
@@ -44,7 +44,7 @@ module Paperclip
     end
 
     def class_for(class_name)
-      class_name.split('::').inject(Object) do |klass, partial_class_name|
+      class_name.split("::").inject(Object) do |klass, partial_class_name|
         if klass.const_defined?(partial_class_name)
           klass.const_get(partial_class_name, false)
         else

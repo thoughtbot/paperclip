@@ -6,7 +6,7 @@ module Paperclip
       end
     end
 
-    REGEXP = /\Ahttps?:\/\//
+    REGEXP = /\Ahttps?:\/\//.freeze
 
     def initialize(target, options = {})
       escaped = URI.escape(target)

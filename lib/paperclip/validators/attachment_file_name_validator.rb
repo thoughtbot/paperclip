@@ -2,7 +2,7 @@ module Paperclip
   module Validators
     class AttachmentFileNameValidator < ActiveModel::EachValidator
       def initialize(options)
-        options[:allow_nil] = true unless options.has_key?(:allow_nil)
+        options[:allow_nil] = true unless options.key?(:allow_nil)
         super
       end
 
@@ -28,19 +28,15 @@ module Paperclip
       end
 
       def validate_whitelist(record, attribute, value)
-        if allowed.present? && allowed.none? { |type| type === value }
-          mark_invalid record, attribute, allowed
-        end
+        mark_invalid record, attribute, allowed if allowed.present? && allowed.none? { |type| type === value }
       end
 
       def validate_blacklist(record, attribute, value)
-        if forbidden.present? && forbidden.any? { |type| type === value }
-          mark_invalid record, attribute, forbidden
-        end
+        mark_invalid record, attribute, forbidden if forbidden.present? && forbidden.any? { |type| type === value }
       end
 
       def mark_invalid(record, attribute, patterns)
-        record.errors.add attribute, :invalid, options.merge(:names => patterns.join(', '))
+        record.errors.add attribute, :invalid, options.merge(names: patterns.join(", "))
       end
 
       def allowed
@@ -52,7 +48,7 @@ module Paperclip
       end
 
       def check_validity!
-        unless options.has_key?(:matches) || options.has_key?(:not)
+        unless options.key?(:matches) || options.key?(:not)
           raise ArgumentError, "You must pass in either :matches or :not to the validator"
         end
       end
@@ -77,4 +73,3 @@ module Paperclip
     end
   end
 end
-

@@ -24,7 +24,7 @@ module Paperclip
     private
 
     def define_flush_errors
-      @klass.send(:validates_each, @name) do |record, attr, value|
+      @klass.send(:validates_each, @name) do |record, _attr, _value|
         attachment = record.send(@name)
         attachment.send(:flush_errors)
       end
@@ -48,7 +48,7 @@ module Paperclip
           instance_variable_set(ivar, attachment)
         end
 
-        if args.length > 0
+        if !args.empty?
           attachment.to_s(args.first)
         else
           attachment
@@ -83,7 +83,7 @@ module Paperclip
       if options[:validate_media_type] != false
         name = @name
         @klass.validates_media_type_spoof_detection name,
-          :if => ->(instance){ instance.send(name).dirty? }
+                                                    if: ->(instance) { instance.send(name).dirty? }
       end
     end
 
@@ -103,7 +103,8 @@ module Paperclip
     def add_paperclip_callbacks
       @klass.send(
         :define_paperclip_callbacks,
-        :post_process, :"#{@name}_post_process")
+        :post_process, :"#{@name}_post_process"
+      )
     end
 
     module ClassMethods

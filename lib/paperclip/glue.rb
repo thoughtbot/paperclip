@@ -1,6 +1,6 @@
-require 'paperclip/callbacks'
-require 'paperclip/validators'
-require 'paperclip/schema'
+require "paperclip/callbacks"
+require "paperclip/validators"
+require "paperclip/schema"
 
 module Paperclip
   module Glue
