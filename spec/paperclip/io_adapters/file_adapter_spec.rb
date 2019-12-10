@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::FileAdapter do
   context "a new instance" do
@@ -13,12 +13,12 @@ describe Paperclip::FileAdapter do
         @subject.close if @subject
       end
 
-      context 'doing normal things' do
+      context "doing normal things" do
         before do
           @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
         end
 
-        it 'uses the original filename to generate the tempfile' do
+        it "uses the original filename to generate the tempfile" do
           assert @subject.path.ends_with?(".png")
         end
 
@@ -43,7 +43,7 @@ describe Paperclip::FileAdapter do
         end
 
         it "returns false for a call to nil?" do
-          assert ! @subject.nil?
+          assert !@subject.nil?
         end
 
         it "generates a MD5 hash of the contents" do
@@ -53,14 +53,14 @@ describe Paperclip::FileAdapter do
 
         it "reads the contents of the file" do
           expected = @file.read
-          assert expected.length > 0
+          assert !expected.empty?
           assert_equal expected, @subject.read
         end
       end
 
       context "file with multiple possible content type" do
         before do
-          allow(MIME::Types).to receive(:type_for).and_return([MIME::Type.new('image/x-png'), MIME::Type.new('image/png')])
+          allow(MIME::Types).to receive(:type_for).and_return([MIME::Type.new("image/x-png"), MIME::Type.new("image/png")])
           @subject = Paperclip.io_adapters.for(@file, hash_digest: Digest::MD5)
         end
 
@@ -77,8 +77,8 @@ describe Paperclip::FileAdapter do
         before do
           allow(MIME::Types).to receive(:type_for).and_return([])
           allow(Paperclip).to receive(:run).and_return("application/vnd.ms-office\n")
-          allow_any_instance_of(Paperclip::ContentTypeDetector)
-            .to receive(:type_from_mime_magic).and_return("application/vnd.ms-office")
+          allow_any_instance_of(Paperclip::ContentTypeDetector).
+            to receive(:type_from_mime_magic).and_return("application/vnd.ms-office")
 
           @subject = Paperclip.io_adapters.for(@file)
         end
@@ -94,7 +94,7 @@ describe Paperclip::FileAdapter do
         @file = File.open(fixture_file("animated.gif")) do |file|
           StringIO.new(file.read)
         end
-        allow(@file).to receive(:original_filename).and_return('image:restricted.gif')
+        allow(@file).to receive(:original_filename).and_return("image:restricted.gif")
         @subject = Paperclip.io_adapters.for(@file)
       end
 
@@ -104,7 +104,7 @@ describe Paperclip::FileAdapter do
       end
 
       it "does not generate filenames that include restricted characters" do
-        assert_equal 'image_restricted.gif', @subject.original_filename
+        assert_equal "image_restricted.gif", @subject.original_filename
       end
 
       it "does not generate paths that include restricted characters" do

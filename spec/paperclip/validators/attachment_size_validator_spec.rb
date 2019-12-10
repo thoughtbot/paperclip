@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Validators::AttachmentSizeValidator do
   before do
@@ -8,8 +8,8 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
   def build_validator(options)
     @validator = Paperclip::Validators::AttachmentSizeValidator.new(options.merge(
-      attributes: :avatar
-    ))
+                                                                      attributes: :avatar
+                                                                    ))
   end
 
   def self.should_allow_attachment_file_size(size)
@@ -18,12 +18,12 @@ describe Paperclip::Validators::AttachmentSizeValidator do
         allow(@dummy).to receive(:avatar_content_type).and_return(size)
         @validator.validate(@dummy)
         assert @dummy.errors[:avatar_file_size].blank?,
-          "Expect an error message on :avatar_file_size, got none."
+               "Expect an error message on :avatar_file_size, got none."
       end
 
       it "does not add error to the base dummy object" do
         assert @dummy.errors[:avatar].blank?,
-          "Error added to base attribute"
+               "Error added to base attribute"
       end
     end
   end
@@ -37,12 +37,12 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
       it "adds error to dummy object" do
         assert @dummy.errors[:avatar_file_size].present?,
-          "Unexpected error message on :avatar_file_size"
+               "Unexpected error message on :avatar_file_size"
       end
 
       it "adds error to the base dummy object" do
         assert @dummy.errors[:avatar].present?,
-          "Error not added to base attribute"
+               "Error not added to base attribute"
       end
 
       it "adds error to base object as a string" do
@@ -70,7 +70,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "as a proc" do
       before do
-        build_validator in: lambda { |avatar| (5.kilobytes..10.kilobytes) }
+        build_validator in: lambda { |_avatar| (5.kilobytes..10.kilobytes) }
       end
 
       should_allow_attachment_file_size(7.kilobytes)
@@ -91,7 +91,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "as a proc" do
       before do
-        build_validator greater_than: lambda { |avatar| 10.kilobytes }
+        build_validator greater_than: lambda { |_avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 11.kilobytes
@@ -111,7 +111,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "as a proc" do
       before do
-        build_validator less_than: lambda { |avatar| 10.kilobytes }
+        build_validator less_than: lambda { |_avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 9.kilobytes
@@ -123,7 +123,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     context "as numbers" do
       before do
         build_validator greater_than: 5.kilobytes,
-          less_than: 10.kilobytes
+                        less_than: 10.kilobytes
       end
 
       should_allow_attachment_file_size 7.kilobytes
@@ -133,8 +133,8 @@ describe Paperclip::Validators::AttachmentSizeValidator do
 
     context "as a proc" do
       before do
-        build_validator greater_than: lambda { |avatar| 5.kilobytes },
-          less_than: lambda { |avatar| 10.kilobytes }
+        build_validator greater_than: lambda { |_avatar| 5.kilobytes },
+                        less_than: lambda { |_avatar| 10.kilobytes }
       end
 
       should_allow_attachment_file_size 7.kilobytes
@@ -147,7 +147,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     context "given a range" do
       before do
         build_validator in: (5.kilobytes..10.kilobytes),
-          message: "is invalid. (Between %{min} and %{max} please.)"
+                        message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
       should_not_allow_attachment_file_size(
@@ -159,8 +159,8 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     context "given :less_than and :greater_than" do
       before do
         build_validator less_than: 10.kilobytes,
-          greater_than: 5.kilobytes,
-          message: "is invalid. (Between %{min} and %{max} please.)"
+                        greater_than: 5.kilobytes,
+                        message: "is invalid. (Between %{min} and %{max} please.)"
       end
 
       should_not_allow_attachment_file_size(
@@ -174,7 +174,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     context "given :less_than and :greater_than" do
       before do
         build_validator greater_than: 5.kilobytes,
-          less_than: 10.kilobytes
+                        less_than: 10.kilobytes
       end
 
       should_not_allow_attachment_file_size(
@@ -211,7 +211,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
     end
 
     it "adds the validator to the class" do
-      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_size }
+      assert Dummy.validators_on(:avatar).any? { |validator| validator.kind == :attachment_size }
     end
   end
 
@@ -222,7 +222,7 @@ describe Paperclip::Validators::AttachmentSizeValidator do
       end
     end
 
-    (Paperclip::Validators::AttachmentSizeValidator::AVAILABLE_CHECKS).each do |argument|
+    Paperclip::Validators::AttachmentSizeValidator::AVAILABLE_CHECKS.each do |argument|
       it "does not raise arguemnt error if #{argument} was given" do
         build_validator argument => 5.kilobytes
       end

@@ -1,7 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::RailsEnvironment do
-
   it "returns nil when Rails isn't defined" do
     resetting_rails_to(nil) do
       expect(Paperclip::RailsEnvironment.get).to be_nil
@@ -21,13 +20,11 @@ describe Paperclip::RailsEnvironment do
   end
 
   def resetting_rails_to(new_value)
-    begin
-      previous_rails = Object.send(:remove_const, "Rails")
-      Object.const_set("Rails", new_value) unless new_value.nil?
-      yield
-    ensure
-      Object.send(:remove_const, "Rails") if Object.const_defined?("Rails")
-      Object.const_set("Rails", previous_rails)
-    end
+    previous_rails = Object.send(:remove_const, "Rails")
+    Object.const_set("Rails", new_value) unless new_value.nil?
+    yield
+  ensure
+    Object.send(:remove_const, "Rails") if Object.const_defined?("Rails")
+    Object.const_set("Rails", previous_rails)
   end
 end

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Validators::AttachmentContentTypeValidator do
   before do
@@ -8,8 +8,8 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
   def build_validator(options)
     @validator = Paperclip::Validators::AttachmentContentTypeValidator.new(options.merge(
-      attributes: :avatar
-    ))
+                                                                             attributes: :avatar
+                                                                           ))
   end
 
   context "with a nil content type" do
@@ -59,7 +59,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
     it "adds error to the base object" do
       assert @dummy.errors[:avatar].present?,
-        "Error not added to base attribute"
+             "Error not added to base attribute"
     end
 
     it "adds error to base object as a string" do
@@ -76,7 +76,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
 
     it "does not add error to the base object" do
       assert @dummy.errors[:avatar].blank?,
-        "Error was added to base attribute"
+             "Error was added to base attribute"
     end
   end
 
@@ -300,7 +300,7 @@ describe Paperclip::Validators::AttachmentContentTypeValidator do
     end
 
     it "adds the validator to the class" do
-      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_content_type }
+      assert Dummy.validators_on(:avatar).any? { |validator| validator.kind == :attachment_content_type }
     end
   end
 

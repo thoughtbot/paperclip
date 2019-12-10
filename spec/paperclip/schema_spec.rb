@@ -1,6 +1,6 @@
-require 'spec_helper'
-require 'paperclip/schema'
-require 'active_support/testing/deprecation'
+require "spec_helper"
+require "paperclip/schema"
+require "active_support/testing/deprecation"
 
 describe Paperclip::Schema do
   include ActiveSupport::Testing::Deprecation
@@ -10,7 +10,11 @@ describe Paperclip::Schema do
   end
 
   after do
-    Dummy.connection.drop_table :dummies rescue nil
+    begin
+      Dummy.connection.drop_table :dummies
+    rescue StandardError
+      nil
+    end
   end
 
   context "within table definition" do
@@ -25,12 +29,12 @@ describe Paperclip::Schema do
           end
         end
 
-        columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+        columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-        expect(columns).to include(['avatar_file_name', "varchar"])
-        expect(columns).to include(['avatar_content_type', "varchar"])
-        expect(columns).to include(['avatar_file_size', "bigint"])
-        expect(columns).to include(['avatar_updated_at', "datetime"])
+        expect(columns).to include(["avatar_file_name", "varchar"])
+        expect(columns).to include(["avatar_content_type", "varchar"])
+        expect(columns).to include(["avatar_file_size", "bigint"])
+        expect(columns).to include(["avatar_updated_at", "datetime"])
       end
 
       it "displays deprecation warning" do
@@ -50,19 +54,19 @@ describe Paperclip::Schema do
       end
 
       it "creates attachment columns" do
-        columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+        columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-        expect(columns).to include(['avatar_file_name', "varchar"])
-        expect(columns).to include(['avatar_content_type', "varchar"])
-        expect(columns).to include(['avatar_file_size', "bigint"])
-        expect(columns).to include(['avatar_updated_at', "datetime"])
+        expect(columns).to include(["avatar_file_name", "varchar"])
+        expect(columns).to include(["avatar_content_type", "varchar"])
+        expect(columns).to include(["avatar_file_size", "bigint"])
+        expect(columns).to include(["avatar_updated_at", "datetime"])
       end
     end
 
     context "using #attachment with options" do
       before do
         Dummy.connection.create_table :dummies, force: true do |t|
-          t.attachment :avatar, default: 1, file_name: { default: 'default' }
+          t.attachment :avatar, default: 1, file_name: { default: "default" }
         end
       end
 
@@ -89,18 +93,18 @@ describe Paperclip::Schema do
         end
 
         it "creates attachment columns" do
-          columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+          columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-          expect(columns).to include(['avatar_file_name', "varchar"])
-          expect(columns).to include(['avatar_content_type', "varchar"])
-          expect(columns).to include(['avatar_file_size', "bigint"])
-          expect(columns).to include(['avatar_updated_at', "datetime"])
+          expect(columns).to include(["avatar_file_name", "varchar"])
+          expect(columns).to include(["avatar_content_type", "varchar"])
+          expect(columns).to include(["avatar_file_size", "bigint"])
+          expect(columns).to include(["avatar_updated_at", "datetime"])
         end
       end
 
       context "with single attachment and options" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar, default: '1', file_name: { default: 'default' }
+          Dummy.connection.add_attachment :dummies, :avatar, default: "1", file_name: { default: "default" }
         end
 
         it "sets defaults on columns" do
@@ -119,22 +123,22 @@ describe Paperclip::Schema do
         end
 
         it "creates attachment columns" do
-          columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+          columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-          expect(columns).to include(['avatar_file_name', "varchar"])
-          expect(columns).to include(['avatar_content_type', "varchar"])
-          expect(columns).to include(['avatar_file_size', "bigint"])
-          expect(columns).to include(['avatar_updated_at', "datetime"])
-          expect(columns).to include(['photo_file_name', "varchar"])
-          expect(columns).to include(['photo_content_type', "varchar"])
-          expect(columns).to include(['photo_file_size', "bigint"])
-          expect(columns).to include(['photo_updated_at', "datetime"])
+          expect(columns).to include(["avatar_file_name", "varchar"])
+          expect(columns).to include(["avatar_content_type", "varchar"])
+          expect(columns).to include(["avatar_file_size", "bigint"])
+          expect(columns).to include(["avatar_updated_at", "datetime"])
+          expect(columns).to include(["photo_file_name", "varchar"])
+          expect(columns).to include(["photo_content_type", "varchar"])
+          expect(columns).to include(["photo_file_size", "bigint"])
+          expect(columns).to include(["photo_updated_at", "datetime"])
         end
       end
 
       context "with multiple attachments and options" do
         before do
-          Dummy.connection.add_attachment :dummies, :avatar, :photo, default: '1', file_name: { default: 'default' }
+          Dummy.connection.add_attachment :dummies, :avatar, :photo, default: "1", file_name: { default: "default" }
         end
 
         it "sets defaults on columns" do
@@ -178,12 +182,12 @@ describe Paperclip::Schema do
             Dummy.connection.drop_attached_file :dummies, :avatar
           end
 
-          columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+          columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-          expect(columns).to_not include(['avatar_file_name', "varchar"])
-          expect(columns).to_not include(['avatar_content_type', "varchar"])
-          expect(columns).to_not include(['avatar_file_size', "bigint"])
-          expect(columns).to_not include(['avatar_updated_at', "datetime"])
+          expect(columns).to_not include(["avatar_file_name", "varchar"])
+          expect(columns).to_not include(["avatar_content_type", "varchar"])
+          expect(columns).to_not include(["avatar_file_size", "bigint"])
+          expect(columns).to_not include(["avatar_updated_at", "datetime"])
         end
 
         it "displays a deprecation warning" do
@@ -200,12 +204,12 @@ describe Paperclip::Schema do
           end
 
           it "removes the attachment columns" do
-            columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+            columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-            expect(columns).to_not include(['avatar_file_name', "varchar"])
-            expect(columns).to_not include(['avatar_content_type', "varchar"])
-            expect(columns).to_not include(['avatar_file_size', "bigint"])
-            expect(columns).to_not include(['avatar_updated_at', "datetime"])
+            expect(columns).to_not include(["avatar_file_name", "varchar"])
+            expect(columns).to_not include(["avatar_content_type", "varchar"])
+            expect(columns).to_not include(["avatar_file_size", "bigint"])
+            expect(columns).to_not include(["avatar_updated_at", "datetime"])
           end
         end
 
@@ -222,16 +226,16 @@ describe Paperclip::Schema do
           end
 
           it "removes the attachment columns" do
-            columns = Dummy.columns.map{ |column| [column.name, column.sql_type] }
+            columns = Dummy.columns.map { |column| [column.name, column.sql_type] }
 
-            expect(columns).to_not include(['avatar_file_name', "varchar"])
-            expect(columns).to_not include(['avatar_content_type', "varchar"])
-            expect(columns).to_not include(['avatar_file_size', "bigint"])
-            expect(columns).to_not include(['avatar_updated_at', "datetime"])
-            expect(columns).to_not include(['photo_file_name', "varchar"])
-            expect(columns).to_not include(['photo_content_type', "varchar"])
-            expect(columns).to_not include(['photo_file_size', "bigint"])
-            expect(columns).to_not include(['photo_updated_at', "datetime"])
+            expect(columns).to_not include(["avatar_file_name", "varchar"])
+            expect(columns).to_not include(["avatar_content_type", "varchar"])
+            expect(columns).to_not include(["avatar_file_size", "bigint"])
+            expect(columns).to_not include(["avatar_updated_at", "datetime"])
+            expect(columns).to_not include(["photo_file_name", "varchar"])
+            expect(columns).to_not include(["photo_content_type", "varchar"])
+            expect(columns).to_not include(["photo_file_size", "bigint"])
+            expect(columns).to_not include(["photo_updated_at", "datetime"])
           end
         end
 

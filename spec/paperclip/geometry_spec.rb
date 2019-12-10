@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Geometry do
   context "Paperclip::Geometry" do
@@ -82,7 +82,7 @@ describe Paperclip::Geometry do
       assert_equal 456, @upper.height
     end
 
-    ['>', '<', '#', '@', '@>', '>@', '%', '^', '!', nil].each do |mod|
+    [">", "<", "#", "@", "@>", ">@", "%", "^", "!", nil].each do |mod|
       it "ensures the modifier #{description} is preserved" do
         assert @geo = Paperclip::Geometry.parse("123x456#{mod}")
         assert_equal mod, @geo.modifier
@@ -124,22 +124,22 @@ describe Paperclip::Geometry do
 
     it "is generated from a file" do
       file = fixture_file("5k.png")
-      file = File.new(file, 'rb')
-      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
+      file = File.new(file, "rb")
+      assert_nothing_raised { @geo = Paperclip::Geometry.from_file(file) }
       assert_equal 66, @geo.height
       assert_equal 434, @geo.width
     end
 
     it "is generated from a file path" do
       file = fixture_file("5k.png")
-      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
+      assert_nothing_raised { @geo = Paperclip::Geometry.from_file(file) }
       assert_equal 66, @geo.height
       assert_equal 434, @geo.width
     end
 
-    it 'calculates an EXIF-rotated image dimensions from a path' do
+    it "calculates an EXIF-rotated image dimensions from a path" do
       file = fixture_file("rotated.jpg")
-      assert_nothing_raised{ @geo = Paperclip::Geometry.from_file(file) }
+      assert_nothing_raised { @geo = Paperclip::Geometry.from_file(file) }
       @geo.auto_orient
       assert_equal 300, @geo.height
       assert_equal 200, @geo.width
@@ -167,35 +167,35 @@ describe Paperclip::Geometry do
     end
 
     it "lets us know when a command isn't found versus a processing error" do
-      old_path = ENV['PATH']
+      old_path = ENV["PATH"]
       begin
-        ENV['PATH'] = ''
+        ENV["PATH"] = ""
         assert_raises(Paperclip::Errors::CommandNotFoundError) do
           file = fixture_file("5k.png")
           @geo = Paperclip::Geometry.from_file(file)
         end
       ensure
-        ENV['PATH'] = old_path
+        ENV["PATH"] = old_path
       end
     end
 
-    [['vertical',   900,  1440, true,  false, false, 1440, 900, 0.625],
-     ['horizontal', 1024, 768,  false, true,  false, 1024, 768, 1.3333],
-     ['square',     100,  100,  false, false, true,  100,  100, 1]].each do |args|
+    [["vertical",   900,  1440, true,  false, false, 1440, 900, 0.625],
+     ["horizontal", 1024, 768,  false, true,  false, 1024, 768, 1.3333],
+     ["square",     100,  100,  false, false, true,  100,  100, 1]].each do |args|
       context "performing calculations on a #{args[0]} viewport" do
         before do
           @geo = Paperclip::Geometry.new(args[1], args[2])
         end
 
-        it "is #{args[3] ? "" : "not"} vertical" do
+        it "is #{args[3] ? '' : 'not'} vertical" do
           assert_equal args[3], @geo.vertical?
         end
 
-        it "is #{args[4] ? "" : "not"} horizontal" do
+        it "is #{args[4] ? '' : 'not'} horizontal" do
           assert_equal args[4], @geo.horizontal?
         end
 
-        it "is #{args[5] ? "" : "not"} square" do
+        it "is #{args[5] ? '' : 'not'} square" do
           assert_equal args[5], @geo.square?
         end
 
@@ -213,9 +213,9 @@ describe Paperclip::Geometry do
       end
     end
 
-    [[ [1000, 100], [64, 64],  "x64", "64x64+288+0" ],
-     [ [100, 1000], [50, 950], "x950", "50x950+22+0" ],
-     [ [100, 1000], [50, 25],  "50x", "50x25+0+237" ]]. each do |args|
+    [[[1000, 100], [64, 64],  "x64", "64x64+288+0"],
+     [[100, 1000], [50, 950], "x950", "50x950+22+0"],
+     [[100, 1000], [50, 25],  "50x", "50x25+0+237"]]. each do |args|
       context "of #{args[0].inspect} and given a Geometry #{args[1].inspect} and sent transform_to" do
         before do
           @geo = Paperclip::Geometry.new(*args[0])
@@ -233,9 +233,9 @@ describe Paperclip::Geometry do
       end
     end
 
-    [['256x256', {'150x150!' => [150, 150], '150x150#' => [150, 150], '150x150>' => [150, 150], '150x150<' => [256, 256], '150x150' => [150, 150]}],
-     ['256x256', {'512x512!' => [512, 512], '512x512#' => [512, 512], '512x512>' => [256, 256], '512x512<' => [512, 512], '512x512' => [512, 512]}],
-     ['600x400', {'512x512!' => [512, 512], '512x512#' => [512, 512], '512x512>' => [512, 341], '512x512<' => [600, 400], '512x512' => [512, 341]}]].each do |original_size, options|
+    [["256x256", { "150x150!" => [150, 150], "150x150#" => [150, 150], "150x150>" => [150, 150], "150x150<" => [256, 256], "150x150" => [150, 150] }],
+     ["256x256", { "512x512!" => [512, 512], "512x512#" => [512, 512], "512x512>" => [256, 256], "512x512<" => [512, 512], "512x512" => [512, 512] }],
+     ["600x400", { "512x512!" => [512, 512], "512x512#" => [512, 512], "512x512>" => [512, 341], "512x512<" => [600, 400], "512x512" => [512, 341] }]].each do |original_size, options|
       options.each_pair do |size, dimensions|
         context "#{original_size} resize_to #{size}" do
           before do

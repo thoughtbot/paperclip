@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::UploadedFileAdapter do
   context "a new instance" do
@@ -37,7 +37,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "returns false for a call to nil?" do
-        assert ! @subject.nil?
+        assert !@subject.nil?
       end
 
       it "generates a MD5 hash of the contents" do
@@ -47,7 +47,7 @@ describe Paperclip::UploadedFileAdapter do
 
       it "reads the contents of the file" do
         expected = @file.tempfile.read
-        assert expected.length > 0
+        assert !expected.empty?
         assert_equal expected, @subject.read
       end
     end
@@ -71,7 +71,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "does not generate filenames that include restricted characters" do
-        assert_equal 'image_restricted.gif', @subject.original_filename
+        assert_equal "image_restricted.gif", @subject.original_filename
       end
     end
 
@@ -106,7 +106,7 @@ describe Paperclip::UploadedFileAdapter do
       end
 
       it "returns false for a call to nil?" do
-        assert ! @subject.nil?
+        assert !@subject.nil?
       end
 
       it "generates a MD5 hash of the contents" do
@@ -118,7 +118,7 @@ describe Paperclip::UploadedFileAdapter do
         expected_file = File.new(@file.path)
         expected_file.binmode
         expected = expected_file.read
-        assert expected.length > 0
+        assert !expected.empty?
         assert_equal expected, @subject.read
       end
 

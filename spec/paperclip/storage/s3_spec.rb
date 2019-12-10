@@ -7,39 +7,39 @@ describe Paperclip::Storage::S3 do
   end
 
   def aws2_add_region
-    { s3_region: 'us-east-1' }
+    { s3_region: "us-east-1" }
   end
 
   context "Parsing S3 credentials" do
     before do
-      @proxy_settings = {host: "127.0.0.1", port: 8888, user: "foo", password: "bar"}
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        http_proxy: @proxy_settings,
-        s3_credentials: {not: :important}
+      @proxy_settings = { host: "127.0.0.1", port: 8888, user: "foo", password: "bar" }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          http_proxy: @proxy_settings,
+                                          s3_credentials: { not: :important }
       @dummy = Dummy.new
       @avatar = @dummy.avatar
     end
 
     it "gets the correct credentials when RAILS_ENV is production" do
       rails_env("production") do
-        assert_equal({key: "12345"},
-                     @avatar.parse_credentials('production' => {key: '12345'},
-                                               development: {key: "54321"}))
+        assert_equal({ key: "12345" },
+                     @avatar.parse_credentials("production" => { key: "12345" },
+                                               development: { key: "54321" }))
       end
     end
 
     it "gets the correct credentials when RAILS_ENV is development" do
       rails_env("development") do
-        assert_equal({key: "54321"},
-                     @avatar.parse_credentials('production' => {key: '12345'},
-                                               development: {key: "54321"}))
+        assert_equal({ key: "54321" },
+                     @avatar.parse_credentials("production" => { key: "12345" },
+                                               development: { key: "54321" }))
       end
     end
 
     it "returns the argument if the key does not exist" do
       rails_env("not really an env") do
-        assert_equal({test: "12345"}, @avatar.parse_credentials(test: "12345"))
+        assert_equal({ test: "12345" }, @avatar.parse_credentials(test: "12345"))
       end
     end
 
@@ -52,62 +52,54 @@ describe Paperclip::Storage::S3 do
         assert_equal(@proxy_settings[:password], @avatar.http_proxy_password)
       end
     end
-
   end
 
   context ":bucket option via :s3_credentials" do
-
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {bucket: 'testing'}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: { bucket: "testing" }
       @dummy = Dummy.new
     end
 
     it "populates #bucket_name" do
-      assert_equal @dummy.avatar.bucket_name, 'testing'
+      assert_equal @dummy.avatar.bucket_name, "testing"
     end
-
   end
 
   context ":bucket option" do
-
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing", s3_credentials: {}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing", s3_credentials: {}
       @dummy = Dummy.new
     end
 
     it "populates #bucket_name" do
-      assert_equal @dummy.avatar.bucket_name, 'testing'
+      assert_equal @dummy.avatar.bucket_name, "testing"
     end
-
   end
 
   context "missing :bucket option" do
-
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        http_proxy: @proxy_settings,
-        s3_credentials: {not: :important}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          http_proxy: @proxy_settings,
+                                          s3_credentials: { not: :important }
 
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
-
     end
 
     it "raises an argument error" do
       expect { @dummy.save }.to raise_error(ArgumentError, /missing required :bucket option/)
     end
-
   end
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        url: ":s3_path_url"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension",
+                                          url: ":s3_path_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -130,8 +122,8 @@ describe Paperclip::Storage::S3 do
     ["http", :http, ""].each do |protocol|
       context "as #{protocol.inspect}" do
         before do
-          rebuild_model (aws2_add_region).merge storage: :s3,
-            s3_protocol: protocol
+          rebuild_model aws2_add_region.merge storage: :s3,
+                                              s3_protocol: protocol
           @dummy = Dummy.new
         end
 
@@ -144,11 +136,11 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: 'https'" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        s3_protocol: 'https',
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          s3_protocol: "https",
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -161,11 +153,11 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: ''" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        s3_protocol: '',
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          s3_protocol: "",
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -178,11 +170,11 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: :https" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        s3_protocol: :https,
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          s3_protocol: :https,
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -195,11 +187,11 @@ describe Paperclip::Storage::S3 do
 
   context "s3_protocol: ''" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        s3_protocol: '',
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          s3_protocol: "",
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -212,20 +204,20 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has the style in the path" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        styles: {
-          thumb: "80x80>"
-        },
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          styles: {
+                                            thumb: "80x80>"
+                                          },
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          }
 
-        @dummy = Dummy.new
-        @dummy.avatar = stringy_file
-        @avatar = @dummy.avatar
+      @dummy = Dummy.new
+      @dummy.avatar = stringy_file
+      @avatar = @dummy.avatar
     end
 
     it "uses an S3 object based on the correct path for the default style" do
@@ -241,11 +233,11 @@ describe Paperclip::Storage::S3 do
   context "s3_host_name" do
     before do
       rebuild_model storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        s3_host_name: "s3-ap-northeast-1.amazonaws.com",
-        s3_region: "ap-northeast-1"
+                    s3_credentials: {},
+                    bucket: "bucket",
+                    path: ":attachment/:basename:dotextension",
+                    s3_host_name: "s3-ap-northeast-1.amazonaws.com",
+                    s3_region: "ap-northeast-1"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -257,17 +249,17 @@ describe Paperclip::Storage::S3 do
 
     it "uses the S3 bucket with the correct host name" do
       assert_equal "s3.ap-northeast-1.amazonaws.com",
-        @dummy.avatar.s3_bucket.client.config.endpoint.host
+                   @dummy.avatar.s3_bucket.client.config.endpoint.host
     end
   end
 
   context "dynamic s3_host_name" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        s3_host_name: lambda {|a| a.instance.value }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension",
+                                          s3_host_name: lambda { |a| a.instance.value }
       @dummy = Dummy.new
       class << @dummy
         attr_accessor :value
@@ -291,7 +283,7 @@ describe Paperclip::Storage::S3 do
           bucket: "bucket",
           path: ":attachment/:basename:dotextension",
           s3_host_name: "s3-ap-northeast-1.amazonaws.com",
-          s3_region: "ap-northeast-1",
+          s3_region: "ap-northeast-1"
         )
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
@@ -300,7 +292,7 @@ describe Paperclip::Storage::S3 do
 
       it "returns a url based on an :s3_host_name path" do
         assert_match %r{^//s3-ap-northeast-1.amazonaws.com/bucket/avatars/data[^\.]},
-          @dummy.avatar.url
+                     @dummy.avatar.url
       end
 
       it "uses the S3 client with the use_accelerate_endpoint config is false" do
@@ -317,7 +309,7 @@ describe Paperclip::Storage::S3 do
           path: ":attachment/:basename:dotextension",
           s3_host_name: "s3-accelerate.amazonaws.com",
           s3_region: "ap-northeast-1",
-          use_accelerate_endpoint: true,
+          use_accelerate_endpoint: true
         )
         @dummy = Dummy.new
         @dummy.avatar = stringy_file
@@ -326,7 +318,7 @@ describe Paperclip::Storage::S3 do
 
       it "returns a url based on an :s3_host_name path" do
         assert_match %r{^//s3-accelerate.amazonaws.com/bucket/avatars/data[^\.]},
-          @dummy.avatar.url
+                     @dummy.avatar.url
       end
 
       it "uses the S3 client with the use_accelerate_endpoint config is true" do
@@ -337,27 +329,27 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has styles that return different file types" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        styles: { large: ['500x500#', :jpg] },
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          styles: { large: ["500x500#", :jpg] },
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          }
 
-        File.open(fixture_file('5k.png'), 'rb') do |file|
-          @dummy = Dummy.new
-          @dummy.avatar = file
-          allow(@dummy).to receive(:new_record?).and_return(false)
-        end
+      File.open(fixture_file("5k.png"), "rb") do |file|
+        @dummy = Dummy.new
+        @dummy.avatar = file
+        allow(@dummy).to receive(:new_record?).and_return(false)
+      end
     end
 
     it "returns a url containing the correct original file mime type" do
       assert_match /.+\/5k.png/, @dummy.avatar.url
     end
 
-    it 'uses the correct key for the original file mime type' do
+    it "uses the correct key for the original file mime type" do
       assert_match /.+\/5k.png/, @dummy.avatar.s3_object.key
     end
 
@@ -372,42 +364,44 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has a proc for styles" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        styles: lambda { |attachment| attachment.instance.counter
-          {thumbnail: { geometry: "50x50#",
-                        s3_headers: {'Cache-Control' => 'max-age=31557600'}} }},
-        bucket: "bucket",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          styles: lambda { |attachment|
+                                                    attachment.instance.counter
+                                                    { thumbnail: { geometry: "50x50#",
+                                                                   s3_headers: { "Cache-Control" => "max-age=31557600" } } }
+                                                  },
+                                          bucket: "bucket",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          }
 
-        @file = File.new(fixture_file('5k.png'), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
 
-        Dummy.class_eval do
-          def counter
-            @counter ||= 0
-            @counter += 1
-            @counter
-          end
+      Dummy.class_eval do
+        def counter
+          @counter ||= 0
+          @counter += 1
+          @counter
         end
+      end
 
-        @dummy = Dummy.new
-        @dummy.avatar = @file
+      @dummy = Dummy.new
+      @dummy.avatar = @file
 
-        object = double
-        allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(object)
-        allow(@dummy.avatar).to receive(:s3_object).with(:thumbnail).and_return(object)
+      object = double
+      allow(@dummy.avatar).to receive(:s3_object).with(:original).and_return(object)
+      allow(@dummy.avatar).to receive(:s3_object).with(:thumbnail).and_return(object)
 
-        expect(object).to receive(:upload_file)
-          .with(anything, content_type: 'image/png',
-                acl: :"public-read")
-        expect(object).to receive(:upload_file)
-          .with(anything, content_type: 'image/png',
-                acl: :"public-read",
-                cache_control: 'max-age=31557600')
-        @dummy.save
+      expect(object).to receive(:upload_file).
+        with(anything, content_type: "image/png",
+                       acl: :"public-read")
+      expect(object).to receive(:upload_file).
+        with(anything, content_type: "image/png",
+                       acl: :"public-read",
+                       cache_control: "max-age=31557600")
+      @dummy.save
     end
 
     after { @file.close }
@@ -420,13 +414,14 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has styles" do
     before do
       rebuild_model(
-        (aws2_add_region).merge(
+        aws2_add_region.merge(
           storage: :s3,
           styles: { thumb: ["90x90#", :jpg] },
           bucket: "bucket",
           s3_credentials: {
             "access_key_id" => "12345",
-            "secret_access_key" => "54321" }
+            "secret_access_key" => "54321"
+          }
         )
       )
 
@@ -450,12 +445,14 @@ describe Paperclip::Storage::S3 do
         expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/png",
-          acl: :"public-read").and_return(true)
+          acl: :"public-read"
+        ).and_return(true)
         @dummy.avatar.reprocess!
         expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/png",
-          acl: :"public-read").and_return(true)
+          acl: :"public-read"
+        ).and_return(true)
         @dummy.avatar.reprocess!
       end
 
@@ -463,7 +460,8 @@ describe Paperclip::Storage::S3 do
         expect(@object).to receive(:upload_file).with(
           anything,
           content_type: "image/png",
-          acl: :"public-read").and_return(true)
+          acl: :"public-read"
+        ).and_return(true)
         @dummy.avatar.reprocess!
       end
     end
@@ -474,12 +472,12 @@ describe Paperclip::Storage::S3 do
   context "An attachment that uses S3 for storage and has spaces in file name" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
-        styles: { large: ["500x500#", :jpg] },
-        bucket: "bucket",
-        s3_credentials: { "access_key_id" => "12345",
-                          "secret_access_key" => "54321" }
-        )
+        aws2_add_region.merge(storage: :s3,
+                              styles: { large: ["500x500#", :jpg] },
+                              bucket: "bucket",
+                              s3_credentials: { "access_key_id" => "12345",
+                                                "secret_access_key" => "54321" })
+      )
 
       File.open(fixture_file("spaced file.png"), "rb") do |file|
         @dummy = Dummy.new
@@ -499,13 +497,13 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment that uses S3 for storage and has a question mark in file name" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        styles: { large: ['500x500#', :jpg] },
-        bucket: "bucket",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          styles: { large: ["500x500#", :jpg] },
+                                          bucket: "bucket",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          }
 
       stringio = stringy_file
       class << stringio
@@ -531,11 +529,11 @@ describe Paperclip::Storage::S3 do
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        url: ":s3_domain_url"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension",
+                                          url: ":s3_domain_url"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -549,16 +547,16 @@ describe Paperclip::Storage::S3 do
   context "" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
-        s3_credentials: {
-          production: { bucket: "prod_bucket" },
-          development: { bucket: "dev_bucket" }
-        },
-        bucket: "bucket",
-        s3_host_alias: "something.something.com",
-        path: ":attachment/:basename:dotextension",
-        url: ":s3_alias_url"
-        )
+        aws2_add_region.merge(storage: :s3,
+                              s3_credentials: {
+                                production: { bucket: "prod_bucket" },
+                                development: { bucket: "dev_bucket" }
+                              },
+                              bucket: "bucket",
+                              s3_host_alias: "something.something.com",
+                              path: ":attachment/:basename:dotextension",
+                              url: ":s3_alias_url")
+      )
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -582,7 +580,7 @@ describe Paperclip::Storage::S3 do
           s3_host_alias: "something.something.com",
           s3_prefixes_in_alias: 2,
           path: "prefix1/prefix2/:attachment/:basename:dotextension",
-          url: ":s3_alias_url",
+          url: ":s3_alias_url"
         )
       )
       @dummy = Dummy.new
@@ -598,11 +596,11 @@ describe Paperclip::Storage::S3 do
 
   context "generating a url with a proc as the host alias" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: { bucket: "prod_bucket" },
-        s3_host_alias: Proc.new{|atch| "cdn#{atch.instance.counter % 4}.example.com"},
-        path: ":attachment/:basename:dotextension",
-        url: ":s3_alias_url"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: { bucket: "prod_bucket" },
+                                          s3_host_alias: Proc.new { |atch| "cdn#{atch.instance.counter % 4}.example.com" },
+                                          path: ":attachment/:basename:dotextension",
+                                          url: ":s3_alias_url"
       Dummy.class_eval do
         def counter
           @counter ||= 0
@@ -623,16 +621,15 @@ describe Paperclip::Storage::S3 do
     it "still returns the bucket name" do
       assert_equal "prod_bucket", @dummy.avatar.bucket_name
     end
-
   end
 
   context "" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {},
-        bucket: "bucket",
-        path: ":attachment/:basename:dotextension",
-        url: ":asset_host"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {},
+                                          bucket: "bucket",
+                                          path: ":attachment/:basename:dotextension",
+                                          url: ":asset_host"
       @dummy = Dummy.new
       @dummy.avatar = stringy_file
       allow(@dummy).to receive(:new_record?).and_return(false)
@@ -641,12 +638,11 @@ describe Paperclip::Storage::S3 do
     it "returns a relative URL for Rails to calculate assets host" do
       assert_match %r{^avatars/data[^\.]}, @dummy.avatar.url
     end
-
   end
 
   context "Generating a secure url with an expiration" do
     before do
-      @build_model_with_options = lambda {|options|
+      @build_model_with_options = lambda { |options|
         base_options = {
           storage: :s3,
           s3_credentials: {
@@ -659,7 +655,7 @@ describe Paperclip::Storage::S3 do
           url: ":s3_alias_url"
         }
 
-        rebuild_model (aws2_add_region).merge base_options.merge(options)
+        rebuild_model aws2_add_region.merge base_options.merge(options)
       }
     end
 
@@ -687,22 +683,22 @@ describe Paperclip::Storage::S3 do
 
         object = double
         allow(@dummy.avatar).to receive(:s3_object).and_return(object)
-        expect(object).to receive(:presigned_url)
-          .with(:get, expires_in: 3600,
-                response_content_disposition: "inline")
+        expect(object).to receive(:presigned_url).
+          with(:get, expires_in: 3600,
+                     response_content_disposition: "inline")
         @dummy.avatar.expiring_url
       end
     end
 
     it "allows overriding s3_object options with a proc" do
-      @build_model_with_options[s3_url_options: lambda {|attachment| { response_content_type: attachment.avatar_content_type } }]
+      @build_model_with_options[s3_url_options: lambda { |attachment| { response_content_type: attachment.avatar_content_type } }]
 
       rails_env("production") do
         @dummy = Dummy.new
 
         @file = stringy_file
         allow(@file).to receive(:original_filename).and_return("5k.png\n\n")
-        allow(Paperclip).to receive(:run).and_return('image/png')
+        allow(Paperclip).to receive(:run).and_return("image/png")
         allow(@file).to receive(:content_type).and_return("image/png\n\n")
         allow(@file).to receive(:to_tempfile).and_return(@file)
 
@@ -710,8 +706,8 @@ describe Paperclip::Storage::S3 do
 
         object = double
         allow(@dummy.avatar).to receive(:s3_object).and_return(object)
-        expect(object).to receive(:presigned_url)
-          .with(:get, expires_in: 3600, response_content_type: "image/png")
+        expect(object).to receive(:presigned_url).
+          with(:get, expires_in: 3600, response_content_type: "image/png")
         @dummy.avatar.expiring_url
       end
     end
@@ -727,7 +723,7 @@ describe Paperclip::Storage::S3 do
         assert_equal(@dummy.avatar.url, @dummy.avatar.expiring_url)
       end
 
-      it 'generates a url for a style when a file does not exist' do
+      it "generates a url for a style when a file does not exist" do
         assert_equal(@dummy.avatar.url(:thumb), @dummy.avatar.expiring_url(3600, :thumb))
       end
     end
@@ -739,15 +735,15 @@ describe Paperclip::Storage::S3 do
 
   context "Generating a url with an expiration for each style" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {
-          production: { bucket: "prod_bucket" },
-          development: { bucket: "dev_bucket" }
-        },
-        s3_permissions: :private,
-        s3_host_alias: "something.something.com",
-        path: ":attachment/:style/:basename:dotextension",
-        url: ":s3_alias_url"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {
+                                            production: { bucket: "prod_bucket" },
+                                            development: { bucket: "dev_bucket" }
+                                          },
+                                          s3_permissions: :private,
+                                          s3_host_alias: "something.something.com",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          url: ":s3_alias_url"
 
       rails_env("production") do
         @dummy = Dummy.new
@@ -772,11 +768,11 @@ describe Paperclip::Storage::S3 do
 
   context "Parsing S3 credentials with a bucket in them" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        s3_credentials: {
-          production: { bucket: "prod_bucket" },
-          development: { bucket: "dev_bucket" }
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          s3_credentials: {
+                                            production: { bucket: "prod_bucket" },
+                                            development: { bucket: "dev_bucket" }
+                                          }
       @dummy = Dummy.new
     end
 
@@ -799,17 +795,20 @@ describe Paperclip::Storage::S3 do
   context "Parsing S3 credentials with a s3_host_name in them" do
     before do
       rebuild_model storage: :s3,
-        bucket: 'testing',
-        s3_credentials: {
-        production: {
-          s3_region: "world-end",
-          s3_host_name: "s3-world-end.amazonaws.com" },
-        development: {
-          s3_region: "ap-northeast-1",
-          s3_host_name: "s3-ap-northeast-1.amazonaws.com" },
-        test: {
-          s3_region: "" }
-        }
+                    bucket: "testing",
+                    s3_credentials: {
+                      production: {
+                        s3_region: "world-end",
+                        s3_host_name: "s3-world-end.amazonaws.com"
+                      },
+                      development: {
+                        s3_region: "ap-northeast-1",
+                        s3_host_name: "s3-ap-northeast-1.amazonaws.com"
+                      },
+                      test: {
+                        s3_region: ""
+                      }
+                    }
       @dummy = Dummy.new
     end
 
@@ -817,16 +816,16 @@ describe Paperclip::Storage::S3 do
       rails_env("production") do
         assert_match %r{^s3-world-end.amazonaws.com}, @dummy.avatar.s3_host_name
         assert_match %r{^s3.world-end.amazonaws.com},
-          @dummy.avatar.s3_bucket.client.config.endpoint.host
+                     @dummy.avatar.s3_bucket.client.config.endpoint.host
       end
     end
 
     it "gets the right s3_host_name in development" do
       rails_env("development") do
         assert_match %r{^s3.ap-northeast-1.amazonaws.com},
-          @dummy.avatar.s3_host_name
+                     @dummy.avatar.s3_host_name
         assert_match %r{^s3.ap-northeast-1.amazonaws.com},
-          @dummy.avatar.s3_bucket.client.config.endpoint.host
+                     @dummy.avatar.s3_bucket.client.config.endpoint.host
       end
     end
 
@@ -842,13 +841,13 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          access_key_id: "12345",
-          secret_access_key: "54321"
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            access_key_id: "12345",
+                                            secret_access_key: "54321"
+                                          }
     end
 
     it "is extended by the S3 module" do
@@ -856,12 +855,12 @@ describe Paperclip::Storage::S3 do
     end
 
     it "won't be extended by the Filesystem module" do
-      assert ! Dummy.new.avatar.is_a?(Paperclip::Storage::Filesystem)
+      assert !Dummy.new.avatar.is_a?(Paperclip::Storage::Filesystem)
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
         allow(@dummy).to receive(:new_record?).and_return(false)
@@ -887,16 +886,16 @@ describe Paperclip::Storage::S3 do
         allow(@dummy.avatar).to receive(:s3_object).and_return(double(upload_file: true))
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
-        assert paths.none?{ |path| File.exist?(path) },
-          "Expect all the files to be deleted."
+        assert paths.none? { |path| File.exist?(path) },
+               "Expect all the files to be deleted."
       end
 
       it "will retry to save again but back off on SlowDown" do
         allow(@dummy.avatar).to receive(:sleep)
         allow_any_instance_of(Aws::S3::Object).to receive(:upload_file).
           and_raise(Aws::S3::Errors::SlowDown.new(spy,
-                                               spy(status: 503, body: "")))
-        expect {@dummy.save}.to raise_error(Aws::S3::Errors::SlowDown)
+                                                  spy(status: 503, body: "")))
+        expect { @dummy.save }.to raise_error(Aws::S3::Errors::SlowDown)
         expect(@dummy.avatar).to have_received(:sleep).with(1)
         expect(@dummy.avatar).to have_received(:sleep).with(2)
         expect(@dummy.avatar).to have_received(:sleep).with(4)
@@ -908,8 +907,8 @@ describe Paperclip::Storage::S3 do
         before do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
-          expect(object).to receive(:upload_file)
-            .with(anything, content_type: 'image/png', acl: :"public-read")
+          expect(object).to receive(:upload_file).
+            with(anything, content_type: "image/png", acl: :"public-read")
           @dummy.save
         end
 
@@ -943,14 +942,14 @@ describe Paperclip::Storage::S3 do
         end
       end
 
-      context 'that the file were missing' do
+      context "that the file were missing" do
         before do
-          allow_any_instance_of(Aws::S3::Object).to receive(:exists?)
-            .and_raise(Aws::S3::Errors::ServiceError.new("rspec stub raises",
-                                                      "object exists?"))
+          allow_any_instance_of(Aws::S3::Object).to receive(:exists?).
+            and_raise(Aws::S3::Errors::ServiceError.new("rspec stub raises",
+                                                        "object exists?"))
         end
 
-        it 'returns false on exists?' do
+        it "returns false on exists?" do
           assert !@dummy.avatar.exists?
         end
       end
@@ -959,31 +958,31 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and bucket defined as a Proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: lambda { |attachment| "bucket_#{attachment.instance.other}" },
-        s3_credentials: {not: :important}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: lambda { |attachment| "bucket_#{attachment.instance.other}" },
+                                          s3_credentials: { not: :important }
     end
 
     it "gets the right bucket name" do
-      assert "bucket_a", Dummy.new(other: 'a').avatar.bucket_name
-      assert "bucket_a", Dummy.new(other: 'a').avatar.s3_bucket.name
-      assert "bucket_b", Dummy.new(other: 'b').avatar.bucket_name
-      assert "bucket_b", Dummy.new(other: 'b').avatar.s3_bucket.name
+      assert "bucket_a", Dummy.new(other: "a").avatar.bucket_name
+      assert "bucket_a", Dummy.new(other: "a").avatar.s3_bucket.name
+      assert "bucket_b", Dummy.new(other: "b").avatar.bucket_name
+      assert "bucket_b", Dummy.new(other: "b").avatar.s3_bucket.name
     end
   end
 
   context "An attachment with S3 storage and S3 credentials defined as a Proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: {not: :important},
-        s3_credentials: lambda { |attachment|
-          Hash['access_key_id' => "access#{attachment.instance.other}", 'secret_access_key' => "secret#{attachment.instance.other}"]
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: { not: :important },
+                                          s3_credentials: lambda { |attachment|
+                                                            Hash["access_key_id" => "access#{attachment.instance.other}", "secret_access_key" => "secret#{attachment.instance.other}"]
+                                                          }
     end
 
     it "gets the right credentials" do
-      assert "access1234", Dummy.new(other: '1234').avatar.s3_credentials[:access_key_id]
-      assert "secret1234", Dummy.new(other: '1234').avatar.s3_credentials[:secret_access_key]
+      assert "access1234", Dummy.new(other: "1234").avatar.s3_credentials[:access_key_id]
+      assert "secret1234", Dummy.new(other: "1234").avatar.s3_credentials[:secret_access_key]
     end
   end
 
@@ -991,11 +990,11 @@ describe Paperclip::Storage::S3 do
     before do
       class DummyCredentialProvider; end
 
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        s3_credentials: {
-          credentials: DummyCredentialProvider.new
-        }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          s3_credentials: {
+                                            credentials: DummyCredentialProvider.new
+                                          }
       @dummy = Dummy.new
     end
 
@@ -1006,8 +1005,8 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and S3 credentials in an unsupported manor" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing", s3_credentials: ["unsupported"]
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing", s3_credentials: ["unsupported"]
       @dummy = Dummy.new
     end
 
@@ -1020,7 +1019,7 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and S3 credentials not supplied" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3, bucket: "testing"
+      rebuild_model aws2_add_region.merge storage: :s3, bucket: "testing"
       @dummy = Dummy.new
     end
 
@@ -1031,19 +1030,19 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and specific s3 headers set" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_headers: {'Cache-Control' => 'max-age=31557600'}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          },
+                                          s3_headers: { "Cache-Control" => "max-age=31557600" }
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -1055,11 +1054,11 @@ describe Paperclip::Storage::S3 do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          expect(object).to receive(:upload_file)
-            .with(anything,
-                  content_type: 'image/png',
-                  acl: :"public-read",
-                  cache_control: 'max-age=31557600')
+          expect(object).to receive(:upload_file).
+            with(anything,
+                 content_type: "image/png",
+                 acl: :"public-read",
+                 cache_control: "max-age=31557600")
           @dummy.save
         end
 
@@ -1072,19 +1071,19 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and metadata set using header names" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_headers: {'x-amz-meta-color' => 'red'}
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          },
+                                          s3_headers: { "x-amz-meta-color" => "red" }
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -1096,11 +1095,11 @@ describe Paperclip::Storage::S3 do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          expect(object).to receive(:upload_file)
-            .with(anything,
-                  content_type: 'image/png',
-                  acl: :"public-read",
-                  metadata: { "color" => "red" })
+          expect(object).to receive(:upload_file).
+            with(anything,
+                 content_type: "image/png",
+                 acl: :"public-read",
+                 metadata: { "color" => "red" })
           @dummy.save
         end
 
@@ -1113,19 +1112,19 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and metadata set using the :s3_metadata option" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_metadata: { "color" => "red" }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          },
+                                          s3_metadata: { "color" => "red" }
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -1137,11 +1136,11 @@ describe Paperclip::Storage::S3 do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          expect(object).to receive(:upload_file)
-            .with(anything,
-                  content_type: 'image/png',
-                  acl: :"public-read",
-                  metadata: { "color" => "red" })
+          expect(object).to receive(:upload_file).
+            with(anything,
+                 content_type: "image/png",
+                 acl: :"public-read",
+                 metadata: { "color" => "red" })
           @dummy.save
         end
 
@@ -1155,19 +1154,19 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and storage class set" do
     context "using the header name" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          s3_credentials: {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          s3_headers: { "x-amz-storage-class" => "reduced_redundancy" }
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename:dotextension",
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            },
+                                            s3_headers: { "x-amz-storage-class" => "reduced_redundancy" }
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1179,11 +1178,11 @@ describe Paperclip::Storage::S3 do
             object = double
             allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            expect(object).to receive(:upload_file)
-              .with(anything,
-                    content_type: 'image/png',
-                    acl: :"public-read",
-                    storage_class: "reduced_redundancy")
+            expect(object).to receive(:upload_file).
+              with(anything,
+                   content_type: "image/png",
+                   acl: :"public-read",
+                   storage_class: "reduced_redundancy")
             @dummy.save
           end
 
@@ -1196,24 +1195,24 @@ describe Paperclip::Storage::S3 do
 
     context "using per style hash" do
       before do
-        rebuild_model (aws2_add_region).merge :storage => :s3,
-          :bucket => "testing",
-          :path => ":attachment/:style/:basename.:extension",
-          :styles => {
-            :thumb => "80x80>"
-          },
-          :s3_credentials => {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          :s3_storage_class => {
-            :thumb => :reduced_redundancy
-          }
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename.:extension",
+                                            styles: {
+                                              thumb: "80x80>"
+                                            },
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            },
+                                            s3_storage_class: {
+                                              thumb: :reduced_redundancy
+                                            }
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1227,13 +1226,13 @@ describe Paperclip::Storage::S3 do
               allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
               expected_options = {
-                :content_type => "image/png",
+                content_type: "image/png",
                 acl: :"public-read"
               }
-              expected_options.merge!(:storage_class => :reduced_redundancy) if style == :thumb
+              expected_options.merge!(storage_class: :reduced_redundancy) if style == :thumb
 
-              expect(object).to receive(:upload_file)
-                .with(anything, expected_options)
+              expect(object).to receive(:upload_file).
+                with(anything, expected_options)
             end
             @dummy.save
           end
@@ -1247,22 +1246,22 @@ describe Paperclip::Storage::S3 do
 
     context "using global hash option" do
       before do
-        rebuild_model (aws2_add_region).merge :storage => :s3,
-          :bucket => "testing",
-          :path => ":attachment/:style/:basename.:extension",
-          :styles => {
-            :thumb => "80x80>"
-          },
-          :s3_credentials => {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          :s3_storage_class => :reduced_redundancy
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename.:extension",
+                                            styles: {
+                                              thumb: "80x80>"
+                                            },
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            },
+                                            s3_storage_class: :reduced_redundancy
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1275,10 +1274,10 @@ describe Paperclip::Storage::S3 do
             [:thumb, :original].each do |style|
               allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-              expect(object).to receive(:upload_file)
-                .with(anything, :content_type => "image/png",
-                      acl: :"public-read",
-                      :storage_class => :reduced_redundancy)
+              expect(object).to receive(:upload_file).
+                with(anything, content_type: "image/png",
+                               acl: :"public-read",
+                               storage_class: :reduced_redundancy)
             end
             @dummy.save
           end
@@ -1292,21 +1291,23 @@ describe Paperclip::Storage::S3 do
   end
 
   context "Can disable AES256 encryption multiple ways" do
-    [nil, false, ''].each do |tech|
+    [nil, false, ""].each do |tech|
       before do
         rebuild_model(
-          (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          s3_credentials: {
-            'access_key_id'          => "12345",
-            'secret_access_key'      => "54321"},
-            s3_server_side_encryption: tech)
+          aws2_add_region.merge(storage: :s3,
+                                bucket: "testing",
+                                path: ":attachment/:style/:basename:dotextension",
+                                s3_credentials: {
+                                  "access_key_id" => "12345",
+                                  "secret_access_key" => "54321"
+                                },
+                                s3_server_side_encryption: tech)
+        )
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1318,8 +1319,8 @@ describe Paperclip::Storage::S3 do
             object = double
             allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            expect(object).to receive(:upload_file)
-              .with(anything, :content_type => "image/png", acl: :"public-read")
+            expect(object).to receive(:upload_file).
+              with(anything, content_type: "image/png", acl: :"public-read")
             @dummy.save
           end
 
@@ -1333,19 +1334,19 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and using AES256 encryption" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_server_side_encryption: "AES256"
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          },
+                                          s3_server_side_encryption: "AES256"
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -1357,10 +1358,10 @@ describe Paperclip::Storage::S3 do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          expect(object).to receive(:upload_file)
-            .with(anything, content_type: "image/png",
-                  acl: :"public-read",
-                  server_side_encryption: "AES256")
+          expect(object).to receive(:upload_file).
+            with(anything, content_type: "image/png",
+                           acl: :"public-read",
+                           server_side_encryption: "AES256")
           @dummy.save
         end
 
@@ -1373,19 +1374,19 @@ describe Paperclip::Storage::S3 do
 
   context "An attachment with S3 storage and storage class set using the :storage_class option" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_storage_class: :reduced_redundancy
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          bucket: "testing",
+                                          path: ":attachment/:style/:basename:dotextension",
+                                          s3_credentials: {
+                                            "access_key_id" => "12345",
+                                            "secret_access_key" => "54321"
+                                          },
+                                          s3_storage_class: :reduced_redundancy
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -1397,11 +1398,11 @@ describe Paperclip::Storage::S3 do
           object = double
           allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-          expect(object).to receive(:upload_file)
-            .with(anything,
-                  content_type: "image/png",
-                  acl: :"public-read",
-                  storage_class: :reduced_redundancy)
+          expect(object).to receive(:upload_file).
+            with(anything,
+                 content_type: "image/png",
+                 acl: :"public-read",
+                 storage_class: :reduced_redundancy)
           @dummy.save
         end
 
@@ -1414,13 +1415,13 @@ describe Paperclip::Storage::S3 do
 
   context "with S3 credentials supplied as Pathname" do
     before do
-      ENV['S3_KEY']    = 'pathname_key'
-      ENV['S3_BUCKET'] = 'pathname_bucket'
-      ENV['S3_SECRET'] = 'pathname_secret'
+      ENV["S3_KEY"]    = "pathname_key"
+      ENV["S3_BUCKET"] = "pathname_bucket"
+      ENV["S3_SECRET"] = "pathname_secret"
 
-      rails_env('test') do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          s3_credentials: Pathname.new(fixture_file('s3.yml'))
+      rails_env("test") do
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            s3_credentials: Pathname.new(fixture_file("s3.yml"))
 
         Dummy.delete_all
         @dummy = Dummy.new
@@ -1428,25 +1429,25 @@ describe Paperclip::Storage::S3 do
     end
 
     it "parses the credentials" do
-      assert_equal 'pathname_bucket', @dummy.avatar.bucket_name
+      assert_equal "pathname_bucket", @dummy.avatar.bucket_name
 
-      assert_equal 'pathname_key',
-         @dummy.avatar.s3_bucket.client.config.access_key_id
+      assert_equal "pathname_key",
+                   @dummy.avatar.s3_bucket.client.config.access_key_id
 
-      assert_equal 'pathname_secret',
-         @dummy.avatar.s3_bucket.client.config.secret_access_key
+      assert_equal "pathname_secret",
+                   @dummy.avatar.s3_bucket.client.config.secret_access_key
     end
   end
 
   context "with S3 credentials in a YAML file" do
     before do
-      ENV['S3_KEY']    = 'env_key'
-      ENV['S3_BUCKET'] = 'env_bucket'
-      ENV['S3_SECRET'] = 'env_secret'
+      ENV["S3_KEY"]    = "env_key"
+      ENV["S3_BUCKET"] = "env_bucket"
+      ENV["S3_SECRET"] = "env_secret"
 
-      rails_env('test') do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          s3_credentials: File.new(fixture_file('s3.yml'))
+      rails_env("test") do
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            s3_credentials: File.new(fixture_file("s3.yml"))
 
         Dummy.delete_all
 
@@ -1455,31 +1456,31 @@ describe Paperclip::Storage::S3 do
     end
 
     it "runs the file through ERB" do
-      assert_equal 'env_bucket', @dummy.avatar.bucket_name
+      assert_equal "env_bucket", @dummy.avatar.bucket_name
 
-      assert_equal 'env_key',
-          @dummy.avatar.s3_bucket.client.config.access_key_id
+      assert_equal "env_key",
+                   @dummy.avatar.s3_bucket.client.config.access_key_id
 
-      assert_equal 'env_secret',
-          @dummy.avatar.s3_bucket.client.config.secret_access_key
+      assert_equal "env_secret",
+                   @dummy.avatar.s3_bucket.client.config.secret_access_key
     end
   end
 
   context "S3 Permissions" do
     context "defaults to :public_read" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          s3_credentials: {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          }
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename:dotextension",
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            }
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1491,8 +1492,8 @@ describe Paperclip::Storage::S3 do
             object = double
             allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            expect(object).to receive(:upload_file)
-              .with(anything, content_type: "image/png", acl: :"public-read")
+            expect(object).to receive(:upload_file).
+              with(anything, content_type: "image/png", acl: :"public-read")
             @dummy.save
           end
 
@@ -1505,19 +1506,19 @@ describe Paperclip::Storage::S3 do
 
     context "string permissions set" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          s3_credentials: {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          s3_permissions: :private
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename:dotextension",
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            },
+                                            s3_permissions: :private
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1529,8 +1530,8 @@ describe Paperclip::Storage::S3 do
             object = double
             allow(@dummy.avatar).to receive(:s3_object).and_return(object)
 
-            expect(object).to receive(:upload_file)
-              .with(anything, content_type: "image/png", acl: :private)
+            expect(object).to receive(:upload_file).
+              with(anything, content_type: "image/png", acl: :private)
             @dummy.save
           end
 
@@ -1543,25 +1544,25 @@ describe Paperclip::Storage::S3 do
 
     context "hash permissions set" do
       before do
-        rebuild_model (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          styles: {
-            thumb: "80x80>"
-          },
-          s3_credentials: {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          s3_permissions: {
-            original: :private,
-            thumb: :public_read
-          }
+        rebuild_model aws2_add_region.merge storage: :s3,
+                                            bucket: "testing",
+                                            path: ":attachment/:style/:basename:dotextension",
+                                            styles: {
+                                              thumb: "80x80>"
+                                            },
+                                            s3_credentials: {
+                                              "access_key_id" => "12345",
+                                              "secret_access_key" => "54321"
+                                            },
+                                            s3_permissions: {
+                                              original: :private,
+                                              thumb: :public_read
+                                            }
       end
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
         end
@@ -1574,10 +1575,10 @@ describe Paperclip::Storage::S3 do
               object = double
               allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-              expect(object).to receive(:upload_file)
-                .with(anything,
-                      content_type: "image/png",
-                      acl: style == :thumb ? :public_read : :private)
+              expect(object).to receive(:upload_file).
+                with(anything,
+                     content_type: "image/png",
+                     acl: style == :thumb ? :public_read : :private)
             end
             @dummy.save
           end
@@ -1592,19 +1593,19 @@ describe Paperclip::Storage::S3 do
     context "proc permission set" do
       before do
         rebuild_model(
-          (aws2_add_region).merge storage: :s3,
-          bucket: "testing",
-          path: ":attachment/:style/:basename:dotextension",
-          styles: {
-            thumb: "80x80>"
-          },
-          s3_credentials: {
-            'access_key_id' => "12345",
-            'secret_access_key' => "54321"
-          },
-          s3_permissions: lambda {|attachment, style|
-            attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : :"public-read"
-          }
+          aws2_add_region.merge(storage: :s3,
+                                bucket: "testing",
+                                path: ":attachment/:style/:basename:dotextension",
+                                styles: {
+                                  thumb: "80x80>"
+                                },
+                                s3_credentials: {
+                                  "access_key_id" => "12345",
+                                  "secret_access_key" => "54321"
+                                },
+                                s3_permissions: lambda { |attachment, style|
+                                                  attachment.instance.private_attachment? && style.to_sym != :thumb ? :private : :"public-read"
+                                                })
         )
       end
     end
@@ -1613,27 +1614,27 @@ describe Paperclip::Storage::S3 do
   context "An attachment with S3 storage and metadata set using a proc as headers" do
     before do
       rebuild_model(
-        (aws2_add_region).merge storage: :s3,
-        bucket: "testing",
-        path: ":attachment/:style/:basename:dotextension",
-        styles: {
-          thumb: "80x80>"
-        },
-        s3_credentials: {
-          'access_key_id' => "12345",
-          'secret_access_key' => "54321"
-        },
-        s3_headers: lambda {|attachment|
-          {'Content-Disposition' => "attachment; filename=\"#{attachment.name}\""}
-        }
+        aws2_add_region.merge(storage: :s3,
+                              bucket: "testing",
+                              path: ":attachment/:style/:basename:dotextension",
+                              styles: {
+                                thumb: "80x80>"
+                              },
+                              s3_credentials: {
+                                "access_key_id" => "12345",
+                                "secret_access_key" => "54321"
+                              },
+                              s3_headers: lambda { |attachment|
+                                            { "Content-Disposition" => "attachment; filename=\"#{attachment.name}\"" }
+                                          })
       )
     end
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
-        allow(@dummy).to receive(:name).and_return('Custom Avatar Name.png')
+        allow(@dummy).to receive(:name).and_return("Custom Avatar Name.png")
         @dummy.avatar = @file
       end
 
@@ -1645,11 +1646,11 @@ describe Paperclip::Storage::S3 do
             object = double
             allow(@dummy.avatar).to receive(:s3_object).with(style).and_return(object)
 
-            expect(object).to receive(:upload_file)
-              .with(anything,
-                    content_type: "image/png",
-                    acl: :"public-read",
-                    content_disposition: 'attachment; filename="Custom Avatar Name.png"')
+            expect(object).to receive(:upload_file).
+              with(anything,
+                   content_type: "image/png",
+                   acl: :"public-read",
+                   content_disposition: 'attachment; filename="Custom Avatar Name.png"')
           end
           @dummy.save
         end
@@ -1663,27 +1664,28 @@ describe Paperclip::Storage::S3 do
 
   context "path is a proc" do
     before do
-      rebuild_model (aws2_add_region).merge storage: :s3,
-        path: ->(attachment) { attachment.instance.attachment_path }
+      rebuild_model aws2_add_region.merge storage: :s3,
+                                          path: ->(attachment) { attachment.instance.attachment_path }
 
       @dummy = Dummy.new
       @dummy.class_eval do
         def attachment_path
-          '/some/dynamic/path'
+          "/some/dynamic/path"
         end
       end
       @dummy.avatar = stringy_file
     end
 
     it "returns a correct path" do
-      assert_match '/some/dynamic/path', @dummy.avatar.path
+      assert_match "/some/dynamic/path", @dummy.avatar.path
     end
   end
 
   private
 
   def rails_env(env)
-    stored_env, Rails.env = Rails.env, env
+    stored_env = Rails.env
+    Rails.env = env
     begin
       yield
     ensure

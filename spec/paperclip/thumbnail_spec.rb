@@ -1,9 +1,9 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Thumbnail do
   context "An image" do
     before do
-      @file = File.new(fixture_file("5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
     end
 
     after { @file.close }
@@ -11,15 +11,14 @@ describe Paperclip::Thumbnail do
     [["600x600>", "434x66"],
      ["400x400>", "400x61"],
      ["32x32<", "434x66"],
-     [nil, "434x66"]
-    ].each do |args|
+     [nil, "434x66"]].each do |args|
       context "being thumbnailed with a geometry of #{args[0]}" do
         before do
           @thumb = Paperclip::Thumbnail.new(@file, geometry: args[0])
         end
 
         it "starts with dimensions of 434x66" do
-          cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
+          cmd = %[identify -format "%wx%h" "#{@file.path}"]
           assert_equal "434x66", `#{cmd}`.chomp
         end
 
@@ -33,7 +32,7 @@ describe Paperclip::Thumbnail do
           end
 
           it "is the size we expect it to be" do
-            cmd = %Q[identify -format "%wx%h" "#{@thumb_result.path}"]
+            cmd = %[identify -format "%wx%h" "#{@thumb_result.path}"]
             assert_equal args[1], `#{cmd}`.chomp
           end
         end
@@ -46,18 +45,18 @@ describe Paperclip::Thumbnail do
       end
 
       it "lets us know when a command isn't found versus a processing error" do
-        old_path = ENV['PATH']
+        old_path = ENV["PATH"]
         begin
-          Terrapin::CommandLine.path = ''
-          Paperclip.options[:command_path] = ''
-          ENV['PATH'] = ''
+          Terrapin::CommandLine.path = ""
+          Paperclip.options[:command_path] = ""
+          ENV["PATH"] = ""
           assert_raises(Paperclip::Errors::CommandNotFoundError) do
             silence_stream(STDERR) do
               @thumb.make
             end
           end
         ensure
-          ENV['PATH'] = old_path
+          ENV["PATH"] = old_path
         end
       end
 
@@ -85,7 +84,7 @@ describe Paperclip::Thumbnail do
       it "sends the right command to convert when sent #make" do
         expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
-          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+            arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -96,8 +95,8 @@ describe Paperclip::Thumbnail do
       end
     end
 
-    it 'crops a EXIF-rotated image properly' do
-      file = File.new(fixture_file('rotated.jpg'))
+    it "crops a EXIF-rotated image properly" do
+      file = File.new(fixture_file("rotated.jpg"))
       thumb = Paperclip::Thumbnail.new(file, geometry: "50x50#")
 
       output_file = thumb.make
@@ -120,7 +119,7 @@ describe Paperclip::Thumbnail do
       it "sends the right command to convert when sent #make" do
         expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == '-strip :source -auto-orient -resize "x50" -crop "100x50+114+0" +repage :dest' &&
-          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+            arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -161,7 +160,7 @@ describe Paperclip::Thumbnail do
       it "sends the right command to convert when sent #make" do
         expect(@thumb).to receive(:convert) do |*arg|
           arg[0] == ':source -auto-orient -resize "x50" -crop "100x50+114+0" +repage -strip -depth 8 :dest' &&
-          arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
+            arg[1][:source] == "#{File.expand_path(@thumb.file.path)}[0]"
         end
         @thumb.make
       end
@@ -180,27 +179,27 @@ describe Paperclip::Thumbnail do
 
         it "errors when trying to create the thumbnail" do
           silence_stream(STDERR) do
-            expect {
+            expect do
               @thumb.make
-            }.to raise_error(
+            end.to raise_error(
               Paperclip::Error, /unrecognized option `-this-aint-no-option'/
             )
           end
         end
 
         it "lets us know when a command isn't found versus a processing error" do
-          old_path = ENV['PATH']
+          old_path = ENV["PATH"]
           begin
-            Terrapin::CommandLine.path = ''
-            Paperclip.options[:command_path] = ''
-            ENV['PATH'] = ''
+            Terrapin::CommandLine.path = ""
+            Paperclip.options[:command_path] = ""
+            ENV["PATH"] = ""
             assert_raises(Paperclip::Errors::CommandNotFoundError) do
               silence_stream(STDERR) do
                 @thumb.make
               end
             end
           ensure
-            ENV['PATH'] = old_path
+            ENV["PATH"] = old_path
           end
         end
       end
@@ -222,8 +221,8 @@ describe Paperclip::Thumbnail do
       it "calls identify to check for animated images when sent #make" do
         thumb = Paperclip::Thumbnail.new(@file, geometry: "100x50#")
         expect(thumb).to receive(:identify).at_least(1).times do |*arg|
-          arg[0] == '-format %m :file' &&
-          arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
+          arg[0] == "-format %m :file" &&
+            arg[1][:file] == "#{File.expand_path(thumb.file.path)}[0]"
         end
         thumb.make
       end
@@ -236,27 +235,27 @@ describe Paperclip::Thumbnail do
 
       it "produces the appropriate transformation_command" do
         GeoParser = Class.new do
-          def self.from_file(file)
+          def self.from_file(_file)
             new
           end
 
-          def transformation_to(target, should_crop)
+          def transformation_to(_target, _should_crop)
             ["SCALE", "CROP"]
           end
         end
 
-        thumb = Paperclip::Thumbnail.new(@file, geometry: '50x50', file_geometry_parser: ::GeoParser)
+        thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", file_geometry_parser: ::GeoParser)
 
         transformation_command = thumb.transformation_command
 
-        assert transformation_command.include?('-crop'),
-          %{expected #{transformation_command.inspect} to include '-crop'}
+        assert transformation_command.include?("-crop"),
+               %{expected #{transformation_command.inspect} to include '-crop'}
         assert transformation_command.include?('"CROP"'),
-          %{expected #{transformation_command.inspect} to include '"CROP"'}
-        assert transformation_command.include?('-resize'),
-          %{expected #{transformation_command.inspect} to include '-resize'}
+               %{expected #{transformation_command.inspect} to include '"CROP"'}
+        assert transformation_command.include?("-resize"),
+               %{expected #{transformation_command.inspect} to include '-resize'}
         assert transformation_command.include?('"SCALE"'),
-          %{expected #{transformation_command.inspect} to include '"SCALE"'}
+               %{expected #{transformation_command.inspect} to include '"SCALE"'}
       end
     end
 
@@ -267,7 +266,7 @@ describe Paperclip::Thumbnail do
 
       it "produces the appropriate transformation_command" do
         GeoParser = Class.new do
-          def self.parse(s)
+          def self.parse(_s)
             new
           end
 
@@ -276,26 +275,26 @@ describe Paperclip::Thumbnail do
           end
         end
 
-        thumb = Paperclip::Thumbnail.new(@file, geometry: '50x50', string_geometry_parser: ::GeoParser)
+        thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", string_geometry_parser: ::GeoParser)
 
         transformation_command = thumb.transformation_command
 
         assert transformation_command.include?('"151x167"'),
-          %{expected #{transformation_command.inspect} to include '151x167'}
+               %{expected #{transformation_command.inspect} to include '151x167'}
       end
     end
   end
 
   context "A multipage PDF" do
     before do
-      @file = File.new(fixture_file("twopage.pdf"), 'rb')
+      @file = File.new(fixture_file("twopage.pdf"), "rb")
     end
 
     after { @file.close }
 
     it "starts with two pages with dimensions 612x792" do
-      cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
-      assert_equal "612x792"*2, `#{cmd}`.chomp
+      cmd = %[identify -format "%wx%h" "#{@file.path}"]
+      assert_equal "612x792" * 2, `#{cmd}`.chomp
     end
 
     context "being thumbnailed at 100x100 with cropping" do
@@ -321,37 +320,37 @@ describe Paperclip::Thumbnail do
 
   context "An animated gif" do
     before do
-      @file = File.new(fixture_file("animated.gif"), 'rb')
+      @file = File.new(fixture_file("animated.gif"), "rb")
     end
 
     after { @file.close }
 
     it "starts with 12 frames with size 100x100" do
-      cmd = %Q[identify -format "%wx%h" "#{@file.path}"]
-      assert_equal "100x100"*12, `#{cmd}`.chomp
+      cmd = %[identify -format "%wx%h" "#{@file.path}"]
+      assert_equal "100x100" * 12, `#{cmd}`.chomp
     end
 
     context "with static output" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :jpg)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :jpg)
       end
 
       it "creates the single frame thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        cmd = %[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50", `#{cmd}`.chomp
       end
     end
 
     context "with animated output format" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :gif)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", format: :gif)
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
-        frames = `#{cmd}`.chomp.split(',')
+        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (45..50), frames
       end
@@ -367,13 +366,13 @@ describe Paperclip::Thumbnail do
 
     context "with omitted output format" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50")
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
-        frames = `#{cmd}`.chomp.split(',')
+        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (45..50), frames
       end
@@ -389,14 +388,14 @@ describe Paperclip::Thumbnail do
 
     context "with unidentified source format" do
       before do
-        @unidentified_file = File.new(fixture_file("animated.unknown"), 'rb')
+        @unidentified_file = File.new(fixture_file("animated.unknown"), "rb")
         @thumb = Paperclip::Thumbnail.new(@file, geometry: "60x60")
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
-        frames = `#{cmd}`.chomp.split(',')
+        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (55..60), frames
       end
@@ -412,14 +411,14 @@ describe Paperclip::Thumbnail do
 
     context "with no source format" do
       before do
-        @unidentified_file = File.new(fixture_file("animated"), 'rb')
+        @unidentified_file = File.new(fixture_file("animated"), "rb")
         @thumb = Paperclip::Thumbnail.new(@file, geometry: "70x70")
       end
 
       it "creates the 12 frames thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h," "#{dst.path}"]
-        frames = `#{cmd}`.chomp.split(',')
+        cmd = %[identify -format "%wx%h," "#{dst.path}"]
+        frames = `#{cmd}`.chomp.split(",")
         assert_equal 12, frames.size
         assert_frame_dimensions (60..70), frames
       end
@@ -435,18 +434,18 @@ describe Paperclip::Thumbnail do
 
     context "with animated option set to false" do
       before do
-       @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", animated: false)
+        @thumb = Paperclip::Thumbnail.new(@file, geometry: "50x50", animated: false)
       end
 
       it "outputs the gif format" do
         dst = @thumb.make
-        cmd = %Q[identify "#{dst.path}"]
+        cmd = %[identify "#{dst.path}"]
         assert_match /GIF/, `#{cmd}`.chomp
       end
 
       it "creates the single frame thumbnail when sent #make" do
         dst = @thumb.make
-        cmd = %Q[identify -format "%wx%h" "#{dst.path}"]
+        cmd = %[identify -format "%wx%h" "#{dst.path}"]
         assert_equal "50x50", `#{cmd}`.chomp
       end
     end
@@ -457,7 +456,7 @@ describe Paperclip::Thumbnail do
           @file,
           geometry: "50x50",
           frame_index: 5,
-          format: :jpg,
+          format: :jpg
         )
       end
 
@@ -473,7 +472,7 @@ describe Paperclip::Thumbnail do
           @file,
           geometry: "50x50",
           frame_index: 20,
-          format: :jpg,
+          format: :jpg
         )
       end
 

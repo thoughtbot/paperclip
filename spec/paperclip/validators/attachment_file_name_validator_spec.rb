@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Validators::AttachmentFileNameValidator do
   before do
@@ -8,8 +8,8 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
 
   def build_validator(options)
     @validator = Paperclip::Validators::AttachmentFileNameValidator.new(options.merge(
-      attributes: :avatar
-    ))
+                                                                          attributes: :avatar
+                                                                        ))
   end
 
   context "with a failing validation" do
@@ -21,7 +21,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
 
     it "adds error to the base object" do
       assert @dummy.errors[:avatar].present?,
-        "Error not added to base attribute"
+             "Error not added to base attribute"
     end
 
     it "adds error to base object as a string" do
@@ -137,7 +137,7 @@ describe Paperclip::Validators::AttachmentFileNameValidator do
     end
 
     it "adds the validator to the class" do
-      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_file_name }
+      assert Dummy.validators_on(:avatar).any? { |validator| validator.kind == :attachment_file_name }
     end
   end
 

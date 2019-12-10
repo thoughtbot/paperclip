@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Validators::AttachmentPresenceValidator do
   before do
@@ -6,10 +6,10 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
     @dummy = Dummy.new
   end
 
-  def build_validator(options={})
+  def build_validator(options = {})
     @validator = Paperclip::Validators::AttachmentPresenceValidator.new(options.merge(
-      attributes: :avatar
-    ))
+                                                                          attributes: :avatar
+                                                                        ))
   end
 
   context "nil attachment" do
@@ -79,7 +79,7 @@ describe Paperclip::Validators::AttachmentPresenceValidator do
     end
 
     it "adds the validator to the class" do
-      assert Dummy.validators_on(:avatar).any?{ |validator| validator.kind == :attachment_presence }
+      assert Dummy.validators_on(:avatar).any? { |validator| validator.kind == :attachment_presence }
     end
   end
 end

@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::GeometryParser do
-  it 'identifies an image and extract its dimensions with no orientation' do
+  it "identifies an image and extract its dimensions with no orientation" do
     allow(Paperclip::Geometry).to receive(:new).with(
-      height: '73',
-      width: '434',
+      height: "73",
+      width: "434",
       modifier: nil,
       orientation: nil
     ).and_return(:correct)
@@ -15,12 +15,12 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identifies an image and extract its dimensions with an empty orientation' do
+  it "identifies an image and extract its dimensions with an empty orientation" do
     allow(Paperclip::Geometry).to receive(:new).with(
-      height: '73',
-      width: '434',
+      height: "73",
+      width: "434",
       modifier: nil,
-      orientation: ''
+      orientation: ""
     ).and_return(:correct)
     factory = Paperclip::GeometryParser.new("434x73,")
 
@@ -29,12 +29,12 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identifies an image and extract its dimensions and orientation' do
+  it "identifies an image and extract its dimensions and orientation" do
     allow(Paperclip::Geometry).to receive(:new).with(
-      height: '200',
-      width: '300',
+      height: "200",
+      width: "300",
       modifier: nil,
-      orientation: '6'
+      orientation: "6"
     ).and_return(:correct)
     factory = Paperclip::GeometryParser.new("300x200,6")
 
@@ -43,11 +43,11 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identifies an image and extract its dimensions and modifier' do
+  it "identifies an image and extract its dimensions and modifier" do
     allow(Paperclip::Geometry).to receive(:new).with(
-      height: '64',
-      width: '64',
-      modifier: '#',
+      height: "64",
+      width: "64",
+      modifier: "#",
       orientation: nil
     ).and_return(:correct)
     factory = Paperclip::GeometryParser.new("64x64#")
@@ -57,12 +57,12 @@ describe Paperclip::GeometryParser do
     assert_equal :correct, output
   end
 
-  it 'identifies an image and extract its dimensions, orientation, and modifier' do
+  it "identifies an image and extract its dimensions, orientation, and modifier" do
     allow(Paperclip::Geometry).to receive(:new).with(
-      height: '50',
-      width: '100',
-      modifier: '>',
-      orientation: '7'
+      height: "50",
+      width: "100",
+      modifier: ">",
+      orientation: "7"
     ).and_return(:correct)
     factory = Paperclip::GeometryParser.new("100x50,7>")
 

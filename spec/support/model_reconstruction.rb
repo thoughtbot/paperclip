@@ -1,7 +1,11 @@
 module ModelReconstruction
-  def reset_class class_name
-    ActiveRecord::Base.send(:include, Paperclip::Glue)
-    Object.send(:remove_const, class_name) rescue nil
+  def reset_class(class_name)
+    ActiveRecord::Base.include Paperclip::Glue
+    begin
+      Object.send(:remove_const, class_name)
+    rescue StandardError
+      nil
+    end
     klass = Object.const_set(class_name, Class.new(ActiveRecord::Base))
 
     klass.class_eval do
@@ -22,16 +26,16 @@ module ModelReconstruction
     klass
   end
 
-  def reset_table table_name, &block
-    block ||= lambda { |table| true }
-    ActiveRecord::Base.connection.create_table :dummies, {force: true}, &block
+  def reset_table(_table_name, &block)
+    block ||= lambda { |_table| true }
+    ActiveRecord::Base.connection.create_table :dummies, { force: true }, &block
   end
 
-  def modify_table &block
+  def modify_table(&block)
     ActiveRecord::Base.connection.change_table :dummies, &block
   end
 
-  def rebuild_model options = {}
+  def rebuild_model(options = {})
     ActiveRecord::Base.connection.create_table :dummies, force: true do |table|
       table.column :title, :string
       table.column :other, :string
@@ -44,7 +48,7 @@ module ModelReconstruction
     rebuild_class options
   end
 
-  def rebuild_class options = {}
+  def rebuild_class(options = {})
     reset_class("Dummy").tap do |klass|
       klass.has_attached_file :avatar, options
       klass.do_not_validate_attachment_file_type :avatar
@@ -52,7 +56,7 @@ module ModelReconstruction
     end
   end
 
-  def rebuild_meta_class_of obj, options = {}
+  def rebuild_meta_class_of(obj, options = {})
     meta_class_of(obj).tap do |metaklass|
       metaklass.has_attached_file :avatar, options
       metaklass.do_not_validate_attachment_file_type :avatar

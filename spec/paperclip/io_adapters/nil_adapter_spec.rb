@@ -1,7 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::NilAdapter do
-  context 'a new instance' do
+  context "a new instance" do
     before do
       @subject = Paperclip.io_adapters.for(nil)
     end

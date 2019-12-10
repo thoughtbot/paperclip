@@ -4,7 +4,7 @@ RSpec::Matchers.define :have_column do |column_name|
   end
 
   match do |columns|
-    column = columns.detect{|column| column.name == column_name }
+    column = columns.detect { |column| column.name == column_name }
     column && column.default.to_s == @default.to_s
   end
 

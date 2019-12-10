@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::UriAdapter do
   let(:content_type) { "image/png" }
@@ -30,7 +30,7 @@ describe Paperclip::UriAdapter do
       assert_equal "thoughtbot-logo.png", @subject.original_filename
     end
 
-    it 'closes open handle after reading' do
+    it "closes open handle after reading" do
       assert_equal true, @open_return.closed?
     end
 
@@ -59,16 +59,15 @@ describe Paperclip::UriAdapter do
       assert_equal "xxx", @subject.read
     end
 
-    it 'accepts a content_type' do
-      @subject.content_type = 'image/png'
-      assert_equal 'image/png', @subject.content_type
+    it "accepts a content_type" do
+      @subject.content_type = "image/png"
+      assert_equal "image/png", @subject.content_type
     end
 
     it "accepts an original_filename" do
-      @subject.original_filename = 'image.png'
-      assert_equal 'image.png', @subject.original_filename
+      @subject.original_filename = "image.png"
+      assert_equal "image.png", @subject.original_filename
     end
-
   end
 
   context "a directory index url" do
@@ -115,7 +114,8 @@ describe Paperclip::UriAdapter do
         to receive(:download_content).and_return(@open_return)
 
       @uri = URI.parse(
-        "https://github.com/thoughtbot/#{filename_from_path}?file=test")
+        "https://github.com/thoughtbot/#{filename_from_path}?file=test"
+      )
     end
 
     it "returns file name from path" do
@@ -165,7 +165,8 @@ describe Paperclip::UriAdapter do
 
       it "returns a file name" do
         @uri = URI.parse(
-          "https://github.com/thoughtbot/#{file_name}?file=test")
+          "https://github.com/thoughtbot/#{file_name}?file=test"
+        )
         @subject = Paperclip.io_adapters.for(@uri)
         assert_equal file_name, @subject.original_filename
       end

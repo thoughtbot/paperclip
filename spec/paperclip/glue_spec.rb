@@ -14,7 +14,7 @@ describe Paperclip::Glue do
 
     it "does not fail" do
       NonActiveRecordModel = Class.new
-      NonActiveRecordModel.send :include, Paperclip::Glue
+      NonActiveRecordModel.include Paperclip::Glue
       Object.send :remove_const, "NonActiveRecordModel"
     end
   end
@@ -30,14 +30,12 @@ describe Paperclip::Glue do
     end
 
     after do
-      if @defined_active_record
-        Object.send :remove_const, "ActiveRecord"
-      end
+      Object.send :remove_const, "ActiveRecord" if @defined_active_record
     end
 
     it "does not fail" do
       NonActiveRecordModel = Class.new
-      NonActiveRecordModel.send :include, Paperclip::Glue
+      NonActiveRecordModel.include Paperclip::Glue
       Object.send :remove_const, "NonActiveRecordModel"
     end
   end

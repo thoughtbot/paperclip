@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Storage::Filesystem do
   context "Filesystem" do
@@ -7,7 +7,7 @@ describe Paperclip::Storage::Filesystem do
         rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
-        @file = File.open(fixture_file('5k.png'))
+        @file = File.open(fixture_file("5k.png"))
         @dummy.avatar = @file
       end
 
@@ -38,11 +38,11 @@ describe Paperclip::Storage::Filesystem do
       it "is removed after after_flush_writes" do
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
-        assert paths.none?{ |path| File.exist?(path) },
-          "Expect all the files to be deleted."
+        assert paths.none? { |path| File.exist?(path) },
+               "Expect all the files to be deleted."
       end
 
-      it 'copies the file to a known location with copy_to_local_file' do
+      it "copies the file to a known location with copy_to_local_file" do
         tempfile = Tempfile.new("known_location")
         @dummy.avatar.copy_to_local_file(:original, tempfile.path)
         tempfile.rewind
@@ -56,7 +56,7 @@ describe Paperclip::Storage::Filesystem do
         rebuild_model styles: { thumbnail: "25x25#" }
         @dummy = Dummy.create!
 
-        @file = File.open(fixture_file('spaced file.png'))
+        @file = File.open(fixture_file("spaced file.png"))
         @dummy.avatar = @file
         @dummy.save
       end

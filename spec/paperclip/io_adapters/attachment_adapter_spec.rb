@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::AttachmentAdapter do
   before do
-    rebuild_model path: "tmp/:class/:attachment/:style/:filename", styles: {thumb: '50x50'}
+    rebuild_model path: "tmp/:class/:attachment/:style/:filename", styles: { thumb: "50x50" }
     @attachment = Dummy.new.avatar
   end
 
@@ -39,7 +39,7 @@ describe Paperclip::AttachmentAdapter do
     end
 
     it "returns false for a call to nil?" do
-      assert ! @subject.nil?
+      assert !@subject.nil?
     end
 
     it "generates a MD5 hash of the contents" do
@@ -50,18 +50,17 @@ describe Paperclip::AttachmentAdapter do
     it "reads the contents of the file" do
       expected = @file.read
       actual = @subject.read
-      assert expected.length > 0
+      assert !expected.empty?
       assert_equal expected.length, actual.length
       assert_equal expected, actual
     end
-
   end
 
   context "for a file with restricted characters in the name" do
     before do
       file_contents = IO.read(fixture_file("animated.gif"))
       @file = StringIO.new(file_contents)
-      allow(@file).to receive(:original_filename).and_return('image:restricted.gif')
+      allow(@file).to receive(:original_filename).and_return("image:restricted.gif")
       @file.binmode
 
       @attachment.assign(@file)
@@ -79,7 +78,7 @@ describe Paperclip::AttachmentAdapter do
     end
 
     it "does not generate filenames that include restricted characters" do
-      assert_equal 'image_restricted.gif', @subject.original_filename
+      assert_equal "image_restricted.gif", @subject.original_filename
     end
   end
 
@@ -121,7 +120,7 @@ describe Paperclip::AttachmentAdapter do
     end
 
     it "returns false for a call to nil?" do
-      assert ! @subject.nil?
+      assert !@subject.nil?
     end
 
     it "generates a MD5 hash of the contents" do
@@ -133,10 +132,9 @@ describe Paperclip::AttachmentAdapter do
       @thumb.rewind
       expected = @thumb.read
       actual = @subject.read
-      assert expected.length > 0
+      assert !expected.empty?
       assert_equal expected.length, actual.length
       assert_equal expected, actual
     end
-
   end
 end

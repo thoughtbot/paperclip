@@ -1,7 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Plural cache' do
-  it 'caches pluralizations' do
+describe "Plural cache" do
+  it "caches pluralizations" do
     cache = Paperclip::Interpolations::PluralCache.new
     symbol = :box
 
@@ -10,8 +10,8 @@ describe 'Plural cache' do
     expect(first).to equal(second)
   end
 
-  it 'caches pluralizations and underscores' do
-    class BigBox ; end
+  it "caches pluralizations and underscores" do
+    class BigBox; end
     cache = Paperclip::Interpolations::PluralCache.new
     klass = BigBox
 
@@ -20,15 +20,15 @@ describe 'Plural cache' do
     expect(first).to equal(second)
   end
 
-  it 'pluralizes words' do
+  it "pluralizes words" do
     cache = Paperclip::Interpolations::PluralCache.new
     symbol = :box
 
     expect(cache.pluralize_symbol(symbol)).to eq("boxes")
   end
 
-  it 'pluralizes and underscore class names' do
-    class BigBox ; end
+  it "pluralizes and underscore class names" do
+    class BigBox; end
     cache = Paperclip::Interpolations::PluralCache.new
     klass = BigBox
 

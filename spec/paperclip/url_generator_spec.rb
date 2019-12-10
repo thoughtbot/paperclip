@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::UrlGenerator do
   it "uses the given interpolator" do
@@ -24,20 +24,20 @@ describe Paperclip::UrlGenerator do
     url_generator.for(:style_name, {})
 
     assert mock_interpolator.has_interpolated_pattern?(default_url),
-      "expected the interpolator to be passed #{default_url.inspect} but it wasn't"
+           "expected the interpolator to be passed #{default_url.inspect} but it wasn't"
   end
 
   it "executes the default URL lambda when no file is assigned" do
     mock_interpolator = MockInterpolator.new
-    default_url = lambda {|attachment| "the #{attachment.class.name} default url" }
-    options = { interpolator: mock_interpolator, default_url: default_url}
+    default_url = lambda { |attachment| "the #{attachment.class.name} default url" }
+    options = { interpolator: mock_interpolator, default_url: default_url }
     mock_attachment = MockAttachment.new(options)
 
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
     url_generator.for(:style_name, {})
 
     assert mock_interpolator.has_interpolated_pattern?("the MockAttachment default url"),
-      %{expected the interpolator to be passed "the MockAttachment default url", but it wasn't}
+           %{expected the interpolator to be passed "the MockAttachment default url", but it wasn't}
   end
 
   it "executes the method named by the symbol as the default URL when no file is assigned" do
@@ -55,7 +55,7 @@ describe Paperclip::UrlGenerator do
     url_generator.for(:style_name, {})
 
     assert mock_interpolator.has_interpolated_pattern?(mock_model.to_s),
-      %{expected the interpolator to be passed #{mock_model.to_s}, but it wasn't}
+           %{expected the interpolator to be passed #{mock_model}, but it wasn't}
   end
 
   it "URL-escapes spaces if asked to" do
@@ -65,7 +65,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {escape: true})
+    result = url_generator.for(:style_name, escape: true)
 
     assert_equal "the%20expected%20result", result
   end
@@ -81,7 +81,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {escape: true})
+    result = url_generator.for(:style_name, escape: true)
 
     assert_equal "the escaped result", result
   end
@@ -93,7 +93,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {escape: false})
+    result = url_generator.for(:style_name, escape: false)
 
     assert_equal "the expected result", result
   end
@@ -117,7 +117,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {timestamp: true})
+    result = url_generator.for(:style_name, timestamp: true)
 
     assert_equal expected, result
   end
@@ -133,7 +133,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {timestamp: true})
+    result = url_generator.for(:style_name, timestamp: true)
 
     assert_equal expected, result
   end
@@ -146,7 +146,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {timestamp: true})
+    result = url_generator.for(:style_name, timestamp: true)
 
     assert_equal "#{expected}?#{updated_at}", result
   end
@@ -159,7 +159,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {timestamp: true})
+    result = url_generator.for(:style_name, timestamp: true)
 
     assert_equal "#{expected}&#{updated_at}", result
   end
@@ -172,7 +172,7 @@ describe Paperclip::UrlGenerator do
     mock_attachment = MockAttachment.new(options)
     url_generator = Paperclip::UrlGenerator.new(mock_attachment)
 
-    result = url_generator.for(:style_name, {timestamp: false})
+    result = url_generator.for(:style_name, timestamp: false)
 
     assert_equal expected, result
   end
@@ -191,11 +191,11 @@ describe Paperclip::UrlGenerator do
     url_generator.for(:style_name, {})
 
     assert mock_interpolator.has_interpolated_pattern?(expected),
-      "expected the interpolator to be passed #{expected.inspect} but it wasn't"
+           "expected the interpolator to be passed #{expected.inspect} but it wasn't"
   end
 
   describe "should be able to escape (, ), [, and ]." do
-    def generate(expected, updated_at=nil)
+    def generate(expected, updated_at = nil)
       mock_interpolator = MockInterpolator.new(result: expected)
       options = { interpolator: mock_interpolator, updated_at: updated_at }
       mock_attachment = MockAttachment.new(options)
@@ -203,7 +203,7 @@ describe Paperclip::UrlGenerator do
       def url_generator.respond_to(params)
         false if params == :escape
       end
-      url_generator.for(:style_name, {escape: true, timestamp: !!updated_at})
+      url_generator.for(:style_name, escape: true, timestamp: !!updated_at)
     end
 
     it "not timestamp" do
@@ -215,7 +215,7 @@ describe Paperclip::UrlGenerator do
       expected = "the(expected)result[]"
       updated_at = 1231231234
       assert_equal "the%28expected%29result%5B%5D?#{updated_at}",
-        generate(expected, updated_at)
+                   generate(expected, updated_at)
     end
   end
 end

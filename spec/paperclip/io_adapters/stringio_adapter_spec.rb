@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::StringioAdapter do
   context "a new instance" do
@@ -41,23 +41,23 @@ describe Paperclip::StringioAdapter do
       assert_equal "abc123", @subject.read
     end
 
-    it 'accepts a content_type' do
-      @subject.content_type = 'image/png'
-      assert_equal 'image/png', @subject.content_type
+    it "accepts a content_type" do
+      @subject.content_type = "image/png"
+      assert_equal "image/png", @subject.content_type
     end
 
-    it 'accepts an original_filename' do
-      @subject.original_filename = 'image.png'
-      assert_equal 'image.png', @subject.original_filename
+    it "accepts an original_filename" do
+      @subject.original_filename = "image.png"
+      assert_equal "image.png", @subject.original_filename
     end
 
     it "does not generate filenames that include restricted characters" do
-      @subject.original_filename = 'image:restricted.png'
-      assert_equal 'image_restricted.png', @subject.original_filename
+      @subject.original_filename = "image:restricted.png"
+      assert_equal "image_restricted.png", @subject.original_filename
     end
 
     it "does not generate paths that include restricted characters" do
-      @subject.original_filename = 'image:restricted.png'
+      @subject.original_filename = "image:restricted.png"
       expect(@subject.path).to_not match(/:/)
     end
   end

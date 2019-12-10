@@ -1,7 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 unless ENV["S3_BUCKET"].blank?
-  describe Paperclip::Storage::S3, 'Live S3' do
+  describe Paperclip::Storage::S3, "Live S3" do
     context "when assigning an S3 attachment directly to another model" do
       before do
         rebuild_model styles: { thumb: "100x100", square: "32x32#" },
@@ -10,8 +10,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
                       }
 
         @file = File.new(fixture_file("5k.png"))
@@ -48,8 +48,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
                       }
 
         @dummy = Dummy.new
@@ -68,8 +68,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
                       }
 
         Dummy.delete_all
@@ -82,7 +82,7 @@ unless ENV["S3_BUCKET"].blank?
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy.avatar = @file
         end
 
@@ -106,18 +106,18 @@ unless ENV["S3_BUCKET"].blank?
     context "An attachment that uses S3 for storage and has spaces in file name" do
       before do
         rebuild_model styles: { thumb: "100x100", square: "32x32#" },
-          storage: :s3,
-          bucket: ENV["S3_BUCKET"],
-          s3_region: ENV["S3_REGION"],
-          url: ":s3_domain_url",
-          path: "/:class/:attachment/:id_partition/:style/:filename",
-          s3_credentials: {
-            access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-            secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
-          }
+                      storage: :s3,
+                      bucket: ENV["S3_BUCKET"],
+                      s3_region: ENV["S3_REGION"],
+                      url: ":s3_domain_url",
+                      path: "/:class/:attachment/:id_partition/:style/:filename",
+                      s3_credentials: {
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+                      }
 
         Dummy.delete_all
-        @file = File.new(fixture_file('spaced file.png'), 'rb')
+        @file = File.new(fixture_file("spaced file.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
         @dummy.save
@@ -154,8 +154,8 @@ unless ENV["S3_BUCKET"].blank?
                       path: ":class/:attachment/:id/:style.:extension",
                       s3_region: ENV["S3_REGION"],
                       s3_credentials: {
-                        access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-                        secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
+                        access_key_id: ENV["AWS_ACCESS_KEY_ID"],
+                        secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
                       },
                       s3_server_side_encryption: "AES256"
         Dummy.delete_all
@@ -164,7 +164,7 @@ unless ENV["S3_BUCKET"].blank?
 
       context "when assigned" do
         before do
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy.avatar = @file
         end
 

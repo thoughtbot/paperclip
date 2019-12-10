@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip do
   context ".run" do
@@ -35,7 +35,7 @@ describe Paperclip do
     end
   end
 
-  it 'does not raise errors when doing a lot of running' do
+  it "does not raise errors when doing a lot of running" do
     Paperclip.options[:command_path] = ["/usr/local/bin"] * 1024
     Terrapin::CommandLine.path = "/something/else"
     100.times do |x|
@@ -56,7 +56,7 @@ describe Paperclip do
 
     it "does not raise an error when log is called" do
       silence_stream(STDOUT) do
-        Paperclip.log('something')
+        Paperclip.log("something")
       end
     end
   end
@@ -70,7 +70,7 @@ describe Paperclip do
 
   context "Paperclip.each_instance_with_attachment" do
     before do
-      @file = File.new(fixture_file("5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
       d1 = Dummy.create(avatar: @file)
       d2 = Dummy.create
       d3 = Dummy.create(avatar: @file)
@@ -89,7 +89,7 @@ describe Paperclip do
   end
 
   it "raises when sent #processor and the name of a class that doesn't exist" do
-    assert_raises(LoadError){ Paperclip.processor(:boogey_man) }
+    assert_raises(LoadError) { Paperclip.processor(:boogey_man) }
   end
 
   it "returns a class when sent #processor and the name of a class under Paperclip" do
@@ -112,7 +112,7 @@ describe Paperclip do
   context "An ActiveRecord model with an 'avatar' attachment" do
     before do
       rebuild_model path: "tmp/:class/omg/:style.:extension"
-      @file = File.new(fixture_file("5k.png"), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
     end
 
     after { @file.close }
@@ -138,7 +138,11 @@ describe Paperclip do
 
       after do
         SubDummy.delete_all
-        Object.send(:remove_const, "SubDummy") rescue nil
+        begin
+          Object.send(:remove_const, "SubDummy")
+        rescue StandardError
+          nil
+        end
       end
     end
 
@@ -171,7 +175,7 @@ describe Paperclip do
   context "configuring a custom processor" do
     before do
       @freedom_processor = Class.new do
-        def make(file, options = {}, attachment = nil)
+        def make(file, _options = {}, _attachment = nil)
           file
         end
       end.new

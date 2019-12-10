@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Style do
   context "A style rule" do
     before do
       @attachment = attachment path: ":basename.:extension",
-                               styles: { foo: {geometry: "100x100#", format: :png} },
+                               styles: { foo: { geometry: "100x100#", format: :png } },
                                whiny: true
       @style = @attachment.styles[:foo]
     end
@@ -39,13 +39,13 @@ describe Paperclip::Style do
     before do
       @attachment = attachment path: ":basename.:extension",
                                whiny_thumbnails: true,
-                               processors: lambda {|a| [:test]},
+                               processors: lambda { |_a| [:test] },
                                styles: {
-                                 foo: lambda{|a| "300x300#"},
+                                 foo: lambda { |_a| "300x300#" },
                                  bar: {
-                                   geometry: lambda{|a| "300x300#"},
-                                   convert_options: lambda{|a| "-do_stuff"},
-                                   source_file_options: lambda{|a| "-do_extra_stuff"}
+                                   geometry: lambda { |_a| "300x300#" },
+                                   convert_options: lambda { |_a| "-do_stuff" },
+                                   source_file_options: lambda { |_a| "-do_extra_stuff" }
                                  }
                                }
     end
@@ -64,7 +64,7 @@ describe Paperclip::Style do
     before do
       styles = {}
       styles[:aslist] = ["100x100", :png]
-      styles[:ashash] = {geometry: "100x100", format: :png}
+      styles[:ashash] = { geometry: "100x100", format: :png }
       styles[:asstring] = "100x100"
       @attachment = attachment path: ":basename.:extension",
                                styles: styles
@@ -101,16 +101,16 @@ describe Paperclip::Style do
   context "An attachment with :convert_options" do
     it "does not have called extra_options_for(:thumb/:large) on initialization" do
       @attachment = attachment path: ":basename.:extension",
-                               styles: {thumb: "100x100", large: "400x400"},
-                               convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
+                               styles: { thumb: "100x100", large: "400x400" },
+                               convert_options: { all: "-do_stuff", thumb: "-thumbnailize" }
       expect(@attachment).to_not receive(:extra_options_for)
       @style = @attachment.styles[:thumb]
     end
 
     it "calls extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment = attachment path: ":basename.:extension",
-                               styles: {thumb: "100x100", large: "400x400"},
-                               convert_options: {all: "-do_stuff", thumb: "-thumbnailize"}
+                               styles: { thumb: "100x100", large: "400x400" },
+                               convert_options: { all: "-do_stuff", thumb: "-thumbnailize" }
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       allow(@file).to receive(:original_filename).and_return("file.jpg")
@@ -123,16 +123,16 @@ describe Paperclip::Style do
   context "An attachment with :source_file_options" do
     it "does not have called extra_source_file_options_for(:thumb/:large) on initialization" do
       @attachment = attachment path: ":basename.:extension",
-                               styles: {thumb: "100x100", large: "400x400"},
-                               source_file_options: {all: "-density 400", thumb: "-depth 8"}
+                               styles: { thumb: "100x100", large: "400x400" },
+                               source_file_options: { all: "-density 400", thumb: "-depth 8" }
       expect(@attachment).to_not receive(:extra_source_file_options_for)
       @style = @attachment.styles[:thumb]
     end
 
     it "calls extra_options_for(:thumb/:large) when convert options are requested" do
       @attachment = attachment path: ":basename.:extension",
-                               styles: {thumb: "100x100", large: "400x400"},
-                               source_file_options: {all: "-density 400", thumb: "-depth 8"}
+                               styles: { thumb: "100x100", large: "400x400" },
+                               source_file_options: { all: "-density 400", thumb: "-depth 8" }
       @style = @attachment.styles[:thumb]
       @file = StringIO.new("...")
       allow(@file).to receive(:original_filename).and_return("file.jpg")
@@ -150,8 +150,8 @@ describe Paperclip::Style do
                                    geometry: "100x100#",
                                    format: :png,
                                    processors: [:test]
-                                  }
-                                },
+                                 }
+                               },
                                processors: [:thumbnail]
       @style = @attachment.styles[:foo]
     end
@@ -164,7 +164,6 @@ describe Paperclip::Style do
     it "reports its own processors" do
       assert_equal [:test], @style.processors
     end
-
   end
 
   context "A style rule with :processors supplied as procs" do
@@ -174,9 +173,9 @@ describe Paperclip::Style do
                                  foo: {
                                    geometry: "100x100#",
                                    format: :png,
-                                   processors: lambda{|a| [:test]}
-                                  }
-                                },
+                                   processors: lambda { |_a| [:test] }
+                                 }
+                               },
                                processors: [:thumbnail]
     end
 
@@ -194,10 +193,9 @@ describe Paperclip::Style do
       @attachment = attachment path: ":basename.:extension",
                                styles: {
                                  thumb: "100x100",
-                                 large: {geometry: "400x400",
-                                            convert_options: "-do_stuff",
-                                            source_file_options: "-do_extra_stuff"
-                                 }
+                                 large: { geometry: "400x400",
+                                          convert_options: "-do_stuff",
+                                          source_file_options: "-do_extra_stuff" }
                                }
       @file = StringIO.new("...")
       allow(@file).to receive(:original_filename).and_return("file.jpg")
@@ -215,40 +213,39 @@ describe Paperclip::Style do
   end
 
   context "A style rule supplied with default format" do
-     before do
-       @attachment = attachment default_format: :png,
-                                styles: {
-                                  asstring: "300x300#",
-                                  aslist: ["300x300#", :jpg],
-                                  ashash: {
-                                    geometry: "300x300#",
-                                    convert_options: "-do_stuff"
-                                  }
-                                }
-     end
+    before do
+      @attachment = attachment default_format: :png,
+                               styles: {
+                                 asstring: "300x300#",
+                                 aslist: ["300x300#", :jpg],
+                                 ashash: {
+                                   geometry: "300x300#",
+                                   convert_options: "-do_stuff"
+                                 }
+                               }
+    end
 
-     it "has the right number of styles" do
-       expect(@attachment.styles).to be_a Hash
-       assert_equal 3, @attachment.styles.size
-     end
+    it "has the right number of styles" do
+      expect(@attachment.styles).to be_a Hash
+      assert_equal 3, @attachment.styles.size
+    end
 
-     it "has styles as Style objects" do
-       [:aslist, :ashash, :aslist].each do |s|
-         expect(@attachment.styles[s]).to be_a Paperclip::Style
-       end
-     end
+    it "has styles as Style objects" do
+      [:aslist, :ashash, :aslist].each do |s|
+        expect(@attachment.styles[s]).to be_a Paperclip::Style
+      end
+    end
 
-     it "has the right geometries" do
-       [:aslist, :ashash, :aslist].each do |s|
-         assert_equal @attachment.styles[s].geometry, "300x300#"
-       end
-     end
+    it "has the right geometries" do
+      [:aslist, :ashash, :aslist].each do |s|
+        assert_equal @attachment.styles[s].geometry, "300x300#"
+      end
+    end
 
-     it "has the right formats" do
-       assert_equal @attachment.styles[:aslist].format,    :jpg
-       assert_equal @attachment.styles[:ashash].format,    :png
-       assert_equal @attachment.styles[:asstring].format,  :png
-     end
-
-   end
+    it "has the right formats" do
+      assert_equal @attachment.styles[:aslist].format,    :jpg
+      assert_equal @attachment.styles[:ashash].format,    :png
+      assert_equal @attachment.styles[:asstring].format,  :png
+    end
+  end
 end

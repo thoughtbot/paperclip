@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::AbstractAdapter do
   class TestAdapter < Paperclip::AbstractAdapter
@@ -43,17 +43,17 @@ describe Paperclip::AbstractAdapter do
     end
   end
 
-  it 'gets rid of slashes and colons in filenames' do
+  it "gets rid of slashes and colons in filenames" do
     subject.original_filename = "awesome/file:name.png"
 
     assert_equal "awesome_file_name.png", subject.original_filename
   end
 
-  it 'is an assignment' do
+  it "is an assignment" do
     assert subject.assignment?
   end
 
-  it 'is not nil' do
+  it "is not nil" do
     assert !subject.nil?
   end
 
@@ -61,7 +61,7 @@ describe Paperclip::AbstractAdapter do
     expect(subject.send(:destination).path).to_not be_nil
   end
 
-  it 'uses the original filename to generate the tempfile' do
+  it "uses the original filename to generate the tempfile" do
     subject.original_filename = "file.png"
     expect(subject.send(:destination).path).to end_with(".png")
   end

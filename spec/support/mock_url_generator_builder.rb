@@ -1,6 +1,5 @@
 class MockUrlGeneratorBuilder
-  def initializer
-  end
+  def initializer; end
 
   def new(attachment)
     @attachment = attachment
@@ -16,7 +15,7 @@ class MockUrlGeneratorBuilder
 
   def has_generated_url_with_options?(options)
     # options.is_a_subhash_of(@generated_url_with_options)
-    options.inject(true) do |acc,(k,v)|
+    options.inject(true) do |acc, (k, v)|
       acc && @generated_url_with_options[k] == v
     end
   end

@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'paperclip/matchers'
+require "spec_helper"
+require "paperclip/matchers"
 
 describe Paperclip::Shoulda::Matchers::ValidateAttachmentPresenceMatcher do
   extend Paperclip::Shoulda::Matchers
@@ -29,11 +29,11 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentPresenceMatcher do
     end
     Dummy.class_eval do
       validates_attachment_presence :avatar
-      validates_attachment_content_type :avatar, content_type: 'image/gif'
+      validates_attachment_content_type :avatar, content_type: "image/gif"
     end
     dummy = Dummy.new
 
-    dummy.avatar = File.new fixture_file('5k.png')
+    dummy.avatar = File.new fixture_file("5k.png")
 
     expect(matcher).to accept(dummy)
   end

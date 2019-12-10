@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'paperclip/matchers'
+require "spec_helper"
+require "paperclip/matchers"
 
 describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
   extend Paperclip::Shoulda::Matchers
@@ -20,7 +20,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
     expect { matcher.failure_message }.to_not raise_error
   end
 
-  it 'rejects a class when the validation fails' do
+  it "rejects a class when the validation fails" do
     Dummy.validates_attachment_content_type :avatar, content_type: %r{audio/.*}
     expect(matcher).to_not accept(Dummy)
     expect { matcher.failure_message }.to_not raise_error
@@ -74,7 +74,7 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
   context "using an :if to control the validation" do
     before do
       Dummy.class_eval do
-        validates_attachment_content_type :avatar, content_type: %r{image/*} , if: :go
+        validates_attachment_content_type :avatar, content_type: %r{image/*}, if: :go
         attr_accessor :go
       end
     end
@@ -105,5 +105,4 @@ describe Paperclip::Shoulda::Matchers::ValidateAttachmentContentTypeMatcher do
       allowing(%w(image/png image/jpeg)).
       rejecting(%w(audio/mp3 application/octet-stream))
   end
-
 end

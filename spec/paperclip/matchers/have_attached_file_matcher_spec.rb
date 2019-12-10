@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'paperclip/matchers'
+require "spec_helper"
+require "paperclip/matchers"
 
 describe Paperclip::Shoulda::Matchers::HaveAttachedFileMatcher do
   extend Paperclip::Shoulda::Matchers
@@ -11,7 +11,7 @@ describe Paperclip::Shoulda::Matchers::HaveAttachedFileMatcher do
     expect(matcher).to_not accept(Dummy)
   end
 
-  it 'accepts the dummy class if it has an attachment' do
+  it "accepts the dummy class if it has an attachment" do
     rebuild_model
     matcher = self.class.have_attached_file(:avatar)
     expect(matcher).to accept(Dummy)

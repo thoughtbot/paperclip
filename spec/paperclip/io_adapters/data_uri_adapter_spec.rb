@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::DataUriAdapter do
   before do
@@ -13,12 +13,12 @@ describe Paperclip::DataUriAdapter do
     end
   end
 
-  it 'allows a missing mime-type' do
+  it "allows a missing mime-type" do
     adapter = Paperclip.io_adapters.for("data:;base64,#{original_base64_content}")
     assert_equal Paperclip::DataUriAdapter, adapter.class
   end
 
-  it 'alows mime type that has dot in it' do
+  it "alows mime type that has dot in it" do
     adapter = Paperclip.io_adapters.for("data:image/vnd.microsoft.icon;base64,#{original_base64_content}")
     assert_equal Paperclip::DataUriAdapter, adapter.class
   end
@@ -57,26 +57,25 @@ describe Paperclip::DataUriAdapter do
       assert_equal @subject.fingerprint, @subject.fingerprint
     end
 
-    it 'accepts a content_type' do
-      @subject.content_type = 'image/png'
-      assert_equal 'image/png', @subject.content_type
+    it "accepts a content_type" do
+      @subject.content_type = "image/png"
+      assert_equal "image/png", @subject.content_type
     end
 
-    it 'accepts an original_filename' do
-      @subject.original_filename = 'image.png'
-      assert_equal 'image.png', @subject.original_filename
+    it "accepts an original_filename" do
+      @subject.original_filename = "image.png"
+      assert_equal "image.png", @subject.original_filename
     end
 
     it "does not generate filenames that include restricted characters" do
-      @subject.original_filename = 'image:restricted.png'
-      assert_equal 'image_restricted.png', @subject.original_filename
+      @subject.original_filename = "image:restricted.png"
+      assert_equal "image_restricted.png", @subject.original_filename
     end
 
     it "does not generate paths that include restricted characters" do
-      @subject.original_filename = 'image:restricted.png'
+      @subject.original_filename = "image:restricted.png"
       expect(@subject.path).to_not match(/:/)
     end
-
   end
 
   def original_base64_content
@@ -84,6 +83,6 @@ describe Paperclip::DataUriAdapter do
   end
 
   def original_file_contents
-    @original_file_contents ||= File.read(fixture_file('5k.png'))
+    @original_file_contents ||= File.read(fixture_file("5k.png"))
   end
 end

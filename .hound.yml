@@ -507,10 +507,10 @@ Metrics/CyclomaticComplexity:
   Enabled: false
   Max: 6
 Metrics/LineLength:
-  Description: Limit lines to 80 characters.
-  StyleGuide: https://github.com/bbatsov/ruby-style-guide#80-character-limits
+  Description: Limit lines to 120 characters.
+  StyleGuide: https://github.com/bbatsov/ruby-style-guide#120-character-limits
   Enabled: true
-  Max: 80
+  Max: 120
   AllowURI: true
   URISchemes:
   - http

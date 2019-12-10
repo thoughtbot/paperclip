@@ -1,5 +1,5 @@
 module TestData
-  def attachment(options={})
+  def attachment(options = {})
     Paperclip::Attachment.new(:avatar, FakeModel.new, options)
   end
 
@@ -8,6 +8,6 @@ module TestData
   end
 
   def fixture_file(filename)
-    File.join(File.dirname(__FILE__), 'fixtures', filename)
+    File.join(File.dirname(__FILE__), "fixtures", filename)
   end
 end

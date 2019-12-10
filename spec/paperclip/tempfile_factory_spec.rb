@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::TempfileFactory do
   it "is able to generate a tempfile with the right name" do
@@ -17,14 +17,14 @@ describe Paperclip::TempfileFactory do
   end
 
   it "is able to generate a tempfile from a file with a really long name" do
-    filename = "#{"longfilename" * 100}.png"
+    filename = "#{'longfilename' * 100}.png"
     file = subject.generate(filename)
     assert File.extname(file.path), "png"
   end
 
-  it 'is able to take nothing as a parameter and not error' do
-   file = subject.generate
-   assert File.exist?(file.path)
+  it "is able to take nothing as a parameter and not error" do
+    file = subject.generate
+    assert File.exist?(file.path)
   end
 
   it "does not throw Errno::ENAMETOOLONG when it has a really long name" do

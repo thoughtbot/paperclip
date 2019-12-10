@@ -1,7 +1,7 @@
-require 'spec_helper'
-require 'fog/aws'
-require 'fog/local'
-require 'timecop'
+require "spec_helper"
+require "fog/aws"
+require "fog/local"
+require "timecop"
 
 describe Paperclip::Storage::Fog do
   context "" do
@@ -11,10 +11,10 @@ describe Paperclip::Storage::Fog do
       before do
         rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
                       storage: :fog,
-                      url: '/:attachment/:filename',
+                      url: "/:attachment/:filename",
                       fog_directory: "paperclip",
-                      fog_credentials: fixture_file('fog.yml')
-        @file = File.new(fixture_file('5k.png'), 'rb')
+                      fog_credentials: fixture_file("fog.yml")
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -22,7 +22,7 @@ describe Paperclip::Storage::Fog do
       after { @file.close }
 
       it "has the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], "AWS"
       end
     end
 
@@ -30,10 +30,10 @@ describe Paperclip::Storage::Fog do
       before do
         rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
                       storage: :fog,
-                      url: '/:attachment/:filename',
+                      url: "/:attachment/:filename",
                       fog_directory: "paperclip",
-                      fog_credentials: File.open(fixture_file('fog.yml'))
-        @file = File.new(fixture_file('5k.png'), 'rb')
+                      fog_credentials: File.open(fixture_file("fog.yml"))
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -41,7 +41,7 @@ describe Paperclip::Storage::Fog do
       after { @file.close }
 
       it "has the proper information loading credentials from a file" do
-        assert_equal @dummy.avatar.fog_credentials[:provider], 'AWS'
+        assert_equal @dummy.avatar.fog_credentials[:provider], "AWS"
       end
     end
 
@@ -49,14 +49,14 @@ describe Paperclip::Storage::Fog do
       before do
         rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
                       storage: :fog,
-                      url: '/:attachment/:filename',
+                      url: "/:attachment/:filename",
                       fog_directory: "paperclip",
                       fog_credentials: {
-                        provider: 'AWS',
-                        aws_access_key_id: 'AWS_ID',
-                        aws_secret_access_key: 'AWS_SECRET'
+                        provider: "AWS",
+                        aws_access_key_id: "AWS_ID",
+                        aws_secret_access_key: "AWS_SECRET"
                       }
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -65,7 +65,7 @@ describe Paperclip::Storage::Fog do
 
       it "is able to interpolate the path without blowing up" do
         assert_equal File.expand_path(File.join(File.dirname(__FILE__), "../../../tmp/public/avatars/5k.png")),
-          @dummy.avatar.path
+                     @dummy.avatar.path
       end
     end
 
@@ -75,11 +75,11 @@ describe Paperclip::Storage::Fog do
                       storage: :fog,
                       fog_directory: "paperclip",
                       fog_credentials: {
-                        provider: 'AWS',
-                        aws_access_key_id: 'AWS_ID',
-                        aws_secret_access_key: 'AWS_SECRET'
+                        provider: "AWS",
+                        aws_access_key_id: "AWS_ID",
+                        aws_secret_access_key: "AWS_SECRET"
                       }
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.id = 1
         @dummy.avatar = @file
@@ -94,32 +94,31 @@ describe Paperclip::Storage::Fog do
 
     context "with file params provided as lambda" do
       before do
-        fog_file = lambda{ |a| { custom_header: a.instance.custom_method }}
+        fog_file = lambda { |a| { custom_header: a.instance.custom_method } }
         klass = rebuild_model storage: :fog,
                               fog_file: fog_file
 
         klass.class_eval do
           def custom_method
-            'foobar'
+            "foobar"
           end
         end
-
 
         @dummy = Dummy.new
       end
 
       it "is able to evaluate correct values for file headers" do
-        assert_equal @dummy.avatar.send(:fog_file), { custom_header: 'foobar' }
+        assert_equal @dummy.avatar.send(:fog_file), custom_header: "foobar"
       end
     end
 
     before do
-      @fog_directory = 'papercliptests'
+      @fog_directory = "papercliptests"
 
       @credentials = {
-        provider: 'AWS',
-        aws_access_key_id: 'ID',
-        aws_secret_access_key: 'SECRET'
+        provider: "AWS",
+        aws_access_key_id: "ID",
+        aws_secret_access_key: "SECRET"
       }
 
       @connection = Fog::Storage.new(@credentials)
@@ -131,7 +130,7 @@ describe Paperclip::Storage::Fog do
         fog_directory: @fog_directory,
         fog_credentials: @credentials,
         fog_host: nil,
-        fog_file: {cache_control: 1234},
+        fog_file: { cache_control: 1234 },
         path: ":attachment/:basename:dotextension",
         storage: :fog
       }
@@ -145,7 +144,7 @@ describe Paperclip::Storage::Fog do
 
     context "when assigned" do
       before do
-        @file = File.new(fixture_file('5k.png'), 'rb')
+        @file = File.new(fixture_file("5k.png"), "rb")
         @dummy = Dummy.new
         @dummy.avatar = @file
       end
@@ -153,7 +152,7 @@ describe Paperclip::Storage::Fog do
       after do
         @file.close
         directory = @connection.directories.new(key: @fog_directory)
-        directory.files.each {|file| file.destroy}
+        directory.files.each(&:destroy)
         directory.destroy
       end
 
@@ -168,11 +167,11 @@ describe Paperclip::Storage::Fog do
       it "is removed after after_flush_writes" do
         paths = @dummy.avatar.queued_for_write.values.map(&:path)
         @dummy.save
-        assert paths.none?{ |path| File.exist?(path) },
-          "Expect all the files to be deleted."
+        assert paths.none? { |path| File.exist?(path) },
+               "Expect all the files to be deleted."
       end
 
-      it 'is able to be copied to a local file' do
+      it "is able to be copied to a local file" do
         @dummy.save
         tempfile = Tempfile.new("known_location")
         tempfile.binmode
@@ -183,7 +182,7 @@ describe Paperclip::Storage::Fog do
         tempfile.close
       end
 
-      it 'is able to be handled when missing while copying to a local file' do
+      it "is able to be handled when missing while copying to a local file" do
         tempfile = Tempfile.new("known_location")
         tempfile.binmode
         assert_equal false, @dummy.avatar.copy_to_local_file(:original, tempfile.path)
@@ -221,7 +220,7 @@ describe Paperclip::Storage::Fog do
         before do
           rebuild_model(@options.merge(fog_host: nil))
           @dummy = Dummy.new
-          @dummy.avatar = StringIO.new('.')
+          @dummy.avatar = StringIO.new(".")
           @dummy.save
         end
 
@@ -232,7 +231,7 @@ describe Paperclip::Storage::Fog do
 
       context "with a fog_host" do
         before do
-          rebuild_model(@options.merge(fog_host: 'http://example.com'))
+          rebuild_model(@options.merge(fog_host: "http://example.com"))
           @dummy = Dummy.new
           @dummy.avatar = StringIO.new(".\n")
           @dummy.save
@@ -248,7 +247,7 @@ describe Paperclip::Storage::Fog do
           rebuild_model(
             fog_directory: @fog_directory,
             fog_credentials: @credentials,
-            fog_host: 'http://img%d.example.com',
+            fog_host: "http://img%d.example.com",
             path: ":attachment/:basename:dotextension",
             storage: :fog
           )
@@ -266,12 +265,12 @@ describe Paperclip::Storage::Fog do
         before do
           rebuild_model(@options.merge(fog_public: false))
           @dummy = Dummy.new
-          @dummy.avatar = StringIO.new('.')
+          @dummy.avatar = StringIO.new(".")
           @dummy.save
         end
 
-        it 'sets the @fog_public instance variable to false' do
-          assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
+        it "sets the @fog_public instance variable to false" do
+          assert_equal false, @dummy.avatar.instance_variable_get("@options")[:fog_public]
           assert_equal false, @dummy.avatar.fog_public
         end
       end
@@ -295,28 +294,29 @@ describe Paperclip::Storage::Fog do
       context "with styles set and fog_public set to false" do
         before do
           rebuild_model(@options.merge(fog_public: false, styles: { medium: "300x300>", thumb: "100x100>" }))
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
         end
 
-        it 'sets the @fog_public for a particular style to false' do
-          assert_equal false, @dummy.avatar.instance_variable_get('@options')[:fog_public]
+        it "sets the @fog_public for a particular style to false" do
+          assert_equal false, @dummy.avatar.instance_variable_get("@options")[:fog_public]
           assert_equal false, @dummy.avatar.fog_public(:thumb)
         end
       end
 
       context "with styles set and fog_public set per-style" do
         before do
-          rebuild_model(@options.merge(fog_public: { medium: false, thumb: true}, styles: { medium: "300x300>", thumb: "100x100>" }))
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          rebuild_model(@options.merge(fog_public: { medium: false, thumb: true },
+                                       styles: { medium: "300x300>", thumb: "100x100>" }))
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
         end
 
-        it 'sets the fog_public for a particular style to correct value' do
+        it "sets the fog_public for a particular style to correct value" do
           assert_equal false, @dummy.avatar.fog_public(:medium)
           assert_equal true, @dummy.avatar.fog_public(:thumb)
         end
@@ -326,7 +326,7 @@ describe Paperclip::Storage::Fog do
         before do
           rebuild_model(@options)
           @dummy = Dummy.new
-          @dummy.avatar = StringIO.new('.')
+          @dummy.avatar = StringIO.new(".")
           @dummy.save
         end
 
@@ -337,8 +337,8 @@ describe Paperclip::Storage::Fog do
 
       context "with scheme set" do
         before do
-          rebuild_model(@options.merge(:fog_credentials => @credentials.merge(:scheme => 'http')))
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          rebuild_model(@options.merge(fog_credentials: @credentials.merge(scheme: "http")))
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
@@ -355,7 +355,7 @@ describe Paperclip::Storage::Fog do
       context "with scheme not set" do
         before do
           rebuild_model(@options)
-          @file = File.new(fixture_file('5k.png'), 'rb')
+          @file = File.new(fixture_file("5k.png"), "rb")
           @dummy = Dummy.new
           @dummy.avatar = @file
           @dummy.save
@@ -387,19 +387,19 @@ describe Paperclip::Storage::Fog do
             offset = 1234
             rebuild_model(@options)
             dummy = Dummy.new
-            dummy.avatar = StringIO.new('.')
+            dummy.avatar = StringIO.new(".")
 
             assert_equal dummy.avatar.expiring_url(offset),
-              dummy.avatar.expiring_url(Time.now + offset )
+                         dummy.avatar.expiring_url(Time.now + offset)
           end
         end
 
-        it 'matches the default url if there is no assignment' do
+        it "matches the default url if there is no assignment" do
           dummy = Dummy.new
           assert_equal dummy.avatar.url, dummy.avatar.expiring_url
         end
 
-        it 'matches the default url when given a style if there is no assignment' do
+        it "matches the default url when given a style if there is no assignment" do
           dummy = Dummy.new
           assert_equal dummy.avatar.url(:thumb), dummy.avatar.expiring_url(3600, :thumb)
         end
@@ -427,12 +427,11 @@ describe Paperclip::Storage::Fog do
         it "provides a url that expires in folder style" do
           assert_match(/^https:\/\/s3.amazonaws.com\/this_is_invalid\/avatars\/5k.png.+Expires=.+$/, @dummy.avatar.expiring_url)
         end
-
       end
 
       context "with a proc for a bucket name evaluating a model method" do
         before do
-          @dynamic_fog_directory = 'dynamicpaperclip'
+          @dynamic_fog_directory = "dynamicpaperclip"
           rebuild_model(@options.merge(fog_directory: lambda { |attachment| attachment.instance.bucket_name }))
           @dummy = Dummy.new
           allow(@dummy).to receive(:bucket_name).and_return(@dynamic_fog_directory)
@@ -453,7 +452,7 @@ describe Paperclip::Storage::Fog do
         before do
           rebuild_model(@options.merge(fog_host: lambda { |attachment| attachment.instance.fog_host }))
           @dummy = Dummy.new
-          allow(@dummy).to receive(:fog_host).and_return('http://dynamicfoghost.com')
+          allow(@dummy).to receive(:fog_host).and_return("http://dynamicfoghost.com")
           @dummy.avatar = @file
           @dummy.save
         end
@@ -461,7 +460,6 @@ describe Paperclip::Storage::Fog do
         it "provides a public url" do
           assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.url)
         end
-
       end
 
       context "with a custom fog_host" do
@@ -482,7 +480,7 @@ describe Paperclip::Storage::Fog do
 
         context "with an invalid bucket name for a subdomain" do
           before do
-            rebuild_model(@options.merge({fog_directory: "this_is_invalid", fog_host: "http://dynamicfoghost.com"}))
+            rebuild_model(@options.merge(fog_directory: "this_is_invalid", fog_host: "http://dynamicfoghost.com"))
             @dummy = Dummy.new
             @dummy.avatar = @file
             @dummy.save
@@ -492,15 +490,14 @@ describe Paperclip::Storage::Fog do
             assert_match(/http:\/\/dynamicfoghost\.com/, @dummy.avatar.expiring_url)
           end
         end
-
       end
 
       context "with a proc for the fog_credentials evaluating a model method" do
         before do
           @dynamic_fog_credentials = {
-            provider: 'AWS',
-            aws_access_key_id: 'DYNAMIC_ID',
-            aws_secret_access_key: 'DYNAMIC_SECRET'
+            provider: "AWS",
+            aws_access_key_id: "DYNAMIC_ID",
+            aws_secret_access_key: "DYNAMIC_SECRET"
           }
           rebuild_model(@options.merge(fog_credentials: lambda { |attachment| attachment.instance.fog_credentials }))
           @dummy = Dummy.new
@@ -517,7 +514,7 @@ describe Paperclip::Storage::Fog do
       context "with custom fog_options" do
         before do
           rebuild_model(
-            @options.merge(fog_options: { multipart_chunk_size: 104857600 }),
+            @options.merge(fog_options: { multipart_chunk_size: 104857600 })
           )
           @dummy = Dummy.new
           @dummy.avatar = @file
@@ -527,13 +524,12 @@ describe Paperclip::Storage::Fog do
           files = double
           allow(@dummy.avatar).to receive(:directory).and_return double(files: files)
           expect(files).to receive(:create).with(
-            hash_including(multipart_chunk_size: 104857600),
+            hash_including(multipart_chunk_size: 104857600)
           )
           @dummy.save
         end
       end
     end
-
   end
 
   context "when using local storage" do
@@ -541,12 +537,12 @@ describe Paperclip::Storage::Fog do
       Fog.unmock!
       rebuild_model styles: { medium: "300x300>", thumb: "100x100>" },
                     storage: :fog,
-                    url: '/:attachment/:filename',
+                    url: "/:attachment/:filename",
                     fog_directory: "paperclip",
                     fog_credentials: { provider: :local, local_root: "." },
-                    fog_host: 'localhost'
+                    fog_host: "localhost"
 
-      @file = File.new(fixture_file('5k.png'), 'rb')
+      @file = File.new(fixture_file("5k.png"), "rb")
       @dummy = Dummy.new
       @dummy.avatar = @file
       allow(@dummy).to receive(:new_record?).and_return(false)

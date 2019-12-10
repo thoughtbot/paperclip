@@ -1,11 +1,11 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::Interpolations do
   it "returns all methods but the infrastructure when sent #all" do
     methods = Paperclip::Interpolations.all
-    assert ! methods.include?(:[])
-    assert ! methods.include?(:[]=)
-    assert ! methods.include?(:all)
+    assert !methods.include?(:[])
+    assert !methods.include?(:[]=)
+    assert !methods.include?(:all)
     methods.each do |m|
       assert Paperclip::Interpolations.respond_to?(m)
     end
@@ -24,7 +24,7 @@ describe Paperclip::Interpolations do
   end
 
   it "returns the class of the instance" do
-    class Thing ; end
+    class Thing; end
     attachment = spy
     expect(attachment).to receive(:instance).and_return(attachment)
     expect(attachment).to receive(:class).and_return(Thing)
@@ -47,28 +47,28 @@ describe Paperclip::Interpolations do
   it "returns the extension of the file as the format if defined in the style" do
     attachment = spy
     expect(attachment).to_not receive(:original_filename)
-    expect(attachment).to receive(:styles).at_least(2).times.and_return({style: {format: "png"}})
+    expect(attachment).to receive(:styles).at_least(2).times.and_return(style: { format: "png" })
 
-    [:style, 'style'].each do |style|
+    [:style, "style"].each do |style|
       assert_equal "png", Paperclip::Interpolations.extension(attachment, style)
     end
   end
 
   it "returns the extension of the file based on the content type" do
     attachment = spy
-    expect(attachment).to receive(:content_type).and_return('image/png')
+    expect(attachment).to receive(:content_type).and_return("image/png")
     expect(attachment).to receive(:styles).and_return({})
     interpolations = Paperclip::Interpolations
-    expect(interpolations).to receive(:extension).and_return('random')
+    expect(interpolations).to receive(:extension).and_return("random")
     assert_equal "png", interpolations.content_type_extension(attachment, :style)
   end
 
   it "returns the original extension of the file if it matches a content type extension" do
     attachment = spy
-    expect(attachment).to receive(:content_type).and_return('image/jpeg')
+    expect(attachment).to receive(:content_type).and_return("image/jpeg")
     expect(attachment).to receive(:styles).and_return({})
     interpolations = Paperclip::Interpolations
-    expect(interpolations).to receive(:extension).and_return('jpe')
+    expect(interpolations).to receive(:extension).and_return("jpe")
     assert_equal "jpe", interpolations.content_type_extension(attachment, :style)
   end
 
@@ -88,19 +88,19 @@ describe Paperclip::Interpolations do
 
   it "returns the latter half of the content type of the extension if no match found" do
     attachment = spy
-    allow(attachment).to receive(:content_type).at_least(1).times.and_return('not/found')
+    allow(attachment).to receive(:content_type).at_least(1).times.and_return("not/found")
     allow(attachment).to receive(:styles).and_return({})
     interpolations = Paperclip::Interpolations
-    expect(interpolations).to receive(:extension).and_return('random')
+    expect(interpolations).to receive(:extension).and_return("random")
     assert_equal "found", interpolations.content_type_extension(attachment, :style)
   end
 
   it "returns the format if defined in the style, ignoring the content type" do
     attachment = spy
-    expect(attachment).to receive(:content_type).and_return('image/jpeg')
-    expect(attachment).to receive(:styles).and_return({style: {format: "png"}})
+    expect(attachment).to receive(:content_type).and_return("image/jpeg")
+    expect(attachment).to receive(:styles).and_return(style: { format: "png" })
     interpolations = Paperclip::Interpolations
-    expect(interpolations).to receive(:extension).and_return('random')
+    expect(interpolations).to receive(:extension).and_return("random")
     assert_equal "png", interpolations.content_type_extension(attachment, :style)
   end
 
@@ -144,7 +144,7 @@ describe Paperclip::Interpolations do
     expect(attachment).to receive(:id).and_return(Paperclip::Interpolations::ID_PARTITION_LIMIT)
     expect(attachment).to receive(:instance).and_return(attachment)
     assert_equal "001/000/000/000",
-      Paperclip::Interpolations.id_partition(attachment, :style)
+                 Paperclip::Interpolations.id_partition(attachment, :style)
   end
 
   it "returns the partitioned id of the attachment when the id is a string" do
@@ -186,11 +186,11 @@ describe Paperclip::Interpolations do
   it "raises if infinite loop detcted reinterpolating :url" do
     attachment = Object.new
     class << attachment
-      def url(*args)
+      def url(*_args)
         Paperclip::Interpolations.url(self, :style)
       end
     end
-    assert_raises(Paperclip::Errors::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
+    assert_raises(Paperclip::Errors::InfiniteInterpolationError) { Paperclip::Interpolations.url(attachment, :style) }
   end
 
   it "returns the filename as basename.extension" do
@@ -202,7 +202,7 @@ describe Paperclip::Interpolations do
 
   it "returns the filename as basename.extension when format supplied" do
     attachment = spy
-    expect(attachment).to receive(:styles).and_return({style: {format: :png}})
+    expect(attachment).to receive(:styles).and_return(style: { format: :png })
     expect(attachment).to receive(:original_filename).and_return("one.jpg").once
     assert_equal "one.png", Paperclip::Interpolations.filename(attachment, :style)
   end
@@ -223,7 +223,7 @@ describe Paperclip::Interpolations do
 
   it "returns the timestamp" do
     now = Time.now
-    zone = 'UTC'
+    zone = "UTC"
     attachment = spy
     expect(attachment).to receive(:instance_read).with(:updated_at).and_return(now)
     expect(attachment).to receive(:time_zone).and_return(zone)

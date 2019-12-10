@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::IdentityAdapter do
   it "responds to #new by returning the argument" do

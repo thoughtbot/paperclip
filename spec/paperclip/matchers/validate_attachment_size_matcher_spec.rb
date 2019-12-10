@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'paperclip/matchers'
+require "spec_helper"
+require "paperclip/matchers"
 
 describe Paperclip::Shoulda::Matchers::ValidateAttachmentSizeMatcher do
   extend Paperclip::Shoulda::Matchers

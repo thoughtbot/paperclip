@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Paperclip::AttachmentRegistry do
   context "for" do
@@ -7,7 +7,7 @@ describe Paperclip::AttachmentRegistry do
         def initialize(_target, _ = {}); end
       end
       @subject = Paperclip::AdapterRegistry.new
-      @subject.register(AdapterTest){|t| Symbol === t }
+      @subject.register(AdapterTest) { |t| Symbol === t }
     end
 
     it "returns the class registered for the adapted type" do
@@ -21,7 +21,7 @@ describe Paperclip::AttachmentRegistry do
         def initialize(_target, _ = {}); end
       end
       @subject = Paperclip::AdapterRegistry.new
-      @subject.register(AdapterTest){|t| Symbol === t }
+      @subject.register(AdapterTest) { |t| Symbol === t }
     end
 
     it "returns true when the class of this adapter has been registered" do
@@ -29,7 +29,7 @@ describe Paperclip::AttachmentRegistry do
     end
 
     it "returns false when the adapter has not been registered" do
-      assert ! @subject.registered?(Object)
+      assert !@subject.registered?(Object)
     end
   end
 end

@@ -6,7 +6,7 @@ class FakeRails
 
   attr_accessor :env, :root
 
-  def const_defined?(const)
+  def const_defined?(_const)
     false
   end
 end

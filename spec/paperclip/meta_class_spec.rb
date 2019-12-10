@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Metaclasses' do
+describe "Metaclasses" do
   context "A meta-class of dummy" do
     if active_support_version >= "4.1" || ruby_version < "2.1"
       before do
@@ -21,7 +21,7 @@ describe 'Metaclasses' do
         rebuild_meta_class_of(@dummy)
 
         assert_nothing_raised do
-          @dummy.avatar = File.new(fixture_file("5k.png"), 'rb')
+          @dummy.avatar = File.new(fixture_file("5k.png"), "rb")
         end
         assert @dummy.save
       end
