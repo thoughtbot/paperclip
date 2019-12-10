@@ -1,13 +1,13 @@
-PROJECT_ROOT     = File.expand_path(File.join(File.dirname(__FILE__), '..', '..')).freeze
-APP_NAME         = 'testapp'.freeze
-BUNDLE_ENV_VARS = %w(RUBYOPT BUNDLE_PATH BUNDLE_BIN_PATH BUNDLE_GEMFILE)
-ORIGINAL_BUNDLE_VARS = Hash[ENV.select{ |key,value| BUNDLE_ENV_VARS.include?(key) }]
+PROJECT_ROOT     = File.expand_path(File.join(File.dirname(__FILE__), "..", "..")).freeze
+APP_NAME         = "testapp"
+BUNDLE_ENV_VARS = %w(RUBYOPT BUNDLE_PATH BUNDLE_BIN_PATH BUNDLE_GEMFILE).freeze
+ORIGINAL_BUNDLE_VARS = Hash[ENV.select { |key, _value| BUNDLE_ENV_VARS.include?(key) }]
 
-ENV['RAILS_ENV'] = 'test'
+ENV["RAILS_ENV"] = "test"
 
 Before do
-  gemfile = ENV['BUNDLE_GEMFILE'].to_s
-  ENV['BUNDLE_GEMFILE'] = File.join(Dir.pwd, gemfile) unless gemfile.start_with?(Dir.pwd)
+  gemfile = ENV["BUNDLE_GEMFILE"].to_s
+  ENV["BUNDLE_GEMFILE"] = File.join(Dir.pwd, gemfile) unless gemfile.start_with?(Dir.pwd)
   @framework_version = nil
 end
 

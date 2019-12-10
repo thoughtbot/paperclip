@@ -9,14 +9,14 @@ module FileHelpers
   end
 
   def append_to_gemfile(contents)
-    append_to('Gemfile', contents)
+    append_to("Gemfile", contents)
   end
 
   def comment_out_gem_in_gemfile(gemname)
     cd(".") do
       gemfile = File.read("Gemfile")
       gemfile.sub!(/^(\s*)(gem\s*['"]#{gemname})/, "\\1# \\2")
-      File.open("Gemfile", 'w'){ |file| file.write(gemfile) }
+      File.open("Gemfile", "w") { |file| file.write(gemfile) }
     end
   end
 

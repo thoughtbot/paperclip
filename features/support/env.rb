@@ -1,8 +1,8 @@
-require 'aruba/cucumber'
-require 'capybara/cucumber'
-require 'rspec/matchers'
+require "aruba/cucumber"
+require "capybara/cucumber"
+require "rspec/matchers"
 
-$CUCUMBER=1
+$CUCUMBER = 1
 
 World(RSpec::Matchers)
 

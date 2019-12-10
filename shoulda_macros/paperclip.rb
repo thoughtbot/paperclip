@@ -1,4 +1,4 @@
-require 'paperclip/matchers'
+require "paperclip/matchers"
 
 module Paperclip
   # =Paperclip Shoulda Macros
@@ -13,8 +13,8 @@ module Paperclip
     # This will test whether you have defined your attachment correctly by
     # checking for all the required fields exist after the definition of the
     # attachment.
-    def should_have_attached_file name
-      klass   = self.name.gsub(/Test$/, '').constantize
+    def should_have_attached_file(name)
+      klass   = self.name.gsub(/Test$/, "").constantize
       matcher = have_attached_file name
       should matcher.description do
         assert_accepts(matcher, klass)
@@ -22,8 +22,8 @@ module Paperclip
     end
 
     # Tests for validations on the presence of the attachment.
-    def should_validate_attachment_presence name
-      klass   = self.name.gsub(/Test$/, '').constantize
+    def should_validate_attachment_presence(name)
+      klass   = self.name.gsub(/Test$/, "").constantize
       matcher = validate_attachment_presence name
       should matcher.description do
         assert_accepts(matcher, klass)
@@ -34,8 +34,8 @@ module Paperclip
     # options, :valid and :invalid. Both accept an array of strings. The
     # strings should be a list of content types which will pass and fail
     # validation, respectively.
-    def should_validate_attachment_content_type name, options = {}
-      klass   = self.name.gsub(/Test$/, '').constantize
+    def should_validate_attachment_content_type(name, options = {})
+      klass   = self.name.gsub(/Test$/, "").constantize
       valid   = [options[:valid]].flatten
       invalid = [options[:invalid]].flatten
       matcher = validate_attachment_content_type(name).allowing(valid).rejecting(invalid)
@@ -50,10 +50,10 @@ module Paperclip
     # :less_than checks that a file is less than a certain size, :greater_than
     # checks that a file is more than a certain size, and :in takes a Range or
     # Array which specifies the lower and upper limits of the file size.
-    def should_validate_attachment_size name, options = {}
-      klass   = self.name.gsub(/Test$/, '').constantize
+    def should_validate_attachment_size(name, options = {})
+      klass   = self.name.gsub(/Test$/, "").constantize
       min     = options[:greater_than] || (options[:in] && options[:in].first) || 0
-      max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0/0)
+      max     = options[:less_than]    || (options[:in] && options[:in].last)  || (1.0 / 0)
       range   = (min..max)
       matcher = validate_attachment_size(name).in(range)
       should matcher.description do
@@ -65,17 +65,17 @@ module Paperclip
     #
     # @example
     #   stub_paperclip_s3('user', 'avatar', 'png')
-    def stub_paperclip_s3(model, attachment, extension)
+    def stub_paperclip_s3(model, attachment, _extension)
       definition = model.gsub(" ", "_").classify.constantize.
-                         attachment_definitions[attachment.to_sym]
+                   attachment_definitions[attachment.to_sym]
 
       path = "http://s3.amazonaws.com/:id/#{definition[:path]}"
-      path.gsub!(/:([^\/\.]+)/) do |match|
+      path.gsub!(/:([^\/\.]+)/) do |_match|
         "([^\/\.]+)"
       end
 
       begin
-        FakeWeb.register_uri(:put, Regexp.new(path), :body => "OK")
+        FakeWeb.register_uri(:put, Regexp.new(path), body: "OK")
       rescue NameError
         raise NameError, "the stub_paperclip_s3 shoulda macro requires the fakeweb gem."
       end
@@ -104,11 +104,11 @@ module Paperclip
 end
 
 if defined?(ActionDispatch::Integration::Session)
-  class ActionDispatch::IntegrationTest::Session  #:nodoc:
+  class ActionDispatch::IntegrationTest::Session #:nodoc:
     include Paperclip::Shoulda
   end
 elsif defined?(ActionController::Integration::Session)
-  class ActionController::Integration::Session  #:nodoc:
+  class ActionController::Integration::Session #:nodoc:
     include Paperclip::Shoulda
   end
 end

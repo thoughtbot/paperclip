@@ -41,7 +41,7 @@ end
 
 When /^I swap the attachment "([^"]*)" with the fixture "([^"]*)"$/ do |attachment_filename, fixture_filename|
   cd(".") do
-    require 'fileutils'
+    require "fileutils"
     FileUtils.rm_f attachment_path(attachment_filename)
     FileUtils.cp fixture_path(fixture_filename), attachment_path(attachment_filename)
   end
@@ -76,7 +76,7 @@ Then /^the attachment should have the same file size as the fixture "([^"]*)"$/ 
   end
 end
 
-Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, not_exist|
+Then /^the attachment file "([^"]*)" should (not )?exist$/ do |filename, _not_exist|
   cd(".") do
     expect(attachment_path(filename)).not_to be_an_existing_file
   end
