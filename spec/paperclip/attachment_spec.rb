@@ -880,6 +880,31 @@ describe Paperclip::Attachment do
       expect(Paperclip::Thumbnail).not_to receive(:make)
       @dummy.avatar = @file
     end
+
+    it "should not call process hooks if validation fails" do
+      Dummy.class_eval do
+        validates_attachment_content_type :avatar, content_type: 'image/jpeg'
+      end
+      expect(@dummy).not_to receive(:do_before_avatar)
+      expect(@dummy).not_to receive(:do_after_avatar)
+      expect(@dummy).not_to receive(:do_before_all)
+      expect(@dummy).not_to receive(:do_after_all)
+      expect(Paperclip::Thumbnail).not_to receive(:make)
+      @dummy.avatar = @file
+    end
+
+    it "should call process hooks if validation would fail but check validity flag is false" do
+      Dummy.class_eval do
+        validates_attachment_content_type :avatar, content_type: 'image/jpeg'
+      end
+      @dummy.avatar.options[:check_validity_before_processing] = false
+      expect(@dummy).to receive(:do_before_avatar)
+      expect(@dummy).to receive(:do_after_avatar)
+      expect(@dummy).to receive(:do_before_all)
+      expect(@dummy).to receive(:do_after_all)
+      expect(Paperclip::Thumbnail).to receive(:make).and_return(@file)
+      @dummy.avatar = @file
+    end
   end
 
   context "Assigning an attachment" do

@@ -491,12 +491,18 @@ module Paperclip
 
     def post_process(*style_args) #:nodoc:
       return if @queued_for_write[:original].nil?
-
-      instance.run_paperclip_callbacks(:post_process) do
-        instance.run_paperclip_callbacks(:"#{name}_post_process") do
-          post_process_styles(*style_args) if !@options[:check_validity_before_processing] || instance.errors.none?
+      if !@options[:check_validity_before_processing] || check_validity?
+        instance.run_paperclip_callbacks(:post_process) do
+          instance.run_paperclip_callbacks(:"#{name}_post_process") do
+            post_process_styles(*style_args)
+          end
         end
       end
+    end
+
+    def check_validity?
+      instance.run_paperclip_callbacks(:"#{name}_validate")
+      instance.errors.none?
     end
 
     def post_process_styles(*style_args) #:nodoc:

@@ -103,7 +103,7 @@ module Paperclip
     def add_paperclip_callbacks
       @klass.send(
         :define_paperclip_callbacks,
-        :post_process, :"#{@name}_post_process"
+        :post_process, :"#{@name}_post_process", :"#{@name}_validate"
       )
     end
 
