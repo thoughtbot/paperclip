@@ -3,12 +3,14 @@
 source "https://rubygems.org"
 
 gem "pry"
-gem "rails", "~> 4.2.0"
 gem "sqlite3", "~> 1.3.8", platforms: :ruby
+gem "rails", "~> 4.2.0"
 
 group :development, :test do
   gem "activerecord-import"
+  gem "bootsnap", require: false
   gem "builder"
+  gem "listen", "~> 3.0.8"
   gem "mime-types"
   gem "rspec"
   gem "rubocop", require: false

@@ -9,7 +9,9 @@ gem "sqlite3", "~> 1.3.8", platforms: :ruby
 # Prevents bundler from taking a long-time to resolve
 group :development, :test do
   gem "activerecord-import"
+  gem 'bootsnap', require: false
   gem "builder"
+  gem 'listen', '~> 3.0.8'
   gem "mime-types"
   gem "rspec"
   gem "rubocop", require: false

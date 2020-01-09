@@ -30,6 +30,14 @@ Given /^I generate a new rails application$/ do
   FileUtils.chdir("../../..")
 end
 
+Given /^I generate a "([^"]*)" model:$/ do |model_name|
+  step %[I successfully run `rails generate model #{model_name}`]
+end
+
+Given /^I run a paperclip migration to add a paperclip "([^"]*)" to the "([^"]*)" model$/ do |attachment_name, model_name|
+  step %[I successfully run `rails generate paperclip #{model_name} #{attachment_name}`]
+end
+
 Given "I allow the attachment to be submitted" do
   cd(".") do
     transform_file("app/controllers/users_controller.rb") do |content|
