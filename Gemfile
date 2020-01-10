@@ -3,7 +3,6 @@ source "https://rubygems.org"
 gemspec
 
 gem "pry"
-gem "sqlite3", "~> 1.3.8", platforms: :ruby
 
 # Hinting at development dependencies
 # Prevents bundler from taking a long-time to resolve

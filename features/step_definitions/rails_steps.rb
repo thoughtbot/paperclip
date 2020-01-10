@@ -158,6 +158,17 @@ Given /^I add this snippet to config\/application.rb:$/ do |snippet|
   end
 end
 
+Given /^I replace this snippet to app\/views\/layouts\/application.html.erb:$/ do |snippet|
+  file_name = "app/views/layouts/application.html.erb"
+  cd(".") do
+    content = File.read(file_name)
+    File.open(file_name, "w") do |f|
+      f << content.sub(/<%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>$/,
+                       "#{snippet}")
+    end
+  end
+end
+
 Given /^I start the rails application$/ do
   cd(".") do
     require "rails"
