@@ -11,8 +11,8 @@ For existing projects, please consult and contribute to the migration guide,
 available [in English], [en español], and as [a video] recorded at RailsConf
 2019.
 
-Alternatively, for existing projects, [Kreeti] (insecure link) is maintaining
-[kt-paperclip], an ongoing [fork of Paperclip].
+Alternatively, for existing projects, [Kreeti] is maintaining [kt-paperclip],
+an ongoing [fork of Paperclip].
 
 We will leave the Issues open as a discussion forum _only_. We do _not_
 guarantee a response from us in the Issues. All bug reports should go to
@@ -26,7 +26,7 @@ migration guide. All other pull requests will be closed without merging.
 [in English]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING.md
 [en español]: https://github.com/thoughtbot/paperclip/blob/master/MIGRATING-ES.md
 [a video]: https://www.youtube.com/watch?v=tZ_WNUytO9o
-[Kreeti]: http://www.kreeti.com/
+[Kreeti]: https://www.kreeti.com/
 [kt-paperclip]: https://rubygems.org/gems/kt-paperclip
 [fork of Paperclip]: https://github.com/kreeti/kt-paperclip
 
