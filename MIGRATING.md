@@ -132,6 +132,8 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
     get_blob_id = 'LASTVAL()'
     # mariadb
     # get_blob_id = 'LAST_INSERT_ID()'
+    # myslq
+    # get_blob_id = 'mysql_insert_id()'
     # sqlite
     # get_blob_id = 'LAST_INSERT_ROWID()'
 
