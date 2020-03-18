@@ -109,8 +109,6 @@ module Paperclip
           nil
         else
           assign_attributes
-          post_process_file
-          reset_file_if_original_reprocessed
         end
       else
         nil
@@ -238,6 +236,8 @@ module Paperclip
     # Saves the file, if there are no errors. If there are, it flushes them to
     # the instance's errors and returns false, cancelling the save.
     def save
+      post_process_file
+      reset_file_if_original_reprocessed
       flush_deletes unless @options[:keep_old_files]
       process = only_process
       if process.any? && !process.include?(:original)

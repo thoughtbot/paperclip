@@ -711,9 +711,10 @@ describe Paperclip::Attachment do
       Paperclip::Thumbnail.stubs(:make).returns(@file)
     end
 
-    context "when assigned" do
+    context "when saved" do
       it "calls #make on all specified processors" do
         @dummy.avatar = @file
+        @dummy.save
 
         expect(Paperclip::Thumbnail).to have_received(:make)
         expect(Paperclip::Test).to have_received(:make)
@@ -729,17 +730,55 @@ describe Paperclip::Attachment do
         })
 
         @dummy.avatar = @file
+        @dummy.save
 
         expect(Paperclip::Thumbnail).to have_received(:make).with(anything, expected_params, anything)
       end
 
       it "calls #make with attachment passed as third argument" do
         @dummy.avatar = @file
+        @dummy.save
 
         expect(Paperclip::Test).to have_received(:make).with(anything, anything, @dummy.avatar)
       end
 
       it "calls #make and unlinks intermediary files afterward" do
+        @dummy.avatar.expects(:unlink_files).with([@file, @file])
+
+        @dummy.avatar = @file
+      end
+    end
+
+    context "when assigned" do
+      it "doesn't call #make on all specified processors" do
+        @dummy.avatar = @file
+
+        expect(Paperclip::Thumbnail).not_to have_received(:make)
+        expect(Paperclip::Test).not_to have_received(:make)
+      end
+
+      it "doesn't call #make with the right parameters passed as second argument" do
+        expected_params = @style_params[:once].merge({
+          style: :once,
+          processors: [:thumbnail, :test],
+          whiny: true,
+          convert_options: "",
+          source_file_options: ""
+        })
+
+        @dummy.avatar = @file
+
+        expect(Paperclip::Thumbnail).not_to have_received(:make).with(anything, expected_params, anything)
+      end
+
+      it "doesn't call #make with attachment passed as third argument" do
+        @dummy.avatar = @file
+
+        expect(Paperclip::Test).not_to have_received(:make).with(anything, anything, @dummy.avatar)
+      end
+
+      it "doesn't call #make and unlinks intermediary files afterward" do
+        # TODO: Fix this test?
         @dummy.avatar.expects(:unlink_files).with([@file, @file])
 
         @dummy.avatar = @file
@@ -758,8 +797,18 @@ describe Paperclip::Attachment do
       @dummy = Dummy.new
     end
 
+    context "when saved" do
+      it "calls #make and doesn't unlink the original file" do
+        @dummy.avatar.expects(:unlink_files).with([])
+
+        @dummy.avatar = @file
+        @dummy.save
+      end
+    end
+
     context "when assigned" do
-      it "#calls #make and doesn't unlink the original file" do
+      it "doesn't call #make and doesn't unlink the original file" do
+        # TODO: Fix this test?
         @dummy.avatar.expects(:unlink_files).with([])
 
         @dummy.avatar = @file
@@ -822,6 +871,7 @@ describe Paperclip::Attachment do
   end
 
   context "Assigning an attachment with post_process hooks" do
+    # NOTE: Investigate the before_post_process hooks, as they may be intended to run on assignment
     before do
       rebuild_class styles: { something: "100x100#" }
       Dummy.class_eval do
@@ -841,12 +891,22 @@ describe Paperclip::Attachment do
       @attachment = @dummy.avatar
     end
 
-    it "calls the defined callbacks when assigned" do
+    it "calls the defined callbacks when saved" do
       @dummy.expects(:do_before_avatar).with()
       @dummy.expects(:do_after_avatar).with()
       @dummy.expects(:do_before_all).with()
       @dummy.expects(:do_after_all).with()
       Paperclip::Thumbnail.expects(:make).returns(@file)
+      @dummy.avatar = @file
+      @dummy.save
+    end
+
+    it "doesn't call the defined callbacks when assigned" do
+      @dummy.expects(:do_before_avatar).never
+      @dummy.expects(:do_after_avatar).never
+      @dummy.expects(:do_before_all).never
+      @dummy.expects(:do_after_all).never
+      Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
     end
 
@@ -857,6 +917,7 @@ describe Paperclip::Attachment do
       @dummy.expects(:do_after_all).with()
       Paperclip::Thumbnail.expects(:make).returns(@file)
       @dummy.avatar = @file
+      @dummy.save
     end
 
     it "cancels the processing if a before_post_process returns false" do
@@ -866,6 +927,7 @@ describe Paperclip::Attachment do
       @dummy.expects(:do_after_all)
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
+      @dummy.save
     end
 
     it "cancels the processing if a before_avatar_post_process returns false" do
@@ -875,6 +937,7 @@ describe Paperclip::Attachment do
       @dummy.expects(:do_after_all)
       Paperclip::Thumbnail.expects(:make).never
       @dummy.avatar = @file
+      @dummy.save
     end
   end
 
