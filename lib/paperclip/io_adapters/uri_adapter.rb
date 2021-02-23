@@ -53,7 +53,7 @@ module Paperclip
     def download_content
       options = { read_timeout: Paperclip.options[:read_timeout] }.compact
 
-      open(@target, **options)
+      URI.open(@target, **options)
     end
 
     def copy_to_tempfile(src)
