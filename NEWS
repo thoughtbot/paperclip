@@ -1,3 +1,7 @@
+Unreleased (2021-03-24):
+
+* Remove `mimemagic` dependency which has been yanked
+
 6.1.0 (2018-07-27):
 
 * BUGFIX: Don't double-encode URLs (Roderick Monje).

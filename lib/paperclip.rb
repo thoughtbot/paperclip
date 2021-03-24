@@ -64,8 +64,6 @@ rescue LoadError
   require "mime/types"
 end
 
-require 'mimemagic'
-require 'mimemagic/overlay'
 require 'logger'
 require 'terrapin'
 
