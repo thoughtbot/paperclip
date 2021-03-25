@@ -1,3 +1,7 @@
+4.3.8 (25/3/2021):
+
+* Removed mimemagic dependency due to newly incompatible licence
+
 4.3.7 (7/1/2016):
 
 * Add deprecation warnings
