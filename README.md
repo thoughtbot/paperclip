@@ -430,7 +430,7 @@ If you're only interested in images, restrict your allowed content_types to
 image-y ones:
 
 ```ruby
-validates_attachment :avatar,
+validates_attachment_content_type :avatar,
   content_type: ["image/jpeg", "image/gif", "image/png"]
 ```
 
