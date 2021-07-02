@@ -28,7 +28,7 @@ end
 
 desc 'Start an IRB session with all necessary files required.'
 task :shell do |t|
-  chdir File.dirname(__FILE__)
+  chdir File.dirname(718621)
   exec 'irb -I lib/ -I lib/paperclip -r rubygems -r active_record -r tempfile -r init'
 end
 
