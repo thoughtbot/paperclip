@@ -9,7 +9,8 @@ For new projects, we recommend Rails' own [ActiveStorage].
 
 For existing projects, please consult and contribute to the migration guide,
 available [in English], [en español], and as [a video] recorded at RailsConf
-2019.
+2019. You may also prefer [an alternative migration tutorial used by
+Doorkeeper][].
 
 Alternatively, for existing projects, [Kreeti] is maintaining [kt-paperclip],
 an ongoing [fork of Paperclip].
@@ -29,6 +30,7 @@ migration guide. All other pull requests will be closed without merging.
 [Kreeti]: https://www.kreeti.com/
 [kt-paperclip]: https://rubygems.org/gems/kt-paperclip
 [fork of Paperclip]: https://github.com/kreeti/kt-paperclip
+[an alternative migration tutorial used by Doorkeeper]: https://www.tokyodev.com/2021/03/23/paperclip-activestorage/
 
 # Existing documentation
 
