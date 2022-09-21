@@ -65,7 +65,7 @@ rescue LoadError
 end
 
 require 'mimemagic'
-require 'mimemagic/overlay'
+# require 'mimemagic/overlay' # removed in mimemagic 4.0
 require 'logger'
 require 'terrapin'
 
