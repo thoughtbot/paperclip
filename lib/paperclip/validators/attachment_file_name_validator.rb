@@ -40,7 +40,9 @@ module Paperclip
       end
 
       def mark_invalid(record, attribute, patterns)
-        record.errors.add attribute, :invalid, **options.merge(:names => patterns.join(', '))
+        record.errors.add attribute,
+                          :invalid,
+                          **options.merge(names: patterns.join(", "))
       end
 
       def allowed

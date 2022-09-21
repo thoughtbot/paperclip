@@ -67,7 +67,8 @@ module Paperclip
       else
         # NOTE: Don't replace this with CGI.escape / URI.*encode*
         # they are subtly different and it matters here
-        URI::DEFAULT_PARSER.escape(url).gsub(escape_regex){|m| "%#{m.ord.to_s(16).upcase}" }
+        escaped = URI::DEFAULT_PARSER.escape(url)
+        escaped.gsub(escape_regex) { |m| "%#{m.ord.to_s(16).upcase}" }
       end
     end
 
