@@ -239,6 +239,9 @@ ActiveSotrage added @service_name@ field to @active_storage_blobs@.
               ])
 ```
 
+Note: if runnings against @undefined method `execute_prepared' Rails Paperclip to ActiveStorage migration@, see
+https://stackoverflow.com/questions/54333936/undefined-method-execute-prepared-rails-paperclip-to-activestorage-migration
+
 ## Copy the files over
 
 The above migration leaves the files as they are. However, the default
