@@ -214,6 +214,8 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
   end
 end
 ```
+Note: if runnings against @undefined method `execute_prepared' Rails Paperclip to ActiveStorage migration@, see
+https://stackoverflow.com/questions/54333936/undefined-method-execute-prepared-rails-paperclip-to-activestorage-migration
 
 ## Copy the files over
 
