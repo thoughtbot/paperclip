@@ -214,6 +214,31 @@ class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
   end
 end
 ```
+#### Rails 6.1+
+```ruby
+ActiveSotrage added @service_name@ field to @active_storage_blobs@.
+
+    active_storage_blob_statement = ActiveRecord::Base.connection.raw_connection.prepare('active_storage_blob_statement', <<-SQL)
+      INSERT INTO active_storage_blobs (
+        `key`, filename, content_type, metadata, byte_size, checksum, created_at, service_name
+      ) VALUES ($1, $2, $3, '{}', $4, $5, $6, $7)
+    SQL
+    
+```
+...
+```ruby
+            ActiveRecord::Base.connection.execute_prepared(
+              'active_storage_blob_statement', [
+                key(instance, attachment),
+                instance.send("#{attachment}_file_name"),
+                instance.send("#{attachment}_content_type"),
+                instance.send("#{attachment}_file_size"),
+                checksum(instance.send(attachment)),
+                instance.updated_at.iso8601, 
+                'local' # your ActiveStorage service name
+              ])
+```
+
 Note: if runnings against @undefined method `execute_prepared' Rails Paperclip to ActiveStorage migration@, see
 https://stackoverflow.com/questions/54333936/undefined-method-execute-prepared-rails-paperclip-to-activestorage-migration
 
