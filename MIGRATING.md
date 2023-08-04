@@ -123,6 +123,8 @@ So, assuming you want to leave the files in the exact same place, _this is
 your migration_. Otherwise, see the next section first and modify the migration
 to taste.
 
+**NOTE**: While you can leave attachments in their original location in services like S3 because the files are identified by key (directory structures are simulated). In local environments (where directories are real) you must move files, as Active Storage does [not support custom paths](https://github.com/rails/rails/issues/32790). New attachments in S3 will not conserve your directory structure
+
 ```ruby
 class ConvertToActiveStorage < ActiveRecord::Migration[5.2]
   require 'open-uri'
