@@ -5,7 +5,7 @@ module Paperclip
     class AttachmentPresenceValidator < ActiveModel::EachValidator
       def validate_each(record, attribute, value)
         if record.send("#{attribute}_file_name").blank?
-          record.errors.add(attribute, :blank, options)
+          record.errors.add(attribute, :blank, **options)
         end
       end
 
